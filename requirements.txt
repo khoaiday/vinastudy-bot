@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 27 — Các Bài Toán Về Thời Gian</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2f5e;
+    --blue: #2563eb;
+    --sky: #38bdf8;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --bg: #f0f7ff;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2eaf6;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(26,47,94,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(56,189,248,0.12) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(37,99,235,0.10) 0%, transparent 50%);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, #2563eb 100%);
+    color: white;
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: "";
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+
+  .header::after {
+    content: "";
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 220px; height: 220px;
+    background: rgba(56,189,248,0.08);
+    border-radius: 50%;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 20px;
+  }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+
+  .progress-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sky), #a78bfa);
+    border-radius: 10px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  /* ── Score bar ── */
+  .score-bar {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 14px 20px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 12px rgba(26,47,94,0.06);
+  }
+
+  .score-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .score-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ── Main content ── */
+  .main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    margin: 32px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), transparent);
+    border-radius: 2px;
+  }
+
+  /* ── Question card ── */
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px 22px 18px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    transition: border-color 0.3s, box-shadow 0.3s;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-card.correct  { border-color: var(--green); background: #f0fdf9; }
+  .q-card.wrong    { border-color: var(--red);   background: #fff5f5; }
+
+  .q-num {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--blue);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .q-num-badge {
+    background: var(--blue);
+    color: white;
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  .q-text strong { color: var(--navy); }
+
+  /* ── Input types ── */
+  .answer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .ans-input {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 9px 14px;
+    font-size: 15px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+    background: white;
+    color: var(--text);
+    min-width: 80px;
+  }
+
+  .ans-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
+
+  .ans-input.wide { min-width: 180px; }
+  .ans-input.small { min-width: 60px; width: 60px; text-align: center; }
+
+  .ans-input.correct-input { border-color: var(--green); background: #f0fdf9; }
+  .ans-input.wrong-input   { border-color: var(--red);   background: #fff5f5; }
+
+  /* Multiple choice */
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .choice-btn {
+    padding: 9px 18px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: #eff6ff;
+    color: var(--blue);
+  }
+
+  .choice-btn.selected { border-color: var(--blue); background: #eff6ff; color: var(--blue); }
+  .choice-btn.correct  { border-color: var(--green); background: #f0fdf9; color: var(--green); }
+  .choice-btn.wrong    { border-color: var(--red);   background: #fff5f5; color: var(--red); }
+
+  /* Fill in blanks inline */
+  .fill-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    flex-wrap: wrap;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .feedback.show { display: flex; align-items: flex-start; gap: 8px; }
+  .feedback.correct-fb { background: #dcfce7; color: #166534; }
+  .feedback.wrong-fb   { background: #fee2e2; color: #991b1b; }
+
+  /* ── Check button ── */
+  .check-btn {
+    margin-top: 14px;
+    padding: 10px 22px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .check-btn:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-1px); }
+  .check-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+
+  /* ── Submit ── */
+  .submit-wrap {
+    text-align: center;
+    margin-top: 36px;
+  }
+
+  .submit-btn {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 8px 24px rgba(37,99,235,0.3);
+    letter-spacing: -0.3px;
+  }
+
+  .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(37,99,235,0.35); }
+
+  /* ── Result ── */
+  .result-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+
+  .result-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .result-card {
+    background: white;
+    border-radius: 28px;
+    padding: 36px 32px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 64px rgba(15,23,42,0.25);
+    animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .result-emoji { font-size: 64px; margin-bottom: 12px; display: block; }
+
+  .result-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+
+  .result-score {
+    font-size: 48px;
+    font-weight: 900;
+    font-family: 'Baloo 2', sans-serif;
+    margin: 12px 0;
+    background: linear-gradient(135deg, var(--blue), var(--sky));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .result-level {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 15px;
+    margin: 8px 0 20px;
+  }
+
+  .result-detail {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .result-detail-item { text-align: center; }
+  .result-detail-num { font-size: 24px; font-weight: 900; font-family: 'Baloo 2', sans-serif; }
+  .result-detail-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+  .result-btn {
+    padding: 13px 32px;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    margin: 0 6px;
+  }
+
+  .btn-retry { background: var(--blue); color: white; }
+  .btn-retry:hover { background: #1d4ed8; transform: translateY(-2px); }
+  .btn-review { background: var(--bg); color: var(--navy); border: 2px solid var(--border); }
+  .btn-review:hover { border-color: var(--blue); }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .q-card { padding: 18px 16px 14px; }
+    .result-card { padding: 28px 20px; }
+    .ans-input.wide { min-width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-badge">VInaStudy — Toán Lớp 3</div>
+  <h1>🕐 Bài 27 — Các Bài Toán<br>Về Thời Gian</h1>
+  <p>Thầy Nguyễn Thành Long • 23 câu bài tập</p>
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="progressText">0 / 23 câu</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Score bar -->
+<div class="score-bar">
+  <div class="score-item">
+    <div class="score-dot" style="background:var(--green)"></div>
+    <span id="scoreCorrect">0</span> Đúng
+  </div>
+  <div class="score-item">
+    <div class="score-dot" style="background:var(--red)"></div>
+    <span id="scoreWrong">0</span> Sai
+  </div>
+  <div class="score-item">
+    <div class="score-dot" style="background:var(--border)"></div>
+    <span id="scoreLeft">23</span> Chưa làm
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Dạng 1 -->
+  <div class="section-title">📐 Dạng 1 — So sánh đơn vị thời gian</div>
+
+  <!-- Câu 1 -->
+  <div class="q-card" id="q1">
+    <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 135286</div>
+    <div class="q-text">Điền dấu <strong>( &gt; ; = ; &lt; )</strong> thích hợp vào chỗ chấm:</div>
+    <div class="fill-line">a) <sup>1</sup>⁄<sub>5</sub> giờ <input class="ans-input small" id="q1a" placeholder="?"> 15 phút</div>
+    <div class="fill-line">b) <sup>1</sup>⁄<sub>3</sub> giờ <input class="ans-input small" id="q1b" placeholder="?"> <sup>1</sup>⁄<sub>4</sub> giờ</div>
+    <div class="fill-line">c) 90 phút <input class="ans-input small" id="q1c" placeholder="?"> 1 giờ 20 phút</div>
+    <div class="fill-line">d) 4 giờ 15 phút <input class="ans-input small" id="q1d" placeholder="?"> 256 phút</div>
+    <div class="fill-line">e) 7 giờ 45 phút <input class="ans-input small" id="q1e" placeholder="?"> <sup>1</sup>⁄<sub>3</sub> ngày</div>
+    <div class="fill-line">f) 16 giờ × 3 <input class="ans-input small" id="q1f" placeholder="?"> 2 ngày</div>
+    <div class="fill-line">g) 1 tuần <input class="ans-input small" id="q1g" placeholder="?"> 18 giờ × 9</div>
+    <div class="fill-line">h) 37 ngày <input class="ans-input small" id="q1h" placeholder="?"> 5 tuần</div>
+    <button class="check-btn" onclick="checkQ1()">✓ Kiểm tra</button>
+    <div class="feedback" id="fb1"></div>
+  </div>
+
+  <!-- Dạng 2 -->
+  <div class="section-title">⏰ Dạng 2 — Tính khoảng thời gian</div>
+
+  <!-- Câu 2 -->
+  <div class="q-card" id="q2">
+    <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 135287</div>
+    <div class="q-text">Ba ô tô cùng chạy trên cùng một quãng đường. Ô tô thứ nhất chạy hết <strong><sup>1</sup>⁄<sub>5</sub> giờ</strong>. Ô tô thứ hai chạy hết <strong>16 phút</strong>. Ô tô thứ ba chạy hết <strong><sup>1</sup>⁄<sub>3</sub> giờ</strong>. Hỏi ô tô nào chạy <strong>nhanh nhất</strong>?</div>
+    <div class="choices" id="q2choices">
+      <button class="choice-btn" onclick="selectChoice('q2','A','Ô tô thứ nhất',this)">Ô tô thứ nhất</button>
+      <button class="choice-btn" onclick="selectChoice('q2','B','Ô tô thứ hai',this)">Ô tô thứ hai</button>
+      <button class="choice-btn" onclick="selectChoice('q2','C','Ô tô thứ ba',this)">Ô tô thứ ba</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q2','A','✅ Đúng! Ô tô 1: 60÷5=12 phút, Ô tô 2: 16 phút, Ô tô 3: 60÷3=20 phút → Ô tô thứ nhất nhanh nhất (ít thời gian nhất).')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq2"></div>
+  </div>
+
+  <!-- Câu 3 -->
+  <div class="q-card" id="q3">
+    <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 135288</div>
+    <div class="q-text">Bữa tiệc sinh nhật bắt đầu lúc <strong>14 giờ 30 phút</strong> và kết thúc lúc <strong>18 giờ kém 15 phút</strong>. Hỏi bữa tiệc kéo dài bao lâu?</div>
+    <div class="answer-row">
+      <input class="ans-input wide" id="q3" placeholder="VD: 3 giờ 15 phút">
+    </div>
+    <button class="check-btn" onclick="checkText('q3',['3 giờ 15 phút','3h15','3 gio 15 phut','3 giờ 15p'],'✅ Đúng! 17 giờ 45 phút − 14 giờ 30 phút = 3 giờ 15 phút.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq3"></div>
+  </div>
+
+  <!-- Câu 4 -->
+  <div class="q-card" id="q4">
+    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 135289</div>
+    <div class="q-text">Chú Tuấn bắt đầu giao đồ ăn lúc <strong>6 giờ 15 phút tối</strong> và mất <strong>1 giờ + <sup>1</sup>⁄<sub>4</sub> giờ</strong>. Chú Tuấn giao xong lúc mấy giờ?</div>
+    <div class="answer-row">
+      <input class="ans-input wide" id="q4" placeholder="VD: 7 giờ 30 phút">
+    </div>
+    <button class="check-btn" onclick="checkText('q4',['7 giờ 30 phút','7h30','7 gio 30 phut','19 giờ 30 phút','19h30'],'✅ Đúng! 18 giờ 15 phút + 1 giờ 15 phút = 19 giờ 30 phút (7 giờ 30 phút tối).')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq4"></div>
+  </div>
+
+  <!-- Câu 5 -->
+  <div class="q-card" id="q5">
+    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 135290</div>
+    <div class="q-text">Mẹ xem 2 chương trình. CT1 bắt đầu lúc <strong>8 giờ kém 5 phút</strong>, kéo dài <strong>20 phút</strong>. CT2 bắt đầu ngay sau CT1, kéo dài <strong>1 tiếng 10 phút</strong>. Mẹ xem xong lúc mấy giờ?</div>
+    <div class="answer-row">
+      <input class="ans-input wide" id="q5" placeholder="VD: 9 giờ 25 phút">
+    </div>
+    <button class="check-btn" onclick="checkText('q5',['9 giờ 25 phút','9h25','9 gio 25 phut'],'✅ Đúng! CT1: 7:55 + 20p = 8:15. CT2: 8:15 + 1:10 = 9:25.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq5"></div>
+  </div>
+
+  <!-- Câu 6 -->
+  <div class="q-card" id="q6">
+    <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 135291</div>
+    <div class="q-text">Thư làm Toán <strong>1 tiếng 15 phút</strong>, rồi làm Tiếng Anh (ít hơn Toán 15 phút). Hoàn thành xong lúc <strong>9 giờ 30 phút tối</strong>. Thư bắt đầu học lúc mấy giờ?</div>
+    <div class="answer-row">
+      <input class="ans-input wide" id="q6" placeholder="VD: 7 giờ">
+    </div>
+    <button class="check-btn" onclick="checkText('q6',['7 giờ','7h','7 gio','7 giờ 00 phút','19 giờ','19h'],'✅ Đúng! Tổng: 1h15p + 1h = 2h15p. Bắt đầu: 21:30 − 2:15 = 19:15 → 7 giờ 15 phút tối.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq6"></div>
+  </div>
+
+  <!-- Câu 7 -->
+  <div class="q-card" id="q7">
+    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 135292</div>
+    <div class="q-text">Ngọc làm hoa giấy mỗi ngày từ <strong>20:30 đến 22:30</strong>, làm được <strong>8 bông/giờ</strong>, trong <strong>1 tuần</strong>. Ngọc làm được bao nhiêu bông?</div>
+    <div class="answer-row">
+      <input class="ans-input" id="q7" placeholder="? bông"> bông
+    </div>
+    <button class="check-btn" onclick="checkText('q7',['112','112 bông','112 bong'],'✅ Đúng! Mỗi ngày: 2 giờ × 8 bông = 16 bông. Cả tuần: 16 × 7 = 112 bông.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq7"></div>
+  </div>
+
+  <!-- Dạng 3 -->
+  <div class="section-title">🚂 Dạng 3 — Tính giờ chuyến tàu</div>
+
+  <!-- Câu 8 -->
+  <div class="q-card" id="q8">
+    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 135293</div>
+    <div class="q-text">Cứ <strong>40 phút</strong> có một chuyến tàu rời ga. Chuyến đầu tiên lúc <strong>6 giờ 30 phút</strong>. Chuyến tàu thứ ba rời ga lúc mấy giờ?</div>
+    <div class="answer-row">
+      <input class="ans-input wide" id="q8" placeholder="VD: 7 giờ 50 phút">
+    </div>
+    <button class="check-btn" onclick="checkText('q8',['7 giờ 50 phút','7h50','7 gio 50 phut','7:50'],'✅ Đúng! Chuyến 2: 6:30+40p=7:10. Chuyến 3: 7:10+40p=7:50.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq8"></div>
+  </div>
+
+  <!-- Câu 9 -->
+  <div class="q-card" id="q9">
+    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 135294</div>
+    <div class="q-text">Cứ <strong>20 phút</strong> có một chuyến tàu đến ga. Lúc <strong>10 giờ</strong> có một chuyến. Từ đó đến <strong>12 giờ</strong> có thêm <strong>bao nhiêu chuyến</strong> đến ga?</div>
+    <div class="answer-row">
+      <input class="ans-input" id="q9" placeholder="? chuyến"> chuyến
+    </div>
+    <button class="check-btn" onclick="checkText('q9',['6','6 chuyến','6 chuyen'],'✅ Đúng! Từ 10h đến 12h = 120 phút. 120÷20 = 6 chuyến (10:20, 10:40, 11:00, 11:20, 11:40, 12:00).')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq9"></div>
+  </div>
+
+  <!-- Dạng 4 -->
+  <div class="section-title">📅 Dạng 4 — Xác định thứ trong tuần</div>
+
+  <div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:13px;font-weight:600;color:#92400e;">
+    💡 <strong>Nhớ phương pháp thầy Long:</strong> Bước 1: Đếm ngày (khoảng cách, không +1) → Bước 2: Chia 7 lấy dư → Bước 3: Tra bảng lịch
+  </div>
+
+  <!-- Câu 10 -->
+  <div class="q-card" id="q10">
+    <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 135295</div>
+    <div class="q-text">"Hôm nay" là ngày <strong>18 tháng 1</strong>.<br>
+    a) Phong sinh nhật ngày <strong>29 tháng 1</strong>. Còn bao nhiêu ngày?<br>
+    b) Từ hôm nay đến ngày cuối tháng 1 có bao nhiêu ngày?</div>
+    <div class="fill-line">a) Còn <input class="ans-input small" id="q10a" placeholder="?"> ngày</div>
+    <div class="fill-line">b) Có <input class="ans-input small" id="q10b" placeholder="?"> ngày</div>
+    <button class="check-btn" onclick="checkQ10()">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq10"></div>
+  </div>
+
+  <!-- Câu 11 -->
+  <div class="q-card" id="q11">
+    <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 135296</div>
+    <div class="q-text">Tháng 2 của một năm nhuận có <strong>5 Chủ nhật</strong>. Ngày 3 tháng 2 của năm đó là thứ mấy?</div>
+    <div class="choices" id="q11choices">
+      <button class="choice-btn" onclick="selectChoice('q11','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q11','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q11','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q11','T5','Thứ Năm',this)">Thứ Năm</button>
+      <button class="choice-btn" onclick="selectChoice('q11','T6','Thứ Sáu',this)">Thứ Sáu</button>
+      <button class="choice-btn" onclick="selectChoice('q11','T7','Thứ Bảy',this)">Thứ Bảy</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q11','T3','✅ Đúng! Nếu CN đầu tiên là 1/2 → các CN: 1,8,15,22,29/2 → có 5 CN ✓. Ngày 1/2=CN, 2/2=T2, 3/2=Thứ Ba.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq11"></div>
+  </div>
+
+  <!-- Câu 12 -->
+  <div class="q-card" id="q12">
+    <div class="q-num"><span class="q-num-badge">Câu 12</span> Mã VinaID 135297</div>
+    <div class="q-text">Ngày <strong>23 tháng 8</strong> là Chủ nhật. Ngày <strong>2 tháng 9</strong> cùng năm đó là thứ mấy?</div>
+    <div class="choices" id="q12choices">
+      <button class="choice-btn" onclick="selectChoice('q12','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q12','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q12','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q12','T5','Thứ Năm',this)">Thứ Năm</button>
+      <button class="choice-btn" onclick="selectChoice('q12','T6','Thứ Sáu',this)">Thứ Sáu</button>
+      <button class="choice-btn" onclick="selectChoice('q12','T7','Thứ Bảy',this)">Thứ Bảy</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q12','T4','✅ Đúng! 23/8→31/8: 8 ngày. 1/9→2/9: 2 ngày. Tổng: 10 ngày. 10÷7=1 tuần dư 3. CN+3=Thứ Tư.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq12"></div>
+  </div>
+
+  <!-- Câu 13 -->
+  <div class="q-card" id="q13">
+    <div class="q-num"><span class="q-num-badge">Câu 13</span> Mã VinaID 135298</div>
+    <div class="q-text">Ngày <strong>29 tháng 4</strong> là thứ Năm. Ngày <strong>2 tháng 5</strong> cùng năm là thứ mấy?</div>
+    <div class="choices" id="q13choices">
+      <button class="choice-btn" onclick="selectChoice('q13','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q13','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q13','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q13','T5','Thứ Năm',this)">Thứ Năm</button>
+      <button class="choice-btn" onclick="selectChoice('q13','CN','Chủ Nhật',this)">Chủ Nhật</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q13','CN','✅ Đúng! 29/4→30/4: 1 ngày. 1/5→2/5: 2 ngày. Tổng: 3 ngày. T5+3=Chủ Nhật.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq13"></div>
+  </div>
+
+  <!-- Câu 14 -->
+  <div class="q-card" id="q14">
+    <div class="q-num"><span class="q-num-badge">Câu 14</span> Mã VinaID 135299</div>
+    <div class="q-text">Ngày <strong>5 tháng 5</strong> là thứ Ba. Ngày <strong>23 tháng 5</strong> là thứ mấy?</div>
+    <div class="choices" id="q14choices">
+      <button class="choice-btn" onclick="selectChoice('q14','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q14','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q14','T6','Thứ Sáu',this)">Thứ Sáu</button>
+      <button class="choice-btn" onclick="selectChoice('q14','T7','Thứ Bảy',this)">Thứ Bảy</button>
+      <button class="choice-btn" onclick="selectChoice('q14','CN','Chủ Nhật',this)">Chủ Nhật</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q14','T7','✅ Đúng! 23−5=18 ngày. 18÷7=2 tuần dư 4. T3+4=Thứ Bảy.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq14"></div>
+  </div>
+
+  <!-- Câu 15 -->
+  <div class="q-card" id="q15">
+    <div class="q-num"><span class="q-num-badge">Câu 15</span> Mã VinaID 135300</div>
+    <div class="q-text">Ngày <strong>19 tháng 8</strong> là thứ Hai. Ngày <strong>2 tháng 9</strong> cùng năm là thứ mấy?</div>
+    <div class="choices" id="q15choices">
+      <button class="choice-btn" onclick="selectChoice('q15','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q15','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q15','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q15','T5','Thứ Năm',this)">Thứ Năm</button>
+      <button class="choice-btn" onclick="selectChoice('q15','T6','Thứ Sáu',this)">Thứ Sáu</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q15','T4','✅ Đúng! 19/8→31/8: 12 ngày. 1/9→2/9: 2 ngày. Tổng: 14 ngày = 2 tuần đúng → Thứ Tư.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq15"></div>
+  </div>
+
+  <!-- Câu 16 -->
+  <div class="q-card" id="q16">
+    <div class="q-num"><span class="q-num-badge">Câu 16</span> Mã VinaID 135301</div>
+    <div class="q-text">Mùng <strong>8 tháng 3</strong> là thứ Năm. Mùng <strong>1 tháng 5</strong> cùng năm là thứ mấy?</div>
+    <div class="choices" id="q16choices">
+      <button class="choice-btn" onclick="selectChoice('q16','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q16','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q16','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q16','T5','Thứ Năm',this)">Thứ Năm</button>
+      <button class="choice-btn" onclick="selectChoice('q16','T6','Thứ Sáu',this)">Thứ Sáu</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q16','T4','✅ Đúng! 8/3→31/3: 23 ngày. Tháng 4: 30 ngày. 1/5: 1 ngày. Tổng: 54 ngày. 54÷7=7 tuần dư 5. T5+5=Thứ Tư.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq16"></div>
+  </div>
+
+  <!-- Câu 17 -->
+  <div class="q-card" id="q17">
+    <div class="q-num"><span class="q-num-badge">Câu 17</span> Mã VinaID 135302</div>
+    <div class="q-text">Ngày <strong>6 tháng 7</strong> là thứ Ba. Ngày <strong>5 tháng 9</strong> cùng năm là thứ mấy?</div>
+    <div class="choices" id="q17choices">
+      <button class="choice-btn" onclick="selectChoice('q17','T6','Thứ Sáu',this)">Thứ Sáu</button>
+      <button class="choice-btn" onclick="selectChoice('q17','T7','Thứ Bảy',this)">Thứ Bảy</button>
+      <button class="choice-btn" onclick="selectChoice('q17','CN','Chủ Nhật',this)">Chủ Nhật</button>
+      <button class="choice-btn" onclick="selectChoice('q17','T2','Thứ Hai',this)">Thứ Hai</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q17','CN','✅ Đúng! 6/7→31/7: 25 ngày. Tháng 8: 31 ngày. 1/9→5/9: 5 ngày. Tổng: 61 ngày. 61÷7=8 tuần dư 5. T3+5=Chủ Nhật.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq17"></div>
+  </div>
+
+  <!-- Câu 18-23 rút gọn -->
+  <div class="q-card" id="q18">
+    <div class="q-num"><span class="q-num-badge">Câu 18</span> Mã VinaID 135303</div>
+    <div class="q-text">Ngày <strong>14/01/2024</strong> là Chủ nhật. Ngày <strong>14/01/2025</strong> là thứ mấy?</div>
+    <div class="choices" id="q18choices">
+      <button class="choice-btn" onclick="selectChoice('q18','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q18','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q18','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q18','T5','Thứ Năm',this)">Thứ Năm</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q18','T3','✅ Đúng! 2024 là năm nhuận → 366 ngày. 366÷7=52 tuần dư 2. CN+2=Thứ Ba.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq18"></div>
+  </div>
+
+  <div class="q-card" id="q19">
+    <div class="q-num"><span class="q-num-badge">Câu 19</span> Mã VinaID 135304</div>
+    <div class="q-text">Ngày <strong>15/01/2024</strong> là thứ Hai. Ngày <strong>15/01/2026</strong> là thứ mấy?</div>
+    <div class="choices" id="q19choices">
+      <button class="choice-btn" onclick="selectChoice('q19','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q19','T5','Thứ Năm',this)">Thứ Năm</button>
+      <button class="choice-btn" onclick="selectChoice('q19','T6','Thứ Sáu',this)">Thứ Sáu</button>
+      <button class="choice-btn" onclick="selectChoice('q19','T7','Thứ Bảy',this)">Thứ Bảy</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q19','T5','✅ Đúng! 2024 nhuận: 366 ngày, 2025 thường: 365 ngày. Tổng: 731 ngày. 731÷7=104 tuần dư 3. T2+3=Thứ Năm.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq19"></div>
+  </div>
+
+  <div class="q-card" id="q20">
+    <div class="q-num"><span class="q-num-badge">Câu 20</span> Mã VinaID 135305</div>
+    <div class="q-text">Ngày <strong>1/1/2024</strong> là thứ Hai. Ngày <strong>1/1/2030</strong> là thứ mấy?</div>
+    <div class="choices" id="q20choices">
+      <button class="choice-btn" onclick="selectChoice('q20','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q20','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q20','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q20','T5','Thứ Năm',this)">Thứ Năm</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q20','T3','✅ Đúng! 2024-2029: 366+365+365+365+366+365=2192 ngày. 2192÷7=313 tuần dư 1. T2+1=Thứ Ba.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq20"></div>
+  </div>
+
+  <div class="q-card" id="q21">
+    <div class="q-num"><span class="q-num-badge">Câu 21</span> Mã VinaID 135306</div>
+    <div class="q-text">Ngày <strong>20/11/2010</strong> là thứ Bảy. Ngày <strong>20/11/2020</strong> là thứ mấy?</div>
+    <div class="choices" id="q21choices">
+      <button class="choice-btn" onclick="selectChoice('q21','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q21','T5','Thứ Năm',this)">Thứ Năm</button>
+      <button class="choice-btn" onclick="selectChoice('q21','T6','Thứ Sáu',this)">Thứ Sáu</button>
+      <button class="choice-btn" onclick="selectChoice('q21','T7','Thứ Bảy',this)">Thứ Bảy</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q21','T6','✅ Đúng! 10 năm: 2012,2016,2020 nhuận → 7×365+3×366=3652 ngày. 3652÷7=521 tuần dư 5. T7+5=Thứ Sáu.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq21"></div>
+  </div>
+
+  <div class="q-card" id="q22">
+    <div class="q-num"><span class="q-num-badge">Câu 22</span> Mã VinaID 135307</div>
+    <div class="q-text">Ngày <strong>1/1/2024</strong> là thứ Hai. Ngày <strong>1/1/2023</strong> là thứ mấy?</div>
+    <div class="choices" id="q22choices">
+      <button class="choice-btn" onclick="selectChoice('q22','T7','Thứ Bảy',this)">Thứ Bảy</button>
+      <button class="choice-btn" onclick="selectChoice('q22','CN','Chủ Nhật',this)">Chủ Nhật</button>
+      <button class="choice-btn" onclick="selectChoice('q22','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q22','T3','Thứ Ba',this)">Thứ Ba</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q22','CN','✅ Đúng! 2023 thường: 365 ngày. 365÷7=52 tuần dư 1. Lùi 1 ngày: T2-1=Chủ Nhật.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq22"></div>
+  </div>
+
+  <div class="q-card" id="q23">
+    <div class="q-num"><span class="q-num-badge">Câu 23</span> Mã VinaID 135308</div>
+    <div class="q-text">Ngày <strong>1/6/2024</strong> là thứ Bảy. Ngày <strong>1/6/2020</strong> là thứ mấy?</div>
+    <div class="choices" id="q23choices">
+      <button class="choice-btn" onclick="selectChoice('q23','T2','Thứ Hai',this)">Thứ Hai</button>
+      <button class="choice-btn" onclick="selectChoice('q23','T3','Thứ Ba',this)">Thứ Ba</button>
+      <button class="choice-btn" onclick="selectChoice('q23','T4','Thứ Tư',this)">Thứ Tư</button>
+      <button class="choice-btn" onclick="selectChoice('q23','T5','Thứ Năm',this)">Thứ Năm</button>
+    </div>
+    <button class="check-btn" onclick="checkChoice('q23','T2','✅ Đúng! 2020-2023: 366+365+365+365=1461 ngày. 1461÷7=208 tuần dư 5. Lùi 5 ngày: T7-5=Thứ Hai.')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq23"></div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
+  </div>
+
+</div>
+
+<!-- Result overlay -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">Kết quả</div>
+    <div class="result-score" id="resultScore">0/23</div>
+    <div class="result-level" id="resultLevel"></div>
+    <div class="result-detail">
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div>
+        <div class="result-detail-label">✅ Đúng</div>
+      </div>
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdWrong" style="color:var(--red)">0</div>
+        <div class="result-detail-label">❌ Sai</div>
+      </div>
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdSkip" style="color:var(--muted)">0</div>
+        <div class="result-detail-label">⬜ Bỏ qua</div>
+      </div>
+    </div>
+    <div>
+      <button class="result-btn btn-retry" onclick="retryAll()">🔄 Làm lại</button>
+      <button class="result-btn btn-review" onclick="closeResult()">📖 Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 23;
+let answered = {};
+let selected = {};
+
+// ── Helpers ──
+function norm(s) {
+  return s.toLowerCase().trim()
+    .replace(/\s+/g, ' ')
+    .replace(/giờ/g,'h').replace(/gio/g,'h')
+    .replace(/phút/g,'p').replace(/phut/g,'p')
+    .replace(/bông/g,'').replace(/bong/g,'')
+    .replace(/chuyến/g,'').replace('chuyen','')
+    .trim();
+}
+
+function updateScore() {
+  const c = Object.values(answered).filter(v=>v===true).length;
+  const w = Object.values(answered).filter(v=>v===false).length;
+  const done = c + w;
+  document.getElementById('scoreCorrect').textContent = c;
+  document.getElementById('scoreWrong').textContent = w;
+  document.getElementById('scoreLeft').textContent = TOTAL - done;
+  document.getElementById('progressText').textContent = `${done} / ${TOTAL} câu`;
+  const pct = Math.round(done / TOTAL * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById(id);
+  fb.className = 'feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = (correct ? '✅ ' : '❌ ') + msg;
+  const card = fb.closest('.q-card');
+  card.classList.remove('correct','wrong');
+  card.classList.add(correct ? 'correct' : 'wrong');
+}
+
+// ── Question 1 ──
+function checkQ1() {
+  const answers = {
+    q1a: '<', q1b: '>', q1c: '>',
+    q1d: '<', q1e: '<', q1f: '=',
+    q1g: '>', q1h: '>'
+  };
+  let allCorrect = true;
+  let wrongCount = 0;
+  for (const [id, correct] of Object.entries(answers)) {
+    const input = document.getElementById(id);
+    const val = input.value.trim();
+    if (val === correct) {
+      input.className = 'ans-input small correct-input';
+    } else {
+      input.className = 'ans-input small wrong-input';
+      allCorrect = false;
+      wrongCount++;
+    }
+    input.disabled = true;
+  }
+  answered['q1'] = allCorrect;
+  updateScore();
+  if (allCorrect) {
+    showFeedback('fb1', true, 'Tất cả 8 ô đều đúng! Xuất sắc! 🌟');
+  } else {
+    showFeedback('fb1', false, `Còn ${wrongCount} ô chưa đúng. Đáp án: a)< b)> c)> d)< e)< f)= g)> h)>`);
+  }
+  document.querySelector('#q1 .check-btn').disabled = true;
+}
+
+// ── Question 10 ──
+function checkQ10() {
+  const a = document.getElementById('q10a').value.trim();
+  const b = document.getElementById('q10b').value.trim();
+  const ca = a === '11';
+  const cb = b === '13';
+  document.getElementById('q10a').className = 'ans-input small ' + (ca ? 'correct-input' : 'wrong-input');
+  document.getElementById('q10b').className = 'ans-input small ' + (cb ? 'correct-input' : 'wrong-input');
+  document.getElementById('q10a').disabled = true;
+  document.getElementById('q10b').disabled = true;
+  const ok = ca && cb;
+  answered['q10'] = ok;
+  updateScore();
+  showFeedback('fbq10', ok, ok
+    ? 'Đúng cả 2! a) 29−18=11 ngày. b) 31−18=13 ngày.'
+    : `Đáp án: a) 11 ngày (29−18=11), b) 13 ngày (31−18=13)`
+  );
+  document.querySelector('#q10 .check-btn').disabled = true;
+}
+
+// ── Multiple choice ──
+function selectChoice(qId, val, label, btn) {
+  if (answered[qId] !== undefined) return;
+  selected[qId] = val;
+  const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
+  btns.forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function checkChoice(qId, correct, explanation) {
+  if (!selected[qId]) {
+    alert('Em chưa chọn đáp án!');
+    return;
+  }
+  if (answered[qId] !== undefined) return;
+  const isCorrect = selected[qId] === correct;
+  answered[qId] = isCorrect;
+  updateScore();
+  const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
+  btns.forEach(b => {
+    b.disabled = true;
+    b.classList.remove('selected');
+    const bVal = b.getAttribute('onclick').match(/'([^']+)'/)?.[2] ||
+                 b.getAttribute('onclick').split("'")[3];
+    if (bVal === correct) b.classList.add('correct');
+    else if (b.classList.contains('selected') || bVal === selected[qId]) b.classList.add('wrong');
+  });
+  // Re-highlight
+  btns.forEach(b => {
+    const onclick = b.getAttribute('onclick');
+    const match = onclick.match(/selectChoice\('[^']+','([^']+)'/);
+    if (match) {
+      if (match[1] === correct) b.classList.add('correct');
+      else if (match[1] === selected[qId] && !isCorrect) b.classList.add('wrong');
+    }
+  });
+  showFeedback(`fb${qId}`, isCorrect,
+    isCorrect ? explanation : `Chưa đúng. ${explanation}`
+  );
+  document.querySelector(`#${qId} .check-btn`).disabled = true;
+}
+
+// ── Text input ──
+function checkText(qId, correctList, explanation) {
+  const input = document.getElementById(qId);
+  const val = norm(input.value);
+  const isCorrect = correctList.some(c => norm(c) === val || val.includes(norm(c)));
+  answered[qId] = isCorrect;
+  updateScore();
+  input.className = 'ans-input wide ' + (isCorrect ? 'correct-input' : 'wrong-input');
+  input.disabled = true;
+  showFeedback(`fbq${qId}`, isCorrect,
+    isCorrect ? explanation : `Chưa đúng. ${explanation}`
+  );
+  document.querySelector(`#${qId} .check-btn`).disabled = true;
+}
+
+// ── Submit ──
+function submitAll() {
+  const c = Object.values(answered).filter(v=>v===true).length;
+  const w = Object.values(answered).filter(v=>v===false).length;
+  const skip = TOTAL - c - w;
+  const pct = Math.round(c / TOTAL * 100);
+
+  let emoji, title, levelText, levelColor;
+  if (pct >= 90) { emoji='🏆'; title='Xuất sắc!'; levelText='🏆 Mức 4 — Giỏi toán'; levelColor='#fef3c7'; }
+  else if (pct >= 70) { emoji='⭐'; title='Làm tốt!'; levelText='⭐ Mức 3 — Làm tốt'; levelColor='#dbeafe'; }
+  else if (pct >= 50) { emoji='📖'; title='Hiểu bài!'; levelText='📖 Mức 2 — Hiểu bài'; levelColor='#e0f2fe'; }
+  else { emoji='🌱'; title='Cố gắng thêm!'; levelText='🌱 Mức 1 — Đang học'; levelColor='#f0fdf4'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = `${c}/${TOTAL}`;
+  const rl = document.getElementById('resultLevel');
+  rl.textContent = levelText;
+  rl.style.background = levelColor;
+  rl.style.color = '#1e293b';
+  document.getElementById('rdCorrect').textContent = c;
+  document.getElementById('rdWrong').textContent = w;
+  document.getElementById('rdSkip').textContent = skip;
+  document.getElementById('resultOverlay').classList.add('show');
+}
+
+function closeResult() {
+  document.getElementById('resultOverlay').classList.remove('show');
+}
+
+function retryAll() {
+  location.reload();
+}
+</script>
+</body>
+</html>

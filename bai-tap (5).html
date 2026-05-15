@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 5 — Biểu Thức Số</title>
+<style>
+  :root {
+    --violet:  #7c3aed;
+    --violet2: #a78bfa;
+    --violet3: #ede9fe;
+    --amber:   #d97706;
+    --amber2:  #fbbf24;
+    --bg:      #f5f3ff;
+    --card:    #ffffff;
+    --text:    #2e1065;
+    --muted:   #6b7280;
+    --border:  #ddd6fe;
+    --green:   #10b981;
+    --red:     #ef4444;
+    --radius:  20px;
+    --shadow:  0 8px 32px rgba(124,58,237,0.10);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Times New Roman',Times,serif;
+    background:var(--bg); color:var(--text); min-height:100vh;
+    background-image:
+      radial-gradient(circle at 10% 20%,rgba(167,139,250,0.12) 0%,transparent 50%),
+      radial-gradient(circle at 90% 80%,rgba(217,119,6,0.10) 0%,transparent 50%);
+  }
+  .header { background:linear-gradient(135deg,var(--violet) 0%,#6d28d9 100%); color:white; padding:28px 20px 24px; text-align:center; position:relative; overflow:hidden; }
+  .header::before { content:""; position:absolute; top:-40px; right:-40px; width:180px; height:180px; background:rgba(255,255,255,0.06); border-radius:50%; }
+  .header-badge { display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:20px; padding:4px 14px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-size:clamp(20px,5vw,28px); font-weight:900; line-height:1.2; margin-bottom:8px; }
+  .header p  { font-size:14px; opacity:0.8; margin-bottom:20px; }
+  .progress-wrap { max-width:500px; margin:0 auto; }
+  .progress-info { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:8px; opacity:0.9; }
+  .progress-bar  { height:10px; background:rgba(255,255,255,0.2); border-radius:10px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--amber2),#fde68a); border-radius:10px; transition:width 0.5s; width:0%; }
+  .score-bar { display:flex; justify-content:center; gap:20px; padding:14px 20px; background:white; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(124,58,237,0.08); }
+  .score-item { display:flex; align-items:center; gap:7px; font-weight:700; font-size:14px; }
+  .score-dot  { width:10px; height:10px; border-radius:50%; }
+  .main { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+  .rule-box { background:linear-gradient(135deg,#f5f3ff,var(--violet3)); border:2px solid var(--violet2); border-radius:16px; padding:16px 18px; margin-bottom:24px; font-size:13px; line-height:1.9; }
+  .rule-box strong { color:var(--violet); font-weight:800; }
+  .section-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--violet); margin:32px 0 14px; display:flex; align-items:center; gap:8px; }
+  .section-title::after { content:""; flex:1; height:2px; background:linear-gradient(90deg,var(--border),transparent); border-radius:2px; }
+  .q-card { background:var(--card); border-radius:var(--radius); padding:22px 22px 18px; margin-bottom:14px; box-shadow:var(--shadow); border:1.5px solid var(--border); transition:border-color 0.3s; animation:fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .q-card.correct { border-color:var(--green); background:#f0fdf9; }
+  .q-card.wrong   { border-color:var(--red);   background:#fff5f5; }
+  .q-num { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--violet); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .q-num-badge { background:var(--violet); color:white; border-radius:8px; padding:2px 8px; font-size:11px; }
+  .q-text { font-size:15px; font-weight:600; line-height:1.65; margin-bottom:14px; }
+  .q-text strong { color:var(--violet); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:4px; }
+  .expr-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .expr-lbl { font-weight:700; font-size:14px; min-width:22px; }
+  .expr-txt { font-size:14px; font-weight:600; flex:1; }
+  .ans-input { border:2px solid var(--border); border-radius:10px; padding:7px 10px; font-size:14px; font-family:'Times New Roman',Times,serif; font-weight:700; outline:none; transition:border 0.2s; background:white; color:var(--text); width:110px; text-align:center; }
+  .ans-input:focus { border-color:var(--violet2); box-shadow:0 0 0 3px rgba(167,139,250,0.15); }
+  .ans-input.correct-input { border-color:var(--green); background:#f0fdf9; }
+  .ans-input.wrong-input   { border-color:var(--red);   background:#fff5f5; }
+  .feedback { margin-top:12px; padding:10px 14px; border-radius:12px; font-size:13px; font-weight:600; display:none; line-height:1.6; }
+  .feedback.show { display:block; }
+  .feedback.correct-fb { background:#dcfce7; color:#166534; }
+  .feedback.wrong-fb   { background:#fee2e2; color:#991b1b; }
+  .check-btn { margin-top:14px; padding:10px 22px; background:var(--violet); color:white; border:none; border-radius:12px; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; }
+  .check-btn:hover:not(:disabled) { background:var(--violet2); transform:translateY(-1px); }
+  .check-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; transform:none; }
+  .submit-wrap { text-align:center; margin-top:36px; }
+  .submit-btn { padding:16px 48px; background:linear-gradient(135deg,var(--violet),#6d28d9); color:white; border:none; border-radius:16px; font-family:'Times New Roman',Times,serif; font-size:18px; font-weight:800; cursor:pointer; transition:all 0.25s; box-shadow:0 8px 24px rgba(124,58,237,0.3); }
+  .submit-btn:hover { transform:translateY(-3px); }
+  .result-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); z-index:200; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+  .result-overlay.show { display:flex; }
+  .result-card { background:white; border-radius:28px; padding:36px 32px; max-width:440px; width:100%; text-align:center; box-shadow:0 24px 64px rgba(15,23,42,0.25); animation:popIn 0.4s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+  .result-emoji { font-size:64px; margin-bottom:12px; display:block; }
+  .result-title { font-size:26px; font-weight:900; color:var(--violet); margin-bottom:6px; }
+  .result-score { font-size:48px; font-weight:900; margin:12px 0; background:linear-gradient(135deg,var(--violet),var(--violet2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .result-level { display:inline-block; padding:8px 20px; border-radius:20px; font-weight:800; font-size:15px; margin:8px 0 20px; }
+  .result-detail { display:flex; justify-content:center; gap:24px; margin-bottom:24px; }
+  .result-detail-item { text-align:center; }
+  .result-detail-num { font-size:24px; font-weight:900; }
+  .result-detail-label { font-size:12px; color:var(--muted); font-weight:600; }
+  .result-btn { padding:13px 32px; border-radius:14px; font-family:'Times New Roman',Times,serif; font-size:15px; font-weight:800; cursor:pointer; border:none; transition:all 0.2s; margin:0 6px; }
+  .btn-retry  { background:var(--violet); color:white; }
+  .btn-review { background:var(--bg); color:var(--violet); border:2px solid var(--border); }
+  @media(max-width:480px){ .grid2,.grid3{grid-template-columns:1fr} .q-card{padding:18px 16px 14px} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+    <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VInaStudy" style="height:44px;object-fit:contain;filter:brightness(0) invert(1)">
+    <span style="font-size:15px;font-weight:800;letter-spacing:0.3px;opacity:0.95">VInaStudy — Toán Lớp 3 HSG</span>
+  </div>
+  <h1>🧮 Bài 5 — Biểu Thức Số<br>Tính Giá Trị Biểu Thức</h1>
+  <p>Thầy Nguyễn Thành Long • 11 câu bài tập</p>
+  <div class="progress-wrap">
+    <div class="progress-info"><span id="progressText">0 / 11 câu</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="score-bar">
+  <div class="score-item"><div class="score-dot" style="background:var(--green)"></div><span id="scoreCorrect">0</span> Đúng</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--red)"></div><span id="scoreWrong">0</span> Sai</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--border)"></div><span id="scoreLeft">11</span> Chưa làm</div>
+</div>
+
+<div class="main">
+
+  <div class="rule-box">
+    💡 <strong>Thứ tự thực hiện phép tính:</strong><br>
+    1️⃣ Trong <strong>ngoặc</strong> trước → ngoài ngoặc sau<br>
+    2️⃣ <strong>Nhân, chia</strong> trước → cộng, trừ sau<br>
+    3️⃣ Chỉ cộng/trừ hoặc chỉ nhân/chia → tính từ <strong>trái sang phải</strong>
+  </div>
+
+  <!-- Dạng 1: Có ngoặc -->
+  <div class="section-title">🔢 Dạng 1 — Biểu thức có dấu ngoặc</div>
+
+  <div class="q-card" id="q1">
+    <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 131857</div>
+    <div class="q-text">Tính giá trị biểu thức:</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">(563 + 126) × 2 =</span><input class="ans-input" id="q1a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">4 × 108 + 157 =</span><input class="ans-input" id="q1b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">1243 − 366 : 3 =</span><input class="ans-input" id="q1c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">435 : 5 + 582 =</span><input class="ans-input" id="q1d" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">153 + 638 − 470 =</span><input class="ans-input" id="q1e" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q1',['q1a','q1b','q1c','q1d','q1e'],['1278','589','1121','669','321'],'✅ Đúng! a)(563+126)×2=689×2=1278 b)4×108+157=432+157=589 c)1243-122=1121 d)87+582=669 e)153+168=321')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq1"></div>
+  </div>
+
+  <div class="q-card" id="q2">
+    <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 131858 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Tính giá trị biểu thức:</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">(672 + 83) : 5 =</span><input class="ans-input" id="q2a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1956 + 126 × 4 =</span><input class="ans-input" id="q2b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">4672 − (3583 − 193) =</span><input class="ans-input" id="q2c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">2078 − 328 : 4 =</span><input class="ans-input" id="q2d" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q2',['q2a','q2b','q2c','q2d'],['151','2460','1282','1996'],'✅ Đúng! a)(672+83):5=755:5=151 b)1956+504=2460 c)4672-3390=1282 d)2078-82=1996')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq2"></div>
+  </div>
+
+  <!-- Dạng 2: Nhân/chia + cộng/trừ -->
+  <div class="section-title">✖️ Dạng 2 — Nhân/chia trước, cộng/trừ sau</div>
+
+  <div class="q-card" id="q3">
+    <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 131862 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Tính giá trị các biểu thức:</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">78 × 6 + 345 =</span><input class="ans-input" id="q3a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">378 + 324 : 3 =</span><input class="ans-input" id="q3b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">56 + 67 × 6 =</span><input class="ans-input" id="q3c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">288 : 6 × 7 =</span><input class="ans-input" id="q3d" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q3',['q3a','q3b','q3c','q3d'],['813','486','458','336'],'✅ Đúng! a)468+345=813 b)378+108=486 c)56+402=458 d)48×7=336')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq3"></div>
+  </div>
+
+  <div class="q-card" id="q5">
+    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 131871</div>
+    <div class="q-text">Tính giá trị biểu thức:</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">800 − 253 × 3 =</span><input class="ans-input" id="q5a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">38 × 7 + 405 =</span><input class="ans-input" id="q5b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">900 − 399 × 2 =</span><input class="ans-input" id="q5c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">262 : 2 + 645 =</span><input class="ans-input" id="q5d" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">903 : 3 + 429 =</span><input class="ans-input" id="q5e" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">f)</span><span class="expr-txt">899 + 906 : 6 =</span><input class="ans-input" id="q5f" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q5',['q5a','q5b','q5c','q5d','q5e','q5f'],['41','671','102','776','730','1050'],'✅ Đúng! a)800-759=41 b)266+405=671 c)900-798=102 d)131+645=776 e)301+429=730 f)899+151=1050')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq5"></div>
+  </div>
+
+  <!-- Dạng 3: Chỉ nhân/chia -->
+  <div class="section-title">➗ Dạng 3 — Chỉ có nhân/chia (trái → phải)</div>
+
+  <div class="q-card" id="q4">
+    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 131865 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Tính giá trị biểu thức:</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">25 × 4 × 7 =</span><input class="ans-input" id="q4a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">216 × 3 : 6 =</span><input class="ans-input" id="q4b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">990 : 3 : 6 =</span><input class="ans-input" id="q4c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">480 : 8 × 7 =</span><input class="ans-input" id="q4d" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">125 × 2 : 5 =</span><input class="ans-input" id="q4e" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q4',['q4a','q4b','q4c','q4d','q4e'],['700','108','55','420','50'],'✅ Đúng! a)100×7=700 b)648:6=108 c)330:6=55 d)60×7=420 e)250:5=50')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq4"></div>
+  </div>
+
+  <div class="q-card" id="q7">
+    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 131875</div>
+    <div class="q-text">Tính giá trị biểu thức:</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">15 × 3 × 2 =</span><input class="ans-input" id="q7a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">48 : 2 : 6 =</span><input class="ans-input" id="q7b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">8 × 5 : 2 =</span><input class="ans-input" id="q7c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">81 : 9 × 7 =</span><input class="ans-input" id="q7d" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q7',['q7a','q7b','q7c','q7d'],['90','4','20','63'],'✅ Đúng! a)45×2=90 b)24:6=4 c)40:2=20 d)9×7=63')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq7"></div>
+  </div>
+
+  <!-- Dạng 4: Hỗn hợp phức tạp -->
+  <div class="section-title">🔀 Dạng 4 — Biểu thức hỗn hợp</div>
+
+  <div class="q-card" id="q8">
+    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 131881</div>
+    <div class="q-text">Tính giá trị biểu thức:</div>
+    <div class="grid2">
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">87+92−32=</span><input class="ans-input" id="q8a" placeholder="?" disabled></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">138−30−8=</span><input class="ans-input" id="q8b" placeholder="?" disabled></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">30×2:3=</span><input class="ans-input" id="q8c" placeholder="?" disabled></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">80:2×4=</span><input class="ans-input" id="q8d" placeholder="?" disabled></div>
+      <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">927−10×2=</span><input class="ans-input" id="q8e" placeholder="?" disabled></div>
+      <div class="expr-row"><span class="expr-lbl">f)</span><span class="expr-txt">163+90:3=</span><input class="ans-input" id="q8f" placeholder="?" disabled></div>
+      <div class="expr-row"><span class="expr-lbl">g)</span><span class="expr-txt">90+10×2=</span><input class="ans-input" id="q8g" placeholder="?" disabled></div>
+      <div class="expr-row"><span class="expr-lbl">h)</span><span class="expr-txt">106−80:4=</span><input class="ans-input" id="q8h" placeholder="?" disabled></div>
+    </div>
+    <button class="check-btn" onclick="checkMultiExpr('q8',['q8a','q8b','q8c','q8d','q8e','q8f','q8g','q8h'],['147','100','20','160','907','193','110','86'],'✅ Đúng! a)147 b)100 c)60:3=20 d)40×4=160 e)927-20=907 f)163+30=193 g)90+20=110 h)106-20=86')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq8"></div>
+  </div>
+
+  <div class="q-card" id="q9">
+    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 131883</div>
+    <div class="q-text">Tính giá trị biểu thức:</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">89 + 10×2 + 96:3 =</span><input class="ans-input" id="q9a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">25×2 + 78:2 =</span><input class="ans-input" id="q9b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">(46+7)×2 + 123:3 =</span><input class="ans-input" id="q9c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">35×2 + 90:2:3 =</span><input class="ans-input" id="q9d" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q9',['q9a','q9b','q9c','q9d'],['141','89','147','85'],'✅ Đúng! a)89+20+32=141 b)50+39=89 c)106+41=147 d)70+15=85')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq9"></div>
+  </div>
+
+  <!-- Dạng 5: Tính thuận tiện -->
+  <div class="section-title">⚡ Dạng 5 — Tính thuận tiện</div>
+
+  <div class="q-card" id="q10">
+    <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 130414</div>
+    <div class="q-text">Tính bằng cách <strong>thuận tiện</strong> (ghép cặp tổng tròn trăm):</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">664 + 36 + 70 =</span><input class="ans-input" id="q10a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1500 − 981 − 119 =</span><input class="ans-input" id="q10b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">2854 + 1249 + 146 + 751 =</span><input class="ans-input" id="q10c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">567 + 789 + 433 =</span><input class="ans-input" id="q10d" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q10',['q10a','q10b','q10c','q10d'],['770','400','5000','1789'],'✅ Đúng! a)(664+36)+70=700+70=770 b)1500-(981+119)=1500-1100=400 c)(2854+146)+(1249+751)=3000+2000=5000 d)(567+433)+789=1000+789=1789')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq10"></div>
+  </div>
+
+  <div class="q-card" id="q11">
+    <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 130420</div>
+    <div class="q-text">Tính bằng cách <strong>thuận tiện</strong> (rút thừa số chung):</div>
+    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">2×465 + 2×535 =</span><input class="ans-input" id="q11a" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1235×5 − 5×235 =</span><input class="ans-input" id="q11b" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">3×876 + 124×3 =</span><input class="ans-input" id="q11c" placeholder="?" disabled></div>
+    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">175×9 − 175×3 − 175 =</span><input class="ans-input" id="q11d" placeholder="?" disabled></div>
+    <button class="check-btn" onclick="checkMultiExpr('q11',['q11a','q11b','q11c','q11d'],['2000','5000','3000','875'],'✅ Đúng! a)2×(465+535)=2×1000=2000 b)5×(1235-235)=5×1000=5000 c)3×(876+124)=3×1000=3000 d)175×(9-3-1)=175×5=875')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq11"></div>
+  </div>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
+  </div>
+</div>
+
+  <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:2;text-align:center">
+    <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
+    <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">Kết quả</div>
+    <div class="result-score" id="resultScore">0/11</div>
+    <div class="result-level" id="resultLevel"></div>
+    <div class="result-detail">
+      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div><div class="result-detail-label">Đúng</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong" style="color:var(--red)">0</div><div class="result-detail-label">Sai</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip" style="color:#94a3b8">0</div><div class="result-detail-label">Bỏ qua</div></div>
+    </div>
+    <div>
+      <button class="result-btn btn-retry" onclick="location.reload()">Làm lại</button>
+      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 11;
+let answered = {};
+
+function norm(s){ return s.trim().toLowerCase().replace(/\s+/g,''); }
+
+function updateScore(){
+  const c=Object.values(answered).filter(v=>v===true).length;
+  const w=Object.values(answered).filter(v=>v===false).length;
+  const done=c+w;
+  document.getElementById('scoreCorrect').textContent=c;
+  document.getElementById('scoreWrong').textContent=w;
+  document.getElementById('scoreLeft').textContent=TOTAL-done;
+  document.getElementById('progressText').textContent=`${done} / ${TOTAL} câu`;
+  const pct=Math.round(done/TOTAL*100);
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+function showFeedback(id,correct,msg){
+  const fb=document.getElementById(id);
+  fb.className='feedback show '+(correct?'correct-fb':'wrong-fb');
+  fb.innerHTML=(correct?'✅ ':'❌ ')+msg;
+  fb.closest('.q-card').classList.remove('correct','wrong');
+  fb.closest('.q-card').classList.add(correct?'correct':'wrong');
+}
+
+function checkMultiExpr(qId, inputIds, correctList, explanation){
+  const results = inputIds.map((id,i) => norm(document.getElementById(id).value) === norm(correctList[i]));
+  const ok = results.every(r=>r);
+  const wrong = results.filter(r=>!r).length;
+  answered[qId]=ok; updateScore();
+  inputIds.forEach((id,i)=>{
+    const inp=document.getElementById(id);
+    inp.className='ans-input '+(results[i]?'correct-input':'wrong-input');
+    inp.disabled=true;
+  });
+  showFeedback(`fb${qId}`,ok,
+    ok ? explanation : `Con sai ${wrong} ô. ${explanation}`
+  );
+  document.querySelector(`#${qId} .check-btn`).disabled=true;
+}
+
+function submitAll(){
+  const c=Object.values(answered).filter(v=>v===true).length;
+  const w=Object.values(answered).filter(v=>v===false).length;
+  const skip=TOTAL-c-w;
+  const pct=Math.round(c/TOTAL*100);
+  let emoji,title,levelText,levelColor;
+  if(pct>=90)      {emoji='🏆';title='Xuat sac!';   levelText='Muc 4 - Gioi toan'; levelColor='#fef3c7';}
+  else if(pct>=70) {emoji='⭐';title='Lam tot!';     levelText='Muc 3 - Lam tot';   levelColor='#dbeafe';}
+  else if(pct>=50) {emoji='📖';title='Hieu bai!';    levelText='Muc 2 - Hieu bai';  levelColor='#e0f2fe';}
+  else             {emoji='🌱';title='Co gang them!';levelText='Muc 1 - Dang hoc'; levelColor='#f0fdf4';}
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=`${c}/${TOTAL}`;
+  const rl=document.getElementById('resultLevel');
+  rl.textContent=levelText; rl.style.background=levelColor; rl.style.color='#1e293b';
+  document.getElementById('rdCorrect').textContent=c;
+  document.getElementById('rdWrong').textContent=w;
+  document.getElementById('rdSkip').textContent=skip;
+  document.getElementById('resultOverlay').classList.add('show');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const groups = {
+    q1: ['q1a','q1b','q1c','q1d','q1e'],
+    q2: ['q2a','q2b','q2c','q2d'],
+    q3: ['q3a','q3b','q3c','q3d'],
+    q4: ['q4a','q4b','q4c','q4d','q4e'],
+    q5: ['q5a','q5b','q5c','q5d','q5e','q5f'],
+    q7: ['q7a','q7b','q7c','q7d'],
+    q8: ['q8a','q8b','q8c','q8d','q8e','q8f','q8g','q8h'],
+    q9: ['q9a','q9b','q9c','q9d'],
+    q10:['q10a','q10b','q10c','q10d'],
+    q11:['q11a','q11b','q11c','q11d'],
+  };
+  Object.entries(groups).forEach(([qId,ids])=>{
+    const btn=document.querySelector(`#${qId} .check-btn`);
+    ids.forEach(id=>{
+      const inp=document.getElementById(id);
+      inp.disabled=false;
+      inp.addEventListener('input',()=>{
+        btn.disabled=ids.some(i=>document.getElementById(i).value.trim()==='');
+      });
+      inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)btn.click();});
+    });
+    btn.disabled=true;
+  });
+});
+</script>
+</body>
+</html>
