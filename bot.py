@@ -166,7 +166,7 @@ Trả lời bằng tiếng Việt, thân thiện, ngắn gọn, dùng emoji."""
 
 # ── Menus ─────────────────────────────────────────────────────────────
 def make_main_menu() -> ReplyKeyboardMarkup:
-    webapp_url = f"{BASE_URL}/content/index.html"
+    webapp_url = f"{BASE_URL}/index.html"
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton("📝 Làm bài tập", web_app=WebAppInfo(url=webapp_url)),
