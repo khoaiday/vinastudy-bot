@@ -376,7 +376,8 @@
 
 <script>
 const TOTAL = 12;
-let answered = {};
+const _TOTAL = 12; window._TOTAL = 12; window._BUOI = 3;
+let answered = {}; window._answered = answered;
 let selected = {};
 
 function norm(s) { return s.toLowerCase().trim().replace(/\s+/g,' '); }
@@ -531,5 +532,38 @@ document.addEventListener('DOMContentLoaded', () => {
   enableMulti(['q12a','q12b','q12c'], 'q12');
 });
 </script>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+// Khởi tạo Telegram Web App
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+// Ghi đè hàm submitAll để gửi kết quả về bot
+const _origSubmit = window.submitAll;
+window.submitAll = function() {
+  // Gọi hàm gốc để hiện result overlay
+  if (typeof _origSubmit === 'function') _origSubmit();
+
+  // Thu thập kết quả
+  const answered = window._answered || {};
+  const correct  = Object.values(answered).filter(v => v === true).length;
+  const total    = window._TOTAL || Object.keys(answered).length;
+  const buoi     = window._BUOI || 0;
+
+  const payload = {
+    buoi:      buoi,
+    diem:      correct,
+    tong:      total,
+    chi_tiet:  answered,
+  };
+
+  // Gửi về Telegram bot
+  if (tg && tg.sendData) {
+    tg.sendData(JSON.stringify(payload));
+  }
+};
+</script>
+
 </body>
 </html>

@@ -1,27 +1,31 @@
 """
-VInaStudy Bot Telegram
+VInaStudy Bot Telegram — Mini App Edition
 Thầy Nguyễn Thành Long — vinastudy.vn
 
-Cài đặt:
-    pip install python-telegram-bot==21.0 anthropic python-dotenv
+pip install python-telegram-bot==21.0 anthropic python-dotenv
 
-Env vars (Railway Variables):
-    TELEGRAM_TOKEN=<token từ @BotFather>
-    ANTHROPIC_API_KEY=<key từ console.anthropic.com>
-    BASE_URL=https://vinastudy.vn/baitap
+Railway env vars:
+    TELEGRAM_TOKEN, ANTHROPIC_API_KEY
+    BASE_URL=https://[user].github.io/vinastudy-bot
+    CONTENT_DIR=content
 """
 
-import os
-import logging
-import base64
+import os, logging, base64, json
 from pathlib import Path
+from datetime import datetime
 from dotenv import load_dotenv
 import anthropic
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram import (
+    Update, ReplyKeyboardMarkup, KeyboardButton,
+    InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo,
+)
+from telegram.ext import (
+    Application, CommandHandler, MessageHandler,
+    ContextTypes, filters,
+)
 
 load_dotenv()
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s %(levelname)s %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -29,18 +33,18 @@ ANTHROPIC_KEY  = os.getenv("ANTHROPIC_API_KEY")
 CONTENT_DIR    = Path(os.getenv("CONTENT_DIR", "content"))
 BASE_URL       = os.getenv("BASE_URL", "https://vinastudy.vn/baitap")
 
+# ── Cấu hình buổi học ────────────────────────────────────────────────
 BUOI_CONFIG = {
-    2:  {"ten": "Bài Toán Cấu Tạo Số",                   "video": "https://youtu.be/tQPklWVzur8",                "folder": "bai02"},
-    3:  {"ten": "Viết Số Tự Nhiên Thỏa Mãn Điều Kiện",   "video": "https://youtu.be/fMegXvbsYPk",                "folder": "bai03"},
-    4:  {"ten": "Dãy Số Cách Đều",                        "video": "https://youtu.be/TcJ50kKlyg0",                "folder": "bai04"},
-    5:  {"ten": "Biểu Thức Số",                           "video": "https://youtu.be/placeholder_b5",             "folder": "bai05"},
-    6:  {"ten": "Tính Tổng Dãy Số Ghép Cặp",             "video": "https://www.youtube.com/watch?v=h1lHS_SGSjA", "folder": "bai06"},
-    7:  {"ten": "Tính Tổng Dãy Số Ghép Cặp (Tiếp)",      "video": "https://youtu.be/69v3vUYp3U8",                "folder": "bai07"},
-    8:  {"ten": "Ôn Tập Dãy Số + Dãy Hình Quy Luật",     "video": "https://youtu.be/19EXHoiUwTU",                "folder": "bai08"},
-    27: {"ten": "Các Bài Toán Về Thời Gian",             "video": "https://www.youtube.com/watch?v=XuH1MmzQOlw", "folder": "bai27"},
+    2:  {"ten": "Bài Toán Cấu Tạo Số",                 "video": "https://youtu.be/tQPklWVzur8",                "folder": "bai02"},
+    3:  {"ten": "Viết Số Tự Nhiên Thỏa Mãn Điều Kiện", "video": "https://youtu.be/fMegXvbsYPk",                "folder": "bai03"},
+    4:  {"ten": "Dãy Số Cách Đều",                      "video": "https://youtu.be/TcJ50kKlyg0",                "folder": "bai04"},
+    5:  {"ten": "Biểu Thức Số",                         "video": "https://youtu.be/placeholder_b5",             "folder": "bai05"},
+    6:  {"ten": "Tính Tổng Dãy Số Ghép Cặp",           "video": "https://www.youtube.com/watch?v=h1lHS_SGSjA", "folder": "bai06"},
+    7:  {"ten": "Tính Tổng Dãy Số Ghép Cặp (Tiếp)",    "video": "https://youtu.be/69v3vUYp3U8",                "folder": "bai07"},
+    8:  {"ten": "Ôn Tập Dãy Số + Dãy Hình Quy Luật",   "video": "https://youtu.be/19EXHoiUwTU",                "folder": "bai08"},
+    27: {"ten": "Các Bài Toán Về Thời Gian",           "video": "https://www.youtube.com/watch?v=XuH1MmzQOlw", "folder": "bai27"},
 }
 
-# BTVN: file HTML tĩnh nằm trong content/lop3/baiXX/bai-tap.html
 BTVN_CONFIG = {
     2:  {"so_cau": 2,  "html": "content/lop3/bai02/bai-tap.html"},
     3:  {"so_cau": 3,  "html": "content/lop3/bai03/bai-tap.html"},
@@ -52,29 +56,114 @@ BTVN_CONFIG = {
     27: {"so_cau": 23, "html": "content/lop3/bai27/bai-tap.html"},
 }
 
-DEFAULT_BUOI = 27
-DEFAULT_SYSTEM_PROMPT = """Bạn là thầy Long Vinastudy - trợ lý dạy Toán lớp 3.
-Giải từng bước rõ ràng bằng tiếng Việt, thân thiện với học sinh lớp 3."""
+# Tên dạng bài cho từng buổi (dùng để đánh giá năng lực)
+DANG_BAI = {
+    2:  ["Cấu tạo số từ chữ số", "Tìm số theo điều kiện"],
+    3:  ["Đếm số thỏa mãn điều kiện", "Số tròn chục/trăm", "Tổng chữ số"],
+    4:  ["Số hạng dãy số", "Số hạng thứ N", "Đếm số chẵn/lẻ"],
+    5:  ["Biểu thức có nhân chia", "Thứ tự phép tính", "Tính nhanh"],
+    6:  ["Ghép cặp dãy chẵn", "Tính tổng dãy số"],
+    7:  ["Ghép cặp dãy lẻ", "Dãy hình quy luật"],
+    8:  ["Ôn tập dãy số", "Dãy hình theo quy luật"],
+    27: ["So sánh đơn vị thời gian", "Tính khoảng thời gian",
+         "Tính giờ chuyến tàu", "Xác định thứ trong tuần"],
+}
 
+DEFAULT_BUOI = 27
 _prompt_cache: dict = {}
 
+# ── Lịch sử kết quả học sinh (in-memory, sẽ thay bằng DB sau) ────────
+# {user_id: [{"buoi": X, "diem": Y, "tong": Z, "chi_tiet": {...}, "thoi_gian": "..."}]}
+ket_qua_hs: dict = {}
+
+def luu_ket_qua(user_id: int, buoi: int, diem: int, tong: int, chi_tiet: dict):
+    if user_id not in ket_qua_hs:
+        ket_qua_hs[user_id] = []
+    ket_qua_hs[user_id].append({
+        "buoi": buoi,
+        "diem": diem,
+        "tong": tong,
+        "phan_tram": round(diem / tong * 100) if tong else 0,
+        "chi_tiet": chi_tiet,   # {"q1": True, "q2": False, ...}
+        "thoi_gian": datetime.now().strftime("%d/%m/%Y %H:%M"),
+    })
+
+def lich_su_hs(user_id: int) -> list:
+    return ket_qua_hs.get(user_id, [])
+
+# ── System prompt ─────────────────────────────────────────────────────
 def load_system_prompt(so_buoi: int) -> str:
     if so_buoi in _prompt_cache:
         return _prompt_cache[so_buoi]
-    if so_buoi not in BUOI_CONFIG:
-        return DEFAULT_SYSTEM_PROMPT
-    path = CONTENT_DIR / "lop3" / BUOI_CONFIG[so_buoi]["folder"] / "system-prompt.txt"
-    if path.exists():
-        try:
-            p = path.read_text(encoding="utf-8")
-            _prompt_cache[so_buoi] = p
-            return p
-        except Exception as e:
-            logger.error(f"Lỗi đọc prompt: {e}")
-    return DEFAULT_SYSTEM_PROMPT
+    if so_buoi in BUOI_CONFIG:
+        path = CONTENT_DIR / "lop3" / BUOI_CONFIG[so_buoi]["folder"] / "system-prompt.txt"
+        if path.exists():
+            try:
+                p = path.read_text(encoding="utf-8")
+                _prompt_cache[so_buoi] = p
+                return p
+            except Exception as e:
+                logger.error(f"Lỗi đọc prompt: {e}")
+    return "Bạn là thầy Long Vinastudy - trợ lý dạy Toán lớp 3. Giải từng bước bằng tiếng Việt."
 
-# ── Menus ─────────────────────────────────────────────────────────────────────
+# ── Claude helper ─────────────────────────────────────────────────────
+async def ask_claude(history: list, user_msg: str, buoi: int = DEFAULT_BUOI) -> str:
+    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+    history.append({"role": "user", "content": user_msg})
+    try:
+        resp = client.messages.create(
+            model="claude-sonnet-4-6", max_tokens=1024,
+            system=load_system_prompt(buoi), messages=history,
+        )
+        reply = resp.content[0].text
+        history.append({"role": "assistant", "content": reply})
+        return reply
+    except Exception as e:
+        logger.error(f"Claude error: {e}")
+        return "❌ Có lỗi, em thử lại sau nhé!"
 
+async def danh_gia_nang_luc(user_id: int, buoi: int, diem: int, tong: int, chi_tiet: dict) -> str:
+    """Dùng Claude để đánh giá năng lực và đưa ra lời khuyên."""
+    phan_tram = round(diem / tong * 100) if tong else 0
+    dang_sai = [k for k, v in chi_tiet.items() if not v]
+    lich_su = lich_su_hs(user_id)[-5:]  # 5 lần gần nhất
+
+    lich_su_text = ""
+    if lich_su:
+        for ls in lich_su:
+            lich_su_text += f"  - Buổi {ls['buoi']}: {ls['diem']}/{ls['tong']} ({ls['phan_tram']}%) lúc {ls['thoi_gian']}\n"
+
+    prompt = f"""Em học sinh vừa hoàn thành bài tập Buổi {buoi} — {BUOI_CONFIG.get(buoi,{}).get('ten','')}.
+
+KẾT QUẢ:
+- Điểm: {diem}/{tong} câu ({phan_tram}%)
+- Câu sai: {', '.join(dang_sai) if dang_sai else 'Không có'}
+- Dạng bài của buổi: {', '.join(DANG_BAI.get(buoi, []))}
+
+LỊCH SỬ 5 LẦN GẦN NHẤT:
+{lich_su_text if lich_su_text else '  (Chưa có lịch sử)'}
+
+Hãy:
+1. Nhận xét ngắn gọn về kết quả (1-2 câu, thân thiện với học sinh lớp 3)
+2. Xác định mức năng lực: 🌱Mức 1 (0-40%) / 📖Mức 2 (40-60%) / ⭐Mức 3 (60-80%) / 🏆Mức 4 (80-100%)
+3. Chỉ ra kiến thức còn hổng (nếu có câu sai)
+4. Lời khuyên ôn tập cụ thể (2-3 gợi ý ngắn)
+
+Trả lời bằng tiếng Việt, thân thiện, ngắn gọn, dùng emoji."""
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+    try:
+        resp = client.messages.create(
+            model="claude-sonnet-4-6", max_tokens=600,
+            system=load_system_prompt(buoi),
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return resp.content[0].text
+    except Exception as e:
+        logger.error(f"Claude eval error: {e}")
+        return f"✅ Em đạt {diem}/{tong} câu ({phan_tram}%). Cố gắng ôn tập thêm nhé!"
+
+# ── Menus ─────────────────────────────────────────────────────────────
 MAIN_MENU = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton("🏠 Bài tập về nhà"),  KeyboardButton("🎯 Kiểm tra năng lực")],
@@ -83,7 +172,6 @@ MAIN_MENU = ReplyKeyboardMarkup(
         [KeyboardButton("🗑️ Xoá lịch sử")],
     ],
     resize_keyboard=True,
-    input_field_placeholder="Chọn chức năng hoặc nhập câu hỏi...",
 )
 
 def make_btvn_menu():
@@ -99,8 +187,7 @@ def make_buoi_menu():
 BTVN_MENU = make_btvn_menu()
 BUOI_MENU = make_buoi_menu()
 
-# ── State ─────────────────────────────────────────────────────────────────────
-
+# ── State ─────────────────────────────────────────────────────────────
 user_state: dict = {}
 
 def get_state(uid):
@@ -112,70 +199,71 @@ def clear_history(uid):
     buoi = user_state.get(uid, {}).get("buoi", DEFAULT_BUOI)
     user_state[uid] = {"mode": "menu", "history": [], "buoi": buoi}
 
-# ── Claude helper ─────────────────────────────────────────────────────────────
-
-async def ask_claude(history, user_message, buoi=DEFAULT_BUOI):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
-    history.append({"role": "user", "content": user_message})
-    try:
-        resp = client.messages.create(
-            model="claude-sonnet-4-6", max_tokens=1024,
-            system=load_system_prompt(buoi), messages=history,
-        )
-        reply = resp.content[0].text
-        history.append({"role": "assistant", "content": reply})
-        return reply
-    except Exception as e:
-        logger.error(f"Claude error: {e}")
-        return "Có lỗi xảy ra, em thử lại sau nhé!"
-
-# ── Handlers ──────────────────────────────────────────────────────────────────
-
+# ── Handlers ──────────────────────────────────────────────────────────
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clear_history(update.effective_user.id)
     await update.message.reply_text(
-        f"Chào {update.effective_user.first_name}!\n\n"
-        "Đây là bot học Toán của *VInaStudy*\n"
-        "Thầy Nguyễn Thành Long\n\n"
-        "Chọn chức năng bên dưới để bắt đầu nhé!",
+        f"👋 Chào {update.effective_user.first_name}!\n\n"
+        "🎓 Bot học Toán *VInaStudy* — Thầy Nguyễn Thành Long\n\n"
+        "Chọn chức năng bên dưới để bắt đầu! 👇",
         parse_mode="Markdown", reply_markup=MAIN_MENU,
     )
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid   = update.effective_user.id
-    text  = update.message.text.strip()
+    text  = (update.message.text or "").strip()
     state = get_state(uid)
 
-    # 🏠 Bài tập về nhà
+    # ── Web App data (kết quả bài tập từ HTML) ────────────────────────
+    if update.message.web_app_data:
+        await xu_ly_ket_qua_webapp(update, context)
+        return
+
+    # ── 🏠 Bài tập về nhà ────────────────────────────────────────────
     if text == "🏠 Bài tập về nhà":
         state["mode"] = "btvn_menu"
         await update.message.reply_text(
-            "🏠 *Bài Tập Về Nhà*\n\nChọn buổi học bên dưới.\n_(Buổi mới nhất ở dưới cùng)_ 👇",
+            "🏠 *Bài Tập Về Nhà*\n\nChọn buổi học để làm bài.\n_(Buổi mới nhất ở dưới cùng)_ 👇",
             parse_mode="Markdown", reply_markup=BTVN_MENU,
         )
         return
 
-    # Chọn buổi BTVN
+    # ── Chọn buổi BTVN → mở Web App ──────────────────────────────────
     if text.startswith("📖 Buổi "):
         try:
             so_buoi = int(text.split("Buổi ")[1].split(" —")[0])
         except Exception:
             so_buoi = None
+
         if so_buoi and so_buoi in BTVN_CONFIG:
-            state["mode"] = "btvn_chat"
             state["buoi"] = so_buoi
+            state["mode"] = "btvn_chat"
             state["history"] = []
-            cfg = BTVN_CONFIG[so_buoi]
-            url = f"{BASE_URL}/{cfg['html']}"
-            ten = BUOI_CONFIG[so_buoi]["ten"]
+
+            cfg      = BTVN_CONFIG[so_buoi]
+            ten      = BUOI_CONFIG[so_buoi]["ten"]
+            webapp_url = f"{BASE_URL}/{cfg['html']}"
+
+            # Nút mở Web App ngay trong Telegram
+            keyboard = InlineKeyboardMarkup([[
+                InlineKeyboardButton(
+                    text=f"📝 Làm bài — Buổi {so_buoi}",
+                    web_app=WebAppInfo(url=webapp_url),
+                )
+            ]])
+
             await update.message.reply_text(
-                f"🏠 *Bài tập về nhà — Buổi {so_buoi}*\n_{ten}_\n\n"
+                f"🏠 *Bài tập về nhà — Buổi {so_buoi}*\n"
+                f"_{ten}_\n\n"
                 f"📋 {cfg['so_cau']} câu bài tập\n"
-                f"👉 Làm bài tại đây:\n{url}\n\n"
-                f"💬 Nhập câu hỏi nếu cần thầy hướng dẫn!\n"
-                f"📹 {BUOI_CONFIG[so_buoi]['video']}",
+                f"📹 Video: {BUOI_CONFIG[so_buoi]['video']}\n\n"
+                f"👇 Nhấn nút bên dưới để làm bài:",
                 parse_mode="Markdown",
+                reply_markup=keyboard,
+            )
+            await update.message.reply_text(
+                "💬 Hoặc nhập câu hỏi nếu cần thầy hướng dẫn!",
                 reply_markup=ReplyKeyboardMarkup(
                     [[KeyboardButton("🏠 Bài tập về nhà")],
                      [KeyboardButton("🔙 Về menu chính")]],
@@ -183,56 +271,67 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ),
             )
         else:
-            await update.message.reply_text("Buổi này chưa có bài tập về nhà.", reply_markup=BTVN_MENU)
+            await update.message.reply_text("Buổi này chưa có bài tập.", reply_markup=BTVN_MENU)
         return
 
-    # 🎯 Kiểm tra năng lực
+    # ── 🎯 Kiểm tra năng lực ─────────────────────────────────────────
     if text == "🎯 Kiểm tra năng lực":
-        await update.message.reply_text(
-            "🎯 *Kiểm tra năng lực*\n\n⏳ Tính năng đang phát triển, em quay lại sau nhé!",
-            parse_mode="Markdown", reply_markup=MAIN_MENU,
-        )
+        uid_ls = lich_su_hs(uid)
+        if not uid_ls:
+            msg = "📊 Em chưa làm bài tập nào. Hãy làm *🏠 Bài tập về nhà* trước nhé!"
+        else:
+            lines = ["📊 *Tổng kết năng lực của em:*\n"]
+            for ls in reversed(uid_ls[-8:]):
+                bar = "🟢" if ls["phan_tram"]>=80 else ("🟡" if ls["phan_tram"]>=60 else ("🟠" if ls["phan_tram"]>=40 else "🔴"))
+                lines.append(f"{bar} Buổi {ls['buoi']}: *{ls['diem']}/{ls['tong']}* ({ls['phan_tram']}%) — {ls['thoi_gian']}")
+            msg = "\n".join(lines)
+        await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
-    # 📊 Bảng điểm
+    # ── 📊 Bảng điểm ─────────────────────────────────────────────────
     if text == "📊 Bảng điểm":
-        await update.message.reply_text(
-            "📊 *Bảng điểm*\n\n⏳ Tính năng đang phát triển!",
-            parse_mode="Markdown", reply_markup=MAIN_MENU,
-        )
+        uid_ls = lich_su_hs(uid)
+        if not uid_ls:
+            msg = "📋 Em chưa có kết quả nào. Hãy làm bài tập trước nhé!"
+        else:
+            lines = ["📋 *Lịch sử bài làm của em:*\n"]
+            for i, ls in enumerate(reversed(uid_ls), 1):
+                pct = ls["phan_tram"]
+                lvl = "🏆" if pct>=80 else ("⭐" if pct>=60 else ("📖" if pct>=40 else "🌱"))
+                lines.append(f"{i}. {lvl} Buổi {ls['buoi']} — {ls['diem']}/{ls['tong']} ({pct}%)\n   📅 {ls['thoi_gian']}")
+            msg = "\n".join(lines)
+        await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
-    # 📹 Xem video
+    # ── 📹 Xem video ─────────────────────────────────────────────────
     if text == "📹 Xem video":
         buoi = state.get("buoi", DEFAULT_BUOI)
+        cfg  = BUOI_CONFIG[buoi]
         await update.message.reply_text(
-            f"📹 *Video — Buổi {buoi}*\n_{BUOI_CONFIG[buoi]['ten']}_\n\n"
-            f"🔗 {BUOI_CONFIG[buoi]['video']}",
+            f"📹 *Video — Buổi {buoi}*\n_{cfg['ten']}_\n\n🔗 {cfg['video']}",
             parse_mode="Markdown", reply_markup=MAIN_MENU,
         )
         return
 
-    # 💬 Hỏi bài
+    # ── 💬 Hỏi bài ───────────────────────────────────────────────────
     if text == "💬 Hỏi bài":
         state["mode"] = "chat"
         buoi = state.get("buoi", DEFAULT_BUOI)
         await update.message.reply_text(
             f"💬 *Hỏi bài — Buổi {buoi}: {BUOI_CONFIG[buoi]['ten']}*\n\n"
-            "Gõ bài toán cần giải, thầy Long AI sẽ giải từng bước! 👇",
+            "Gõ bài toán cần giải, thầy Long AI sẽ hướng dẫn từng bước! 👇",
             parse_mode="Markdown", reply_markup=MAIN_MENU,
         )
         return
 
-    # 📚 Chọn buổi học
+    # ── 📚 Chọn buổi học ─────────────────────────────────────────────
     if text == "📚 Chọn buổi học":
         state["mode"] = "chon_buoi"
         await update.message.reply_text(
-            "📚 *Chọn buổi học*\n\nEm đang muốn học buổi nào?",
-            parse_mode="Markdown", reply_markup=BUOI_MENU,
+            "📚 *Chọn buổi học*", parse_mode="Markdown", reply_markup=BUOI_MENU,
         )
         return
 
-    # Chọn buổi học cụ thể
     if text.startswith("📘 Buổi "):
         try:
             so_buoi = int(text.split("Buổi ")[1].split(":")[0])
@@ -243,28 +342,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             state["history"] = []
             state["mode"] = "menu"
             await update.message.reply_text(
-                f"Đã chuyển sang *Buổi {so_buoi}: {BUOI_CONFIG[so_buoi]['ten']}*\n\n"
-                f"Video: {BUOI_CONFIG[so_buoi]['video']}\n\n"
-                "Dùng *Hỏi bài* để học nhé!",
+                f"✅ Đã chuyển sang *Buổi {so_buoi}: {BUOI_CONFIG[so_buoi]['ten']}*",
                 parse_mode="Markdown", reply_markup=MAIN_MENU,
             )
-        else:
-            await update.message.reply_text("Không tìm thấy buổi này.", reply_markup=MAIN_MENU)
         return
 
-    # 🗑️ Xoá lịch sử
+    # ── 🗑️ Xoá lịch sử ───────────────────────────────────────────────
     if text == "🗑️ Xoá lịch sử":
         clear_history(uid)
-        await update.message.reply_text("Đã xoá lịch sử hội thoại! Em bắt đầu lại từ đầu nhé 😊", reply_markup=MAIN_MENU)
+        await update.message.reply_text("🗑️ Đã xoá lịch sử hội thoại!", reply_markup=MAIN_MENU)
         return
 
-    # 🔙 Về menu chính
+    # ── 🔙 Về menu chính ─────────────────────────────────────────────
     if text == "🔙 Về menu chính":
         state["mode"] = "menu"
-        await update.message.reply_text("Về menu chính!", reply_markup=MAIN_MENU)
+        await update.message.reply_text("🏠 Menu chính!", reply_markup=MAIN_MENU)
         return
 
-    # Chat mode
+    # ── Chat / hỏi bài ───────────────────────────────────────────────
     if state["mode"] in ("chat", "btvn_chat"):
         await update.message.chat.send_action("typing")
         reply = await ask_claude(state["history"], text, state.get("buoi", DEFAULT_BUOI))
@@ -273,8 +368,48 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Fallback
     await update.message.reply_text(
-        "Em chọn chức năng trong menu bên dưới nhé!\nHoặc bấm *Hỏi bài* để hỏi bài toán.",
+        "Chọn chức năng trong menu nhé! Hoặc bấm *💬 Hỏi bài* để hỏi bài toán.",
         parse_mode="Markdown", reply_markup=MAIN_MENU,
+    )
+
+
+async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Nhận kết quả từ Web App HTML, chấm điểm, đánh giá năng lực."""
+    uid   = update.effective_user.id
+    state = get_state(uid)
+
+    try:
+        data     = json.loads(update.message.web_app_data.data)
+        buoi     = data.get("buoi", state.get("buoi", DEFAULT_BUOI))
+        diem     = data.get("diem", 0)
+        tong     = data.get("tong", 0)
+        chi_tiet = data.get("chi_tiet", {})   # {"q1": true, "q2": false, ...}
+    except Exception as e:
+        logger.error(f"Web app data error: {e}")
+        await update.message.reply_text("❌ Lỗi nhận kết quả, em thử lại nhé!", reply_markup=MAIN_MENU)
+        return
+
+    # Lưu kết quả
+    luu_ket_qua(uid, buoi, diem, tong, chi_tiet)
+    phan_tram = round(diem / tong * 100) if tong else 0
+
+    # Thông báo kết quả ngay
+    await update.message.reply_text(
+        f"✅ *Đã nộp bài — Buổi {buoi}*\n\n"
+        f"📊 Điểm: *{diem}/{tong}* câu ({phan_tram}%)\n\n"
+        f"⏳ Đang phân tích năng lực...",
+        parse_mode="Markdown",
+    )
+
+    # Claude đánh giá năng lực
+    await update.message.chat.send_action("typing")
+    danh_gia = await danh_gia_nang_luc(uid, buoi, diem, tong, chi_tiet)
+
+    await update.message.reply_text(
+        f"🎓 *Đánh giá năng lực*\n\n{danh_gia}\n\n"
+        f"📹 Xem lại bài giảng: {BUOI_CONFIG.get(buoi,{}).get('video','')}",
+        parse_mode="Markdown",
+        reply_markup=MAIN_MENU,
     )
 
 
@@ -286,12 +421,12 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         photo      = update.message.photo[-1]
         file       = await context.bot.get_file(photo.file_id)
         file_bytes = await file.download_as_bytearray()
-        image_data = base64.standard_b64encode(file_bytes).decode("utf-8")
+        img_b64    = base64.standard_b64encode(file_bytes).decode("utf-8")
         caption    = update.message.caption or ""
-        user_text  = f"Em gửi ảnh bài toán để thầy xem.{' Ghi chú: ' + caption if caption else ''}"
+        user_text  = f"Em gửi ảnh bài toán.{' Ghi chú: ' + caption if caption else ''}"
         client     = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
         messages   = state["history"] + [{"role": "user", "content": [
-            {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": image_data}},
+            {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": img_b64}},
             {"type": "text",  "text": user_text},
         ]}]
         resp  = client.messages.create(model="claude-sonnet-4-6", max_tokens=1024,
@@ -302,46 +437,51 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(reply, reply_markup=MAIN_MENU)
     except Exception as e:
         logger.error(f"Photo error: {e}")
-        await update.message.reply_text("Chưa đọc được ảnh, em thử gửi lại nhé!", reply_markup=MAIN_MENU)
+        await update.message.reply_text("Chưa đọc được ảnh, em thử lại nhé!", reply_markup=MAIN_MENU)
 
 
-async def xoa(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def xoa_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clear_history(update.effective_user.id)
-    await update.message.reply_text("Đã xoá lịch sử! Em bắt đầu lại nhé 😊", reply_markup=MAIN_MENU)
-
-async def video_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid  = update.effective_user.id
-    buoi = get_state(uid).get("buoi", DEFAULT_BUOI)
-    await update.message.reply_text(
-        f"Video Buổi {buoi} — {BUOI_CONFIG[buoi]['ten']}\n{BUOI_CONFIG[buoi]['video']}",
-        reply_markup=MAIN_MENU,
-    )
+    await update.message.reply_text("🗑️ Đã xoá lịch sử!", reply_markup=MAIN_MENU)
 
 async def btvn_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     get_state(update.effective_user.id)["mode"] = "btvn_menu"
-    await update.message.reply_text("Bài Tập Về Nhà — chọn buổi học:", reply_markup=BTVN_MENU)
+    await update.message.reply_text("🏠 Chọn buổi học:", reply_markup=BTVN_MENU)
 
-async def chon_buoi_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def chonbuoi_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     get_state(update.effective_user.id)["mode"] = "chon_buoi"
-    await update.message.reply_text("Chọn buổi học:", reply_markup=BUOI_MENU)
+    await update.message.reply_text("📚 Chọn buổi học:", reply_markup=BUOI_MENU)
+
+async def bangdiem_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    uid    = update.effective_user.id
+    uid_ls = lich_su_hs(uid)
+    if not uid_ls:
+        msg = "📋 Em chưa có kết quả nào. Hãy làm bài tập trước nhé!"
+    else:
+        lines = ["📋 *Lịch sử bài làm:*\n"]
+        for i, ls in enumerate(reversed(uid_ls), 1):
+            lvl = "🏆" if ls["phan_tram"]>=80 else ("⭐" if ls["phan_tram"]>=60 else ("📖" if ls["phan_tram"]>=40 else "🌱"))
+            lines.append(f"{i}. {lvl} Buổi {ls['buoi']} — {ls['diem']}/{ls['tong']} ({ls['phan_tram']}%) | {ls['thoi_gian']}")
+        msg = "\n".join(lines)
+    await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
-    logger.error(f"Exception: {context.error}", exc_info=context.error)
+    logger.error(f"Error: {context.error}", exc_info=context.error)
 
-# ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
     if not TELEGRAM_TOKEN: raise ValueError("Thiếu TELEGRAM_TOKEN")
     if not ANTHROPIC_KEY:  raise ValueError("Thiếu ANTHROPIC_API_KEY")
 
     app = Application.builder().token(TELEGRAM_TOKEN).build()
-    app.add_handler(CommandHandler("start",    start))
-    app.add_handler(CommandHandler("xoa",      xoa))
-    app.add_handler(CommandHandler("video",    video_cmd))
-    app.add_handler(CommandHandler("btvn",     btvn_cmd))
-    app.add_handler(CommandHandler("chonbuoi", chon_buoi_cmd))
+
+    app.add_handler(CommandHandler("start",     start))
+    app.add_handler(CommandHandler("xoa",       xoa_cmd))
+    app.add_handler(CommandHandler("btvn",      btvn_cmd))
+    app.add_handler(CommandHandler("chonbuoi",  chonbuoi_cmd))
+    app.add_handler(CommandHandler("bangdiem",  bangdiem_cmd))
     app.add_handler(MessageHandler(filters.TEXT  & ~filters.COMMAND, handle_message))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    app.add_handler(MessageHandler(filters.PHOTO,                    handle_photo))
     app.add_error_handler(error_handler)
 
     logger.info("VInaStudy Bot dang chay...")
