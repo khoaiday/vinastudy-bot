@@ -165,15 +165,20 @@ Trả lời bằng tiếng Việt, thân thiện, ngắn gọn, dùng emoji."""
         return f"✅ Em đạt {diem}/{tong} câu ({phan_tram}%). Cố gắng ôn tập thêm nhé!"
 
 # ── Menus ─────────────────────────────────────────────────────────────
-MAIN_MENU = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton("📝 Làm bài tập"),  KeyboardButton("🎯 Kiểm tra năng lực")],
-        [KeyboardButton("📊 Bảng điểm"),        KeyboardButton("📹 Xem video")],
-        [KeyboardButton("💬 Hỏi bài"),          KeyboardButton("📚 Chọn buổi học")],
-        [KeyboardButton("🗑️ Xoá lịch sử")],
-    ],
-    resize_keyboard=True,
-)
+def make_main_menu() -> ReplyKeyboardMarkup:
+    webapp_url = f"{BASE_URL}/content/index.html"
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton("📝 Làm bài tập", web_app=WebAppInfo(url=webapp_url)),
+             KeyboardButton("🎯 Kiểm tra năng lực")],
+            [KeyboardButton("📊 Bảng điểm"),   KeyboardButton("📹 Xem video")],
+            [KeyboardButton("💬 Hỏi bài"),     KeyboardButton("📚 Chọn buổi học")],
+            [KeyboardButton("🗑️ Xoá lịch sử")],
+        ],
+        resize_keyboard=True,
+    )
+
+MAIN_MENU = make_main_menu()
 
 def make_btvn_menu():
     rows = [[KeyboardButton(f"📖 Buổi {b} — {BUOI_CONFIG[b]['ten']}")] for b in sorted(BTVN_CONFIG)]
