@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 2 — Bài Toán Cấu Tạo Số</title>
+
+<style>
+  :root {
+    --teal:   #0f766e;
+    --teal2:  #14b8a6;
+    --teal3:  #99f6e4;
+    --amber:  #d97706;
+    --amber2: #fbbf24;
+    --bg:     #f0fdfa;
+    --card:   #ffffff;
+    --text:   #134e4a;
+    --muted:  #5eead4;
+    --border: #ccfbf1;
+    --green:  #10b981;
+    --red:    #ef4444;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(15,118,110,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(20,184,166,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 85% 85%, rgba(217,119,6,0.10) 0%, transparent 50%);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, var(--teal) 0%, #0d9488 100%);
+    color: white;
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: "";
+    position: absolute; top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.06); border-radius: 50%;
+  }
+  .header::after {
+    content: "";
+    position: absolute; bottom: -70px; left: -40px;
+    width: 240px; height: 240px;
+    background: rgba(251,191,36,0.08); border-radius: 50%;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px; padding: 4px 14px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 900; line-height: 1.2; margin-bottom: 8px;
+  }
+  .header p { font-size: 14px; opacity: 0.8; margin-bottom: 20px; }
+
+  /* ── Progress ── */
+  .progress-wrap { max-width: 500px; margin: 0 auto; }
+  .progress-info {
+    display: flex; justify-content: space-between;
+    font-size: 13px; font-weight: 700; margin-bottom: 8px; opacity: 0.9;
+  }
+  .progress-bar { height: 10px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber2), #fde68a);
+    border-radius: 10px; transition: width 0.5s cubic-bezier(.4,0,.2,1); width: 0%;
+  }
+
+  /* ── Score bar ── */
+  .score-bar {
+    display: flex; justify-content: center; gap: 20px;
+    padding: 14px 20px; background: white;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 50;
+    box-shadow: 0 2px 12px rgba(15,118,110,0.08);
+  }
+  .score-item { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; }
+  .score-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ── Main ── */
+  .main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+
+  /* ── Method box ── */
+  .method-box {
+    background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+    border: 2px solid var(--teal2);
+    border-radius: 16px; padding: 16px 18px; margin-bottom: 24px;
+    font-size: 13px; line-height: 1.7; color: var(--teal);
+  }
+  .method-box strong { font-weight: 800; color: var(--teal); }
+  .method-box code {
+    background: white; padding: 1px 6px; border-radius: 6px;
+    font-family: monospace; font-size: 13px; color: var(--amber);
+    font-weight: 700;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 13px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--teal); margin: 32px 0 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: ""; flex: 1; height: 2px;
+    background: linear-gradient(90deg, var(--border), transparent);
+    border-radius: 2px;
+  }
+
+  /* ── Question card ── */
+  .q-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 22px 22px 18px; margin-bottom: 14px;
+    box-shadow: var(--shadow); border: 1.5px solid var(--border);
+    transition: border-color 0.3s, box-shadow 0.3s;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .q-card.correct { border-color: var(--green); background: #f0fdf9; }
+  .q-card.wrong   { border-color: var(--red);   background: #fff5f5; }
+
+  .q-num {
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--teal); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .q-num-badge {
+    background: var(--teal); color: white;
+    border-radius: 8px; padding: 2px 8px; font-size: 11px;
+  }
+  .q-text {
+    font-size: 15px; font-weight: 600; line-height: 1.65;
+    margin-bottom: 14px; color: var(--text);
+  }
+  .q-text strong { color: var(--teal); }
+
+  /* ── Inputs ── */
+  .ans-input {
+    border: 2px solid var(--border); border-radius: 12px;
+    padding: 9px 14px; font-size: 15px;
+    font-family: 'Times New Roman', Times, serif; font-weight: 700;
+    outline: none; transition: border 0.2s, box-shadow 0.2s;
+    background: white; color: var(--text); min-width: 120px;
+  }
+  .ans-input:focus { border-color: var(--teal2); box-shadow: 0 0 0 3px rgba(20,184,166,0.15); }
+  .ans-input.correct-input { border-color: var(--green); background: #f0fdf9; }
+  .ans-input.wrong-input   { border-color: var(--red);   background: #fff5f5; }
+
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .choice-btn {
+    padding: 9px 18px; border: 2px solid var(--border);
+    border-radius: 12px; background: white;
+    font-family: 'Times New Roman', Times, serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; color: var(--text);
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--teal2); background: #f0fdfa; color: var(--teal); }
+  .choice-btn.selected { border-color: var(--teal2); background: #f0fdfa; color: var(--teal); }
+  .choice-btn.correct  { border-color: var(--green); background: #f0fdf9; color: var(--green); }
+  .choice-btn.wrong    { border-color: var(--red);   background: #fff5f5; color: var(--red); }
+
+  /* ── Feedback ── */
+  .feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 12px;
+    font-size: 14px; font-weight: 600; display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: flex; align-items: flex-start; gap: 8px; }
+  .feedback.correct-fb { background: #dcfce7; color: #166534; }
+  .feedback.wrong-fb   { background: #fee2e2; color: #991b1b; }
+
+  /* ── Check button ── */
+  .check-btn {
+    margin-top: 14px; padding: 10px 22px;
+    background: var(--teal); color: white; border: none;
+    border-radius: 12px; font-family: 'Times New Roman', Times, serif;
+    font-size: 14px; font-weight: 800; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+  }
+  .check-btn:hover:not(:disabled) { background: var(--teal2); transform: translateY(-1px); }
+  .check-btn:disabled { background: var(--border); color: #94a3b8; cursor: not-allowed; transform: none; }
+
+  /* ── Submit ── */
+  .submit-wrap { text-align: center; margin-top: 36px; }
+  .submit-btn {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--teal), #0d9488);
+    color: white; border: none; border-radius: 16px;
+    font-family: 'Times New Roman', Times, serif; font-size: 18px; font-weight: 800;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 8px 24px rgba(15,118,110,0.3); letter-spacing: -0.3px;
+  }
+  .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(15,118,110,0.35); }
+
+  /* ── Result overlay ── */
+  .result-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,23,42,0.7); z-index: 200;
+    align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .result-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .result-card {
+    background: white; border-radius: 28px; padding: 36px 32px;
+    max-width: 440px; width: 100%; text-align: center;
+    box-shadow: 0 24px 64px rgba(15,23,42,0.25);
+    animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .result-emoji { font-size: 64px; margin-bottom: 12px; display: block; }
+  .result-title { font-family: 'Times New Roman', Times, serif; font-size: 26px; font-weight: 900; color: var(--teal); margin-bottom: 6px; }
+  .result-score {
+    font-size: 48px; font-weight: 900; font-family: 'Times New Roman', Times, serif; margin: 12px 0;
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .result-level {
+    display: inline-block; padding: 8px 20px; border-radius: 20px;
+    font-weight: 800; font-size: 15px; margin: 8px 0 20px;
+  }
+  .result-detail { display: flex; justify-content: center; gap: 24px; margin-bottom: 24px; }
+  .result-detail-item { text-align: center; }
+  .result-detail-num { font-size: 24px; font-weight: 900; font-family: 'Times New Roman', Times, serif; }
+  .result-detail-label { font-size: 12px; color: #64748b; font-weight: 600; }
+
+  .result-btn {
+    padding: 13px 32px; border-radius: 14px;
+    font-family: 'Times New Roman', Times, serif; font-size: 15px; font-weight: 800;
+    cursor: pointer; border: none; transition: all 0.2s; margin: 0 6px;
+  }
+  .btn-retry { background: var(--teal); color: white; }
+  .btn-retry:hover { background: var(--teal2); transform: translateY(-2px); }
+  .btn-review { background: var(--bg); color: var(--teal); border: 2px solid var(--border); }
+  .btn-review:hover { border-color: var(--teal2); }
+
+  .answer-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  @media (max-width: 480px) {
+    .q-card { padding: 18px 16px 14px; }
+    .result-card { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+    <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VInaStudy" style="height:44px;object-fit:contain;filter:brightness(0) invert(1)">
+    <span style="font-size:15px;font-weight:800;letter-spacing:0.3px;opacity:0.95">VInaStudy — Toán Lớp 3 HSG</span>
+  </div>
+  <h1>🔢 Bài 2 — Bài Toán<br>Cấu Tạo Số</h1>
+  <p>Thầy Nguyễn Thành Long • 12 câu bài tập</p>
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="progressText">0 / 12 câu</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<!-- Score bar -->
+<div class="score-bar">
+  <div class="score-item"><div class="score-dot" style="background:var(--green)"></div><span id="scoreCorrect">0</span> Đúng</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--red)"></div><span id="scoreWrong">0</span> Sai</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--border)"></div><span id="scoreLeft">12</span> Chưa làm</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Method reminder -->
+  <div class="method-box">
+    💡 <strong>Nhớ phương pháp thầy Long:</strong><br>
+    Viết thêm chữ số <strong>d</strong> vào bên trái số <strong>ab</strong> → số mới = <code>d×100 + ab</code><br>
+    <strong>Cách 1:</strong> Lập phương trình cấu tạo số &nbsp;|&nbsp; <strong>Cách 2:</strong> Vẽ sơ đồ đoạn thẳng
+  </div>
+
+  <!-- Dạng 1: 1 chữ số -->
+  <div class="section-title">1️⃣ Dạng 1 — Số có 1 chữ số</div>
+
+  <!-- Câu 1 -->
+  <div class="q-card" id="q1">
+    <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 133379</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q1ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q1','q1ans',['2'],'✅ Đúng! 1a = 10 + a = 6a → 10 = 5a → a = 2. Kiểm tra: 12 = 6×2 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq1"></div>
+  </div>
+
+  <!-- Câu 2 -->
+  <div class="q-card" id="q2">
+    <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 133380</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q2ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q2','q2ans',['5'],'✅ Đúng! 2a = 20 + a = 5a → 20 = 4a → a = 5. Kiểm tra: 25 = 5×5 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq2"></div>
+  </div>
+
+  <!-- Câu 3 -->
+  <div class="q-card" id="q3">
+    <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 133381</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 11 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q3ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q3','q3ans',['4'],'✅ Đúng! 4a = 40 + a = 11a → 40 = 10a → a = 4. Kiểm tra: 44 = 11×4 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq3"></div>
+  </div>
+
+  <!-- Câu 4 -->
+  <div class="q-card" id="q4">
+    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 133382</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>3</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q4ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q4','q4ans',['6'],'✅ Đúng! 3a = 30 + a = 6a → 30 = 5a → a = 6. Kiểm tra: 36 = 6×6 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq4"></div>
+  </div>
+
+  <!-- Dạng 2: 2 chữ số -->
+  <div class="section-title">2️⃣ Dạng 2 — Số có 2 chữ số</div>
+
+  <!-- Câu 5 -->
+  <div class="q-card" id="q5">
+    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 133383</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q5ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q5','q5ans',['25'],'✅ Đúng! 2ab = 200 + ab = 9×ab → 200 = 8×ab → ab = 25. Kiểm tra: 225 = 9×25 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq5"></div>
+  </div>
+
+  <!-- Câu 6 -->
+  <div class="q-card" id="q6">
+    <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 133384</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q6ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q6','q6ans',['20'],'✅ Đúng! 1ab = 100 + ab = 6×ab → 100 = 5×ab → ab = 20. Kiểm tra: 120 = 6×20 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq6"></div>
+  </div>
+
+  <!-- Câu 7 (BTVN) -->
+  <div class="q-card" id="q7">
+    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 133385 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q7ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q7','q7ans',['50'],'✅ Đúng! 4ab = 400 + ab = 9×ab → 400 = 8×ab → ab = 50. Kiểm tra: 450 = 9×50 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq7"></div>
+  </div>
+
+  <!-- Dạng 3: 3 chữ số -->
+  <div class="section-title">3️⃣ Dạng 3 — Số có 3 chữ số</div>
+
+  <!-- Câu 8 -->
+  <div class="q-card" id="q8">
+    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 133386</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q8ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q8','q8ans',['250'],'✅ Đúng! 1abc = 1000 + abc = 5×abc → 1000 = 4×abc → abc = 250. Kiểm tra: 1250 = 5×250 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq8"></div>
+  </div>
+
+  <!-- Câu 9 -->
+  <div class="q-card" id="q9">
+    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 133387</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q9ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q9','q9ans',['250'],'✅ Đúng! 2abc = 2000 + abc = 9×abc → 2000 = 8×abc → abc = 250. Kiểm tra: 2250 = 9×250 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq9"></div>
+  </div>
+
+  <!-- Câu 10 (BTVN) -->
+  <div class="q-card" id="q10">
+    <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 133388 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+    <div class="answer-row">
+      <span>Số cần tìm là</span>
+      <input class="ans-input" id="q10ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+    </div>
+    <button class="check-btn" onclick="checkText('q10','q10ans',['400'],'✅ Đúng! 2abc = 2000 + abc = 6×abc → 2000 = 5×abc → abc = 400. Kiểm tra: 2400 = 6×400 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq10"></div>
+  </div>
+
+  <!-- Dạng 4: Tư duy -->
+  <div class="section-title">🧠 Dạng 4 — Bài toán tư duy</div>
+
+  <!-- Câu 11 -->
+  <div class="q-card" id="q11">
+    <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 133389</div>
+    <div class="q-text">
+      Theo quy luật, hãy tìm tên của ổ khóa cuối cùng:<br><br>
+      🔒 ADA → chìa <strong>141</strong><br>
+      🔒 DGA → chìa <strong>471</strong><br>
+      🔒 DAG → chìa <strong>417</strong><br>
+      🔒 <strong>?</strong> → chìa <strong>717</strong>
+    </div>
+    <div class="choices" id="q11choices">
+      <button class="choice-btn" onclick="selectChoice('q11','GAG',this)">GAG</button>
+      <button class="choice-btn" onclick="selectChoice('q11','GGA',this)">GGA</button>
+      <button class="choice-btn" onclick="selectChoice('q11','AGG',this)">AGG</button>
+      <button class="choice-btn" onclick="selectChoice('q11','GAD',this)">GAD</button>
+    </div>
+    <button class="check-btn" disabled onclick="checkChoice('q11','GAG','✅ Đúng! A=1, D=4, G=7. Chìa 717 → 7,1,7 → G,A,G → GAG ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq11"></div>
+  </div>
+
+  <!-- Câu 12 -->
+  <div class="q-card" id="q12">
+    <div class="q-num"><span class="q-num-badge">Câu 12</span> Mã VinaID 141531</div>
+    <div class="q-text">
+      Các số tự nhiên 1, 2, 3, 4, 5 được điền vào các vòng tròn sao cho mỗi số điền 1 lần. <strong>Chiều mũi tên chỉ từ số bé đến số lớn.</strong><br><br>
+      Sơ đồ: <strong>A → T</strong> &nbsp;|&nbsp; <strong>M → X ← H</strong> &nbsp;|&nbsp; <strong>A ← M</strong> &nbsp;|&nbsp; <strong>T → X</strong><br><br>
+      Tìm số được điền ở vòng tròn <strong>A</strong>.
+    </div>
+    <div class="choices" id="q12choices">
+      <button class="choice-btn" onclick="selectChoice('q12','1',this)">1</button>
+      <button class="choice-btn" onclick="selectChoice('q12','2',this)">2</button>
+      <button class="choice-btn" onclick="selectChoice('q12','3',this)">3</button>
+      <button class="choice-btn" onclick="selectChoice('q12','4',this)">4</button>
+      <button class="choice-btn" onclick="selectChoice('q12','5',this)">5</button>
+    </div>
+    <button class="check-btn" disabled onclick="checkChoice('q12','2','✅ Đúng! Từ sơ đồ: H < A < M và A < T. Suy ra: A lớn hơn H, A bé hơn 3 số còn lại → A = 2. Dãy: 1 < 2(A) < 3 < 4 < 5 ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq12"></div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
+  </div>
+</div>
+
+<!-- Result overlay -->
+  <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:2;text-align:center">
+    <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
+    <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">Kết quả</div>
+    <div class="result-score" id="resultScore">0/12</div>
+    <div class="result-level" id="resultLevel"></div>
+    <div class="result-detail">
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div>
+        <div class="result-detail-label">✅ Đúng</div>
+      </div>
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdWrong" style="color:var(--red)">0</div>
+        <div class="result-detail-label">❌ Sai</div>
+      </div>
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdSkip" style="color:#94a3b8">0</div>
+        <div class="result-detail-label">⬜ Bỏ qua</div>
+      </div>
+    </div>
+    <div>
+      <button class="result-btn btn-retry" onclick="location.reload()">🔄 Làm lại</button>
+      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">📖 Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 12;
+let answered = {};
+let selected = {};
+
+function updateScore() {
+  const c = Object.values(answered).filter(v => v === true).length;
+  const w = Object.values(answered).filter(v => v === false).length;
+  const done = c + w;
+  document.getElementById('scoreCorrect').textContent = c;
+  document.getElementById('scoreWrong').textContent = w;
+  document.getElementById('scoreLeft').textContent = TOTAL - done;
+  document.getElementById('progressText').textContent = `${done} / ${TOTAL} câu`;
+  const pct = Math.round(done / TOTAL * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById(id);
+  fb.className = 'feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = (correct ? '✅ ' : '❌ ') + msg;
+  const card = fb.closest('.q-card');
+  card.classList.remove('correct', 'wrong');
+  card.classList.add(correct ? 'correct' : 'wrong');
+}
+
+function checkText(qId, inputId, correctList, explanation) {
+  const input = document.getElementById(inputId);
+  const val = input.value.trim().toLowerCase();
+  if (!val) {
+    input.style.borderColor = 'var(--amber)';
+    input.placeholder = 'Nhập đáp án!';
+    input.focus();
+    return;
+  }
+  input.style.borderColor = '';
+  const isCorrect = correctList.some(c => c.toLowerCase() === val);
+  answered[qId] = isCorrect;
+  updateScore();
+  input.className = 'ans-input ' + (isCorrect ? 'correct-input' : 'wrong-input');
+  input.disabled = true;
+  showFeedback(`fb${qId}`, isCorrect,
+    isCorrect ? explanation : `Chưa đúng. ${explanation}`
+  );
+  document.querySelector(`#${qId} .check-btn`).disabled = true;
+}
+
+// Gán sự kiện input để enable/disable nút Kiểm tra theo trạng thái ô nhập
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.ans-input').forEach(input => {
+    const card = input.closest('.q-card');
+    const btn = card.querySelector('.check-btn');
+    // Disable nút ban đầu
+    btn.disabled = true;
+    // Enable khi có nội dung
+    input.addEventListener('input', () => {
+      btn.disabled = input.value.trim() === '';
+    });
+    // Cho phép nhấn Enter để kiểm tra
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !btn.disabled) btn.click();
+    });
+  });
+});
+
+function selectChoice(qId, val, btn) {
+  if (answered[qId] !== undefined) return;
+  selected[qId] = val;
+  const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
+  btns.forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Enable nút Kiểm tra khi đã chọn
+  document.querySelector(`#${qId} .check-btn`).disabled = false;
+}
+
+function checkChoice(qId, correct, explanation) {
+  if (!selected[qId]) { alert('Em chưa chọn đáp án!'); return; }
+  if (answered[qId] !== undefined) return;
+  const isCorrect = selected[qId] === correct;
+  answered[qId] = isCorrect;
+  updateScore();
+  const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
+  btns.forEach(b => {
+    b.disabled = true;
+    const onclick = b.getAttribute('onclick');
+    const match = onclick.match(/selectChoice\('[^']+','([^']+)'/);
+    if (match) {
+      if (match[1] === correct) b.classList.add('correct');
+      else if (match[1] === selected[qId] && !isCorrect) b.classList.add('wrong');
+    }
+  });
+  showFeedback(`fb${qId}`, isCorrect,
+    isCorrect ? explanation : `Chưa đúng. ${explanation}`
+  );
+  document.querySelector(`#${qId} .check-btn`).disabled = true;
+}
+
+function submitAll() {
+  const c = Object.values(answered).filter(v => v === true).length;
+  const w = Object.values(answered).filter(v => v === false).length;
+  const skip = TOTAL - c - w;
+  const pct = Math.round(c / TOTAL * 100);
+
+  let emoji, title, levelText, levelColor;
+  if (pct >= 90)      { emoji='🏆'; title='Xuất sắc!';      levelText='🏆 Mức 4 — Giỏi toán';  levelColor='#fef3c7'; }
+  else if (pct >= 70) { emoji='⭐'; title='Làm tốt!';        levelText='⭐ Mức 3 — Làm tốt';    levelColor='#dbeafe'; }
+  else if (pct >= 50) { emoji='📖'; title='Hiểu bài!';       levelText='📖 Mức 2 — Hiểu bài';   levelColor='#e0f2fe'; }
+  else                { emoji='🌱'; title='Cố gắng thêm!';   levelText='🌱 Mức 1 — Đang học';   levelColor='#f0fdf4'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = `${c}/${TOTAL}`;
+  const rl = document.getElementById('resultLevel');
+  rl.textContent = levelText; rl.style.background = levelColor; rl.style.color = '#1e293b';
+  document.getElementById('rdCorrect').textContent = c;
+  document.getElementById('rdWrong').textContent = w;
+  document.getElementById('rdSkip').textContent = skip;
+  document.getElementById('resultOverlay').classList.add('show');
+}
+</script>
+</body>
+</html>

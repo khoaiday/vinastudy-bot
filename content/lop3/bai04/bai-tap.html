@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 4 — Dãy Số Cách Đều</title>
+<style>
+  :root {
+    --rose:   #be123c;
+    --rose2:  #f43f5e;
+    --rose3:  #ffe4e6;
+    --amber:  #d97706;
+    --amber2: #fbbf24;
+    --bg:     #fff1f2;
+    --card:   #ffffff;
+    --text:   #4c0519;
+    --muted:  #6b7280;
+    --border: #fecdd3;
+    --green:  #10b981;
+    --red:    #ef4444;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(190,18,60,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(244,63,94,0.10) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(217,119,6,0.10) 0%, transparent 50%);
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--rose) 0%, #e11d48 100%);
+    color: white; padding: 28px 20px 24px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .header::before { content:""; position:absolute; top:-40px; right:-40px; width:180px; height:180px; background:rgba(255,255,255,0.06); border-radius:50%; }
+  .header-badge { display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:20px; padding:4px 14px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-size:clamp(20px,5vw,28px); font-weight:900; line-height:1.2; margin-bottom:8px; }
+  .header p  { font-size:14px; opacity:0.8; margin-bottom:20px; }
+
+  .progress-wrap { max-width:500px; margin:0 auto; }
+  .progress-info { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:8px; opacity:0.9; }
+  .progress-bar  { height:10px; background:rgba(255,255,255,0.2); border-radius:10px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--amber2),#fde68a); border-radius:10px; transition:width 0.5s; width:0%; }
+
+  .score-bar { display:flex; justify-content:center; gap:20px; padding:14px 20px; background:white; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(190,18,60,0.08); }
+  .score-item { display:flex; align-items:center; gap:7px; font-weight:700; font-size:14px; }
+  .score-dot  { width:10px; height:10px; border-radius:50%; }
+
+  .main { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+
+  .formula-box {
+    background: linear-gradient(135deg, #fff1f2, var(--rose3));
+    border: 2px solid var(--rose2); border-radius:16px;
+    padding:16px 18px; margin-bottom:24px; font-size:13px; line-height:1.8;
+  }
+  .formula-box strong { color: var(--rose); font-weight:800; }
+  .formula-box code { background:white; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:13px; color:var(--amber); font-weight:700; }
+
+  .section-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--rose); margin:32px 0 14px; display:flex; align-items:center; gap:8px; }
+  .section-title::after { content:""; flex:1; height:2px; background:linear-gradient(90deg,var(--border),transparent); border-radius:2px; }
+
+  .q-card { background:var(--card); border-radius:var(--radius); padding:22px 22px 18px; margin-bottom:14px; box-shadow:var(--shadow); border:1.5px solid var(--border); transition:border-color 0.3s; animation:fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .q-card.correct { border-color:var(--green); background:#f0fdf9; }
+  .q-card.wrong   { border-color:var(--red);   background:#fff5f5; }
+
+  .q-num { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--rose); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .q-num-badge { background:var(--rose); color:white; border-radius:8px; padding:2px 8px; font-size:11px; }
+  .q-text { font-size:15px; font-weight:600; line-height:1.65; margin-bottom:14px; }
+  .q-text strong { color:var(--rose); }
+
+  .ans-input { border:2px solid var(--border); border-radius:12px; padding:9px 14px; font-size:14px; font-family:'Times New Roman',Times,serif; font-weight:700; outline:none; transition:border 0.2s; background:white; color:var(--text); }
+  .ans-input:focus { border-color:var(--rose2); box-shadow:0 0 0 3px rgba(244,63,94,0.12); }
+  .ans-input.correct-input { border-color:var(--green); background:#f0fdf9; }
+  .ans-input.wrong-input   { border-color:var(--red);   background:#fff5f5; }
+
+  .choices { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .choice-btn { padding:9px 16px; border:2px solid var(--border); border-radius:12px; background:white; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; color:var(--text); }
+  .choice-btn:hover:not(:disabled) { border-color:var(--rose2); background:#fff1f2; color:var(--rose); }
+  .choice-btn.selected { border-color:var(--rose2); background:#fff1f2; color:var(--rose); }
+  .choice-btn.correct  { border-color:var(--green); background:#f0fdf9; color:var(--green); }
+  .choice-btn.wrong    { border-color:var(--red);   background:#fff5f5; color:var(--red); }
+
+  .feedback { margin-top:12px; padding:10px 14px; border-radius:12px; font-size:13px; font-weight:600; display:none; line-height:1.6; }
+  .feedback.show { display:block; }
+  .feedback.correct-fb { background:#dcfce7; color:#166534; }
+  .feedback.wrong-fb   { background:#fee2e2; color:#991b1b; }
+
+  .check-btn { margin-top:14px; padding:10px 22px; background:var(--rose); color:white; border:none; border-radius:12px; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; }
+  .check-btn:hover:not(:disabled) { background:var(--rose2); transform:translateY(-1px); }
+  .check-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; transform:none; }
+
+  .row2 { display:flex; gap:12px; flex-wrap:wrap; margin-top:4px; }
+  .row2 .lbl { font-weight:700; font-size:13px; min-width:24px; display:flex; align-items:center; }
+
+  .submit-wrap { text-align:center; margin-top:36px; }
+  .submit-btn { padding:16px 48px; background:linear-gradient(135deg,var(--rose),#e11d48); color:white; border:none; border-radius:16px; font-family:'Times New Roman',Times,serif; font-size:18px; font-weight:800; cursor:pointer; transition:all 0.25s; box-shadow:0 8px 24px rgba(190,18,60,0.3); }
+  .submit-btn:hover { transform:translateY(-3px); box-shadow:0 14px 32px rgba(190,18,60,0.35); }
+
+  .result-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); z-index:200; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+  .result-overlay.show { display:flex; }
+  .result-card { background:white; border-radius:28px; padding:36px 32px; max-width:440px; width:100%; text-align:center; box-shadow:0 24px 64px rgba(15,23,42,0.25); animation:popIn 0.4s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+  .result-emoji { font-size:64px; margin-bottom:12px; display:block; }
+  .result-title { font-size:26px; font-weight:900; color:var(--rose); margin-bottom:6px; }
+  .result-score { font-size:48px; font-weight:900; margin:12px 0; background:linear-gradient(135deg,var(--rose),var(--rose2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .result-level { display:inline-block; padding:8px 20px; border-radius:20px; font-weight:800; font-size:15px; margin:8px 0 20px; }
+  .result-detail { display:flex; justify-content:center; gap:24px; margin-bottom:24px; }
+  .result-detail-item { text-align:center; }
+  .result-detail-num { font-size:24px; font-weight:900; }
+  .result-detail-label { font-size:12px; color:var(--muted); font-weight:600; }
+  .result-btn { padding:13px 32px; border-radius:14px; font-family:'Times New Roman',Times,serif; font-size:15px; font-weight:800; cursor:pointer; border:none; transition:all 0.2s; margin:0 6px; }
+  .btn-retry  { background:var(--rose); color:white; }
+  .btn-review { background:var(--bg); color:var(--rose); border:2px solid var(--border); }
+
+  @media(max-width:480px){ .q-card{padding:18px 16px 14px} .result-card{padding:28px 20px} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+    <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VInaStudy" style="height:44px;object-fit:contain;filter:brightness(0) invert(1)">
+    <span style="font-size:15px;font-weight:800;letter-spacing:0.3px;opacity:0.95">VInaStudy — Toán Lớp 3 HSG</span>
+  </div>
+  <h1>📊 Bài 4 — Dãy Số Cách Đều</h1>
+  <p>Thầy Nguyễn Thành Long • 18 câu bài tập</p>
+  <div class="progress-wrap">
+    <div class="progress-info"><span id="progressText">0 / 18 câu</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="score-bar">
+  <div class="score-item"><div class="score-dot" style="background:var(--green)"></div><span id="scoreCorrect">0</span> Đúng</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--red)"></div><span id="scoreWrong">0</span> Sai</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--border)"></div><span id="scoreLeft">18</span> Chưa làm</div>
+</div>
+
+<div class="main">
+
+  <div class="formula-box">
+    💡 <strong>3 công thức cần nhớ:</strong><br>
+    <code>Số số hạng = (Số cuối - Số đầu) ÷ Khoảng cách + 1</code><br>
+    <code>Số hạng thứ N = Số đầu + (N-1) × Khoảng cách</code><br>
+    <code>Tổng = (Số đầu + Số cuối) × Số hạng ÷ 2</code>
+  </div>
+
+  <!-- Dạng 1: Đếm số -->
+  <div class="section-title">🔢 Dạng 1 — Đếm số trong khoảng</div>
+
+  <div class="q-card" id="q4">
+    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 133411</div>
+    <div class="q-text">Từ <strong>1 đến 9</strong> có bao nhiêu số?</div>
+    <input class="ans-input" id="q4ans" placeholder="? số" style="width:100px;text-align:center" disabled>
+    <button class="check-btn" onclick="checkText('q4','q4ans',['9','9 so','9 số'],'✅ Đúng! (9-1)÷1+1 = 8+1 = 9 số.')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq4"></div>
+  </div>
+
+  <div class="q-card" id="q5">
+    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 133412</div>
+    <div class="q-text">Từ <strong>1 đến 100</strong> có bao nhiêu số?</div>
+    <input class="ans-input" id="q5ans" placeholder="? số" style="width:120px;text-align:center" disabled>
+    <button class="check-btn" onclick="checkText('q5','q5ans',['100','100 so','100 số'],'✅ Đúng! (100-1)÷1+1 = 99+1 = 100 số.')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq5"></div>
+  </div>
+
+  <div class="q-card" id="q6">
+    <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 133413 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Có bao nhiêu <strong>số chẵn</strong> có <strong>hai chữ số</strong>?</div>
+    <input class="ans-input" id="q6ans" placeholder="? số" style="width:120px;text-align:center" disabled>
+    <button class="check-btn" onclick="checkText('q6','q6ans',['45','45 so','45 số'],'✅ Đúng! Dãy số chẵn 2 chữ số: 10,12,...,98. Số hạng = (98-10)÷2+1 = 44+1 = 45 số.')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq6"></div>
+  </div>
+
+  <!-- Dạng 2: Số hạng + Thứ N -->
+  <div class="section-title">📐 Dạng 2 — Số số hạng & Số hạng thứ N</div>
+
+  <div class="q-card" id="q7">
+    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 133414 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Cho dãy số: <strong>2, 4, 6, ……, 38, 40</strong><br>
+    a) Dãy số trên có bao nhiêu số hạng?<br>
+    b) Số hạng thứ <strong>100</strong> của dãy số là bao nhiêu?</div>
+    <div class="row2" style="margin-bottom:8px">
+      <span class="lbl">a)</span>
+      <input class="ans-input" id="q7a" placeholder="? số hạng" style="width:130px" disabled>
+    </div>
+    <div class="row2">
+      <span class="lbl">b)</span>
+      <input class="ans-input" id="q7b" placeholder="?" style="width:100px" disabled>
+    </div>
+    <button class="check-btn" onclick="checkQ7()" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq7"></div>
+  </div>
+
+  <div class="q-card" id="q8">
+    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 133415 &nbsp;🏠 Bài tập về nhà</div>
+    <div class="q-text">Cho dãy số: <strong>3; 7; 11; 15; ……; 79</strong><br>
+    a) Dãy số có bao nhiêu số hạng?<br>
+    b) Tìm số hạng thứ <strong>50</strong> và thứ <strong>100</strong></div>
+    <div class="row2" style="margin-bottom:8px"><span class="lbl">a)</span><input class="ans-input" id="q8a" placeholder="? số hạng" style="width:130px" disabled></div>
+    <div class="row2" style="margin-bottom:8px"><span class="lbl">b) Thứ 50:</span><input class="ans-input" id="q8b" placeholder="?" style="width:100px" disabled></div>
+    <div class="row2"><span class="lbl">Thứ 100:</span><input class="ans-input" id="q8c" placeholder="?" style="width:100px" disabled></div>
+    <button class="check-btn" onclick="checkQ8()" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq8"></div>
+  </div>
+
+  <div class="q-card" id="q9">
+    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 133416</div>
+    <div class="q-text">Cho dãy số: <strong>1; 8; 15; 22; ……; 78; 85</strong><br>
+    a) Dãy số có bao nhiêu số hạng?<br>
+    b) Tìm số hạng thứ <strong>50</strong></div>
+    <div class="row2" style="margin-bottom:8px"><span class="lbl">a)</span><input class="ans-input" id="q9a" placeholder="? số hạng" style="width:130px" disabled></div>
+    <div class="row2"><span class="lbl">b)</span><input class="ans-input" id="q9b" placeholder="?" style="width:100px" disabled></div>
+    <button class="check-btn" onclick="checkQ9()" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq9"></div>
+  </div>
+
+  <div class="q-card" id="q11">
+    <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 133418</div>
+    <div class="q-text">Cho dãy số: <strong>1, 3, 5, ……, 17, 19</strong><br>
+    a) Dãy số có bao nhiêu số hạng?<br>
+    b) Tìm số hạng thứ <strong>151</strong></div>
+    <div class="row2" style="margin-bottom:8px"><span class="lbl">a)</span><input class="ans-input" id="q11a" placeholder="? số hạng" style="width:130px" disabled></div>
+    <div class="row2"><span class="lbl">b)</span><input class="ans-input" id="q11b" placeholder="?" style="width:100px" disabled></div>
+    <button class="check-btn" onclick="checkQ11()" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq11"></div>
+  </div>
+
+  <div class="q-card" id="q12">
+    <div class="q-num"><span class="q-num-badge">Câu 12</span> Mã VinaID 133419</div>
+    <div class="q-text">Cho dãy số: <strong>2; 7; 12; 17; ……; 57; 62</strong><br>
+    a) Dãy số có bao nhiêu số hạng?<br>
+    b) Tìm số hạng thứ <strong>1000</strong></div>
+    <div class="row2" style="margin-bottom:8px"><span class="lbl">a)</span><input class="ans-input" id="q12a" placeholder="? số hạng" style="width:130px" disabled></div>
+    <div class="row2"><span class="lbl">b)</span><input class="ans-input" id="q12b" placeholder="?" style="width:120px" disabled></div>
+    <button class="check-btn" onclick="checkQ12()" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq12"></div>
+  </div>
+
+  <!-- Dạng 3: Tổng -->
+  <div class="section-title">➕ Dạng 3 — Tổng dãy số (ghép cặp)</div>
+
+  <div class="q-card" id="q13">
+    <div class="q-num"><span class="q-num-badge">Câu 13</span> Mã VinaID 133420</div>
+    <div class="q-text">Tính tổng dãy số: <strong>2, 4, 6, ……, 38, 40</strong></div>
+    <input class="ans-input" id="q13ans" placeholder="Tổng = ?" style="width:150px" disabled>
+    <button class="check-btn" onclick="checkText('q13','q13ans',['420'],'✅ Đúng! 20 số hạng. Tổng = (2+40)×20÷2 = 42×10 = 420.')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq13"></div>
+  </div>
+
+  <div class="q-card" id="q14">
+    <div class="q-num"><span class="q-num-badge">Câu 14</span> Mã VinaID 133421</div>
+    <div class="q-text">Tính tổng dãy số: <strong>3; 7; 11; 15; ……; 79</strong></div>
+    <input class="ans-input" id="q14ans" placeholder="Tổng = ?" style="width:150px" disabled>
+    <button class="check-btn" onclick="checkText('q14','q14ans',['820'],'✅ Đúng! 20 số hạng. Tổng = (3+79)×20÷2 = 82×10 = 820.')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq14"></div>
+  </div>
+
+  <div class="q-card" id="q16">
+    <div class="q-num"><span class="q-num-badge">Câu 16</span> Mã VinaID 133423</div>
+    <div class="q-text">Tính tổng dãy số: <strong>1, 3, 5, ……, 17, 19</strong></div>
+    <input class="ans-input" id="q16ans" placeholder="Tổng = ?" style="width:150px" disabled>
+    <button class="check-btn" onclick="checkText('q16','q16ans',['100'],'✅ Đúng! 10 số hạng. Tổng = (1+19)×10÷2 = 20×5 = 100.')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq16"></div>
+  </div>
+
+  <div class="q-card" id="q17">
+    <div class="q-num"><span class="q-num-badge">Câu 17</span> Mã VinaID 133424</div>
+    <div class="q-text">Tính tổng dãy số: <strong>3, 6, 9, ……, 33, 36</strong></div>
+    <input class="ans-input" id="q17ans" placeholder="Tổng = ?" style="width:150px" disabled>
+    <button class="check-btn" onclick="checkText('q17','q17ans',['234'],'✅ Đúng! 12 số hạng. Tổng = (3+36)×12÷2 = 39×6 = 234.')" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq17"></div>
+  </div>
+
+  <div class="q-card" id="q18">
+    <div class="q-num"><span class="q-num-badge">Câu 18</span> Mã VinaID 133426</div>
+    <div class="q-text">Cho dãy số: <strong>1; 5; 9; 13; ……; 57; 61</strong><br>
+    a) Dãy số có bao nhiêu số hạng?<br>
+    b) Tính tổng dãy số</div>
+    <div class="row2" style="margin-bottom:8px"><span class="lbl">a)</span><input class="ans-input" id="q18a" placeholder="? số hạng" style="width:130px" disabled></div>
+    <div class="row2"><span class="lbl">b)</span><input class="ans-input" id="q18b" placeholder="Tổng = ?" style="width:150px" disabled></div>
+    <button class="check-btn" onclick="checkQ18()" disabled>✓ Kiểm tra</button>
+    <div class="feedback" id="fbq18"></div>
+  </div>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
+  </div>
+</div>
+
+  <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:2;text-align:center">
+    <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
+    <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">Kết quả</div>
+    <div class="result-score" id="resultScore">0/18</div>
+    <div class="result-level" id="resultLevel"></div>
+    <div class="result-detail">
+      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div><div class="result-detail-label">Đúng</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong" style="color:var(--red)">0</div><div class="result-detail-label">Sai</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip" style="color:#94a3b8">0</div><div class="result-detail-label">Bỏ qua</div></div>
+    </div>
+    <div>
+      <button class="result-btn btn-retry" onclick="location.reload()">Làm lại</button>
+      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 18;
+let answered = {};
+
+function norm(s){ return s.toLowerCase().trim().replace(/\s+/g,' ').replace(/số hạng/g,'').replace(/so hang/g,'').trim(); }
+
+function updateScore(){
+  const c=Object.values(answered).filter(v=>v===true).length;
+  const w=Object.values(answered).filter(v=>v===false).length;
+  const done=c+w;
+  document.getElementById('scoreCorrect').textContent=c;
+  document.getElementById('scoreWrong').textContent=w;
+  document.getElementById('scoreLeft').textContent=TOTAL-done;
+  document.getElementById('progressText').textContent=`${done} / ${TOTAL} câu`;
+  const pct=Math.round(done/TOTAL*100);
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+function showFeedback(id,correct,msg){
+  const fb=document.getElementById(id);
+  fb.className='feedback show '+(correct?'correct-fb':'wrong-fb');
+  fb.innerHTML=(correct?'✅ ':'❌ ')+msg;
+  fb.closest('.q-card').classList.remove('correct','wrong');
+  fb.closest('.q-card').classList.add(correct?'correct':'wrong');
+}
+
+function checkText(qId,inputId,correctList,explanation){
+  const input=document.getElementById(inputId);
+  const val=norm(input.value);
+  if(!val){input.style.borderColor='var(--amber)';input.focus();return;}
+  const isCorrect=correctList.some(c=>norm(c)===val);
+  answered[qId]=isCorrect; updateScore();
+  input.className='ans-input '+(isCorrect?'correct-input':'wrong-input');
+  input.disabled=true;
+  showFeedback(`fb${qId}`,isCorrect,isCorrect?explanation:'Chua dung. '+explanation);
+  document.querySelector(`#${qId} .check-btn`).disabled=true;
+}
+
+function checkMulti(qId, pairs, explanation){
+  // pairs: [{id, correct}]
+  const results = pairs.map(p => {
+    const v = norm(document.getElementById(p.id).value);
+    return p.correct.some(c=>norm(c)===v);
+  });
+  const ok = results.every(r=>r);
+  answered[qId]=ok; updateScore();
+  pairs.forEach((p,i)=>{
+    const inp=document.getElementById(p.id);
+    inp.className='ans-input '+(results[i]?'correct-input':'wrong-input');
+    inp.disabled=true;
+  });
+  showFeedback(`fb${qId}`,ok,ok?explanation:'Chua dung. '+explanation);
+  document.querySelector(`#${qId} .check-btn`).disabled=true;
+}
+
+function checkQ7(){
+  checkMulti('q7',[
+    {id:'q7a', correct:['20','20 so hang','20 số hạng']},
+    {id:'q7b', correct:['200']}
+  ],'✅ Đúng! a) (40-2)÷2+1=20 số hạng. b) 2+(100-1)×2=2+198=200.');
+}
+function checkQ8(){
+  checkMulti('q8',[
+    {id:'q8a', correct:['20','20 so hang']},
+    {id:'q8b', correct:['199']},
+    {id:'q8c', correct:['399']}
+  ],'✅ Đúng! a) (79-3)÷4+1=20sh. b) 3+(50-1)×4=199. c) 3+(100-1)×4=399.');
+}
+function checkQ9(){
+  checkMulti('q9',[
+    {id:'q9a', correct:['13','13 so hang']},
+    {id:'q9b', correct:['344']}
+  ],'✅ Đúng! a) (85-1)÷7+1=13sh. b) 1+(50-1)×7=1+343=344.');
+}
+function checkQ11(){
+  checkMulti('q11',[
+    {id:'q11a', correct:['10','10 so hang']},
+    {id:'q11b', correct:['301']}
+  ],'✅ Đúng! a) (19-1)÷2+1=10sh. b) 1+(151-1)×2=1+300=301.');
+}
+function checkQ12(){
+  checkMulti('q12',[
+    {id:'q12a', correct:['13','13 so hang']},
+    {id:'q12b', correct:['4997']}
+  ],'✅ Đúng! a) (62-2)÷5+1=13sh. b) 2+(1000-1)×5=2+4995=4997.');
+}
+function checkQ18(){
+  checkMulti('q18',[
+    {id:'q18a', correct:['16','16 so hang']},
+    {id:'q18b', correct:['496']}
+  ],'✅ Đúng! a) (61-1)÷4+1=16sh. b) (1+61)×16÷2=62×8=496.');
+}
+
+function submitAll(){
+  const c=Object.values(answered).filter(v=>v===true).length;
+  const w=Object.values(answered).filter(v=>v===false).length;
+  const skip=TOTAL-c-w;
+  const pct=Math.round(c/TOTAL*100);
+  let emoji,title,levelText,levelColor;
+  if(pct>=90)      {emoji='🏆';title='Xuat sac!';   levelText='Muc 4 - Gioi toan'; levelColor='#fef3c7';}
+  else if(pct>=70) {emoji='⭐';title='Lam tot!';     levelText='Muc 3 - Lam tot';   levelColor='#dbeafe';}
+  else if(pct>=50) {emoji='📖';title='Hieu bai!';    levelText='Muc 2 - Hieu bai';  levelColor='#e0f2fe';}
+  else             {emoji='🌱';title='Co gang them!';levelText='Muc 1 - Dang hoc'; levelColor='#f0fdf4';}
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=`${c}/${TOTAL}`;
+  const rl=document.getElementById('resultLevel');
+  rl.textContent=levelText; rl.style.background=levelColor; rl.style.color='#1e293b';
+  document.getElementById('rdCorrect').textContent=c;
+  document.getElementById('rdWrong').textContent=w;
+  document.getElementById('rdSkip').textContent=skip;
+  document.getElementById('resultOverlay').classList.add('show');
+}
+
+// Enable/disable buttons
+document.addEventListener('DOMContentLoaded',()=>{
+  // Single input
+  ['q4ans','q5ans','q6ans','q13ans','q14ans','q16ans','q17ans'].forEach(id=>{
+    const inp=document.getElementById(id);
+    const btn=inp.closest('.q-card').querySelector('.check-btn');
+    inp.disabled=false;
+    inp.addEventListener('input',()=>{ btn.disabled=inp.value.trim()===''; });
+  });
+  // Multi input
+  [
+    {qId:'q7', ids:['q7a','q7b']},
+    {qId:'q8', ids:['q8a','q8b','q8c']},
+    {qId:'q9', ids:['q9a','q9b']},
+    {qId:'q11',ids:['q11a','q11b']},
+    {qId:'q12',ids:['q12a','q12b']},
+    {qId:'q18',ids:['q18a','q18b']},
+  ].forEach(({qId,ids})=>{
+    const btn=document.querySelector(`#${qId} .check-btn`);
+    ids.forEach(id=>{
+      const inp=document.getElementById(id);
+      inp.disabled=false;
+      inp.addEventListener('input',()=>{
+        btn.disabled=ids.some(i=>document.getElementById(i).value.trim()==='');
+      });
+      inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)btn.click();});
+    });
+    btn.disabled=true;
+  });
+});
+</script>
+</body>
+</html>
