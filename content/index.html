@@ -7,154 +7,264 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
-    --bg:   var(--tg-theme-bg-color, #f0f6ff);
-    --text: var(--tg-theme-text-color, #1e293b);
-    --hint: var(--tg-theme-hint-color, #64748b);
+    --teal:   #0f766e;
+    --teal2:  #0d9488;
+    --teal3:  #ccfbf1;
+    --teal4:  #5eead4;
+    --amber:  #d97706;
+    --amber2: #fbbf24;
+    --bg:     #f0fdfa;
+    --card:   #ffffff;
+    --text:   #134e4a;
+    --border: #ccfbf1;
+    --shadow: 0 4px 16px rgba(15,118,110,0.10);
+    --radius: 16px;
   }
-  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-  html,body { height:100%; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
 
-  /* App shell */
-  .app { display:flex; flex-direction:column; height:100vh; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  /* Header */
-  .header { background:linear-gradient(135deg,#1a3a6c,#2563eb); color:white; padding:16px 16px 14px; flex-shrink:0; }
-  .header-top { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
-  .header-top img { height:32px; filter:brightness(0) invert(1); object-fit:contain; }
-  .header-top span { font-size:13px; font-weight:700; opacity:.9; }
-  .header h1 { font-size:18px; font-weight:900; }
-  .header p  { font-size:12px; opacity:.75; margin-top:2px; }
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: 'Times New Roman', Times, serif;
+    background: var(--bg); color: var(--text);
+  }
 
-  /* Scroll */
-  .scroll { flex:1; overflow-y:auto; padding:14px 14px 32px; -webkit-overflow-scrolling:touch; }
-  .scroll::-webkit-scrollbar { display:none; }
+  /* ── App shell ── */
+  .app { display: flex; flex-direction: column; height: 100vh; }
 
-  .label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--hint); margin:0 0 10px 2px; }
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal2) 100%);
+    color: white; padding: 22px 20px 18px;
+    text-align: center; flex-shrink: 0;
+    position: relative; overflow: hidden;
+  }
+  .header::before {
+    content: ""; position: absolute; top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.06); border-radius: 50%;
+    pointer-events: none;
+  }
+  .header::after {
+    content: ""; position: absolute; bottom: -70px; left: -40px;
+    width: 240px; height: 240px;
+    background: rgba(251,191,36,0.08); border-radius: 50%;
+    pointer-events: none;
+  }
 
-  /* Card */
+  .header-logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 12px; font-weight: 700; letter-spacing: .4px;
+    margin-bottom: 12px; position: relative; z-index: 1;
+  }
+  .header-logo-icon {
+    width: 20px; height: 20px; border-radius: 5px;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .header-logo-icon svg { width: 13px; height: 13px; display: block; }
+
+  .header h1 {
+    font-size: clamp(20px, 5vw, 26px); font-weight: 900;
+    line-height: 1.2; margin-bottom: 5px;
+    position: relative; z-index: 1;
+  }
+  .header p { font-size: 13px; opacity: .8; position: relative; z-index: 1; }
+
+  .progress-wrap { max-width: 340px; margin: 16px auto 0; position: relative; z-index: 1; }
+  .progress-info {
+    display: flex; justify-content: space-between;
+    font-size: 12px; font-weight: 700; margin-bottom: 7px; opacity: .9;
+  }
+  .progress-bar { height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber2), #fde68a);
+    border-radius: 10px; width: 100%;
+  }
+
+  /* ── Scroll ── */
+  .scroll { flex: 1; overflow-y: auto; padding: 16px 14px 32px; -webkit-overflow-scrolling: touch; }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  .label {
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1.4px; color: var(--teal);
+    margin: 0 2px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .label::after {
+    content: ""; flex: 1; height: 2px;
+    background: linear-gradient(90deg, var(--border), transparent);
+    border-radius: 2px;
+  }
+
+  /* ── Card ── */
   .card {
-    display:flex; align-items:center; gap:14px;
-    background:white; border-radius:16px;
-    padding:14px 16px; margin-bottom:10px;
-    box-shadow:0 2px 12px rgba(26,58,108,0.08);
-    border:1.5px solid #e8f0fc;
-    cursor:pointer; position:relative; overflow:hidden;
-    -webkit-user-select:none; user-select:none;
-    transition:transform .15s cubic-bezier(.4,0,.2,1),
-               box-shadow .15s;
+    display: flex; align-items: center; gap: 13px;
+    background: var(--card); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: var(--shadow); border: 1.5px solid var(--border);
+    cursor: pointer; position: relative; overflow: hidden;
+    -webkit-user-select: none; user-select: none;
+    transition: transform .15s cubic-bezier(.4,0,.2,1),
+                box-shadow .15s, border-color .15s;
   }
-  .card:active { transform:scale(.97); box-shadow:0 1px 4px rgba(26,58,108,0.06); }
+  .card:active { transform: scale(.97); box-shadow: 0 1px 6px rgba(15,118,110,0.06); }
+
   .ripple {
-    position:absolute; border-radius:50%;
-    background:rgba(37,99,235,0.12);
-    transform:scale(0); animation:ripple .4s ease-out;
-    pointer-events:none;
+    position: absolute; border-radius: 50%;
+    background: rgba(15,118,110,0.12);
+    transform: scale(0); animation: ripple .45s ease-out;
+    pointer-events: none;
   }
-  @keyframes ripple { to { transform:scale(4); opacity:0; } }
+  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
-  .card-left { flex-shrink:0; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; color:white; }
-  .card-body { flex:1; min-width:0; }
-  .card-buoi { font-size:11px; font-weight:700; opacity:.55; margin-bottom:2px; }
-  .card-title { font-size:14px; font-weight:700; line-height:1.35; }
-  .card-arrow { flex-shrink:0; font-size:22px; color:#cbd5e1; font-weight:300; }
+  .card-left {
+    flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 900; color: white;
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+  }
+  .card-body { flex: 1; min-width: 0; }
+  .card-buoi {
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .9px; color: var(--teal); margin-bottom: 3px;
+  }
+  .card-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .card-arrow {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
+    background: var(--bg); border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal); font-size: 18px; font-weight: 300;
+  }
 
-  /* Page overlay */
+  /* ── Page overlay ── */
   .page {
-    position:fixed; inset:0; background:var(--bg);
-    transform:translateX(100%);
-    transition:transform .28s cubic-bezier(.4,0,.2,1);
-    z-index:10; display:flex; flex-direction:column;
+    position: fixed; inset: 0; background: var(--bg);
+    transform: translateX(100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    z-index: 10; display: flex; flex-direction: column;
   }
-  .page.active { transform:translateX(0); }
+  .page.active { transform: translateX(0); }
 
   .page-header {
-    background:linear-gradient(135deg,#1a3a6c,#2563eb);
-    color:white; padding:12px 14px;
-    display:flex; align-items:center; gap:10px; flex-shrink:0;
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    color: white; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
   }
   .back-btn {
-    width:36px; height:36px; border-radius:10px;
-    background:rgba(255,255,255,0.18); border:none;
-    color:white; font-size:22px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition:background .15s; flex-shrink:0;
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255,255,255,0.18); border: none;
+    color: white; font-size: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s; flex-shrink: 0;
   }
-  .back-btn:active { background:rgba(255,255,255,0.3); }
-  .page-header-info h2 { font-size:15px; font-weight:800; line-height:1.3; }
-  .page-header-info p  { font-size:11px; opacity:.75; }
+  .back-btn:active { background: rgba(255,255,255,0.3); }
+  .page-header-info h2 { font-size: 15px; font-weight: 800; line-height: 1.3; }
+  .page-header-info p  { font-size: 11px; opacity: .75; }
 
-  .page-body { flex:1; position:relative; overflow:hidden; }
-  .page-iframe { width:100%; height:100%; border:none; display:block; }
+  .page-body { flex: 1; position: relative; overflow: hidden; }
+  .page-iframe { width: 100%; height: 100%; border: none; display: block; }
 
-  /* Loading */
-  .loading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:var(--bg); z-index:2; }
-  .spinner { width:36px; height:36px; border-radius:50%; border:3px solid #dce8f7; border-top-color:#2563eb; animation:spin .7s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .loading p { font-size:13px; color:var(--hint); }
+  /* ── Loading ── */
+  .loading {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; background: var(--bg); z-index: 2;
+  }
+  .spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--teal);
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-size: 13px; color: var(--teal); font-weight: 600; }
 
-  /* Footer */
-  .footer { padding:16px 14px; font-size:11px; color:var(--hint); line-height:1.9; text-align:center; }
+  /* ── Footer ── */
+  .footer {
+    padding: 14px 14px 20px; font-size: 11px;
+    color: var(--teal); font-weight: 600;
+    line-height: 2; text-align: center;
+  }
+  .footer a { color: var(--amber); font-weight: 700; text-decoration: none; }
 </style>
 </head>
 <body>
 
 <div class="app">
   <div class="header">
-    <div class="header-top">
-      <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VInaStudy">
-      <span>VInaStudy — Toán Lớp 3 HSG</span>
+    <div class="header-logo">
+      <div class="header-logo-icon">
+        <svg viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.5 3h10M1.5 6.5h7M1.5 10h5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      VInaStudy — Toán Lớp 3 HSG
     </div>
-    <h1>📝 Chọn bài tập</h1>
+    <h1>📝 Chọn Bài Tập</h1>
     <p>Thầy Nguyễn Thành Long • 8 buổi học</p>
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span>8 buổi học</span>
+        <span>100%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
   </div>
 
   <div class="scroll">
     <div class="label" style="margin-top:4px">Chọn buổi để làm bài</div>
 
     <div class="card" onclick="open_(2,'Bài Toán Cấu Tạo Số','content/lop3/bai02/bai-tap.html',this)">
-      <div class="card-left" style="background:#0369a1">B2</div>
+      <div class="card-left">B2</div>
       <div class="card-body"><div class="card-buoi">Buổi 2</div><div class="card-title">Bài Toán Cấu Tạo Số</div></div>
       <div class="card-arrow">›</div>
     </div>
 
     <div class="card" onclick="open_(3,'Viết Số Tự Nhiên Thỏa Mãn Điều Kiện','content/lop3/bai03/bai-tap.html',this)">
-      <div class="card-left" style="background:#7c3aed">B3</div>
+      <div class="card-left">B3</div>
       <div class="card-body"><div class="card-buoi">Buổi 3</div><div class="card-title">Viết Số Tự Nhiên Thỏa Mãn Điều Kiện</div></div>
       <div class="card-arrow">›</div>
     </div>
 
     <div class="card" onclick="open_(4,'Dãy Số Cách Đều','content/lop3/bai04/bai-tap.html',this)">
-      <div class="card-left" style="background:#e11d48">B4</div>
+      <div class="card-left">B4</div>
       <div class="card-body"><div class="card-buoi">Buổi 4</div><div class="card-title">Dãy Số Cách Đều</div></div>
       <div class="card-arrow">›</div>
     </div>
 
     <div class="card" onclick="open_(5,'Biểu Thức Số','content/lop3/bai05/bai-tap.html',this)">
-      <div class="card-left" style="background:#7c3aed">B5</div>
+      <div class="card-left">B5</div>
       <div class="card-body"><div class="card-buoi">Buổi 5</div><div class="card-title">Biểu Thức Số</div></div>
       <div class="card-arrow">›</div>
     </div>
 
     <div class="card" onclick="open_(6,'Tính Tổng Dãy Số Ghép Cặp','content/lop3/bai06/bai-tap.html',this)">
-      <div class="card-left" style="background:#065f46">B6</div>
+      <div class="card-left">B6</div>
       <div class="card-body"><div class="card-buoi">Buổi 6</div><div class="card-title">Tính Tổng Dãy Số Ghép Cặp</div></div>
       <div class="card-arrow">›</div>
     </div>
 
     <div class="card" onclick="open_(7,'Tính Tổng Dãy Số Ghép Cặp (Tiếp)','content/lop3/bai07/bai-tap.html',this)">
-      <div class="card-left" style="background:#0f766e">B7</div>
+      <div class="card-left">B7</div>
       <div class="card-body"><div class="card-buoi">Buổi 7</div><div class="card-title">Tính Tổng Dãy Số Ghép Cặp (Tiếp)</div></div>
       <div class="card-arrow">›</div>
     </div>
 
     <div class="card" onclick="open_(8,'Ôn Tập Dãy Số + Dãy Hình Quy Luật','content/lop3/bai08/bai-tap.html',this)">
-      <div class="card-left" style="background:#0369a1">B8</div>
+      <div class="card-left">B8</div>
       <div class="card-body"><div class="card-buoi">Buổi 8</div><div class="card-title">Ôn Tập Dãy Số + Dãy Hình Quy Luật</div></div>
       <div class="card-arrow">›</div>
     </div>
 
     <div class="card" onclick="open_(27,'Các Bài Toán Về Thời Gian','content/lop3/bai27/bai-tap.html',this)">
-      <div class="card-left" style="background:#1a3a6c">B27</div>
+      <div class="card-left" style="font-size:10px">B27</div>
       <div class="card-body"><div class="card-buoi">Buổi 27</div><div class="card-title">Các Bài Toán Về Thời Gian</div></div>
       <div class="card-arrow">›</div>
     </div>
@@ -162,7 +272,7 @@
     <div class="footer">
       <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
       <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
-      <div><a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – 0932.39.39.56 – 0832.64.64.64</div>
+      <div><a href="https://www.vinastudy.vn">www.vinastudy.vn</a> – 0932.39.39.56 – 0832.64.64.64</div>
     </div>
   </div>
 </div>
@@ -181,7 +291,8 @@
       <div class="spinner"></div>
       <p>Đang tải bài tập...</p>
     </div>
-    <iframe id="frame" class="page-iframe" src="" onload="document.getElementById('loading').style.display='none'"></iframe>
+    <iframe id="frame" class="page-iframe" src=""
+      onload="document.getElementById('loading').style.display='none'"></iframe>
   </div>
 </div>
 
@@ -189,7 +300,14 @@
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
-const BASE = window.location.href.replace(/\/[^/]*$/, '');
+// Fix: tính BASE chính xác cho cả GitHub Pages dạng /repo/ lẫn root /
+const BASE = (function() {
+  const loc = window.location;
+  const path = loc.pathname.endsWith('/')
+    ? loc.pathname.slice(0, -1)
+    : loc.pathname.replace(/\/[^/]*$/, '');
+  return loc.origin + path;
+})();
 
 function open_(buoi, title, path, el) {
   // Ripple effect
@@ -197,9 +315,9 @@ function open_(buoi, title, path, el) {
   r.className = 'ripple';
   const rect = el.getBoundingClientRect();
   const size = Math.max(rect.width, rect.height);
-  r.style.cssText = `width:${size}px;height:${size}px;left:${(rect.width-size)/2}px;top:${(rect.height-size)/2}px`;
+  r.style.cssText = `width:${size}px;height:${size}px;left:${(rect.width - size) / 2}px;top:${(rect.height - size) / 2}px`;
   el.appendChild(r);
-  setTimeout(() => r.remove(), 400);
+  setTimeout(() => r.remove(), 450);
 
   // Load iframe
   document.getElementById('pgTitle').textContent = title;
@@ -213,8 +331,8 @@ function open_(buoi, title, path, el) {
   // Telegram back button
   if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
 
-  // Push history for Android back
-  history.pushState({lesson: buoi}, '');
+  // Push history cho Android back
+  history.pushState({ lesson: buoi }, '');
 }
 
 function close_() {
@@ -223,7 +341,7 @@ function close_() {
   if (tg?.BackButton) tg.BackButton.hide();
 }
 
-window.addEventListener('popstate', e => {
+window.addEventListener('popstate', () => {
   if (document.getElementById('pg').classList.contains('active')) close_();
 });
 history.pushState({}, '');
