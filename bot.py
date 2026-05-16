@@ -167,7 +167,7 @@ Trả lời bằng tiếng Việt, thân thiện, ngắn gọn, dùng emoji."""
 # ── Menus ─────────────────────────────────────────────────────────────
 MAIN_MENU = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton("🏠 Bài tập về nhà"),  KeyboardButton("🎯 Kiểm tra năng lực")],
+        [KeyboardButton("📝 Làm bài tập"),  KeyboardButton("🎯 Kiểm tra năng lực")],
         [KeyboardButton("📊 Bảng điểm"),        KeyboardButton("📹 Xem video")],
         [KeyboardButton("💬 Hỏi bài"),          KeyboardButton("📚 Chọn buổi học")],
         [KeyboardButton("🗑️ Xoá lịch sử")],
@@ -295,7 +295,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(
                 "💬 Hoặc nhập câu hỏi nếu cần thầy hướng dẫn!",
                 reply_markup=ReplyKeyboardMarkup(
-                    [[KeyboardButton("🏠 Bài tập về nhà")],
+                    [[KeyboardButton("📝 Làm bài tập")],
                      [KeyboardButton("🔙 Về menu chính")]],
                     resize_keyboard=True,
                 ),

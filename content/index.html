@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bài Tập — VInaStudy</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg:   var(--tg-theme-bg-color, #f0f6ff);
+    --text: var(--tg-theme-text-color, #1e293b);
+    --hint: var(--tg-theme-hint-color, #64748b);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
+
+  /* App shell */
+  .app { display:flex; flex-direction:column; height:100vh; }
+
+  /* Header */
+  .header { background:linear-gradient(135deg,#1a3a6c,#2563eb); color:white; padding:16px 16px 14px; flex-shrink:0; }
+  .header-top { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .header-top img { height:32px; filter:brightness(0) invert(1); object-fit:contain; }
+  .header-top span { font-size:13px; font-weight:700; opacity:.9; }
+  .header h1 { font-size:18px; font-weight:900; }
+  .header p  { font-size:12px; opacity:.75; margin-top:2px; }
+
+  /* Scroll */
+  .scroll { flex:1; overflow-y:auto; padding:14px 14px 32px; -webkit-overflow-scrolling:touch; }
+  .scroll::-webkit-scrollbar { display:none; }
+
+  .label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--hint); margin:0 0 10px 2px; }
+
+  /* Card */
+  .card {
+    display:flex; align-items:center; gap:14px;
+    background:white; border-radius:16px;
+    padding:14px 16px; margin-bottom:10px;
+    box-shadow:0 2px 12px rgba(26,58,108,0.08);
+    border:1.5px solid #e8f0fc;
+    cursor:pointer; position:relative; overflow:hidden;
+    -webkit-user-select:none; user-select:none;
+    transition:transform .15s cubic-bezier(.4,0,.2,1),
+               box-shadow .15s;
+  }
+  .card:active { transform:scale(.97); box-shadow:0 1px 4px rgba(26,58,108,0.06); }
+  .ripple {
+    position:absolute; border-radius:50%;
+    background:rgba(37,99,235,0.12);
+    transform:scale(0); animation:ripple .4s ease-out;
+    pointer-events:none;
+  }
+  @keyframes ripple { to { transform:scale(4); opacity:0; } }
+
+  .card-left { flex-shrink:0; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; color:white; }
+  .card-body { flex:1; min-width:0; }
+  .card-buoi { font-size:11px; font-weight:700; opacity:.55; margin-bottom:2px; }
+  .card-title { font-size:14px; font-weight:700; line-height:1.35; }
+  .card-arrow { flex-shrink:0; font-size:22px; color:#cbd5e1; font-weight:300; }
+
+  /* Page overlay */
+  .page {
+    position:fixed; inset:0; background:var(--bg);
+    transform:translateX(100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    z-index:10; display:flex; flex-direction:column;
+  }
+  .page.active { transform:translateX(0); }
+
+  .page-header {
+    background:linear-gradient(135deg,#1a3a6c,#2563eb);
+    color:white; padding:12px 14px;
+    display:flex; align-items:center; gap:10px; flex-shrink:0;
+  }
+  .back-btn {
+    width:36px; height:36px; border-radius:10px;
+    background:rgba(255,255,255,0.18); border:none;
+    color:white; font-size:22px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s; flex-shrink:0;
+  }
+  .back-btn:active { background:rgba(255,255,255,0.3); }
+  .page-header-info h2 { font-size:15px; font-weight:800; line-height:1.3; }
+  .page-header-info p  { font-size:11px; opacity:.75; }
+
+  .page-body { flex:1; position:relative; overflow:hidden; }
+  .page-iframe { width:100%; height:100%; border:none; display:block; }
+
+  /* Loading */
+  .loading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:var(--bg); z-index:2; }
+  .spinner { width:36px; height:36px; border-radius:50%; border:3px solid #dce8f7; border-top-color:#2563eb; animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading p { font-size:13px; color:var(--hint); }
+
+  /* Footer */
+  .footer { padding:16px 14px; font-size:11px; color:var(--hint); line-height:1.9; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VInaStudy">
+      <span>VInaStudy — Toán Lớp 3 HSG</span>
+    </div>
+    <h1>📝 Chọn bài tập</h1>
+    <p>Thầy Nguyễn Thành Long • 8 buổi học</p>
+  </div>
+
+  <div class="scroll">
+    <div class="label" style="margin-top:4px">Chọn buổi để làm bài</div>
+
+    <div class="card" onclick="open_(2,'Bài Toán Cấu Tạo Số','content/lop3/bai02/bai-tap.html',this)">
+      <div class="card-left" style="background:#0369a1">B2</div>
+      <div class="card-body"><div class="card-buoi">Buổi 2</div><div class="card-title">Bài Toán Cấu Tạo Số</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card" onclick="open_(3,'Viết Số Tự Nhiên Thỏa Mãn Điều Kiện','content/lop3/bai03/bai-tap.html',this)">
+      <div class="card-left" style="background:#7c3aed">B3</div>
+      <div class="card-body"><div class="card-buoi">Buổi 3</div><div class="card-title">Viết Số Tự Nhiên Thỏa Mãn Điều Kiện</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card" onclick="open_(4,'Dãy Số Cách Đều','content/lop3/bai04/bai-tap.html',this)">
+      <div class="card-left" style="background:#e11d48">B4</div>
+      <div class="card-body"><div class="card-buoi">Buổi 4</div><div class="card-title">Dãy Số Cách Đều</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card" onclick="open_(5,'Biểu Thức Số','content/lop3/bai05/bai-tap.html',this)">
+      <div class="card-left" style="background:#7c3aed">B5</div>
+      <div class="card-body"><div class="card-buoi">Buổi 5</div><div class="card-title">Biểu Thức Số</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card" onclick="open_(6,'Tính Tổng Dãy Số Ghép Cặp','content/lop3/bai06/bai-tap.html',this)">
+      <div class="card-left" style="background:#065f46">B6</div>
+      <div class="card-body"><div class="card-buoi">Buổi 6</div><div class="card-title">Tính Tổng Dãy Số Ghép Cặp</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card" onclick="open_(7,'Tính Tổng Dãy Số Ghép Cặp (Tiếp)','content/lop3/bai07/bai-tap.html',this)">
+      <div class="card-left" style="background:#0f766e">B7</div>
+      <div class="card-body"><div class="card-buoi">Buổi 7</div><div class="card-title">Tính Tổng Dãy Số Ghép Cặp (Tiếp)</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card" onclick="open_(8,'Ôn Tập Dãy Số + Dãy Hình Quy Luật','content/lop3/bai08/bai-tap.html',this)">
+      <div class="card-left" style="background:#0369a1">B8</div>
+      <div class="card-body"><div class="card-buoi">Buổi 8</div><div class="card-title">Ôn Tập Dãy Số + Dãy Hình Quy Luật</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card" onclick="open_(27,'Các Bài Toán Về Thời Gian','content/lop3/bai27/bai-tap.html',this)">
+      <div class="card-left" style="background:#1a3a6c">B27</div>
+      <div class="card-body"><div class="card-buoi">Buổi 27</div><div class="card-title">Các Bài Toán Về Thời Gian</div></div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="footer">
+      <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
+      <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
+      <div><a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – 0932.39.39.56 – 0832.64.64.64</div>
+    </div>
+  </div>
+</div>
+
+<!-- Trang bài tập slide in -->
+<div class="page" id="pg">
+  <div class="page-header">
+    <button class="back-btn" onclick="close_()">‹</button>
+    <div class="page-header-info">
+      <h2 id="pgTitle"></h2>
+      <p id="pgSub"></p>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Đang tải bài tập...</p>
+    </div>
+    <iframe id="frame" class="page-iframe" src="" onload="document.getElementById('loading').style.display='none'"></iframe>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const BASE = window.location.href.replace(/\/[^/]*$/, '');
+
+function open_(buoi, title, path, el) {
+  // Ripple effect
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  const rect = el.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  r.style.cssText = `width:${size}px;height:${size}px;left:${(rect.width-size)/2}px;top:${(rect.height-size)/2}px`;
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 400);
+
+  // Load iframe
+  document.getElementById('pgTitle').textContent = title;
+  document.getElementById('pgSub').textContent   = `Buổi ${buoi} • VInaStudy`;
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('frame').src = `${BASE}/${path}`;
+
+  // Slide in
+  requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
+
+  // Telegram back button
+  if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
+
+  // Push history for Android back
+  history.pushState({lesson: buoi}, '');
+}
+
+function close_() {
+  document.getElementById('pg').classList.remove('active');
+  setTimeout(() => { document.getElementById('frame').src = ''; }, 300);
+  if (tg?.BackButton) tg.BackButton.hide();
+}
+
+window.addEventListener('popstate', e => {
+  if (document.getElementById('pg').classList.contains('active')) close_();
+});
+history.pushState({}, '');
+</script>
+</body>
+</html>
