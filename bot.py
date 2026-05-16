@@ -11,6 +11,7 @@ Railway env vars:
 """
 
 import os, logging, base64, json
+import database as db
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -200,6 +201,35 @@ def clear_history(uid):
     user_state[uid] = {"mode": "menu", "history": [], "buoi": buoi}
 
 # ── Handlers ──────────────────────────────────────────────────────────
+async def dangky(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Học sinh đăng ký tên: /dangky Nguyễn Văn An"""
+    uid  = update.effective_user.id
+    args = context.args
+    if not args:
+        await update.message.reply_text(
+            "📝 *Đăng ký học*\n\n"
+            "Nhập lệnh kèm tên của em:\n"
+            "`/dangky Họ và tên`\n\n"
+            "Ví dụ: `/dangky Nguyễn Văn An`",
+            parse_mode="Markdown",
+        )
+        return
+    ho_ten = " ".join(args)
+    try:
+        hs = db.add_student(uid, ho_ten)
+        await update.message.reply_text(
+            f"✅ Đăng ký thành công!\n\n"
+            f"👤 Tên: *{hs['ho_ten']}*\n"
+            f"🎓 Lớp: {hs['lop']}\n\n"
+            f"Em có thể bắt đầu làm bài tập ngay! 👇",
+            parse_mode="Markdown",
+            reply_markup=MAIN_MENU,
+        )
+    except Exception as e:
+        logger.error(f"Dangky error: {e}")
+        await update.message.reply_text("❌ Lỗi đăng ký, thử lại nhé!")
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clear_history(update.effective_user.id)
     await update.message.reply_text(
@@ -389,8 +419,12 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text("❌ Lỗi nhận kết quả, em thử lại nhé!", reply_markup=MAIN_MENU)
         return
 
-    # Lưu kết quả
+    # Lưu kết quả vào memory + DB
     luu_ket_qua(uid, buoi, diem, tong, chi_tiet)
+    try:
+        db.save_result(uid, buoi, diem, tong, chi_tiet)
+    except Exception as e:
+        logger.warning(f"DB save result: {e}")
     phan_tram = round(diem / tong * 100) if tong else 0
 
     # Thông báo kết quả ngay
@@ -476,6 +510,7 @@ def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start",     start))
+    app.add_handler(CommandHandler("dangky",    dangky))
     app.add_handler(CommandHandler("xoa",       xoa_cmd))
     app.add_handler(CommandHandler("btvn",      btvn_cmd))
     app.add_handler(CommandHandler("chonbuoi",  chonbuoi_cmd))
@@ -483,6 +518,15 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT  & ~filters.COMMAND, handle_message))
     app.add_handler(MessageHandler(filters.PHOTO,                    handle_photo))
     app.add_error_handler(error_handler)
+
+    # Khởi tạo database
+    try:
+        db.init_db()
+        for so_buoi, info in BUOI_CONFIG.items():
+            db.upsert_lesson(so_buoi, info["ten"])
+        logger.info("✅ DB ready")
+    except Exception as e:
+        logger.warning(f"DB init warning: {e}")
 
     logger.info("VInaStudy Bot dang chay...")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
