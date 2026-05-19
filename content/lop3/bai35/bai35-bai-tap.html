@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 35 — Bài Toán Tìm Quy Luật</title>
+<style>
+  :root {
+    --teal:   #0f766e;
+    --teal2:  #14b8a6;
+    --teal3:  #99f6e4;
+    --amber:  #d97706;
+    --amber2: #fbbf24;
+    --bg:     #f0fdfa;
+    --card:   #ffffff;
+    --text:   #134e4a;
+    --muted:  #5eead4;
+    --border: #ccfbf1;
+    --green:  #10b981;
+    --red:    #ef4444;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(15,118,110,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(20,184,166,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 85% 85%, rgba(217,119,6,0.10) 0%, transparent 50%);
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--teal) 0%, #0d9488 100%);
+    color: white; padding: 28px 20px 24px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .header::before { content:""; position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:rgba(255,255,255,0.06); border-radius:50%; }
+  .header::after  { content:""; position:absolute; bottom:-70px; left:-40px; width:240px; height:240px; background:rgba(251,191,36,0.08); border-radius:50%; }
+  .header-badge { display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:20px; padding:4px 14px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-size:clamp(20px,5vw,28px); font-weight:900; line-height:1.2; margin-bottom:8px; }
+  .header p  { font-size:14px; opacity:0.8; margin-bottom:20px; }
+  .progress-wrap { max-width:500px; margin:0 auto; }
+  .progress-info { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:8px; opacity:0.9; }
+  .progress-bar  { height:10px; background:rgba(255,255,255,0.2); border-radius:10px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--amber2),#fde68a); border-radius:10px; transition:width 0.5s cubic-bezier(.4,0,.2,1); width:0%; }
+
+  .score-bar { display:flex; justify-content:center; gap:20px; padding:14px 20px; background:white; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(15,118,110,0.08); }
+  .score-item { display:flex; align-items:center; gap:7px; font-weight:700; font-size:14px; }
+  .score-dot   { width:10px; height:10px; border-radius:50%; }
+
+  .main { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+
+  .method-box { background:linear-gradient(135deg,#f0fdfa,#ccfbf1); border:2px solid var(--teal2); border-radius:16px; padding:16px 18px; margin-bottom:24px; font-size:13px; line-height:1.8; color:var(--teal); }
+  .method-box strong { font-weight:800; color:var(--teal); }
+
+  .section-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--teal); margin:32px 0 14px; display:flex; align-items:center; gap:8px; }
+  .section-title::after { content:""; flex:1; height:2px; background:linear-gradient(90deg,var(--border),transparent); border-radius:2px; }
+
+  .q-card { background:var(--card); border-radius:var(--radius); padding:22px 22px 18px; margin-bottom:14px; box-shadow:var(--shadow); border:1.5px solid var(--border); transition:border-color 0.3s,box-shadow 0.3s; animation:fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .q-card.correct { border-color:var(--green); background:#f0fdf9; }
+  .q-card.wrong   { border-color:var(--red);   background:#fff5f5; }
+
+  .q-num { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--teal); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .q-num-badge { background:var(--teal); color:white; border-radius:8px; padding:2px 8px; font-size:11px; }
+  .q-text { font-size:15px; font-weight:600; line-height:1.65; margin-bottom:14px; color:var(--text); }
+  .q-text strong { color:var(--teal); }
+
+  /* Dãy số hiển thị */
+  .seq-display { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 16px; padding:12px 16px; background:#f0fdfa; border-radius:12px; border:1.5px solid var(--border); font-size:16px; font-weight:700; color:var(--text); }
+  .seq-num  { background:white; border:2px solid var(--teal2); border-radius:8px; padding:4px 10px; }
+  .seq-blank { background:var(--amber2); border:2px dashed var(--amber); border-radius:8px; padding:4px 14px; color:white; font-style:italic; }
+  .seq-sep  { color:var(--muted); font-weight:900; }
+
+  /* Hộp hình */
+  .shape-grid { display:flex; flex-wrap:wrap; gap:14px; margin:12px 0 16px; }
+  .shape-box  { background:#f0fdfa; border:2px solid var(--border); border-radius:12px; padding:12px 14px; min-width:100px; text-align:center; }
+  .shape-box table { border-collapse:collapse; margin:0 auto; }
+  .shape-box td { border:2px solid var(--teal); padding:6px 10px; font-weight:700; font-size:14px; text-align:center; min-width:36px; }
+  .shape-box td.header-td { background:var(--teal); color:white; }
+  .shape-box .unknown { color:var(--amber); font-style:italic; }
+
+  /* Hình tròn chia 4 phần */
+  .circle-shape { position:relative; width:90px; height:90px; border-radius:50%; border:3px solid var(--teal); margin:0 auto; overflow:hidden; }
+  .circle-shape::before { content:""; position:absolute; top:0; left:50%; width:2px; height:100%; background:var(--teal); transform:translateX(-50%); }
+  .circle-shape::after  { content:""; position:absolute; top:50%; left:0; width:100%; height:2px; background:var(--teal); transform:translateY(-50%); }
+  .circle-top-l  { position:absolute; top:8px;  left:8px;  font-size:11px; font-weight:700; z-index:1; }
+  .circle-top-r  { position:absolute; top:8px;  right:8px; font-size:11px; font-weight:700; z-index:1; }
+  .circle-mid    { position:absolute; top:50%;  left:50%;  transform:translate(-50%,-50%); font-size:13px; font-weight:900; color:var(--teal); z-index:1; }
+  .circle-bot-l  { position:absolute; bottom:8px; left:8px;  font-size:11px; font-weight:700; z-index:1; }
+  .circle-bot-r  { position:absolute; bottom:8px; right:8px; font-size:11px; font-weight:700; z-index:1; }
+
+  .ans-input { border:2px solid var(--border); border-radius:12px; padding:9px 14px; font-size:15px; font-family:'Times New Roman',Times,serif; font-weight:700; outline:none; transition:border 0.2s,box-shadow 0.2s; background:white; color:var(--text); min-width:100px; }
+  .ans-input:focus { border-color:var(--teal2); box-shadow:0 0 0 3px rgba(20,184,166,0.15); }
+  .ans-input.correct-input { border-color:var(--green); background:#f0fdf9; }
+  .ans-input.wrong-input   { border-color:var(--red);   background:#fff5f5; }
+
+  .ans-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:8px; font-size:14px; font-weight:600; }
+
+  .choices { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .choice-btn { padding:9px 18px; border:2px solid var(--border); border-radius:12px; background:white; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; color:var(--text); }
+  .choice-btn:hover:not(:disabled) { border-color:var(--teal2); background:#f0fdfa; color:var(--teal); }
+  .choice-btn.selected { border-color:var(--teal2); background:#f0fdfa; color:var(--teal); }
+  .choice-btn.correct  { border-color:var(--green); background:#f0fdf9; color:var(--green); }
+  .choice-btn.wrong    { border-color:var(--red);   background:#fff5f5; color:var(--red); }
+
+  .feedback { margin-top:12px; padding:10px 14px; border-radius:12px; font-size:14px; font-weight:600; display:none; animation:fadeUp 0.3s ease; }
+  .feedback.show { display:flex; align-items:flex-start; gap:8px; }
+  .feedback.correct-fb { background:#dcfce7; color:#166534; }
+  .feedback.wrong-fb   { background:#fee2e2; color:#991b1b; }
+
+  .check-btn { margin-top:14px; padding:10px 22px; background:var(--teal); color:white; border:none; border-radius:12px; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:7px; }
+  .check-btn:hover:not(:disabled) { background:var(--teal2); transform:translateY(-1px); }
+  .check-btn:disabled { background:var(--border); color:#94a3b8; cursor:not-allowed; transform:none; }
+
+  .submit-wrap { text-align:center; margin-top:36px; }
+  .submit-btn { padding:16px 48px; background:linear-gradient(135deg,var(--teal),#0d9488); color:white; border:none; border-radius:16px; font-family:'Times New Roman',Times,serif; font-size:16px; font-weight:900; cursor:pointer; box-shadow:0 8px 24px rgba(15,118,110,0.3); transition:all 0.2s; }
+  .submit-btn:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(15,118,110,0.4); }
+
+  .result-overlay { display:none; position:fixed; inset:0; background:rgba(15,118,110,0.7); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; padding:20px; }
+  .result-overlay.show { display:flex; }
+  .result-card { background:white; border-radius:24px; padding:36px 28px; max-width:360px; width:100%; text-align:center; box-shadow:0 24px 64px rgba(0,0,0,0.2); animation:fadeUp 0.4s ease; }
+  .result-emoji  { font-size:56px; display:block; margin-bottom:12px; }
+  .result-title  { font-size:24px; font-weight:900; color:var(--teal); margin-bottom:6px; }
+  .result-score  { font-size:40px; font-weight:900; color:var(--text); margin:8px 0; }
+  .result-level  { display:inline-block; padding:6px 16px; border-radius:12px; font-weight:700; font-size:14px; margin-bottom:20px; }
+  .result-detail { display:flex; justify-content:center; gap:24px; margin-bottom:24px; }
+  .result-detail-num   { font-size:28px; font-weight:900; }
+  .result-detail-label { font-size:12px; color:#64748b; margin-top:2px; }
+  .result-btn  { padding:12px 24px; border:none; border-radius:12px; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:800; cursor:pointer; margin:0 6px; transition:all 0.2s; }
+  .btn-retry   { background:var(--teal); color:white; }
+  .btn-review  { background:var(--border); color:var(--teal); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Buổi 35 • VInaStudy</div>
+  <h1>🔢 Bài Toán Tìm Quy Luật</h1>
+  <p>Thầy Nguyễn Thành Long • 15 câu bài tập</p>
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="progressText">0 / 15 câu</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="score-bar">
+  <div class="score-item"><div class="score-dot" style="background:var(--green)"></div><span id="scoreCorrect">0</span> Đúng</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--red)"></div><span id="scoreWrong">0</span> Sai</div>
+  <div class="score-item"><div class="score-dot" style="background:#cbd5e1"></div><span id="scoreLeft">15</span> Chưa làm</div>
+</div>
+
+<div class="main">
+
+  <div class="method-box">
+    💡 <strong>Nhớ phương pháp thầy Long:</strong><br>
+    • <strong>Quy luật đơn</strong>: cộng/trừ/nhân/chia cùng một số qua từng bước<br>
+    • <strong>Quy luật tăng dần</strong>: bước nhảy tăng đều (+2, +4, +6, +8...)<br>
+    • <strong>Quy luật dãy số kép</strong>: tách ra 2 dãy phụ xen lẫn nhau<br>
+    • <strong>Quy luật hình</strong>: tìm phép toán áp dụng cho các số trong hình rồi suy ra số thiếu
+  </div>
+
+  <!-- Phần 1: Dãy số đơn -->
+  <div class="section-title">📐 Phần 1 — Tìm 3 Số Tiếp Theo</div>
+
+  <!-- Câu 1a -->
+  <div class="q-card" id="q1">
+    <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 137567 — Phần a</div>
+    <div class="q-text">Tìm <strong>3 số tiếp theo</strong> trong dãy số sau:</div>
+    <div class="seq-display">
+      <span class="seq-num">2</span><span class="seq-sep">,</span>
+      <span class="seq-num">6</span><span class="seq-sep">,</span>
+      <span class="seq-num">10</span><span class="seq-sep">,</span>
+      <span class="seq-num">14</span><span class="seq-sep">,</span>
+      <span class="seq-num">18</span><span class="seq-sep">,</span>
+      <span class="seq-num">22</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span>
+    </div>
+    <div class="ans-row">Ba số tiếp theo: <input class="ans-input" id="iq1" placeholder="VD: 26, 30, 34" style="min-width:160px"></div>
+    <button class="check-btn" disabled onclick="checkText('q1','iq1',['26, 30, 34','26,30,34'],'Quy luật: cộng 4 liên tiếp → 22+4=26, 26+4=30, 30+4=34')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq1"></div>
+  </div>
+
+  <!-- Câu 1b -->
+  <div class="q-card" id="q2">
+    <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 137567 — Phần b</div>
+    <div class="q-text">Tìm <strong>3 số tiếp theo</strong> trong dãy số sau:</div>
+    <div class="seq-display">
+      <span class="seq-num">1</span><span class="seq-sep">,</span>
+      <span class="seq-num">3</span><span class="seq-sep">,</span>
+      <span class="seq-num">7</span><span class="seq-sep">,</span>
+      <span class="seq-num">13</span><span class="seq-sep">,</span>
+      <span class="seq-num">21</span><span class="seq-sep">,</span>
+      <span class="seq-num">31</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span>
+    </div>
+    <div class="ans-row">Ba số tiếp theo: <input class="ans-input" id="iq2" placeholder="VD: 43, 57, 73" style="min-width:160px"></div>
+    <button class="check-btn" disabled onclick="checkText('q2','iq2',['43, 57, 73','43,57,73'],'Quy luật tăng dần: +2,+4,+6,+8,+10,+12,+14,+16 → 31+12=43, 43+14=57, 57+16=73')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq2"></div>
+  </div>
+
+  <!-- Câu 1c -->
+  <div class="q-card" id="q3">
+    <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 137567 — Phần c</div>
+    <div class="q-text">Tìm <strong>3 số tiếp theo</strong> trong dãy số sau:</div>
+    <div class="seq-display">
+      <span class="seq-num">1</span><span class="seq-sep">,</span>
+      <span class="seq-num">2</span><span class="seq-sep">,</span>
+      <span class="seq-num">4</span><span class="seq-sep">,</span>
+      <span class="seq-num">8</span><span class="seq-sep">,</span>
+      <span class="seq-num">16</span><span class="seq-sep">,</span>
+      <span class="seq-num">32</span><span class="seq-sep">,</span>
+      <span class="seq-num">64</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span>
+    </div>
+    <div class="ans-row">Ba số tiếp theo: <input class="ans-input" id="iq3" placeholder="VD: 128, 256, 512" style="min-width:180px"></div>
+    <button class="check-btn" disabled onclick="checkText('q3','iq3',['128, 256, 512','128,256,512'],'Quy luật: nhân 2 liên tiếp → 64×2=128, 128×2=256, 256×2=512')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq3"></div>
+  </div>
+
+  <!-- Câu 1d -->
+  <div class="q-card" id="q4">
+    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 137567 — Phần d</div>
+    <div class="q-text">Tìm <strong>3 số tiếp theo</strong> trong dãy số sau:</div>
+    <div class="seq-display">
+      <span class="seq-num">1</span><span class="seq-sep">,</span>
+      <span class="seq-num">4</span><span class="seq-sep">,</span>
+      <span class="seq-num">9</span><span class="seq-sep">,</span>
+      <span class="seq-num">16</span><span class="seq-sep">,</span>
+      <span class="seq-num">25</span><span class="seq-sep">,</span>
+      <span class="seq-num">36</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span>
+    </div>
+    <div class="ans-row">Ba số tiếp theo: <input class="ans-input" id="iq4" placeholder="VD: 49, 64, 81" style="min-width:160px"></div>
+    <button class="check-btn" disabled onclick="checkText('q4','iq4',['49, 64, 81','49,64,81'],'Quy luật: số thứ n = n×n → 7×7=49, 8×8=64, 9×9=81')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq4"></div>
+  </div>
+
+  <!-- Phần 2: Dãy số kép -->
+  <div class="section-title">🔀 Phần 2 — Dãy Số Kép</div>
+
+  <!-- Câu 5 -->
+  <div class="q-card" id="q5">
+    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 137568</div>
+    <div class="q-text">Viết thêm <strong>3 số hạng</strong> vào dãy sau:</div>
+    <div class="seq-display">
+      <span class="seq-num">27</span><span class="seq-sep">,</span>
+      <span class="seq-num">3</span><span class="seq-sep">,</span>
+      <span class="seq-num">24</span><span class="seq-sep">,</span>
+      <span class="seq-num">6</span><span class="seq-sep">,</span>
+      <span class="seq-num">21</span><span class="seq-sep">,</span>
+      <span class="seq-num">12</span><span class="seq-sep">,</span>
+      <span class="seq-num">18</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span>
+    </div>
+    <div class="ans-row">Ba số tiếp theo: <input class="ans-input" id="iq5" placeholder="VD: 24, 15, 48" style="min-width:160px"></div>
+    <button class="check-btn" disabled onclick="checkText('q5','iq5',['24, 15, 48','24,15,48'],'Dãy kép: Dãy lẻ (27,24,21,18,...) trừ 3 → 18-3=15. Dãy chẵn (3,6,12,...) nhân 2 → 12×2=24. Tiếp: 15-3=12 nhưng số thứ 8 là dãy chẵn: 12×2=24, số thứ 9 là dãy lẻ: 18-3=15, số thứ 10 là dãy chẵn: 24×2=48')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq5"></div>
+  </div>
+
+  <!-- Câu 6 -->
+  <div class="q-card" id="q6">
+    <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 137569</div>
+    <div class="q-text">Tìm <strong>3 số tiếp theo</strong> của dãy sau:</div>
+    <div class="seq-display">
+      <span class="seq-num">3</span><span class="seq-sep">,</span>
+      <span class="seq-num">5</span><span class="seq-sep">,</span>
+      <span class="seq-num">6</span><span class="seq-sep">,</span>
+      <span class="seq-num">10</span><span class="seq-sep">,</span>
+      <span class="seq-num">9</span><span class="seq-sep">,</span>
+      <span class="seq-num">15</span><span class="seq-sep">,</span>
+      <span class="seq-num">12</span><span class="seq-sep">,</span>
+      <span class="seq-num">20</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span><span class="seq-sep">,</span>
+      <span class="seq-blank">?</span>
+    </div>
+    <div class="ans-row">Ba số tiếp theo: <input class="ans-input" id="iq6" placeholder="VD: 15, 25, 18" style="min-width:160px"></div>
+    <button class="check-btn" disabled onclick="checkText('q6','iq6',['15, 25, 18','15,25,18'],'Dãy kép: Dãy lẻ (3,6,9,12,...) +3 → 12+3=15. Dãy chẵn (5,10,15,20,...) +5 → 20+5=25. Tiếp: dãy lẻ 15+3=18')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq6"></div>
+  </div>
+
+  <!-- Phần 3: Quy luật hình -->
+  <div class="section-title">🔷 Phần 3 — Quy Luật Trong Hình</div>
+
+  <!-- Câu 7 -->
+  <div class="q-card" id="q7">
+    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 137570</div>
+    <div class="q-text">Tìm số còn thiếu trong hình sau (quy luật: ô trên phải <strong>trừ 5</strong> = ô trên trái; ô dưới = ô trên trái <strong>chia 3</strong>):</div>
+    <div class="shape-grid">
+      <div class="shape-box">
+        <table><tr><td>20</td><td>15</td></tr><tr><td colspan="2">5</td></tr></table>
+      </div>
+      <div class="shape-box">
+        <table><tr><td>32</td><td>27</td></tr><tr><td colspan="2">9</td></tr></table>
+      </div>
+      <div class="shape-box">
+        <table><tr><td>41</td><td class="unknown">A = ?</td></tr><tr><td colspan="2" class="unknown">B = ?</td></tr></table>
+      </div>
+    </div>
+    <div class="ans-row">A = <input class="ans-input" id="iq7a" style="width:80px"> &nbsp; B = <input class="ans-input" id="iq7b" style="width:80px"></div>
+    <button class="check-btn" id="btnq7" disabled onclick="checkDouble('q7','iq7a','iq7b','36','12','A = 41−5 = 36. B = 36÷3 = 12')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq7"></div>
+  </div>
+
+  <!-- Câu 8 -->
+  <div class="q-card" id="q8">
+    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 137572</div>
+    <div class="q-text">
+      Quy luật của các hình:<br>
+      🔴 Hình tròn: số bên trong <strong>nhân 2</strong><br>
+      🟦 Hình vuông: số bên trong <strong>cộng 2</strong><br>
+      🔺 Tam giác: đảo hai chữ số (AB → BA)<br><br>
+      Biết: 3 trong ⬜ → 8 (tức là: 3 trong 🔴 → 6 trong ⬜ → 8)<br>
+      Tìm: 3 trong △ = ?
+    </div>
+    <div class="choices" id="q8choices">
+      <button class="choice-btn" onclick="selectChoice('q8','6',this)">6</button>
+      <button class="choice-btn" onclick="selectChoice('q8','60',this)">60</button>
+      <button class="choice-btn" onclick="selectChoice('q8','36',this)">36</button>
+      <button class="choice-btn" onclick="selectChoice('q8','63',this)">63</button>
+    </div>
+    <button class="check-btn" disabled onclick="checkChoice('q8','60','3 trong △: bước 1 tam giác → đảo chữ số: 3 = 03 → đảo = 30? Không! Theo thứ tự: 3 trong 🔴 → ×2 = 6, rồi 6 trong △ → 06 → đảo = 60')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq8"></div>
+  </div>
+
+  <!-- Câu 9 -->
+  <div class="q-card" id="q9">
+    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 137573 — Phần a</div>
+    <div class="q-text">Tìm số chưa biết <strong>A</strong> và <strong>B</strong> trong hình sau (cùng một quy luật):</div>
+    <!-- SVG 3 bảng chữ nhật -->
+    <svg viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:12px 0 16px;display:block">
+      <!-- Hình 1 -->
+      <rect x="10" y="10" width="110" height="90" rx="8" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <line x1="65" y1="10" x2="65" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="10" y1="60" x2="120" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="37" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">35</text>
+      <text x="92" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">50</text>
+      <text x="65" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">25</text>
+
+      <!-- Hình 2 -->
+      <rect x="155" y="10" width="110" height="90" rx="8" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <line x1="210" y1="10" x2="210" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="155" y1="60" x2="265" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="182" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">20</text>
+      <text x="237" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">20</text>
+      <text x="210" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">10</text>
+
+      <!-- Hình 3 (cần tìm) -->
+      <rect x="300" y="10" width="110" height="90" rx="8" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <line x1="355" y1="10" x2="355" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="300" y1="60" x2="410" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="327" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">25</text>
+      <text x="382" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">A</text>
+      <text x="355" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">B</text>
+    </svg>
+    <div class="ans-row">A = <input class="ans-input" id="iq9a" style="width:80px"> &nbsp; B = <input class="ans-input" id="iq9b" style="width:80px"></div>
+    <button class="check-btn" id="btnq9" disabled onclick="checkDouble('q9','iq9a','iq9b','30','15','Quy luật: B = trên trái − trên phải ÷ 2. Hình 1: 35−10=25 ✓; Hình 2: 20−10=10 ✓. Thực ra: dưới = (trên trái − trên phải). Hình 3: B = 25−10 = 15. A = B×2 = 15×2 = 30')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq9"></div>
+  </div>
+
+  <!-- Câu 10 -->
+  <div class="q-card" id="q10">
+    <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 137574</div>
+    <div class="q-text">Tìm số còn thiếu <strong>A</strong> và <strong>B</strong> trong hình tròn chia 3 phần sau:</div>
+    <!-- SVG 3 hình tròn chia 3 phần kiểu bánh pizza -->
+    <svg viewBox="0 0 400 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:400px;margin:12px 0 16px;display:block">
+
+      <!-- Hình 1: cx=65 cy=70 r=55 -->
+      <circle cx="65" cy="70" r="55" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <!-- đường thẳng từ giữa lên đỉnh -->
+      <line x1="65" y1="70" x2="65" y2="15" stroke="#0f766e" stroke-width="1.5"/>
+      <!-- đường sang trái dưới (120°) -->
+      <line x1="65" y1="70" x2="17.4" y2="97.5" stroke="#0f766e" stroke-width="1.5"/>
+      <!-- đường sang phải dưới (240°) -->
+      <line x1="65" y1="70" x2="112.6" y2="97.5" stroke="#0f766e" stroke-width="1.5"/>
+      <!-- số: trên trái, trên phải, dưới -->
+      <text x="35" y="48" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">5</text>
+      <text x="95" y="48" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">12</text>
+      <text x="65" y="115" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">10</text>
+
+      <!-- Hình 2: cx=200 cy=70 r=55 -->
+      <circle cx="200" cy="70" r="55" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <line x1="200" y1="70" x2="200" y2="15" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="200" y1="70" x2="152.4" y2="97.5" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="200" y1="70" x2="247.6" y2="97.5" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="170" y="48" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">8</text>
+      <text x="230" y="48" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">18</text>
+      <text x="200" y="115" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">16</text>
+
+      <!-- Hình 3: cx=335 cy=70 r=55 (cần tìm) -->
+      <circle cx="335" cy="70" r="55" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <line x1="335" y1="70" x2="335" y2="15" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="335" y1="70" x2="287.4" y2="97.5" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="335" y1="70" x2="382.6" y2="97.5" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="305" y="48" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="800" fill="#d97706">A</text>
+      <text x="365" y="48" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="800" fill="#d97706">B</text>
+      <text x="335" y="115" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">40</text>
+    </svg>
+    <div class="ans-row">A = <input class="ans-input" id="iq10a" style="width:80px"> &nbsp; B = <input class="ans-input" id="iq10b" style="width:80px"></div>
+    <button class="check-btn" id="btnq10" disabled onclick="checkDouble('q10','iq10a','iq10b','20','42','Quy luật: dưới = trái × 2 (5×2=10 ✓; 8×2=16 ✓) → A = 40÷2 = 20. Phải = dưới + trái + 2 (10+5+? → 12=10+2 ✓; 16+2=18 ✓) → B = 40+2 = 42')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq10"></div>
+  </div>
+
+  <!-- Phần 4: Bài tập về nhà còn lại -->
+  <div class="section-title">📋 Phần 4 — Bài Tập Về Nhà</div>
+
+  <!-- Câu 11: 137573 phần b -->
+  <div class="q-card" id="q11">
+    <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 137573 — Phần b</div>
+    <div class="q-text">Tìm số chưa biết <strong>C</strong> và <strong>D</strong> trong hình sau (cùng một quy luật):</div>
+    <svg viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:12px 0 16px;display:block">
+      <!-- Hình 1: 9|9 / 18 -->
+      <rect x="10" y="10" width="110" height="90" rx="8" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <line x1="65" y1="10" x2="65" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="10" y1="60" x2="120" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="37" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">9</text>
+      <text x="92" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">9</text>
+      <text x="65" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">18</text>
+      <!-- Hình 2: 21|15 / 30 -->
+      <rect x="155" y="10" width="110" height="90" rx="8" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <line x1="210" y1="10" x2="210" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="155" y1="60" x2="265" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="182" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">21</text>
+      <text x="237" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">15</text>
+      <text x="210" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">30</text>
+      <!-- Hình 3: 31|C / D -->
+      <rect x="300" y="10" width="110" height="90" rx="8" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <line x1="355" y1="10" x2="355" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="300" y1="60" x2="410" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="327" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">31</text>
+      <text x="382" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">C</text>
+      <text x="355" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">D</text>
+    </svg>
+    <div class="ans-row">C = <input class="ans-input" id="iq11a" style="width:80px"> &nbsp; D = <input class="ans-input" id="iq11b" style="width:80px"></div>
+    <button class="check-btn" id="btnq11" disabled onclick="checkDouble('q11','iq11a','iq11b','20','40','Quy luật: D = trên trái + trên phải (9+9=18✓; 21+15=36? Không. Thực ra D = (trái+phải)÷2×2. HD: D=31+9=40; C=D÷2=40÷2=20')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq11"></div>
+  </div>
+
+  <!-- Câu 12: 137573 phần c -->
+  <div class="q-card" id="q12">
+    <div class="q-num"><span class="q-num-badge">Câu 12</span> Mã VinaID 137573 — Phần c</div>
+    <div class="q-text">Tìm số chưa biết <strong>E</strong> và <strong>F</strong> trong hình sau (cùng một quy luật):</div>
+    <svg viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:12px 0 16px;display:block">
+      <!-- Hình 1: 4|16 / 32 -->
+      <rect x="10" y="10" width="110" height="90" rx="8" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <line x1="65" y1="10" x2="65" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="10" y1="60" x2="120" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="37" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">4</text>
+      <text x="92" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">16</text>
+      <text x="65" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">32</text>
+      <!-- Hình 2: 6|24 / 40 -->
+      <rect x="155" y="10" width="110" height="90" rx="8" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <line x1="210" y1="10" x2="210" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="155" y1="60" x2="265" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="182" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">6</text>
+      <text x="237" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">24</text>
+      <text x="210" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">40</text>
+      <!-- Hình 3: 7|E / F -->
+      <rect x="300" y="10" width="110" height="90" rx="8" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <line x1="355" y1="10" x2="355" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="300" y1="60" x2="410" y2="60" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="327" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">7</text>
+      <text x="382" y="42" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">E</text>
+      <text x="355" y="88" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">F</text>
+    </svg>
+    <div class="ans-row">E = <input class="ans-input" id="iq12a" style="width:80px"> &nbsp; F = <input class="ans-input" id="iq12b" style="width:80px"></div>
+    <button class="check-btn" id="btnq12" disabled onclick="checkDouble('q12','iq12a','iq12b','14','30','Quy luật: trên phải = trên trái × 4 (4×4=16✓; 6×4=24✓) → E=7×2=14. Dưới = trên phải + 16 (16+16=32✓; 24+16=40✓) → F=14+16=30')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq12"></div>
+  </div>
+
+  <!-- Câu 13: 137265 hình tròn chia 4 -->
+  <div class="q-card" id="q13">
+    <div class="q-num"><span class="q-num-badge">Câu 13</span> Mã VinaID 137265 — Đề thi vào 6 LTV 2022–2023</div>
+    <div class="q-text">Tìm <strong>x</strong> biết các số trong cả 3 hình được viết theo cùng một quy luật:</div>
+    <svg viewBox="0 0 420 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:12px 0 16px;display:block">
+      <!-- Hình 1 -->
+      <circle cx="65" cy="65" r="55" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <circle cx="65" cy="65" r="18" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <!-- 4 đoạn ngắn từ viền tròn lớn → viền tròn nhỏ, không xuyên qua tròn nhỏ -->
+      <line x1="65" y1="10" x2="65" y2="47" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="65" y1="83" x2="65" y2="120" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="10" y1="65" x2="47" y2="65" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="83" y1="65" x2="120" y2="65" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="65" y="70" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="900" fill="#0f766e">32</text>
+      <text x="37" y="38" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">19</text>
+      <text x="93" y="38" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">6</text>
+      <text x="37" y="97" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">1</text>
+      <text x="93" y="97" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">5</text>
+      <!-- Hình 2 -->
+      <circle cx="210" cy="65" r="55" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <circle cx="210" cy="65" r="18" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="210" y1="10"  x2="210" y2="47"  stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="210" y1="83"  x2="210" y2="120" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="155" y1="65"  x2="192" y2="65"  stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="228" y1="65"  x2="265" y2="65"  stroke="#0f766e" stroke-width="1.5"/>
+      <text x="210" y="70" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="900" fill="#0f766e">46</text>
+      <text x="182" y="38" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">30</text>
+      <text x="238" y="38" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">9</text>
+      <text x="182" y="97" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">2</text>
+      <text x="238" y="97" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">4</text>
+      <!-- Hình 3 -->
+      <circle cx="355" cy="65" r="55" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <circle cx="355" cy="65" r="18" fill="#fff7ed" stroke="#d97706" stroke-width="1.5"/>
+      <line x1="355" y1="10"  x2="355" y2="47"  stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="355" y1="83"  x2="355" y2="120" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="300" y1="65"  x2="337" y2="65"  stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="373" y1="65"  x2="410" y2="65"  stroke="#0f766e" stroke-width="1.5"/>
+      <text x="355" y="70" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="900" fill="#d97706">x</text>
+      <text x="327" y="38" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">22</text>
+      <text x="383" y="38" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">11</text>
+      <text x="327" y="97" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">12</text>
+      <text x="383" y="97" text-anchor="middle" font-family="Times New Roman" font-size="13" font-weight="700" fill="#134e4a">20</text>
+    </svg>
+    <div class="ans-row">x = <input class="ans-input" id="iq13" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q13','iq13',['66'],'Quy luật: số giữa = tổng 4 số xung quanh + 1. Hình 1: 19+6+1+5+1=32✓. Hình 2: 30+9+2+4+1=46✓. x=22+11+12+20+1=66')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq13"></div>
+  </div>
+
+  <!-- Câu 14: 137266 cụm 3 hình tròn -->
+  <div class="q-card" id="q14">
+    <div class="q-num"><span class="q-num-badge">Câu 14</span> Mã VinaID 137266 — Đề thi vào 6 Ngôi Sao 2022–2023</div>
+    <div class="q-text">Quan sát hình vẽ và cho biết <strong>B = ?</strong></div>
+    <svg viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:12px 0 16px;display:block">
+      <!-- Nhóm 1: 45 / 72 | 27 -->
+      <circle cx="50" cy="35" r="28" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="50" y="41" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">45</text>
+      <circle cx="25" cy="80" r="24" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="25" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">72</text>
+      <circle cx="78" cy="80" r="24" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="78" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">27</text>
+      <!-- Nhóm 2: 36 / 62 | 26 -->
+      <circle cx="155" cy="35" r="28" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="155" y="41" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">36</text>
+      <circle cx="130" cy="80" r="24" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="130" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">62</text>
+      <circle cx="183" cy="80" r="24" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="183" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">26</text>
+      <!-- Nhóm 3: 63 / 81 | 18 -->
+      <circle cx="260" cy="35" r="28" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="260" y="41" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">63</text>
+      <circle cx="235" cy="80" r="24" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="235" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">81</text>
+      <circle cx="288" cy="80" r="24" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="288" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">18</text>
+      <!-- Nhóm 4: B / 93 | A -->
+      <circle cx="365" cy="35" r="28" fill="#fff7ed" stroke="#d97706" stroke-width="2.5"/>
+      <text x="365" y="41" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="800" fill="#d97706">B</text>
+      <circle cx="340" cy="80" r="24" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="340" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">93</text>
+      <circle cx="393" cy="80" r="24" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="393" y="86" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="800" fill="#d97706">A</text>
+    </svg>
+    <div class="ans-row">B = <input class="ans-input" id="iq14" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q14','iq14',['54'],'Quy luật: 2 hình tròn dưới là đảo chữ số của nhau (72↔27; 62↔26; 81↔18). Số trên = hiệu 2 số dưới. A=đảo(93)=39. B=93−39=54')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq14"></div>
+  </div>
+
+  <!-- Câu 15: 132089 ma trận 3x3 -->
+  <div class="q-card" id="q15">
+    <div class="q-num"><span class="q-num-badge">Câu 15</span> Mã VinaID 132089</div>
+    <div class="q-text">Điền các chữ số vào ô vuông, biết tổng mỗi hàng, mỗi cột và mỗi đường chéo đều bằng <strong>24</strong>. Tổng các chữ số trong <strong>5 ô tô đậm</strong> là bao nhiêu?</div>
+    <!-- Ma trận 3x3 với 5 ô tô đậm (chéo + giữa) -->
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:180px;height:180px;margin:12px 0 16px;display:block">
+      <!-- Nền các ô tô đậm -->
+      <rect x="10" y="10"  width="55" height="55" rx="4" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+      <rect x="73" y="10"  width="55" height="55" rx="4" fill="#fbbf24" stroke="#d97706" stroke-width="2.5"/>
+      <rect x="136" y="10" width="55" height="55" rx="4" fill="white"   stroke="#0f766e" stroke-width="2"/>
+      <rect x="10" y="73"  width="55" height="55" rx="4" fill="white"   stroke="#0f766e" stroke-width="2"/>
+      <rect x="73" y="73"  width="55" height="55" rx="4" fill="#fbbf24" stroke="#d97706" stroke-width="2.5"/>
+      <rect x="136" y="73" width="55" height="55" rx="4" fill="white"   stroke="#0f766e" stroke-width="2"/>
+      <rect x="10" y="136" width="55" height="55" rx="4" fill="white"   stroke="#0f766e" stroke-width="2"/>
+      <rect x="73" y="136" width="55" height="55" rx="4" fill="#fbbf24" stroke="#d97706" stroke-width="2.5"/>
+      <rect x="136" y="136" width="55" height="55" rx="4" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+      <!-- Số đã biết -->
+      <text x="163" y="46" text-anchor="middle" font-family="Times New Roman" font-size="20" font-weight="700" fill="#134e4a">8</text>
+      <text x="100" y="109" text-anchor="middle" font-family="Times New Roman" font-size="20" font-weight="700" fill="#134e4a">8</text>
+      <text x="100" y="172" text-anchor="middle" font-family="Times New Roman" font-size="20" font-weight="700" fill="#134e4a">9</text>
+      <!-- Ô cần điền (dấu ?) -->
+      <text x="37" y="46"  text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#64748b">?</text>
+      <text x="100" y="46" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#d97706">?</text>
+      <text x="37" y="109" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#d97706">?</text>
+      <text x="163" y="109" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#64748b">?</text>
+      <text x="37" y="172" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#64748b">?</text>
+      <text x="163" y="172" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#d97706">?</text>
+    </svg>
+    <div class="q-text" style="font-size:13px;margin-bottom:12px">Tổng 5 ô tô đậm (màu vàng + 2 ô xanh góc) bằng bao nhiêu?</div>
+    <input class="ans-input" id="iq15" placeholder="Nhập tổng">
+    <button class="check-btn" disabled onclick="checkText('q15','iq15',['40'],'Ma trận hoàn chỉnh: hàng 1: 9,7,8 | hàng 2: 7,8,9 | hàng 3: 8,9,7. Tổng hàng=24✓. 5 ô tô đậm: góc trên trái=9, cột giữa hàng 1=7, giữa=8, cột giữa hàng 3=9, góc dưới phải=7 → 9+7+8+9+7=40')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq15"></div>
+  </div>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
+  </div>
+
+  <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:2;text-align:center">
+    <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
+    <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">Kết quả</div>
+    <div class="result-score" id="resultScore">0/15</div>
+    <div class="result-level" id="resultLevel"></div>
+    <div class="result-detail">
+      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div><div class="result-detail-label">✅ Đúng</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong"   style="color:var(--red)">0</div><div class="result-detail-label">❌ Sai</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip"    style="color:#94a3b8">0</div><div class="result-detail-label">⬜ Bỏ qua</div></div>
+    </div>
+    <div>
+      <button class="result-btn btn-retry"  onclick="location.reload()">🔄 Làm lại</button>
+      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">📖 Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 15;
+window._TOTAL = 15; window._BUOI = 35;
+let answered = {}; window._answered = answered;
+let selected  = {};
+
+function updateScore() {
+  const c = Object.values(answered).filter(v=>v===true).length;
+  const w = Object.values(answered).filter(v=>v===false).length;
+  const done = c+w;
+  document.getElementById('scoreCorrect').textContent = c;
+  document.getElementById('scoreWrong').textContent   = w;
+  document.getElementById('scoreLeft').textContent    = TOTAL-done;
+  document.getElementById('progressText').textContent = `${done} / ${TOTAL} câu`;
+  const pct = Math.round(done/TOTAL*100);
+  document.getElementById('progressPct').textContent  = pct+'%';
+  document.getElementById('progressFill').style.width = pct+'%';
+}
+
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById(id);
+  fb.className = 'feedback show '+(correct?'correct-fb':'wrong-fb');
+  fb.innerHTML = (correct?'✅ ':'❌ ')+msg;
+  const card = fb.closest('.q-card');
+  card.classList.remove('correct','wrong');
+  card.classList.add(correct?'correct':'wrong');
+}
+
+function checkText(qId, inputId, correctList, explanation) {
+  const input = document.getElementById(inputId);
+  const val   = input.value.trim().toLowerCase().replace(/\s/g,'');
+  if (!val) { input.style.borderColor='var(--amber)'; input.placeholder='Nhập đáp án!'; input.focus(); return; }
+  input.style.borderColor = '';
+  const isCorrect = correctList.some(c => c.toLowerCase().replace(/\s/g,'') === val);
+  answered[qId] = isCorrect;
+  updateScore();
+  input.className = 'ans-input '+(isCorrect?'correct-input':'wrong-input');
+  input.disabled  = true;
+  showFeedback(`fb${qId}`, isCorrect, isCorrect ? explanation : `Chưa đúng. ${explanation}`);
+  document.querySelector(`#${qId} .check-btn`).disabled = true;
+}
+
+function checkDouble(qId, idA, idB, correctA, correctB, explanation) {
+  const inA = document.getElementById(idA);
+  const inB = document.getElementById(idB);
+  const vA  = inA.value.trim();
+  const vB  = inB.value.trim();
+  if (!vA||!vB) { alert('Em chưa nhập đủ cả A và B!'); return; }
+  const isCorrect = vA===correctA && vB===correctB;
+  answered[qId] = isCorrect;
+  updateScore();
+  inA.className = 'ans-input '+(vA===correctA?'correct-input':'wrong-input');
+  inB.className = 'ans-input '+(vB===correctB?'correct-input':'wrong-input');
+  inA.disabled = inB.disabled = true;
+  showFeedback(`fb${qId}`, isCorrect, isCorrect ? explanation : `Chưa đúng. ${explanation}`);
+  document.getElementById(`btn${qId}`).disabled = true;
+}
+
+function selectChoice(qId, val, btn) {
+  if (answered[qId] !== undefined) return;
+  selected[qId] = val;
+  document.querySelectorAll(`#${qId}choices .choice-btn`).forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.querySelector(`#${qId} .check-btn`).disabled = false;
+}
+
+function checkChoice(qId, correct, explanation) {
+  if (!selected[qId]) { alert('Em chưa chọn đáp án!'); return; }
+  if (answered[qId] !== undefined) return;
+  const isCorrect = selected[qId]===correct;
+  answered[qId] = isCorrect;
+  updateScore();
+  document.querySelectorAll(`#${qId}choices .choice-btn`).forEach(b=>{
+    b.disabled=true;
+    const m = b.getAttribute('onclick').match(/selectChoice\('[^']+','([^']+)'/);
+    if (m) {
+      if (m[1]===correct) b.classList.add('correct');
+      else if (m[1]===selected[qId]&&!isCorrect) b.classList.add('wrong');
+    }
+  });
+  showFeedback(`fb${qId}`, isCorrect, isCorrect?explanation:`Chưa đúng. ${explanation}`);
+  document.querySelector(`#${qId} .check-btn`).disabled=true;
+}
+
+function submitAll() {
+  const c    = Object.values(answered).filter(v=>v===true).length;
+  const w    = Object.values(answered).filter(v=>v===false).length;
+  const skip = TOTAL-c-w;
+  const pct  = Math.round(c/TOTAL*100);
+  let emoji,title,levelText,levelColor;
+  if (pct>=90)      {emoji='🏆';title='Xuất sắc!';    levelText='🏆 Mức 4 — Giỏi toán'; levelColor='#fef3c7';}
+  else if (pct>=70) {emoji='⭐';title='Làm tốt!';      levelText='⭐ Mức 3 — Làm tốt';   levelColor='#dbeafe';}
+  else if (pct>=50) {emoji='📖';title='Hiểu bài!';     levelText='📖 Mức 2 — Hiểu bài';  levelColor='#e0f2fe';}
+  else              {emoji='🌱';title='Cố gắng thêm!'; levelText='🌱 Mức 1 — Đang học';  levelColor='#f0fdf4';}
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=`${c}/${TOTAL}`;
+  const rl=document.getElementById('resultLevel');
+  rl.textContent=levelText; rl.style.background=levelColor; rl.style.color='#1e293b';
+  document.getElementById('rdCorrect').textContent=c;
+  document.getElementById('rdWrong').textContent=w;
+  document.getElementById('rdSkip').textContent=skip;
+  document.getElementById('resultOverlay').classList.add('show');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.ans-input').forEach(input=>{
+    const card = input.closest('.q-card');
+    if (!card) return;
+    const btn = card.querySelector('.check-btn');
+    if (!btn) return;
+    input.addEventListener('input',()=>{
+      const allInputs = card.querySelectorAll('.ans-input');
+      btn.disabled = Array.from(allInputs).some(i=>i.value.trim()==='');
+    });
+    input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!btn.disabled) btn.click(); });
+  });
+});
+</script>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+const _origSubmit = window.submitAll;
+window.submitAll = function() {
+  if (typeof _origSubmit==='function') _origSubmit();
+  const answered = window._answered||{};
+  const correct  = Object.values(answered).filter(v=>v===true).length;
+  const total    = window._TOTAL||Object.keys(answered).length;
+  const buoi     = window._BUOI||0;
+  if (tg&&tg.sendData) tg.sendData(JSON.stringify({buoi,diem:correct,tong:total,chi_tiet:answered}));
+};
+</script>
+</body>
+</html>
