@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Chiến Binh Toán — VInaStudy</title>
+<style>
+/* ══════════════════════════════════════════
+   BRAND GUIDELINE — VInaStudy Cyberpunk
+══════════════════════════════════════════ */
+:root {
+  --c:    #0ae0fe;   /* primary cyan */
+  --s:    #ea0eed;   /* secondary purple */
+  --g:    #4eff9f;   /* success green */
+  --r:    #ff0055;   /* danger red */
+  --gold: #ffd700;
+  --bg:   #050a1f;
+  --bg2:  #0b132b;
+  --gc: 0 0 16px #0ae0fe, 0 0 40px #0ae0fe55;
+  --gs: 0 0 16px #ea0eed, 0 0 40px #ea0eed55;
+  --gr: 0 0 16px #ff0055, 0 0 40px #ff005555;
+  --gg: 0 0 16px #ffd700, 0 0 40px #ffd70055;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  width:100%;height:100%;
+  background:#000;
+  font-family:'Segoe UI',Arial,sans-serif;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ══ GRID BACKGROUND ══ */
+.grid-bg {
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(10,224,254,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,224,254,.04) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+
+/* ══════════════════════════════════
+   SCREEN 1 — DEVICE SELECTOR
+══════════════════════════════════ */
+#selector{
+  position:fixed;inset:0;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:36px;z-index:200;
+  transition:opacity .8s;
+}
+#selector .grid-bg{opacity:.5;}
+
+.sel-header{text-align:center;}
+.sel-label{
+  display:inline-block;
+  font-size:11px;letter-spacing:6px;color:var(--c);
+  text-shadow:var(--gc);text-transform:uppercase;
+  margin-bottom:10px;
+  animation:fadeIn 1s both;
+}
+.sel-title{
+  font-size:clamp(26px,5vw,48px);font-weight:900;
+  letter-spacing:4px;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--gold),var(--c),var(--s));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 12px var(--c));
+  animation:fadeInUp .8s .2s both;
+}
+.sel-sub{
+  margin-top:8px;font-size:13px;color:rgba(255,255,255,.4);
+  letter-spacing:2px;animation:fadeIn 1s .4s both;
+}
+
+/* Device cards */
+.device-row{
+  display:flex;gap:32px;flex-wrap:wrap;
+  justify-content:center;
+  animation:fadeInUp .8s .5s both;
+}
+.device-card{
+  cursor:pointer;
+  padding:28px 32px;
+  border:1.5px solid rgba(10,224,254,.4);
+  border-radius:16px;
+  background:rgba(10,224,254,.04);
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  transition:all .3s;min-width:160px;
+  position:relative;overflow:hidden;
+}
+.device-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(10,224,254,.08),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.device-card:hover{
+  border-color:var(--c);
+  box-shadow:var(--gc),inset 0 0 20px rgba(10,224,254,.08);
+  transform:translateY(-6px);
+}
+.device-card:hover::before{opacity:1;}
+
+/* Phone mockup */
+.mock-phone{
+  width:72px;height:120px;
+  border:2.5px solid var(--c);border-radius:14px;
+  background:var(--bg);position:relative;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--gc);
+}
+.mock-phone::before{
+  content:'';position:absolute;
+  width:22px;height:4px;background:var(--c);
+  border-radius:2px;top:7px;
+}
+.mock-phone .screen{
+  width:52px;height:88px;
+  background:linear-gradient(160deg,var(--bg),#0a1535);
+  border-radius:5px;overflow:hidden;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+/* Laptop mockup */
+.mock-laptop{display:flex;flex-direction:column;align-items:center;}
+.mock-screen{
+  width:130px;height:82px;
+  border:2.5px solid var(--c);border-radius:6px 6px 0 0;
+  background:linear-gradient(160deg,var(--bg),#0a1535);
+  overflow:hidden;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--gc);
+}
+.mock-base{
+  width:150px;height:9px;
+  background:rgba(10,224,254,.3);
+  border-radius:0 0 6px 6px;
+}
+/* Mini elements inside mockups */
+.m-sun{
+  width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle,#fff,var(--gold),transparent);
+  box-shadow:0 0 8px var(--gold);
+  animation:mpulse 1.2s ease-in-out infinite alternate;
+  flex-shrink:0;
+}
+@keyframes mpulse{from{transform:scale(1)}to{transform:scale(1.25)}}
+.m-star{
+  position:absolute;border-radius:50%;
+  width:2px;height:2px;background:#fff;
+  animation:mtwink 1.5s ease-in-out infinite alternate;
+}
+@keyframes mtwink{from{opacity:.2}to{opacity:1}}
+
+.dc-label{color:#fff;font-size:15px;font-weight:700;letter-spacing:2px;}
+.dc-desc{color:rgba(255,255,255,.4);font-size:11px;text-align:center;line-height:1.5;}
+
+/* Badge "Nên dùng" */
+.badge-rec{
+  position:absolute;top:-10px;right:-10px;
+  background:linear-gradient(135deg,var(--gold),var(--s));
+  color:#000;font-size:9px;font-weight:700;
+  padding:3px 8px;border-radius:10px;letter-spacing:1px;
+}
+
+/* ══════════════════════════════════
+   VIEWPORT WRAPPER
+══════════════════════════════════ */
+#vp-outer{
+  position:fixed;inset:0;
+  display:none;align-items:center;justify-content:center;
+  background:#000;z-index:100;
+}
+/* Mobile frame */
+#vp-outer.is-mobile{background:radial-gradient(circle at 50% 50%,#0a0a1a,#000);}
+#vp-outer.is-mobile #vp{
+  width:390px;
+  height:min(844px,100svh);
+  border-radius:40px;
+  outline:8px solid #1a1a30;
+  box-shadow:0 0 0 1px #333,0 0 60px rgba(10,224,254,.25),0 30px 60px rgba(0,0,0,.8);
+}
+/* Desktop: full screen */
+#vp-outer.is-desktop #vp{
+  width:100vw;height:100vh;border-radius:0;
+}
+
+#vp{
+  position:relative;overflow:hidden;
+  background:var(--bg);
+}
+
+/* ══════════════════════════════════
+   CANVAS STARFIELD
+══════════════════════════════════ */
+#cvs{position:absolute;inset:0;width:100%;height:100%;}
+
+/* ══════════════════════════════════
+   SCENES
+══════════════════════════════════ */
+.scene{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  opacity:0;transition:opacity 1.2s ease;
+  pointer-events:none;
+}
+.scene.on{opacity:1;pointer-events:auto;}
+
+/* Narration bar */
+.narr{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:20px 28px 56px;
+  background:linear-gradient(transparent,rgba(5,10,31,.96) 35%);
+  text-align:center;
+  min-height:110px;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.narr p{
+  color:#fff;font-size:clamp(13px,2.2vw,18px);
+  line-height:1.65;text-shadow:0 2px 12px rgba(0,0,0,.9);
+  max-width:640px;min-height:2.5em;
+}
+.cur{
+  display:inline-block;width:2px;height:.9em;
+  background:var(--c);animation:cblink .6s step-end infinite;
+  vertical-align:text-bottom;margin-left:1px;
+}
+@keyframes cblink{50%{opacity:0}}
+
+/* ── SCENE 1 — Opening title ── */
+#s1 .brand-tag{
+  font-size:clamp(9px,1.5vw,13px);
+  letter-spacing:7px;color:var(--c);
+  text-shadow:var(--gc);text-transform:uppercase;
+  animation:fadeInUp 1.2s .5s both;
+}
+#s1 .open-title{
+  margin-top:12px;
+  font-size:clamp(28px,6vw,64px);
+  font-weight:900;letter-spacing:5px;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--c) 50%,var(--s) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 18px var(--c));
+  animation:titleIn 1.2s .8s both;
+}
+@keyframes titleIn{
+  from{opacity:0;transform:scale(1.4);letter-spacing:20px;}
+  to{opacity:1;transform:scale(1);letter-spacing:5px;}
+}
+
+/* ── SCENE 2 — Solar system ── */
+.solar{
+  position:relative;
+  width:360px;height:360px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.sun{
+  width:clamp(60px,12vw,100px);height:clamp(60px,12vw,100px);
+  border-radius:50%;z-index:3;
+  background:radial-gradient(circle,#fff 0%,var(--gold) 25%,#ff8c00 55%,transparent 100%);
+  box-shadow:0 0 30px var(--gold),0 0 70px #ff8c0077,0 0 140px #ff8c0033;
+  animation:sunpulse 2.5s ease-in-out infinite alternate;
+}
+@keyframes sunpulse{
+  from{box-shadow:0 0 30px var(--gold),0 0 70px #ff8c0077;}
+  to{box-shadow:0 0 50px var(--gold),0 0 120px #ff8c00aa,0 0 200px #ff8c0033;}
+}
+.sun-rays{
+  position:absolute;inset:-90px;border-radius:50%;
+  background:conic-gradient(
+    from 0deg,
+    transparent 0deg,rgba(255,215,0,.12) 8deg,transparent 18deg,
+    rgba(255,215,0,.08) 26deg,transparent 36deg,
+    rgba(255,215,0,.12) 44deg,transparent 54deg,
+    rgba(255,215,0,.08) 62deg,transparent 72deg,
+    rgba(255,215,0,.12) 80deg,transparent 90deg,
+    rgba(255,215,0,.08) 98deg,transparent 108deg,
+    rgba(255,215,0,.12) 116deg,transparent 126deg,
+    rgba(255,215,0,.08) 134deg,transparent 144deg,
+    rgba(255,215,0,.12) 152deg,transparent 162deg,
+    rgba(255,215,0,.08) 170deg,transparent 180deg,
+    rgba(255,215,0,.12) 188deg,transparent 198deg,
+    rgba(255,215,0,.08) 206deg,transparent 216deg,
+    rgba(255,215,0,.12) 224deg,transparent 234deg,
+    rgba(255,215,0,.08) 242deg,transparent 252deg,
+    rgba(255,215,0,.12) 260deg,transparent 270deg,
+    rgba(255,215,0,.08) 278deg,transparent 288deg,
+    rgba(255,215,0,.12) 296deg,transparent 306deg,
+    rgba(255,215,0,.08) 314deg,transparent 324deg,
+    rgba(255,215,0,.12) 332deg,transparent 342deg,
+    rgba(255,215,0,.08) 350deg,transparent 360deg
+  );
+  animation:rotRays 15s linear infinite;z-index:1;
+}
+@keyframes rotRays{to{transform:rotate(360deg)}}
+
+.orbit-ring{
+  position:absolute;border-radius:50%;
+  border:1px solid rgba(255,255,255,.08);
+  animation:orb linear infinite;
+}
+@keyframes orb{to{transform:rotate(360deg)}}
+.planet{
+  position:absolute;border-radius:50%;
+  top:50%;left:0;
+  transform:translate(-50%,-50%);
+}
+
+/* ── SCENE 3 — Chaos ── */
+.dark-veil{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 120% 60% at 50% -10%,
+    rgba(90,0,140,.85) 0%,
+    rgba(30,0,60,.6) 45%,
+    transparent 75%);
+  animation:veilIn 1.5s ease-out both;
+}
+@keyframes veilIn{from{opacity:0;transform:scaleY(.2) translateY(-60%)}to{opacity:1;transform:none}}
+
+.chaos-lord{
+  font-size:clamp(72px,14vw,120px);
+  filter:drop-shadow(0 0 20px #ff0055) drop-shadow(0 0 50px #8800cc);
+  animation:chaosIn .8s .4s both;
+}
+@keyframes chaosIn{
+  from{opacity:0;transform:scale(0.3) translateY(-40px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.chaos-name{
+  margin-top:10px;
+  font-size:clamp(13px,2.5vw,22px);
+  color:var(--r);text-shadow:var(--gr);
+  letter-spacing:5px;text-transform:uppercase;
+  animation:fadeInUp .8s 1s both;
+}
+
+/* ── SCENE 4 — Dark Rain ── */
+.rain-wrap{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.rdrop{
+  position:absolute;top:-30px;
+  border-radius:1px;
+  background:linear-gradient(transparent,rgba(138,0,255,.75));
+  animation:rfall linear infinite;
+}
+@keyframes rfall{to{transform:translateY(110vh);opacity:0}}
+
+.sun-weak{
+  width:clamp(40px,7vw,70px);height:clamp(40px,7vw,70px);
+  border-radius:50%;
+  background:radial-gradient(circle,#ff9900 0%,#ff6600 40%,transparent 100%);
+  box-shadow:0 0 20px #ff6600;
+  animation:flicker .35s ease-in-out infinite alternate;
+  position:relative;z-index:3;
+}
+@keyframes flicker{from{opacity:1;box-shadow:0 0 20px #ff6600}to{opacity:.35;box-shadow:0 0 4px #ff6600}}
+
+/* ── SCENE 5 — Lock Monsters ── */
+.monster{
+  position:absolute;
+  filter:drop-shadow(0 0 8px #ff0055);
+  animation:mIn .4s ease-out backwards, mfloat 2s ease-in-out infinite alternate;
+}
+@keyframes mIn{from{opacity:0;transform:scale(0) rotate(-30deg)}to{opacity:1;transform:scale(1)}}
+@keyframes mfloat{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-12px) rotate(4deg)}}
+
+/* ── SCENE 6 — SOS Signal ── */
+.sig-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
+.sig-ring{
+  position:absolute;border-radius:50%;
+  border:2px solid var(--c);
+  width:0;height:0;
+  animation:sigex 2s ease-out infinite;
+  opacity:0;
+}
+@keyframes sigex{
+  from{width:10px;height:10px;opacity:.8;transform:translate(-50%,-50%)}
+  to{width:300px;height:300px;opacity:0;transform:translate(-50%,-50%)}
+}
+.sos-text{
+  font-size:clamp(22px,5vw,42px);font-weight:900;
+  color:var(--c);text-shadow:var(--gc);
+  letter-spacing:8px;animation:cblink .8s step-end infinite;
+  margin-top:20px;
+}
+
+/* ── SCENE 7 — Earth ── */
+.earth-big{
+  font-size:clamp(70px,15vw,130px);
+  animation:epulse 1.5s ease-in-out infinite alternate;
+}
+@keyframes epulse{
+  from{transform:scale(1) rotate(-5deg);filter:drop-shadow(0 0 12px var(--g))}
+  to{transform:scale(1.08) rotate(5deg);filter:drop-shadow(0 0 35px var(--g))}
+}
+.earth-sub{
+  margin-top:14px;font-size:clamp(12px,2vw,17px);
+  color:var(--g);text-shadow:0 0 10px var(--g);
+  letter-spacing:3px;animation:fadeInUp .8s .6s both;opacity:0;
+}
+
+/* ── SCENE 8 — Final Title ── */
+.final-logo{
+  font-size:11px;letter-spacing:6px;color:rgba(255,255,255,.35);
+  text-transform:uppercase;margin-bottom:6px;
+  animation:fadeIn .8s .2s both;
+}
+.final-title{
+  font-size:clamp(30px,7vw,80px);
+  font-weight:900;letter-spacing:6px;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--c) 45%,var(--s) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 24px var(--c));
+  animation:ftitleIn 1.2s .3s both;
+  text-align:center;
+}
+@keyframes ftitleIn{
+  from{opacity:0;transform:scale(1.35);letter-spacing:20px}
+  to{opacity:1;transform:scale(1);letter-spacing:6px}
+}
+.final-sub{
+  font-size:clamp(13px,2.5vw,20px);
+  color:var(--g);text-shadow:0 0 12px var(--g);
+  letter-spacing:3px;text-align:center;
+  animation:fadeInUp .8s .9s both;opacity:0;margin-top:10px;
+}
+.start-btn{
+  margin-top:36px;
+  padding:14px 44px;
+  background:linear-gradient(135deg,var(--c),var(--s));
+  border:none;border-radius:8px;
+  color:#fff;font-size:clamp(13px,2vw,17px);
+  font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;
+  box-shadow:var(--gc);
+  animation:fadeInUp .8s 1.5s both;opacity:0;
+  transition:transform .2s,box-shadow .2s;
+}
+.start-btn:hover{transform:scale(1.06);box-shadow:var(--gs);}
+
+/* ══ PROGRESS BAR ══ */
+#prog{
+  position:absolute;bottom:0;left:0;
+  height:3px;background:var(--c);
+  box-shadow:var(--gc);
+  width:0%;transition:width .12s linear;
+  z-index:50;
+}
+/* ══ SKIP ══ */
+#skip{
+  position:absolute;top:14px;right:14px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.5);
+  padding:7px 16px;border-radius:20px;
+  font-size:11px;letter-spacing:1px;cursor:pointer;
+  z-index:50;transition:all .2s;
+}
+#skip:hover{background:rgba(255,255,255,.18);color:#fff;}
+
+/* ══ SCENE CHAPTER LABEL ══ */
+#chapter{
+  position:absolute;top:14px;left:14px;
+  font-size:10px;letter-spacing:4px;color:rgba(10,224,254,.5);
+  text-transform:uppercase;z-index:50;
+  transition:opacity .5s;
+}
+
+/* ══ UTILS ══ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCREEN 1 — DEVICE SELECTOR
+══════════════════════════════════ -->
+<div id="selector">
+  <div class="grid-bg"></div>
+  <canvas id="sel-cvs" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></canvas>
+
+  <div class="sel-header" style="z-index:1;position:relative;">
+    <div class="sel-label">VInaStudy Presents</div>
+    <div class="sel-title">Chiến Binh Toán</div>
+    <div class="sel-sub">Chọn màn hình để xem intro</div>
+  </div>
+
+  <div class="device-row" style="z-index:1;position:relative;">
+
+    <!-- Phone card -->
+    <div class="device-card" onclick="start('mobile')" title="Chế độ điện thoại">
+      <div class="mock-phone">
+        <div class="screen" id="pp">
+          <div class="m-sun"></div>
+        </div>
+      </div>
+      <div class="dc-label">📱 Điện thoại</div>
+      <div class="dc-desc">390 × 844 · Chế độ dọc<br>Tối ưu Telegram WebApp</div>
+    </div>
+
+    <!-- Desktop card -->
+    <div class="device-card" onclick="start('desktop')" title="Chế độ laptop">
+      <div class="badge-rec">✨ Nên dùng</div>
+      <div class="mock-laptop">
+        <div class="mock-screen" id="lp">
+          <div class="m-sun"></div>
+        </div>
+        <div class="mock-base"></div>
+      </div>
+      <div class="dc-label">💻 Laptop</div>
+      <div class="dc-desc">Toàn màn hình · Chế độ ngang<br>Trải nghiệm đầy đủ</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     VIEWPORT
+══════════════════════════════════ -->
+<div id="vp-outer">
+  <div id="vp">
+    <div class="grid-bg" style="opacity:.4;"></div>
+    <canvas id="cvs"></canvas>
+
+    <div id="chapter">Ngân Hà</div>
+    <button id="skip" onclick="skipToEnd()">Bỏ qua ⏭</button>
+    <div id="prog"></div>
+
+    <!-- ── S1: OPENING ── -->
+    <div class="scene" id="s1">
+      <div class="brand-tag">VInaStudy — Năm 3000</div>
+      <div class="open-title">Chiến Binh Toán</div>
+      <div class="narr"><p id="t1"></p></div>
+    </div>
+
+    <!-- ── S2: SOLAR SYSTEM ── -->
+    <div class="scene" id="s2">
+      <div class="solar">
+        <div class="sun-rays"></div>
+        <!-- Planet orbits -->
+        <div class="orbit-ring" style="width:170px;height:170px;animation-duration:6s;">
+          <div class="planet" style="width:14px;height:14px;margin-top:-7px;background:radial-gradient(circle,var(--g),#009944);box-shadow:0 0 8px var(--g);"></div>
+        </div>
+        <div class="orbit-ring" style="width:240px;height:240px;animation-duration:11s;animation-direction:reverse;">
+          <div class="planet" style="width:11px;height:11px;margin-top:-5.5px;background:radial-gradient(circle,var(--c),#006688);box-shadow:0 0 7px var(--c);"></div>
+        </div>
+        <div class="orbit-ring" style="width:320px;height:320px;animation-duration:17s;">
+          <div class="planet" style="width:18px;height:18px;margin-top:-9px;background:radial-gradient(circle,var(--s),#660077);box-shadow:0 0 10px var(--s);"></div>
+        </div>
+        <div class="sun"></div>
+      </div>
+      <div class="narr"><p id="t2"></p></div>
+    </div>
+
+    <!-- ── S3: CHAOS LORD ── -->
+    <div class="scene" id="s3">
+      <div class="dark-veil"></div>
+      <div class="chaos-lord">👹</div>
+      <div class="chaos-name">Chúa Tể Hỗn Loạn</div>
+      <div class="narr"><p id="t3"></p></div>
+    </div>
+
+    <!-- ── S4: DARK RAIN ── -->
+    <div class="scene" id="s4">
+      <div class="dark-veil" style="background:radial-gradient(ellipse 140% 80% at 50% -5%,rgba(80,0,130,.9) 0%,rgba(20,0,50,.7) 45%,rgba(5,10,31,.8) 80%);"></div>
+      <div class="rain-wrap" id="rain"></div>
+      <div style="position:relative;z-index:5;">
+        <div class="sun-rays" style="opacity:.2;filter:saturate(.1);"></div>
+        <div class="sun-weak"></div>
+      </div>
+      <div class="narr"><p id="t4"></p></div>
+    </div>
+
+    <!-- ── S5: LOCK MONSTERS ── -->
+    <div class="scene" id="s5">
+      <div class="dark-veil" style="background:rgba(10,0,20,.55);animation:none;opacity:1;"></div>
+      <div id="monsters" style="position:absolute;inset:0;overflow:hidden;"></div>
+      <div class="narr"><p id="t5"></p></div>
+    </div>
+
+    <!-- ── S6: SOS ── -->
+    <div class="scene" id="s6">
+      <div class="sig-wrap">
+        <div class="sun-weak" style="width:50px;height:50px;position:relative;z-index:2;"></div>
+        <div class="sig-ring" style="animation-delay:0s;position:absolute;left:50%;top:50%;"></div>
+        <div class="sig-ring" style="animation-delay:.65s;position:absolute;left:50%;top:50%;"></div>
+        <div class="sig-ring" style="animation-delay:1.3s;position:absolute;left:50%;top:50%;"></div>
+      </div>
+      <div class="sos-text">· · · — — — · · ·</div>
+      <div class="narr"><p id="t6"></p></div>
+    </div>
+
+    <!-- ── S7: EARTH CALL ── -->
+    <div class="scene" id="s7">
+      <div class="earth-big">🌍</div>
+      <div class="earth-sub">Trái Đất đang lắng nghe...</div>
+      <div class="narr"><p id="t7"></p></div>
+    </div>
+
+    <!-- ── S8: FINAL ── -->
+    <div class="scene" id="s8">
+      <div class="final-logo">VInaStudy</div>
+      <div class="final-title">Chiến Binh Toán</div>
+      <div class="final-sub">⚡ Thắp sáng lại vũ trụ! ⚡</div>
+      <button class="start-btn" onclick="window.location.href='index.html'">
+        🚀 Bắt đầu hành trình
+      </button>
+    </div>
+
+  </div><!-- #vp -->
+</div><!-- #vp-outer -->
+
+<script>
+// ══════════════════════════════════
+//  SCENE CONFIG
+// ══════════════════════════════════
+const SCENES = [
+  {
+    id:'s1', dur:3600, tid:'t1', chapter:'Ngân Hà',
+    txt:'Ở trung tâm Ngân Hà...'
+  },
+  {
+    id:'s2', dur:5000, tid:'t2', chapter:'Mặt Trời Trí Tuệ',
+    txt:'Mặt Trời Trí Tuệ rực rỡ tỏa ra những Tia Sáng Sáng Tạo, giúp các hành tinh luôn yên bình.'
+  },
+  {
+    id:'s3', dur:4200, tid:'t3', chapter:'Kẻ Thù Xuất Hiện',
+    txt:'Thế nhưng, Chúa Tể Hỗn Loạn đã xuất hiện từ bóng tối...'
+  },
+  {
+    id:'s4', dur:4500, tid:'t4', chapter:'Cơn Mưa Đen Tối',
+    txt:'...tạo ra Cơn Mưa Đen Tối, đánh cắp năng lượng của Mặt Trời Trí Tuệ!'
+  },
+  {
+    id:'s5', dur:4000, tid:'t5', chapter:'Quái Vật Ổ Khóa',
+    txt:'...và thả vô số Quái Vật Ổ Khóa khắp Hệ Mặt Trời!'
+  },
+  {
+    id:'s6', dur:4500, tid:'t6', chapter:'Tín Hiệu Cầu Cứu',
+    txt:'Mặt Trời Trí Tuệ phát tín hiệu cầu cứu cuối cùng...'
+  },
+  {
+    id:'s7', dur:4500, tid:'t7', chapter:'Lời Kêu Gọi',
+    txt:'"Hỡi các bạn nhỏ Trái Đất, hãy hóa thân thành Chiến Binh Toán, thắp sáng lại vũ trụ!"'
+  },
+  {
+    id:'s8', dur:999999, tid:null, chapter:'Chiến Binh Toán',
+    txt:null
+  },
+];
+
+const TOTAL_DUR = SCENES.slice(0,-1).reduce((a,s)=>a+s.dur,0);
+
+let cur = -1, timer = null, progTimer = null, typeTimer = null;
+let progElapsed = 0;
+
+// ══════════════════════════════════
+//  STARS
+// ══════════════════════════════════
+function mkStars(cvs, n) {
+  const ctx = cvs.getContext('2d');
+  const stars = [];
+  function rsz(){cvs.width=cvs.offsetWidth;cvs.height=cvs.offsetHeight;}
+  rsz();
+  new ResizeObserver(rsz).observe(cvs);
+  for(let i=0;i<n;i++) stars.push({
+    x:Math.random(), y:Math.random(),
+    r:Math.random()*1.5+.3,
+    a:Math.random(),
+    da:(Math.random()-.5)*.015,
+    col:Math.random()>.85?'#0ae0fe':(Math.random()>.5?'#fff':'#ea0eed')
+  });
+  (function draw(){
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    stars.forEach(s=>{
+      s.a+=s.da;
+      if(s.a<=0||s.a>=1)s.da*=-1;
+      ctx.beginPath();
+      ctx.arc(s.x*cvs.width, s.y*cvs.height, s.r, 0, Math.PI*2);
+      ctx.fillStyle=s.col;
+      ctx.globalAlpha=Math.max(0,Math.min(1,s.a));
+      ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  })();
+}
+
+// ══════════════════════════════════
+//  TYPEWRITER
+// ══════════════════════════════════
+function typewrite(elId, text, spd=42) {
+  clearTimeout(typeTimer);
+  const el=document.getElementById(elId);
+  if(!el)return;
+  el.innerHTML='';
+  let i=0;
+  (function t(){
+    if(i<text.length){
+      el.innerHTML=text.slice(0,++i)+'<span class="cur"></span>';
+      typeTimer=setTimeout(t, spd);
+    } else { el.innerHTML=text; }
+  })();
+}
+
+// ══════════════════════════════════
+//  RAIN
+// ══════════════════════════════════
+function mkRain() {
+  const c=document.getElementById('rain');
+  c.innerHTML='';
+  const W=document.getElementById('vp').offsetWidth;
+  for(let i=0;i<70;i++){
+    const d=document.createElement('div');
+    d.className='rdrop';
+    const h=Math.random()*50+10;
+    d.style.cssText=`
+      left:${Math.random()*W}px;
+      height:${h}px;
+      width:${Math.random()>.7?2.5:1.5}px;
+      opacity:${.4+Math.random()*.6};
+      animation-duration:${.7+Math.random()*1.4}s;
+      animation-delay:${Math.random()*2.5}s;
+    `;
+    c.appendChild(d);
+  }
+}
+
+// ══════════════════════════════════
+//  MONSTERS
+// ══════════════════════════════════
+function mkMonsters() {
+  const c=document.getElementById('monsters');
+  c.innerHTML='';
+  const vp=document.getElementById('vp');
+  const W=vp.offsetWidth, H=vp.offsetHeight;
+  const icons=['🔒','🔐','⛓️','🔒','🔐','💀','🔒','🗝️','⛓️'];
+  for(let i=0;i<11;i++){
+    const m=document.createElement('div');
+    m.className='monster';
+    const sz=22+Math.random()*22;
+    m.style.cssText=`
+      left:${Math.random()*(W-60)}px;
+      top:${15+Math.random()*(H-180)}px;
+      font-size:${sz}px;
+      animation-delay:${i*.12}s, ${Math.random()*2}s;
+    `;
+    m.textContent=icons[i%icons.length];
+    c.appendChild(m);
+  }
+}
+
+// ══════════════════════════════════
+//  PROGRESS
+// ══════════════════════════════════
+function startProg(from, dur) {
+  clearInterval(progTimer);
+  const bar=document.getElementById('prog');
+  const step=80;
+  let t=0;
+  progTimer=setInterval(()=>{
+    t+=step;
+    const pct=Math.min((from+t)/TOTAL_DUR*100,100);
+    bar.style.width=pct+'%';
+    if(t>=dur)clearInterval(progTimer);
+  },step);
+}
+
+// ══════════════════════════════════
+//  SHOW SCENE
+// ══════════════════════════════════
+function showScene(idx) {
+  if(idx>=SCENES.length)return;
+  clearTimeout(timer);clearTimeout(typeTimer);clearInterval(progTimer);
+
+  // cross-fade
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('on'));
+  const sc=SCENES[idx];
+  const el=document.getElementById(sc.id);
+  if(el) el.classList.add('on');
+
+  // chapter label
+  const ch=document.getElementById('chapter');
+  if(ch){ch.style.opacity=0;setTimeout(()=>{ch.textContent=sc.chapter;ch.style.opacity=1;},400);}
+
+  // scene triggers
+  if(sc.id==='s4') mkRain();
+  if(sc.id==='s5') mkMonsters();
+
+  // typewrite narration
+  if(sc.tid && sc.txt) setTimeout(()=>typewrite(sc.tid,sc.txt,44), 900);
+
+  // progress
+  const elapsed=SCENES.slice(0,idx).reduce((a,s)=>a+Math.min(s.dur,5000),0);
+  startProg(elapsed, sc.dur);
+
+  cur=idx;
+
+  if(sc.dur<999999){
+    timer=setTimeout(()=>showScene(idx+1), sc.dur);
+  } else {
+    document.getElementById('prog').style.width='100%';
+    document.getElementById('skip').style.display='none';
+    document.getElementById('chapter').style.display='none';
+  }
+}
+
+function skipToEnd(){
+  clearTimeout(timer);clearTimeout(typeTimer);clearInterval(progTimer);
+  showScene(SCENES.length-1);
+}
+
+// ══════════════════════════════════
+//  START VIDEO
+// ══════════════════════════════════
+function start(mode) {
+  const sel=document.getElementById('selector');
+  const outer=document.getElementById('vp-outer');
+
+  sel.style.opacity='0';
+  setTimeout(()=>{
+    sel.style.display='none';
+    outer.style.display='flex';
+    outer.classList.add('is-'+mode);
+
+    const cvs=document.getElementById('cvs');
+    cvs.style.width='100%';cvs.style.height='100%';
+    setTimeout(()=>{
+      mkStars(cvs, mode==='mobile'?100:200);
+      showScene(0);
+    },150);
+  },800);
+}
+
+// ══════════════════════════════════
+//  MINI STARS in selector mockups
+// ══════════════════════════════════
+function sprinkleMini(parentId, n) {
+  const p=document.getElementById(parentId);
+  if(!p)return;
+  for(let i=0;i<n;i++){
+    const s=document.createElement('div');
+    s.className='m-star';
+    s.style.cssText=`
+      left:${Math.random()*90}%;
+      top:${Math.random()*90}%;
+      animation-delay:${Math.random()*2}s;
+      width:${Math.random()>0.5?2:1}px;
+      height:${Math.random()>0.5?2:1}px;
+    `;
+    p.appendChild(s);
+  }
+}
+
+// ══════════════════════════════════
+//  INIT
+// ══════════════════════════════════
+window.onload=()=>{
+  // Selector background stars
+  const sc=document.getElementById('sel-cvs');
+  sc.width=window.innerWidth; sc.height=window.innerHeight;
+  window.addEventListener('resize',()=>{sc.width=innerWidth;sc.height=innerHeight;});
+  mkStars(sc,120);
+
+  // Mini stars in mockup previews
+  sprinkleMini('pp',8);
+  sprinkleMini('lp',12);
+};
+</script>
+</body>
+</html>
