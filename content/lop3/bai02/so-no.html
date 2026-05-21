@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#050a1f">
+<title>💣 Số Nổ — VInaStudy</title>
+<style>
+/* ── RESET & ROOT ─────────────────────────────────────────── */
+:root{
+  --p:#0ae0fe; --sec:#ea0eed; --ok:#4eff9f;
+  --bad:#ff3344; --gold:#ffd700; --bg:#050a1f;
+  --card:#0d1b3e;
+}
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html,body{
+  width:100%; height:100%; overflow:hidden;
+  background:var(--bg);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  color:#e0f4ff;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  user-select:none; -webkit-user-select:none;
+}
+
+/* ── SCREENS ──────────────────────────────────────────────── */
+.screen{
+  position:fixed; inset:0; z-index:60;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:24px 20px;
+}
+.s-bomb{ font-size:5rem; animation:sbounce 1.8s ease-in-out infinite; }
+@keyframes sbounce{
+  0%,100%{ transform:translateY(0) rotate(-6deg); }
+  50%{ transform:translateY(-18px) rotate(6deg); }
+}
+.s-title{
+  font-size:clamp(2rem,7vw,2.6rem); font-weight:900; letter-spacing:3px;
+  background:linear-gradient(90deg,var(--p),var(--sec));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; margin:4px 0;
+}
+.s-sub{ font-size:.88rem; color:rgba(200,230,255,.4); margin-bottom:22px; }
+.s-card{
+  background:rgba(10,224,254,.06); border:1px solid rgba(10,224,254,.2);
+  border-radius:14px; padding:14px 18px; margin-bottom:26px;
+  width:100%; max-width:310px; text-align:left; list-style:none;
+}
+.s-card li{
+  padding:5px 0; font-size:.86rem; color:rgba(200,230,255,.72);
+  display:flex; align-items:center; gap:10px;
+}
+.btn-big{
+  padding:16px 44px; border:none; border-radius:16px;
+  font-size:1.15rem; font-weight:900; cursor:pointer; letter-spacing:1px;
+  background:var(--p); color:#000;
+  box-shadow:0 0 28px rgba(10,224,254,.5);
+  transition:transform .1s;
+}
+.btn-big:active{ transform:scale(.95); }
+.btn-big.red{
+  background:var(--bad); color:#fff; margin-top:10px;
+  box-shadow:0 0 20px rgba(255,51,68,.4);
+}
+.go-score{ font-size:4rem; font-weight:900; color:var(--gold); text-shadow:0 0 24px var(--gold); margin:14px 0; }
+.go-stats{ font-size:.88rem; color:rgba(200,230,255,.5); line-height:2.3; margin-bottom:22px; }
+
+/* ── GAME SHELL ───────────────────────────────────────────── */
+#g{ display:none; width:100%; height:100%; flex-direction:column; }
+#g.on{ display:flex; }
+
+/* ── HUD ──────────────────────────────────────────────────── */
+#hud{
+  flex-shrink:0; height:54px;
+  display:flex; align-items:center; gap:10px; padding:0 14px;
+  background:rgba(0,0,0,.55);
+  border-bottom:1px solid rgba(10,224,254,.14);
+}
+.h-score{
+  font-size:1.5rem; font-weight:900; min-width:86px;
+  color:var(--p); text-shadow:0 0 10px var(--p); letter-spacing:.5px;
+}
+.h-mid{ flex:1; text-align:center; line-height:1.35; }
+.h-lvname{ font-size:.88rem; font-weight:700; color:rgba(200,230,255,.8); }
+.h-prog{ font-size:.66rem; color:rgba(200,230,255,.3); }
+.h-right{ display:flex; align-items:center; gap:8px; }
+.h-combo{ font-size:.78rem; font-weight:700; color:var(--gold); text-shadow:0 0 8px var(--gold); min-width:34px; text-align:right; }
+.h-lives{ font-size:1.15rem; letter-spacing:1px; }
+
+/* ── ARENA ────────────────────────────────────────────────── */
+#arena{
+  flex:1; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+/* Dot-grid bg */
+#arena::before{
+  content:''; position:absolute; inset:0;
+  background-image:radial-gradient(circle,rgba(10,224,254,.11) 1px,transparent 1px);
+  background-size:38px 38px;
+  pointer-events:none;
+}
+/* Ambient pulse from center */
+#arena::after{
+  content:''; position:absolute;
+  width:60%; padding-top:60%; border-radius:50%;
+  background:radial-gradient(circle,rgba(234,14,237,.06) 0%,transparent 70%);
+  pointer-events:none; animation:apulse 4s ease-in-out infinite;
+}
+@keyframes apulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.3);opacity:1}}
+
+/* Bomb wrapper */
+#bw{
+  display:none;
+  position:relative; z-index:1;
+  animation:bfloat 3s ease-in-out infinite;
+}
+@keyframes bfloat{
+  0%,100%{ transform:translateY(0) rotate(-.5deg); }
+  50%{ transform:translateY(-14px) rotate(.5deg); }
+}
+@keyframes bshake{
+  0%,100%{ transform:translate(0,0) rotate(0); }
+  10%{ transform:translate(-14px,6px) rotate(-4deg); }
+  25%{ transform:translate(14px,-6px) rotate(4deg); }
+  40%{ transform:translate(-10px,8px) rotate(-2deg); }
+  55%{ transform:translate(10px,-4px) rotate(2deg); }
+  70%{ transform:translate(-5px,3px); }
+  85%{ transform:translate(5px,-3px); }
+}
+#bw.shake{ animation:bshake .4s ease; }
+
+/* SVG bomb: responsive size */
+#bsvg{
+  width: min(230px, 58vw);
+  height: min(230px, 58vw);
+  display:block;
+}
+
+/* ── ANSWER AREA ──────────────────────────────────────────── */
+#ans{
+  flex-shrink:0;
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;
+  padding:8px 10px max(12px,env(safe-area-inset-bottom));
+  background:rgba(0,0,0,.38);
+  border-top:1px solid rgba(10,224,254,.12);
+}
+.ab{
+  min-height:70px;
+  border:2px solid rgba(10,224,254,.28);
+  border-radius:14px;
+  background:rgba(10,224,254,.05);
+  color:#e0f4ff;
+  font-size:clamp(.76rem,.9rem,1.05rem);
+  font-weight:700; line-height:1.35;
+  cursor:pointer;
+  transition:border-color .12s, background .12s, transform .08s;
+  padding:8px 5px;
+  display:flex; align-items:center; justify-content:center;
+  text-align:center;
+  font-family:inherit;
+}
+.ab:active{ transform:scale(.93); }
+.ab.ok{
+  border-color:var(--ok); background:rgba(78,255,159,.18);
+  color:var(--ok); animation:abpop .3s ease;
+}
+.ab.no{ border-color:var(--bad); background:rgba(255,51,68,.12); color:var(--bad); }
+.ab.hint{ border-color:rgba(10,224,254,.7); background:rgba(10,224,254,.1); }
+@keyframes abpop{ 0%,100%{transform:scale(1)} 45%{transform:scale(1.08)} }
+
+/* ── OVERLAYS ─────────────────────────────────────────────── */
+/* Screen flash */
+#fl{ position:fixed; inset:0; z-index:30; pointer-events:none; opacity:0; transition:opacity .07s; }
+#fl.ok{ background:rgba(78,255,159,.2); }
+#fl.no{ background:rgba(255,51,68,.3); }
+#fl.on{ opacity:1; }
+
+/* Level up banner */
+#lvb{
+  position:fixed; inset:0; z-index:40;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; opacity:0; transition:opacity .25s;
+}
+#lvb.on{ opacity:1; }
+#lvbt{
+  font-size:clamp(2rem,6vw,2.8rem); font-weight:900; letter-spacing:2px;
+  color:var(--gold); text-shadow:0 0 30px var(--gold), 0 0 60px rgba(255,215,0,.3);
+  animation:lvpop 2s ease-out forwards;
+}
+@keyframes lvpop{
+  0%{ transform:scale(.4); opacity:0; }
+  18%{ transform:scale(1.12); opacity:1; }
+  75%{ transform:scale(1); opacity:1; }
+  100%{ transform:scale(1.5); opacity:0; }
+}
+
+/* Score popup */
+.sp{
+  position:fixed; pointer-events:none; z-index:35;
+  font-size:1.35rem; font-weight:900;
+  animation:sppop .85s ease-out forwards;
+  text-shadow:0 0 8px currentColor;
+}
+@keyframes sppop{
+  0%{ opacity:1; transform:translateY(0) scale(1); }
+  100%{ opacity:0; transform:translateY(-70px) scale(1.4); }
+}
+
+/* Countdown between levels */
+#cdnum{
+  position:fixed; inset:0; z-index:45;
+  display:flex; align-items:center; justify-content:center;
+  font-size:8rem; font-weight:900;
+  color:var(--p); text-shadow:0 0 40px var(--p);
+  pointer-events:none; opacity:0;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ START SCREEN ═══════════════════ -->
+<div id="ss" class="screen">
+  <div class="s-bomb">💣</div>
+  <div class="s-title">SỐ NỔ</div>
+  <div class="s-sub">Phá bom trước khi nổ!</div>
+  <ul class="s-card">
+    <li>🔢 Xem số to trên quả bom</li>
+    <li>✅ Chọn cách phân tích đúng</li>
+    <li>⚡ Tap thật nhanh — điểm tốc độ!</li>
+    <li>🔥 Đúng liên tiếp = nhân điểm ×2 ×3 ×4</li>
+  </ul>
+  <button class="btn-big" onclick="startGame()">💣 BẮT ĐẦU</button>
+</div>
+
+<!-- ═══════════════════ GAME OVER SCREEN ═══════════════════ -->
+<div id="gs" class="screen" style="display:none">
+  <div style="font-size:4.5rem;animation:none">💥</div>
+  <div class="s-title">HẾT MẠNG!</div>
+  <div class="go-score" id="goSc">0</div>
+  <div class="go-stats" id="goSt"></div>
+  <button class="btn-big" onclick="startGame()">🔄 Chơi lại</button>
+  <button class="btn-big red" onclick="sendScore()">📨 Gửi điểm về bot</button>
+</div>
+
+<!-- ═══════════════════ GAME ═══════════════════ -->
+<div id="g">
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="h-score" id="hSc">0</div>
+    <div class="h-mid">
+      <div class="h-lvname" id="hLv">Cấp 1</div>
+      <div class="h-prog"   id="hPr">0 / 5 bom</div>
+    </div>
+    <div class="h-right">
+      <div class="h-combo" id="hCo"></div>
+      <div class="h-lives" id="hLi">❤️❤️❤️</div>
+    </div>
+  </div>
+
+  <!-- ARENA -->
+  <div id="arena">
+    <div id="bw">
+      <!--
+        SVG Bomb — viewBox 0 0 200 215
+        Ring: r=80, cx/cy=100,130  → C = 2π×80 ≈ 502.7
+        Body: r=62, cx/cy=100,130
+        Fuse exits top-center to upper-right
+      -->
+      <svg id="bsvg" viewBox="0 0 200 215" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bg1" cx="36%" cy="30%" r="68%">
+            <stop offset="0%"   stop-color="#636363"/>
+            <stop offset="50%"  stop-color="#252525"/>
+            <stop offset="100%" stop-color="#0e0e0e"/>
+          </radialGradient>
+          <!-- Danger glow — fills up as timer runs out -->
+          <radialGradient id="bglow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff5500" stop-opacity=".0" id="glowStop"/>
+            <stop offset="100%" stop-color="#ff5500" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="bombBlur" x="-15%" y="-15%" width="130%" height="130%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Danger glow circle (grows when time low) -->
+        <circle cx="100" cy="130" r="88" fill="url(#bglow)" id="dangerGlow" opacity="0"/>
+
+        <!-- Ring bg -->
+        <circle cx="100" cy="130" r="80" fill="none"
+                stroke="rgba(255,255,255,.07)" stroke-width="9"/>
+
+        <!-- Ring fg (timer) — rotated so it starts at top -->
+        <circle cx="100" cy="130" r="80" fill="none"
+                stroke="#4eff9f" stroke-width="9" stroke-linecap="round"
+                stroke-dasharray="502.7" stroke-dashoffset="0"
+                id="ring"
+                transform="rotate(-90 100 130)"/>
+
+        <!-- Bomb body -->
+        <circle cx="100" cy="130" r="62" fill="url(#bg1)"
+                stroke="rgba(255,255,255,.1)" stroke-width="1.5"
+                filter="url(#bombBlur)"/>
+
+        <!-- Shine highlight -->
+        <ellipse cx="83" cy="113" rx="22" ry="13"
+                 fill="rgba(255,255,255,.09)"
+                 transform="rotate(-28 83 113)"/>
+
+        <!-- Rivet details -->
+        <circle cx="68" cy="118" r="3" fill="rgba(255,255,255,.08)"/>
+        <circle cx="132" cy="118" r="3" fill="rgba(255,255,255,.08)"/>
+        <circle cx="100" cy="168" r="3" fill="rgba(255,255,255,.08)"/>
+
+        <!-- Fuse tube -->
+        <path d="M100 68 Q112 50 126 38 Q140 26 148 14"
+              stroke="#555" stroke-width="4" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M100 68 Q112 50 126 38 Q140 26 148 14"
+              stroke="#777" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"
+              stroke-dasharray="4 5"/>
+
+        <!-- Spark at tip -->
+        <g id="sparkG">
+          <!-- Outer bloom -->
+          <circle cx="148" cy="14" r="14" fill="#ff6600" opacity=".2" id="sparkBloom">
+            <animate attributeName="r" values="14;20;12;18;14" dur=".4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".2;.08;.25;.1;.2" dur=".4s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Core -->
+          <circle cx="148" cy="14" r="6" fill="#ffbb00">
+            <animate attributeName="r" values="6;9;5;8;6" dur=".35s" repeatCount="indefinite"/>
+            <animate attributeName="fill" values="#ffcc00;#ff3300;#ffff00;#ff7700;#ffcc00" dur=".38s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- Crack decoration -->
+        <path d="M93 118 L100 132 L96 132 L103 148"
+              stroke="rgba(255,255,255,.18)" stroke-width="2"
+              fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+
+        <!-- Number -->
+        <text x="100" y="128"
+              text-anchor="middle" dominant-baseline="middle"
+              font-family="'Segoe UI',system-ui,sans-serif"
+              font-weight="900" fill="white" letter-spacing="-1"
+              id="bnum" font-size="36">???</text>
+
+        <!-- Sub-label -->
+        <text x="100" y="152"
+              text-anchor="middle"
+              font-family="'Segoe UI',system-ui,sans-serif"
+              font-size="9" fill="rgba(255,210,100,.45)"
+              letter-spacing="3">PHÂN TÍCH</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ANSWER BUTTONS -->
+  <div id="ans">
+    <button class="ab" id="a0" onclick="pick(0)"></button>
+    <button class="ab" id="a1" onclick="pick(1)"></button>
+    <button class="ab" id="a2" onclick="pick(2)"></button>
+  </div>
+
+</div><!-- /game -->
+
+<!-- Overlays -->
+<div id="fl"></div>
+<div id="lvb"><div id="lvbt"></div></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════════
+const C = 502.7;   // ring circumference = 2π × 80
+
+const LEVELS = [
+  { d:2, t:7500, n:'Cấp 1 — Nhập Môn' },
+  { d:2, t:6500, n:'Cấp 2 — Chiến Binh Tập Sự' },
+  { d:3, t:8000, n:'Cấp 3 — Chiến Binh' },
+  { d:3, t:7000, n:'Cấp 4 — Dũng Sĩ' },
+  { d:3, t:6000, n:'Cấp 5 — Hiệp Sĩ' },
+  { d:3, t:5000, n:'Cấp 6 — Tướng Quân' },
+  { d:3, t:4200, n:'Cấp 7 — Chiến Thần' },
+  { d:3, t:3500, n:'Cấp 8 — Huyền Thoại ⚡' },
+];
+const BPL  = 5;    // bombs per level
+const HLIV = 3;    // max lives
+
+// ═══════════════════════════════════════════════════════════════
+//  AUDIO (Web Audio API, no files needed)
+// ═══════════════════════════════════════════════════════════════
+let _ac;
+const ac = () => (_ac = _ac || new (window.AudioContext || window.webkitAudioContext)());
+
+function tone(f, type, dur, vol = .32, delay = 0) {
+  const ctx = ac(), o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type = type; o.frequency.setValueAtTime(f, ctx.currentTime + delay);
+  g.gain.setValueAtTime(vol, ctx.currentTime + delay);
+  g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + delay + dur);
+  o.start(ctx.currentTime + delay);
+  o.stop(ctx.currentTime + delay + dur + .02);
+}
+
+function noiseExplode() {
+  const ctx = ac();
+  const buf = ctx.createBuffer(1, ctx.sampleRate * .55, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++)
+    d[i] = (Math.random() * 2 - 1) * Math.exp(-i / 5000);
+  const s = ctx.createBufferSource(), g = ctx.createGain();
+  g.gain.value = .6; s.buffer = buf;
+  s.connect(g); g.connect(ctx.destination); s.start();
+}
+
+const SFX = {
+  defuse()  { tone(880,'sine',.08,.3); tone(1320,'sine',.12,.25,.09); tone(1760,'sine',.2,.2,.19); },
+  wrong()   { tone(160,'sawtooth',.38,.45); },
+  tick()    { tone(660,'square',.05,.1); },
+  levelUp() { [523,659,784,1047].forEach((f,i) => tone(f,'sine',.18,.3,i*.12)); },
+  explode() { noiseExplode(); tone(80,'sawtooth',.4,.5); },
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════════════
+let sc = 0, lv = 0, co = 0, li = HLIV;
+let bom = 0, tot = 0, coMax = 0;
+let cNum = 0, cIdx = 0, cOpts = [];
+let t0 = 0, tTotal = 0, tRAF = null;
+let done = false;
+let hs = +localStorage.getItem('soNo_hs') || 0;
+
+// ═══════════════════════════════════════════════════════════════
+//  NUMBER LOGIC
+// ═══════════════════════════════════════════════════════════════
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+
+function mkNum(digits) {
+  // All digits 1-9, no zeros → clean decomposition
+  if (digits === 2) return rnd(1, 9) * 10 + rnd(1, 9);
+  return rnd(1, 9) * 100 + rnd(1, 9) * 10 + rnd(1, 9);
+}
+
+function dc(n) {
+  // Decompose number into place-value string
+  if (n < 100) {
+    const t = Math.floor(n / 10) * 10, o = n % 10;
+    return `${t} + ${o}`;
+  }
+  const h = Math.floor(n / 100) * 100;
+  const t = Math.floor((n % 100) / 10) * 10;
+  const o = n % 10;
+  const p = [h]; if (t) p.push(t); if (o) p.push(o);
+  return p.join(' + ');
+}
+
+function mkWrongs(n) {
+  const ok = dc(n);
+  const bag = new Set();
+
+  if (n < 100) {
+    const tv = Math.floor(n / 10), ov = n % 10;
+    // Common mistakes: wrong tens digit, wrong ones, forgot ×10
+    const try3 = (T, O) => {
+      if (T < 1 || T > 9 || O < 1 || O > 9) return;
+      const s = `${T * 10} + ${O}`; if (s !== ok) bag.add(s);
+    };
+    if (tv > 1) try3(tv - 1, ov);
+    if (tv < 9) try3(tv + 1, ov);
+    if (ov > 1) try3(tv, ov - 1);
+    if (ov < 9) try3(tv, ov + 1);
+    // Classic mistake: treat digits as face value
+    const faceErr = `${tv} + ${ov}`;
+    if (faceErr !== ok) bag.add(faceErr);
+    // Swap tens & ones
+    if (tv !== ov) {
+      const sw = `${ov * 10} + ${tv}`; if (sw !== ok) bag.add(sw);
+    }
+  } else {
+    const hv = Math.floor(n / 100), tv = Math.floor((n % 100) / 10), ov = n % 10;
+    const try3 = (H, T, O) => {
+      if (H < 1 || H > 9 || T < 0 || T > 9 || O < 0 || O > 9) return;
+      const p = [H * 100]; if (T) p.push(T * 10); if (O) p.push(O);
+      const s = p.join(' + '); if (s !== ok) bag.add(s);
+    };
+    // One digit wrong
+    if (hv > 1) try3(hv - 1, tv, ov);
+    if (hv < 9) try3(hv + 1, tv, ov);
+    if (tv > 1) try3(hv, tv - 1, ov);
+    if (tv < 9) try3(hv, tv + 1, ov);
+    if (ov > 1) try3(hv, tv, ov - 1);
+    if (ov < 9) try3(hv, tv, ov + 1);
+    // Merge tens+ones (common: "400 + 73" instead of "400 + 70 + 3")
+    const merge = `${hv * 100} + ${tv * 10 + ov}`;
+    if (merge !== ok) bag.add(merge);
+    // Scale error on hundreds (write hv instead of hv×100)
+    const scaleErr = `${hv * 10} + ${tv * 10} + ${ov}`;
+    if (scaleErr !== ok) bag.add(scaleErr);
+  }
+
+  // Pick 2 distinct wrong answers
+  const arr = [...bag], chosen = [];
+  const seen = new Set([ok]);
+  while (chosen.length < 2 && arr.length) {
+    const i = Math.floor(Math.random() * arr.length);
+    const w = arr.splice(i, 1)[0];
+    if (!seen.has(w)) { seen.add(w); chosen.push(w); }
+  }
+  // Safety fallback: generate a clearly different number
+  while (chosen.length < 2) {
+    const fallback = dc(mkNum(n < 100 ? 2 : 3));
+    if (!seen.has(fallback)) { seen.add(fallback); chosen.push(fallback); }
+  }
+  return chosen;
+}
+
+function buildQ(n) {
+  const ok = dc(n);
+  const [w1, w2] = mkWrongs(n);
+  const opts = [ok, w1, w2].sort(() => Math.random() - .5);
+  return { opts, ci: opts.indexOf(ok) };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DOM SHORTCUTS
+// ═══════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const ring    = $('ring');
+const bwEl    = $('bw');
+const bnumEl  = $('bnum');
+const flashEl = $('fl');
+const lvbEl   = $('lvb');
+const lvbtEl  = $('lvbt');
+const dangerGl= $('dangerGlow');
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDERING
+// ═══════════════════════════════════════════════════════════════
+function upHUD() {
+  $('hSc').textContent = sc.toLocaleString('vi');
+  const cfg = LEVELS[Math.min(lv, LEVELS.length - 1)];
+  $('hLv').textContent = cfg.n.replace(/ — .*/, ''); // "Cấp X"
+  $('hPr').textContent = `${bom} / ${BPL} bom`;
+  $('hLi').textContent = '❤️'.repeat(li) + (li < HLIV ? '🖤'.repeat(HLIV - li) : '');
+  $('hCo').textContent = co >= 2 ? `🔥×${co}` : '';
+}
+
+function setRing(elapsed, total) {
+  const pct  = Math.min(1, elapsed / total);
+  const rem  = 1 - pct;
+  ring.setAttribute('stroke-dashoffset', C * pct);
+  ring.setAttribute('stroke', rem > .55 ? '#4eff9f' : rem > .28 ? '#ffaa00' : '#ff3344');
+  // Danger glow grows as timer shrinks
+  dangerGl.setAttribute('opacity', Math.max(0, (pct - .6) * 2.5).toFixed(2));
+  $('glowStop') && $('glowStop').setAttribute('stop-opacity', Math.max(0, (pct - .5) * .7).toFixed(2));
+}
+
+function doFlash(cls) {
+  flashEl.className = cls + ' on';
+  setTimeout(() => flashEl.classList.remove('on'), 160);
+}
+
+function popScore(pts, btn) {
+  const el = document.createElement('div');
+  el.className = 'sp';
+  el.style.color = pts > 0 ? '#4eff9f' : '#ff3344';
+  el.textContent = pts > 0 ? `+${pts}` : '💔';
+  const r = btn.getBoundingClientRect();
+  el.style.left = (r.left + r.width / 2 - 22) + 'px';
+  el.style.top  = (r.top + 14) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 950);
+}
+
+function showLevelBanner(name) {
+  lvbtEl.textContent = '⭐ ' + name;
+  lvbEl.classList.add('on');
+  setTimeout(() => lvbEl.classList.remove('on'), 2000);
+  SFX.levelUp();
+}
+
+function shakeIt() {
+  bwEl.classList.remove('shake');
+  void bwEl.offsetWidth; // force reflow
+  bwEl.classList.add('shake');
+  setTimeout(() => bwEl.classList.remove('shake'), 450);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TIMER LOOP
+// ═══════════════════════════════════════════════════════════════
+let lastTickSec = -1;
+
+function startLoop() {
+  if (tRAF) cancelAnimationFrame(tRAF);
+  lastTickSec = -1;
+
+  function loop(now) {
+    const el  = now - t0;
+    const rem = tTotal - el;
+    const remSec = Math.ceil(rem / 1000);
+
+    // Tick sound last 3 seconds
+    if (remSec <= 3 && remSec > 0 && remSec !== lastTickSec) {
+      lastTickSec = remSec;
+      SFX.tick();
+    }
+
+    if (rem <= 0) {
+      setRing(tTotal, tTotal);
+      onTimeout();
+      return;
+    }
+
+    setRing(el, tTotal);
+    tRAF = requestAnimationFrame(loop);
+  }
+  tRAF = requestAnimationFrame(loop);
+}
+
+function stopLoop() {
+  if (tRAF) { cancelAnimationFrame(tRAF); tRAF = null; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SPAWN BOMB
+// ═══════════════════════════════════════════════════════════════
+function spawn() {
+  done = false;
+  const cfg = LEVELS[Math.min(lv, LEVELS.length - 1)];
+
+  cNum = mkNum(cfg.d);
+  const { opts, ci } = buildQ(cNum);
+  cOpts = opts; cIdx = ci;
+
+  // Number on bomb
+  bnumEl.textContent = cNum;
+  bnumEl.setAttribute('font-size', cNum >= 100 ? '30' : '38');
+
+  // Answer buttons
+  for (let i = 0; i < 3; i++) {
+    const b = $('a' + i);
+    b.textContent = opts[i];
+    b.className = 'ab';
+    b.disabled = false;
+  }
+
+  // Show bomb with float animation
+  bwEl.style.display = 'flex';
+  bwEl.style.animation = 'none';
+  requestAnimationFrame(() => {
+    bwEl.style.animation = 'bfloat 3s ease-in-out infinite';
+  });
+
+  // Reset ring
+  ring.setAttribute('stroke-dashoffset', '0');
+  ring.setAttribute('stroke', '#4eff9f');
+  dangerGl.setAttribute('opacity', '0');
+
+  // Start timer
+  t0 = performance.now();
+  tTotal = cfg.t;
+  startLoop();
+  upHUD();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANSWER HANDLER
+// ═══════════════════════════════════════════════════════════════
+function pick(i) {
+  if (done) return;
+  done = true;
+  stopLoop();
+  // Resume AudioContext on first interaction
+  try { if (_ac && _ac.state === 'suspended') _ac.resume(); } catch(e){}
+
+  const btn = $('a' + i);
+
+  if (i === cIdx) {
+    // ── CORRECT ──
+    co++;
+    if (co > coMax) coMax = co;
+    const elapsed = performance.now() - t0;
+    const speedBonus = Math.round((1 - elapsed / tTotal) * 60);
+    const mult = Math.min(co, 4);
+    const pts = (100 + speedBonus) * mult;
+    sc += pts;
+
+    btn.classList.add('ok');
+    doFlash('ok');
+    SFX.defuse();
+    popScore(pts, btn);
+
+    bom++;
+    tot++;
+
+    if (bom >= BPL) {
+      bom = 0;
+      lv++;
+      const nextCfg = LEVELS[Math.min(lv, LEVELS.length - 1)];
+      setTimeout(() => showLevelBanner(nextCfg.n.replace(/Cấp \d+ — /, '')), 200);
+    }
+
+    setTimeout(() => {
+      bwEl.style.display = 'none';
+      setTimeout(spawn, 520);
+    }, 360);
+
+  } else {
+    // ── WRONG ──
+    co = 0;
+    li--;
+    btn.classList.add('no');
+    $('a' + cIdx).classList.add('hint'); // reveal correct answer
+    doFlash('no');
+    shakeIt();
+    SFX.wrong();
+
+    if (li <= 0) {
+      setTimeout(gameOver, 800);
+    } else {
+      setTimeout(() => {
+        bwEl.style.display = 'none';
+        setTimeout(spawn, 460);
+      }, 680);
+    }
+  }
+
+  upHUD();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TIMEOUT
+// ═══════════════════════════════════════════════════════════════
+function onTimeout() {
+  if (done) return;
+  done = true;
+  co = 0;
+  li--;
+  $('a' + cIdx).classList.add('hint');
+  doFlash('no');
+  shakeIt();
+  SFX.explode();
+
+  if (li <= 0) {
+    setTimeout(gameOver, 820);
+  } else {
+    setTimeout(() => {
+      bwEl.style.display = 'none';
+      setTimeout(spawn, 500);
+    }, 750);
+  }
+  upHUD();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GAME FLOW
+// ═══════════════════════════════════════════════════════════════
+function startGame() {
+  // Resume AudioContext (required after user gesture)
+  try { ac().resume(); } catch(e){}
+
+  sc = 0; lv = 0; co = 0; li = HLIV;
+  bom = 0; tot = 0; coMax = 0;
+
+  $('ss').style.display = 'none';
+  $('gs').style.display = 'none';
+  $('g').classList.add('on');
+
+  upHUD();
+  spawn();
+}
+
+function gameOver() {
+  stopLoop();
+  $('g').classList.remove('on');
+
+  if (sc > hs) { hs = sc; localStorage.setItem('soNo_hs', hs); }
+
+  $('goSc').textContent = sc.toLocaleString('vi');
+  const lvName = LEVELS[Math.min(lv, LEVELS.length - 1)].n.replace(/Cấp \d+ — /, '');
+  $('goSt').innerHTML =
+    `💣 Bom phá được: <strong>${tot}</strong><br>` +
+    `🌟 Cấp đạt được: <strong>${lvName}</strong><br>` +
+    `🔥 Combo tốt nhất: <strong>×${coMax}</strong><br>` +
+    `🏆 Kỷ lục: <strong>${hs.toLocaleString('vi')}</strong>`;
+  $('gs').style.display = 'flex';
+}
+
+function sendScore() {
+  const failed = HLIV - li;
+  const data = {
+    buoi: 2,
+    game: 'so_no',
+    diem: tot,
+    tong: Math.max(tot + failed, 1),
+    phan_tram: Math.round(tot / Math.max(tot + failed, 1) * 100),
+    chi_tiet: { score: sc, level: lv + 1, combo_max: coMax, hi_score: hs }
+  };
+  try {
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.sendData(JSON.stringify(data));
+    } else {
+      alert(`🏆 Điểm: ${sc.toLocaleString('vi')}\n💣 Bom phá: ${tot}`);
+    }
+  } catch(e) {
+    alert(`Điểm: ${sc}`);
+  }
+}
+
+// Prevent pinch-zoom and double-tap zoom
+document.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+document.addEventListener('touchend',   e => { if (e.touches.length > 0) e.preventDefault(); }, { passive: false });
+document.addEventListener('dblclick',   e => e.preventDefault());
+</script>
+</body>
+</html>

@@ -100,15 +100,16 @@ def lich_su_hs(user_id: int) -> list:
     return ket_qua_hs.get(user_id, [])
 
 def make_main_menu() -> ReplyKeyboardMarkup:
-    # Dùng BASE_DOMAIN (web server mới) thay vì BASE_URL cũ
     webapp_url = f"{BASE_DOMAIN}/game"
+    game_url   = f"{BASE_DOMAIN}/content/lop3/bai02/so-no.html"
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton("🗺️ Bản đồ Chiến Dịch", web_app=WebAppInfo(url=webapp_url)), KeyboardButton("🔮 Đánh giá Năng lực")],
-            [KeyboardButton("📊 Bảng điểm"), KeyboardButton("📹 Xem bí kíp (Video)")],
-            [KeyboardButton("💬 Hỏi Chỉ Huy"), KeyboardButton("📚 Chọn Căn cứ (Buổi)")],
-            [KeyboardButton("🏅 Hồ sơ Chiến Binh"), KeyboardButton("🏆 Xếp hạng Bang hội")],
-            [KeyboardButton("📅 Lịch học"), KeyboardButton("🗑️ Xoá lịch sử")],
+            [KeyboardButton("🗺️ Bản đồ Chiến Dịch", web_app=WebAppInfo(url=webapp_url)),
+             KeyboardButton("💣 Số Nổ 💣",           web_app=WebAppInfo(url=game_url))],
+            [KeyboardButton("🔮 Đánh giá Năng lực"), KeyboardButton("📊 Bảng điểm")],
+            [KeyboardButton("💬 Hỏi Chỉ Huy"),       KeyboardButton("📚 Chọn Căn cứ (Buổi)")],
+            [KeyboardButton("🏅 Hồ sơ Chiến Binh"),  KeyboardButton("🏆 Xếp hạng Bang hội")],
+            [KeyboardButton("📅 Lịch học"),           KeyboardButton("🗑️ Xoá lịch sử")],
         ],
         resize_keyboard=True,
     )
