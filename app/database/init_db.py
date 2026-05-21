@@ -102,6 +102,39 @@ async def init_db():
     -- Index
     CREATE INDEX IF NOT EXISTS idx_results_student ON results(student_id);
     CREATE INDEX IF NOT EXISTS idx_results_lesson  ON results(lesson_id);
+
+    -- ── Web users (Google OAuth) ──────────────────────────────────────
+    CREATE TABLE IF NOT EXISTS web_users (
+        id               SERIAL PRIMARY KEY,
+        google_id        VARCHAR(120) UNIQUE NOT NULL,
+        email            VARCHAR(255) UNIQUE NOT NULL,
+        ho_ten           VARCHAR(100),
+        lop              VARCHAR(10) DEFAULT '3',
+        character_type   VARCHAR(30) DEFAULT 'chien_binh',
+        avatar_original  TEXT,        -- base64 ảnh gốc
+        avatar_cartoon   TEXT,        -- base64 ảnh hoạt hình
+        avatar_final     TEXT,        -- base64 avatar cuối (face + frame)
+        telegram_id      BIGINT,
+        status           VARCHAR(20)  DEFAULT 'pending',
+        rejection_reason TEXT,
+        created_at       TIMESTAMPTZ  DEFAULT NOW(),
+        approved_at      TIMESTAMPTZ,
+        approved_by      VARCHAR(50)
+    );
+
+    -- ── Web sessions (JWT refresh store) ─────────────────────────────
+    CREATE TABLE IF NOT EXISTS web_sessions (
+        id         VARCHAR(64) PRIMARY KEY,
+        google_id  VARCHAR(120) NOT NULL,
+        data       JSONB DEFAULT '{}',
+        expires_at TIMESTAMPTZ NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_web_users_status   ON web_users(status);
+    CREATE INDEX IF NOT EXISTS idx_web_users_email    ON web_users(email);
+    CREATE INDEX IF NOT EXISTS idx_web_sessions_gid   ON web_sessions(google_id);
+    CREATE INDEX IF NOT EXISTS idx_web_sessions_exp   ON web_sessions(expires_at);
     """
     try:
         async with pool.acquire() as conn:

@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard – Chiến Binh Toán</title>
+<style>
+:root {
+  --primary: #0ae0fe;
+  --secondary: #ea0eed;
+  --success: #4eff9f;
+  --danger: #ff0055;
+  --gold: #ffd700;
+  --bg: #050a1f;
+  --bg2: #0a1535;
+  --card: #0d1b3e;
+  --card2: #091228;
+  --border: rgba(10,224,254,0.2);
+  --text: #c8e6ff;
+  --glow: 0 0 20px rgba(10,224,254,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; }
+
+/* ── Starfield ── */
+#stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+/* ── Login overlay ── */
+#loginScreen {
+  position:fixed; inset:0; z-index:100;
+  background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px;
+}
+.login-card {
+  width:100%; max-width:380px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:36px 28px;
+  position:relative;
+}
+.login-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  border-radius:16px 16px 0 0;
+}
+.login-logo { text-align:center; font-size:1.5rem; font-weight:800; color:var(--primary); text-shadow:var(--glow); margin-bottom:4px; }
+.login-sub  { text-align:center; font-size:.78rem; color:rgba(200,230,255,.4); margin-bottom:28px; }
+.login-field { margin-bottom:18px; }
+.login-field label { display:block; font-size:.8rem; color:rgba(200,230,255,.6); margin-bottom:6px; }
+.login-field input {
+  width:100%; padding:12px 14px;
+  background:rgba(10,224,254,.05); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-size:.95rem; outline:none;
+  transition:border-color .2s;
+}
+.login-field input:focus { border-color:var(--primary); }
+.btn-login {
+  width:100%; padding:13px; background:var(--primary); color:#000;
+  border:none; border-radius:10px; font-size:1rem; font-weight:700;
+  cursor:pointer; transition:box-shadow .2s;
+}
+.btn-login:hover { box-shadow:0 0 24px rgba(10,224,254,.6); }
+
+/* ── Main layout ── */
+#main { display:none; position:relative; z-index:1; min-height:100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  position:fixed; left:0; top:0; bottom:0; width:220px;
+  background:var(--card2); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; padding:0;
+  z-index:10;
+}
+.sidebar-logo {
+  padding:22px 20px 16px;
+  font-size:1rem; font-weight:800; color:var(--primary);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+}
+.sidebar-logo small { display:block; font-size:.65rem; font-weight:400; color:rgba(200,230,255,.3); margin-top:2px; }
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:13px 20px; cursor:pointer;
+  font-size:.88rem; color:rgba(200,230,255,.6);
+  border-left:3px solid transparent;
+  transition:all .2s;
+}
+.nav-item:hover { color:var(--text); background:rgba(10,224,254,.06); }
+.nav-item.active { color:var(--primary); border-left-color:var(--primary); background:rgba(10,224,254,.08); }
+.nav-badge {
+  margin-left:auto; background:var(--danger); color:#fff;
+  font-size:.65rem; font-weight:700; padding:2px 7px; border-radius:99px;
+}
+.sidebar-footer {
+  margin-top:auto; padding:16px 20px;
+  font-size:.72rem; color:rgba(200,230,255,.2);
+  border-top:1px solid var(--border);
+}
+
+/* ── Main content ── */
+.content { margin-left:220px; padding:28px; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* ── Page header ── */
+.page-title { font-size:1.4rem; font-weight:800; color:var(--primary); margin-bottom:4px; text-shadow:var(--glow); }
+.page-sub { font-size:.82rem; color:rgba(200,230,255,.4); margin-bottom:28px; }
+
+/* ── Stat cards ── */
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:32px; }
+.stat-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+  position:relative; overflow:hidden;
+}
+.stat-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+}
+.stat-card.blue::after   { background:var(--primary); }
+.stat-card.purple::after { background:var(--secondary); }
+.stat-card.green::after  { background:var(--success); }
+.stat-card.red::after    { background:var(--danger); }
+.stat-card.gold::after   { background:var(--gold); }
+.stat-icon { font-size:1.8rem; margin-bottom:10px; }
+.stat-val  { font-size:2rem; font-weight:800; color:var(--text); }
+.stat-lbl  { font-size:.75rem; color:rgba(200,230,255,.4); margin-top:2px; }
+
+/* ── Section ── */
+.section-title { font-size:.9rem; font-weight:700; color:rgba(200,230,255,.5); letter-spacing:1px; text-transform:uppercase; margin-bottom:14px; }
+
+/* ── Top 5 table ── */
+.leaderboard { width:100%; border-collapse:collapse; }
+.leaderboard th, .leaderboard td { padding:10px 14px; text-align:left; }
+.leaderboard th { font-size:.75rem; color:rgba(200,230,255,.3); border-bottom:1px solid var(--border); }
+.leaderboard tr:not(:last-child) td { border-bottom:1px solid rgba(10,224,254,.06); }
+.leaderboard tr:hover td { background:rgba(10,224,254,.04); }
+.rank-badge {
+  width:24px; height:24px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:.72rem; font-weight:800;
+}
+.rank-1 { background:var(--gold); color:#000; }
+.rank-2 { background:#aaa; color:#000; }
+.rank-3 { background:#cd7f32; color:#fff; }
+
+/* ── Pending cards ── */
+.pending-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.p-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:20px; position:relative;
+  transition:border-color .2s;
+}
+.p-card:hover { border-color:rgba(10,224,254,.4); }
+.p-card-top { display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; }
+.p-avatar {
+  width:60px; height:60px; border-radius:12px; object-fit:cover;
+  border:2px solid var(--border); flex-shrink:0;
+  background:var(--bg2); display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem;
+}
+.p-avatar img { width:100%; height:100%; border-radius:10px; object-fit:cover; }
+.p-info { flex:1; min-width:0; }
+.p-name { font-weight:700; font-size:.95rem; color:var(--text); margin-bottom:4px; }
+.p-email { font-size:.75rem; color:rgba(200,230,255,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.p-meta { margin-top:6px; }
+.p-meta span {
+  display:inline-block; font-size:.68rem; padding:2px 8px;
+  border-radius:99px; margin-right:5px; margin-top:4px;
+}
+.tag-char { background:rgba(10,224,254,.12); color:var(--primary); border:1px solid rgba(10,224,254,.3); }
+.tag-lop  { background:rgba(234,14,237,.1); color:var(--secondary); border:1px solid rgba(234,14,237,.3); }
+.tag-time { background:rgba(200,230,255,.05); color:rgba(200,230,255,.4); border:1px solid var(--border); }
+
+.p-actions { display:flex; gap:8px; margin-top:14px; }
+.btn-approve {
+  flex:1; padding:9px; background:rgba(78,255,159,.12); color:var(--success);
+  border:1px solid var(--success); border-radius:8px; font-size:.82rem; font-weight:700;
+  cursor:pointer; transition:all .2s;
+}
+.btn-approve:hover { background:var(--success); color:#000; }
+.btn-reject {
+  flex:1; padding:9px; background:rgba(255,0,85,.1); color:var(--danger);
+  border:1px solid var(--danger); border-radius:8px; font-size:.82rem; font-weight:700;
+  cursor:pointer; transition:all .2s;
+}
+.btn-reject:hover { background:var(--danger); color:#fff; }
+.btn-detail {
+  padding:9px 12px; background:rgba(10,224,254,.07); color:var(--primary);
+  border:1px solid var(--border); border-radius:8px; font-size:.82rem;
+  cursor:pointer; transition:all .2s;
+}
+.btn-detail:hover { border-color:var(--primary); }
+
+/* ── Students table ── */
+.search-bar {
+  display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;
+}
+.search-bar input {
+  flex:1; min-width:200px; padding:10px 14px;
+  background:rgba(10,224,254,.05); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-size:.9rem; outline:none;
+}
+.search-bar input:focus { border-color:var(--primary); }
+.search-bar select {
+  padding:10px 14px; background:var(--card); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-size:.85rem; outline:none; cursor:pointer;
+}
+
+.stu-table { width:100%; border-collapse:collapse; }
+.stu-table th, .stu-table td { padding:11px 14px; text-align:left; }
+.stu-table th { font-size:.75rem; color:rgba(200,230,255,.35); border-bottom:1px solid var(--border); white-space:nowrap; }
+.stu-table tbody tr { transition:background .15s; }
+.stu-table tbody tr:hover { background:rgba(10,224,254,.04); }
+.stu-table tbody tr:not(:last-child) td { border-bottom:1px solid rgba(10,224,254,.05); }
+.stu-avatar-sm {
+  width:36px; height:36px; border-radius:8px; object-fit:cover;
+  border:1px solid var(--border); vertical-align:middle;
+  background:var(--bg2); font-size:1rem; display:inline-flex;
+  align-items:center; justify-content:center;
+}
+.stu-avatar-sm img { width:100%; height:100%; border-radius:7px; object-fit:cover; }
+.status-badge {
+  font-size:.68rem; padding:3px 9px; border-radius:99px; font-weight:700;
+}
+.s-approved { background:rgba(78,255,159,.12); color:var(--success); border:1px solid rgba(78,255,159,.3); }
+.s-pending  { background:rgba(255,215,0,.1);  color:var(--gold);    border:1px solid rgba(255,215,0,.3); }
+.s-rejected { background:rgba(255,0,85,.1);   color:var(--danger);  border:1px solid rgba(255,0,85,.3); }
+
+/* ── Modal ── */
+.modal-bg {
+  position:fixed; inset:0; z-index:200;
+  background:rgba(5,10,31,.85); backdrop-filter:blur(6px);
+  display:none; align-items:center; justify-content:center; padding:20px;
+}
+.modal-bg.open { display:flex; }
+.modal {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; width:100%; max-width:460px; position:relative;
+  padding:28px; max-height:90vh; overflow-y:auto;
+}
+.modal-close {
+  position:absolute; top:16px; right:16px;
+  background:none; border:none; color:rgba(200,230,255,.4);
+  font-size:1.2rem; cursor:pointer;
+}
+.modal-close:hover { color:var(--danger); }
+.modal-title { font-size:1.1rem; font-weight:700; color:var(--primary); margin-bottom:16px; }
+.modal textarea {
+  width:100%; padding:10px 14px;
+  background:rgba(10,224,254,.05); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-size:.9rem;
+  resize:vertical; min-height:80px; outline:none;
+}
+.modal-actions { display:flex; gap:10px; margin-top:16px; }
+.modal-actions .btn-approve, .modal-actions .btn-reject { flex:1; padding:11px; }
+.modal-avatar { width:100%; max-height:240px; border-radius:12px; object-fit:contain; margin-bottom:16px; border:1px solid var(--border); }
+
+/* ── Toast ── */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:9999;
+  padding:12px 20px; border-radius:10px; font-size:.88rem; font-weight:600;
+  opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.toast.show { opacity:1; }
+
+/* ── Refresh ── */
+.refresh-btn {
+  background:rgba(10,224,254,.08); border:1px solid var(--border);
+  color:var(--primary); padding:8px 14px; border-radius:8px;
+  font-size:.8rem; cursor:pointer; transition:all .2s;
+}
+.refresh-btn:hover { border-color:var(--primary); }
+
+/* ── Empty state ── */
+.empty { text-align:center; padding:48px 0; color:rgba(200,230,255,.3); }
+.empty .e-icon { font-size:3rem; margin-bottom:12px; }
+
+/* ── Loading ── */
+.loading { text-align:center; padding:32px; }
+.spinner { width:32px; height:32px; margin:0 auto 10px; border:3px solid rgba(10,224,254,.15); border-top-color:var(--primary); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── Mobile ── */
+@media(max-width:768px) {
+  .sidebar { width:60px; }
+  .sidebar-logo span, .nav-item span, .sidebar-footer { display:none; }
+  .nav-item { justify-content:center; padding:15px 0; }
+  .content { margin-left:60px; padding:16px; }
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<!-- ── Login ── -->
+<div id="loginScreen">
+  <div style="position:relative;z-index:1; text-align:center; margin-bottom:28px;">
+    <div style="font-size:1.6rem; font-weight:800; color:var(--primary); text-shadow:var(--glow)">🎮 ADMIN PORTAL</div>
+    <div style="font-size:.8rem; color:rgba(200,230,255,.3); margin-top:4px">Chiến Binh Toán — Trung Tâm Điều Hành</div>
+  </div>
+  <div class="login-card">
+    <div class="login-logo">⚔️ Đăng nhập Admin</div>
+    <div class="login-sub">Nhập mã bí mật để tiếp tục</div>
+    <div class="login-field">
+      <label>Admin Token</label>
+      <input type="password" id="tokenInput" placeholder="••••••••••••••••"
+             onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">🚀 Vào Dashboard</button>
+    <p id="loginErr" style="color:var(--danger); font-size:.8rem; margin-top:12px; display:none">Mã không đúng, thử lại!</p>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div id="main">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span>⚔️</span>
+      <div><span>ADMIN</span><small>Chiến Binh Toán</small></div>
+    </div>
+    <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+      <span>📊</span> <span>Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="showPage('pending')" id="nav-pending">
+      <span>⏳</span> <span>Chờ duyệt</span>
+      <span class="nav-badge" id="pendingBadge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('students')" id="nav-students">
+      <span>🧑‍🎓</span> <span>Học sinh</span>
+    </div>
+    <div class="sidebar-footer">
+      <span>v1.0 — 2025</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">📊 Dashboard</div>
+      <div class="page-sub">Tổng quan hệ thống Chiến Binh Toán</div>
+
+      <div class="stat-grid" id="statGrid">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+
+      <div class="section-title">🏆 Bảng Xếp Hạng Top 5</div>
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden;">
+        <table class="leaderboard" id="leaderTable">
+          <thead><tr>
+            <th>#</th><th>Học sinh</th><th>XP</th><th>Vàng</th><th>Chuỗi ngày</th>
+          </tr></thead>
+          <tbody id="leaderBody">
+            <tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pending -->
+    <div class="page" id="page-pending">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px; flex-wrap:wrap;">
+        <div class="page-title" style="margin:0">⏳ Chờ Duyệt</div>
+        <button class="refresh-btn" onclick="loadPending()">🔄 Tải lại</button>
+      </div>
+      <div class="page-sub">Xem xét và duyệt hồ sơ học sinh mới</div>
+      <div class="pending-grid" id="pendingGrid">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Students -->
+    <div class="page" id="page-students">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px; flex-wrap:wrap;">
+        <div class="page-title" style="margin:0">🧑‍🎓 Học Sinh</div>
+        <button class="refresh-btn" onclick="loadStudents()">🔄 Tải lại</button>
+      </div>
+      <div class="page-sub">Danh sách toàn bộ học sinh đã đăng ký</div>
+
+      <div class="search-bar">
+        <input type="text" id="stuSearch" placeholder="🔍  Tìm tên hoặc email..." oninput="filterStudents()">
+        <select id="stuStatus" onchange="loadStudents()">
+          <option value="all">Tất cả</option>
+          <option value="approved">Đã duyệt</option>
+          <option value="pending">Chờ duyệt</option>
+          <option value="rejected">Đã từ chối</option>
+        </select>
+      </div>
+
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:auto;">
+        <table class="stu-table">
+          <thead><tr>
+            <th>Học sinh</th><th>Lớp</th><th>Nhân vật</th><th>Email</th><th>Trạng thái</th><th>Ngày đăng ký</th><th></th>
+          </tr></thead>
+          <tbody id="stuBody">
+            <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ── Modal: Reject reason ── -->
+<div class="modal-bg" id="rejectModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('rejectModal')">✕</button>
+    <div class="modal-title">❌ Từ chối hồ sơ</div>
+    <p style="font-size:.85rem; color:rgba(200,230,255,.5); margin-bottom:12px;">Nhập lý do từ chối (sẽ lưu lại, không gửi cho học sinh):</p>
+    <textarea id="rejectReason" placeholder="VD: Ảnh không rõ mặt, thông tin sai..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-reject" id="confirmRejectBtn" onclick="confirmReject()">❌ Xác nhận từ chối</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Student detail ── -->
+<div class="modal-bg" id="detailModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    <div class="modal-title" id="detailName">Chi tiết học sinh</div>
+    <img id="detailAvatar" src="" alt="" class="modal-avatar" style="display:none">
+    <div id="detailContent" style="font-size:.85rem; line-height:1.8;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────
+let adminToken = localStorage.getItem('adminToken') || '';
+let allStudents = [];
+let rejectTargetId = null;
+
+// ── Stars ────────────────────────────────────────────────────────────────
+(function() {
+  const c = document.getElementById('stars');
+  const ctx = c.getContext('2d');
+  let W, H, stars = [];
+  function resize() { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+  function init() {
+    resize();
+    stars = Array.from({length:100}, () => ({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*1.2+.3, a:Math.random()
+    }));
+  }
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s => {
+      s.a+=.006; if(s.a>1) s.a=0;
+      ctx.globalAlpha=Math.abs(Math.sin(s.a))*.6;
+      ctx.fillStyle='#0ae0fe'; ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1; requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  init(); draw();
+})();
+
+// ── Toast ────────────────────────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type==='success' ? 'var(--success)' :
+                       type==='error'   ? 'var(--danger)'  : 'var(--primary)';
+  t.style.color = type==='success' ? '#000' : '#fff';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+// ── Login ────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const t = document.getElementById('tokenInput').value.trim();
+  if (!t) return;
+  // Verify by calling stats
+  try {
+    const res = await fetch('/api/admin/stats', { headers: { 'X-Admin-Token': t } });
+    if (!res.ok) throw new Error();
+    adminToken = t;
+    localStorage.setItem('adminToken', t);
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    renderStats(await res.json());
+    loadPending(true); // load pending count silently
+    loadLeaderboard();
+  } catch(e) {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+// Auto-login if token stored
+(async function autoLogin() {
+  if (!adminToken) return;
+  try {
+    const res = await fetch('/api/admin/stats', { headers: { 'X-Admin-Token': adminToken } });
+    if (!res.ok) { localStorage.removeItem('adminToken'); adminToken=''; return; }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    renderStats(await res.json());
+    loadPending(true);
+    loadLeaderboard();
+  } catch(e) { localStorage.removeItem('adminToken'); adminToken=''; }
+})();
+
+// ── API helper ───────────────────────────────────────────────────────────
+async function api(path, opts={}) {
+  return fetch(path, { ...opts, headers: { 'X-Admin-Token': adminToken, 'Content-Type':'application/json', ...(opts.headers||{}) } });
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'pending')  loadPending();
+  if (name === 'students') loadStudents();
+}
+
+// ── Dashboard stats ──────────────────────────────────────────────────────
+function renderStats(d) {
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card blue">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-val">${d.pending_count}</div>
+      <div class="stat-lbl">Chờ duyệt</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">✅</div>
+      <div class="stat-val">${d.approved_count}</div>
+      <div class="stat-lbl">Đã duyệt</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">❌</div>
+      <div class="stat-val">${d.rejected_count}</div>
+      <div class="stat-lbl">Từ chối</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-icon">🧑‍🎓</div>
+      <div class="stat-val">${d.total_students}</div>
+      <div class="stat-lbl">Tổng học sinh</div>
+    </div>
+  `;
+  // Update pending badge
+  const badge = document.getElementById('pendingBadge');
+  if (d.pending_count > 0) { badge.textContent = d.pending_count; badge.style.display=''; }
+  else { badge.style.display='none'; }
+
+  // Render leaderboard
+  if (d.top5 && d.top5.length) {
+    const rankClass = ['rank-1','rank-2','rank-3','',''];
+    document.getElementById('leaderBody').innerHTML = d.top5.map((s,i) => `
+      <tr>
+        <td><span class="rank-badge ${rankClass[i]||''}" style="${i>2?'background:rgba(200,230,255,.1);color:rgba(200,230,255,.5)':''}">${i+1}</span></td>
+        <td>
+          <strong>${esc(s.ho_ten||'Ẩn danh')}</strong><br>
+          <span style="font-size:.72rem;color:rgba(200,230,255,.4)">${charEmoji(s.character_type||'')}</span>
+        </td>
+        <td style="color:var(--primary);font-weight:700">${(s.xp||0).toLocaleString()}</td>
+        <td style="color:var(--gold)">💰 ${(s.gold||0).toLocaleString()}</td>
+        <td>🔥 ${s.streak_days||0} ngày</td>
+      </tr>
+    `).join('');
+  } else {
+    document.getElementById('leaderBody').innerHTML = '<tr><td colspan="5"><div class="empty"><div class="e-icon">🏆</div>Chưa có dữ liệu</div></td></tr>';
+  }
+}
+
+async function loadLeaderboard() {
+  try {
+    const res = await api('/api/admin/stats');
+    const d = await res.json();
+    renderStats(d);
+  } catch(e) {}
+}
+
+// ── Pending ──────────────────────────────────────────────────────────────
+async function loadPending(silent=false) {
+  if (!silent) {
+    document.getElementById('pendingGrid').innerHTML = '<div class="loading"><div class="spinner"></div><p style="font-size:.8rem;color:rgba(200,230,255,.4)">Đang tải...</p></div>';
+  }
+  try {
+    const res = await api('/api/admin/pending');
+    const {users} = await res.json();
+    // Update badge
+    const badge = document.getElementById('pendingBadge');
+    if (users.length > 0) { badge.textContent = users.length; badge.style.display=''; }
+    else badge.style.display='none';
+
+    if (silent) return;
+    if (!users.length) {
+      document.getElementById('pendingGrid').innerHTML = '<div class="empty"><div class="e-icon">✅</div><p>Không có hồ sơ chờ duyệt</p></div>';
+      return;
+    }
+    document.getElementById('pendingGrid').innerHTML = users.map(u => buildPendingCard(u)).join('');
+  } catch(e) {
+    if (!silent) document.getElementById('pendingGrid').innerHTML = '<div class="empty"><div class="e-icon">❌</div><p>Lỗi tải dữ liệu</p></div>';
+  }
+}
+
+function buildPendingCard(u) {
+  const avatarHtml = u.avatar_final
+    ? `<div class="p-avatar"><img src="${esc(u.avatar_final)}" alt=""></div>`
+    : `<div class="p-avatar" style="font-size:2rem">${charEmoji(u.character_type||'')}</div>`;
+  const dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '';
+  return `
+  <div class="p-card" id="pcard-${u.id}">
+    <div class="p-card-top">
+      ${avatarHtml}
+      <div class="p-info">
+        <div class="p-name">${esc(u.ho_ten||'Chưa đặt tên')}</div>
+        <div class="p-email">${esc(u.email||'')}</div>
+        <div class="p-meta">
+          <span class="tag-char">${charEmoji(u.character_type)} ${charName(u.character_type)}</span>
+          <span class="tag-lop">Lớp ${esc(u.lop||'3')}</span>
+          <span class="tag-time">📅 ${dateStr}</span>
+        </div>
+      </div>
+    </div>
+    <div class="p-actions">
+      <button class="btn-approve" onclick="approveUser(${u.id},'${esc(u.ho_ten||'')}')">✅ Duyệt</button>
+      <button class="btn-reject"  onclick="openReject(${u.id})">❌ Từ chối</button>
+      ${u.avatar_final ? `<button class="btn-detail" onclick="showDetail(${JSON.stringify(u).replace(/"/g,'&quot;')})">👁</button>` : ''}
+    </div>
+  </div>`;
+}
+
+async function approveUser(id, name) {
+  if (!confirm(`Duyệt tài khoản "${name}"?`)) return;
+  try {
+    const res = await api(`/api/admin/approve/${id}`, {method:'POST'});
+    if (res.ok) {
+      document.getElementById('pcard-' + id)?.remove();
+      showToast(`✅ Đã duyệt ${name}`);
+      loadLeaderboard();
+    } else {
+      showToast('Lỗi duyệt tài khoản', 'error');
+    }
+  } catch(e) { showToast('Lỗi kết nối', 'error'); }
+}
+
+function openReject(id) {
+  rejectTargetId = id;
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('rejectModal').classList.add('open');
+}
+
+async function confirmReject() {
+  const reason = document.getElementById('rejectReason').value.trim() || 'Thông tin không hợp lệ';
+  try {
+    const res = await api(`/api/admin/reject/${rejectTargetId}`, {
+      method:'POST',
+      body: JSON.stringify({reason})
+    });
+    if (res.ok) {
+      document.getElementById('pcard-' + rejectTargetId)?.remove();
+      closeModal('rejectModal');
+      showToast('❌ Đã từ chối hồ sơ');
+      loadLeaderboard();
+    } else {
+      showToast('Lỗi', 'error');
+    }
+  } catch(e) { showToast('Lỗi kết nối', 'error'); }
+}
+
+// ── Students ─────────────────────────────────────────────────────────────
+async function loadStudents() {
+  const status = document.getElementById('stuStatus').value;
+  document.getElementById('stuBody').innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  try {
+    const res = await api(`/api/admin/students?status=${status}`);
+    const {users} = await res.json();
+    allStudents = users;
+    renderStudents(users);
+  } catch(e) {
+    document.getElementById('stuBody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="e-icon">❌</div><p>Lỗi tải dữ liệu</p></div></td></tr>';
+  }
+}
+
+function filterStudents() {
+  const q = document.getElementById('stuSearch').value.toLowerCase();
+  const filtered = allStudents.filter(u =>
+    (u.ho_ten||'').toLowerCase().includes(q) ||
+    (u.email||'').toLowerCase().includes(q)
+  );
+  renderStudents(filtered);
+}
+
+function renderStudents(users) {
+  if (!users.length) {
+    document.getElementById('stuBody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="e-icon">🧑‍🎓</div><p>Không có học sinh</p></div></td></tr>';
+    return;
+  }
+  document.getElementById('stuBody').innerHTML = users.map(u => {
+    const avatarHtml = u.avatar_final
+      ? `<span class="stu-avatar-sm"><img src="${esc(u.avatar_final)}" alt=""></span>`
+      : `<span class="stu-avatar-sm">${charEmoji(u.character_type)}</span>`;
+    const statusBadge = {
+      approved: `<span class="status-badge s-approved">✅ Đã duyệt</span>`,
+      pending:  `<span class="status-badge s-pending">⏳ Chờ duyệt</span>`,
+      rejected: `<span class="status-badge s-rejected">❌ Từ chối</span>`,
+    }[u.status] || '';
+    const dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '';
+    return `
+    <tr>
+      <td style="display:flex;align-items:center;gap:10px;padding:12px 14px">
+        ${avatarHtml}
+        <strong>${esc(u.ho_ten||'—')}</strong>
+      </td>
+      <td>Lớp ${esc(u.lop||'3')}</td>
+      <td>${charEmoji(u.character_type)} ${charName(u.character_type)}</td>
+      <td style="font-size:.78rem;color:rgba(200,230,255,.5)">${esc(u.email||'')}</td>
+      <td>${statusBadge}</td>
+      <td style="font-size:.78rem;color:rgba(200,230,255,.4)">${dateStr}</td>
+      <td>
+        ${u.status==='pending'
+          ? `<button class="btn-approve" style="padding:6px 12px;font-size:.75rem" onclick="approveUser(${u.id},'${esc(u.ho_ten||'')}')">✅ Duyệt</button>`
+          : `<button class="btn-detail" style="padding:6px 10px;font-size:.75rem" onclick="showDetail(${JSON.stringify(u).replace(/"/g,'&quot;')})">👁</button>`
+        }
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Detail modal ──────────────────────────────────────────────────────────
+function showDetail(u) {
+  if (typeof u === 'string') u = JSON.parse(u);
+  document.getElementById('detailName').textContent = u.ho_ten || u.email;
+  const img = document.getElementById('detailAvatar');
+  if (u.avatar_final) { img.src = u.avatar_final; img.style.display='block'; }
+  else img.style.display='none';
+
+  document.getElementById('detailContent').innerHTML = `
+    <table style="width:100%;border-collapse:collapse">
+      ${row('📧 Email', u.email)}
+      ${row('🎓 Lớp', 'Lớp ' + (u.lop||'3'))}
+      ${row('⚔️ Nhân vật', charEmoji(u.character_type) + ' ' + charName(u.character_type))}
+      ${row('📊 Trạng thái', u.status)}
+      ${row('📅 Đăng ký', u.created_at ? new Date(u.created_at).toLocaleString('vi-VN') : '—')}
+      ${u.approved_at ? row('✅ Duyệt lúc', new Date(u.approved_at).toLocaleString('vi-VN')) : ''}
+      ${u.rejection_reason ? row('❌ Lý do từ chối', u.rejection_reason) : ''}
+      ${u.telegram_id ? row('📱 Telegram ID', u.telegram_id) : ''}
+    </table>
+  `;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function row(k,v) {
+  return `<tr style="border-bottom:1px solid rgba(10,224,254,.05)">
+    <td style="padding:8px 4px;color:rgba(200,230,255,.4);width:45%;font-size:.8rem">${k}</td>
+    <td style="padding:8px 4px;font-size:.85rem">${esc(String(v||'—'))}</td>
+  </tr>`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const CHARS = {
+  chien_binh: {emoji:'⚔️', name:'Chiến Binh'},
+  phu_thuy:   {emoji:'🔮', name:'Phù Thủy'},
+  xa_thu:     {emoji:'🏹', name:'Xạ Thủ'},
+  hiep_si:    {emoji:'🛡️', name:'Hiệp Sĩ'},
+};
+function charEmoji(t) { return CHARS[t]?.emoji || '👤'; }
+function charName(t)  { return CHARS[t]?.name  || t || '—'; }
+
+// Close modal on bg click
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+});
+</script>
+</body>
+</html>

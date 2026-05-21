@@ -49,3 +49,24 @@ DANG_BAI = {
 }
 
 DEFAULT_BUOI = 27
+
+# ── Web server & OAuth ──────────────────────────────────────────────────
+WEB_PORT        = int(os.getenv("PORT", "8080"))
+BASE_DOMAIN     = os.getenv("BASE_DOMAIN", "http://localhost:8080")
+SECRET_KEY      = os.getenv("SECRET_KEY", "changeme-use-random-32-chars")
+ADMIN_SECRET    = os.getenv("ADMIN_SECRET", "admin-secret-token")
+
+GOOGLE_CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REDIRECT_URI  = os.getenv("GOOGLE_REDIRECT_URI", f"{BASE_DOMAIN}/auth/google/callback")
+
+# ── Avatar / AI ──────────────────────────────────────────────────────────
+REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN", "")   # optional
+
+# ── Characters ───────────────────────────────────────────────────────────
+CHARACTERS = {
+    "chien_binh": {"name": "Chiến Binh",  "emoji": "⚔️",  "color": "#0ae0fe", "bg": "#050a1f"},
+    "phu_thuy":   {"name": "Phù Thủy",    "emoji": "🔮",  "color": "#ea0eed", "bg": "#0f0020"},
+    "xa_thu":     {"name": "Xạ Thủ",      "emoji": "🏹",  "color": "#4eff9f", "bg": "#001f10"},
+    "hiep_si":    {"name": "Hiệp Sĩ",     "emoji": "🛡️",  "color": "#ffd700", "bg": "#1a1000"},
+}

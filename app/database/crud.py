@@ -316,3 +316,129 @@ async def get_stats_lesson(so_buoi: int) -> dict:
         tong_row = await conn.fetchrow(tong_sql)
         stats["tong_hs"] = tong_row["tong"] if tong_row else 0
     return stats
+
+
+# ── Web Users (Google OAuth) ───────────────────────────────────────────
+
+def _row_to_web_user(row) -> dict | None:
+    if not row:
+        return None
+    d = dict(row)
+    # Bỏ avatar_original (lớn, không cần trả về toàn bộ)
+    d.pop("avatar_original", None)
+    return d
+
+
+async def upsert_web_user(google_id: str, email: str, display_name: str = "") -> dict:
+    sql = """
+        INSERT INTO web_users (google_id, email, ho_ten)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (google_id) DO UPDATE
+            SET email   = EXCLUDED.email
+        RETURNING *
+    """
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(sql, google_id, email, display_name)
+    return _row_to_web_user(row)
+
+
+async def get_web_user_by_google_id(google_id: str) -> dict | None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM web_users WHERE google_id=$1", google_id)
+    return _row_to_web_user(row)
+
+
+async def get_web_user_by_id(user_id: int) -> dict | None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM web_users WHERE id=$1", user_id)
+    return _row_to_web_user(row)
+
+
+async def get_web_users_by_status(status: str) -> list:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT * FROM web_users WHERE status=$1 ORDER BY created_at DESC",
+            status)
+    return [_row_to_web_user(r) for r in rows]
+
+
+async def get_all_web_users() -> list:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT * FROM web_users ORDER BY created_at DESC")
+    return [_row_to_web_user(r) for r in rows]
+
+
+async def update_web_user_profile(google_id: str, ho_ten: str, lop: str,
+                                   character_type: str, avatar_original: str,
+                                   avatar_cartoon: str, avatar_final: str):
+    sql = """
+        UPDATE web_users SET
+            ho_ten          = $2,
+            lop             = $3,
+            character_type  = $4,
+            avatar_original = $5,
+            avatar_cartoon  = $6,
+            avatar_final    = $7
+        WHERE google_id = $1
+    """
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(sql, google_id, ho_ten, lop, character_type,
+                           avatar_original, avatar_cartoon, avatar_final)
+
+
+async def patch_web_user(google_id: str, updates: dict):
+    allowed = {"ho_ten", "lop", "character_type",
+               "avatar_original", "avatar_cartoon", "avatar_final", "telegram_id"}
+    fields  = {k: v for k, v in updates.items() if k in allowed}
+    if not fields:
+        return
+    cols  = ", ".join(f"{k}=${i+2}" for i, k in enumerate(fields))
+    vals  = list(fields.values())
+    pool  = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            f"UPDATE web_users SET {cols} WHERE google_id=$1",
+            google_id, *vals)
+
+
+async def approve_web_user(user_id: int):
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE web_users SET status='approved', approved_at=NOW() WHERE id=$1",
+            user_id)
+
+
+async def reject_web_user(user_id: int, reason: str):
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE web_users SET status='rejected', rejection_reason=$2 WHERE id=$1",
+            user_id, reason)
+
+
+async def sync_web_user_to_student(user_id: int):
+    """Sau khi approve, tạo hoặc cập nhật record trong bảng students."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        wu = await conn.fetchrow(
+            "SELECT * FROM web_users WHERE id=$1", user_id)
+        if not wu or not wu["telegram_id"]:
+            return
+        await conn.execute("""
+            INSERT INTO students (telegram_id, ho_ten, lop, active)
+            VALUES ($1, $2, $3, TRUE)
+            ON CONFLICT (telegram_id) DO UPDATE
+                SET ho_ten = EXCLUDED.ho_ten,
+                    lop    = EXCLUDED.lop,
+                    active = TRUE
+        """, wu["telegram_id"], wu["ho_ten"], wu["lop"])

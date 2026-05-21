@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chiến Binh Toán – Đăng Ký</title>
+<style>
+:root {
+  --primary: #0ae0fe;
+  --secondary: #ea0eed;
+  --success: #4eff9f;
+  --danger: #ff0055;
+  --gold: #ffd700;
+  --bg: #050a1f;
+  --bg2: #0a1535;
+  --card: #0d1b3e;
+  --border: rgba(10,224,254,0.25);
+  --text: #c8e6ff;
+  --glow: 0 0 20px rgba(10,224,254,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Starfield ── */
+#stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+/* ── Layout ── */
+.wrap {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 20px;
+}
+
+/* ── Header ── */
+.logo {
+  font-size: 1.4rem; font-weight: 800; letter-spacing: 2px;
+  color: var(--primary); text-shadow: var(--glow);
+  margin-bottom: 8px; text-align: center;
+}
+.logo span { color: var(--secondary); }
+.subtitle { font-size: .8rem; color: rgba(200,230,255,.5); text-align: center; margin-bottom: 32px; }
+
+/* ── Step indicator ── */
+.steps {
+  display: flex; gap: 8px; align-items: center;
+  margin-bottom: 32px;
+}
+.step-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; color: rgba(200,230,255,.4);
+  transition: all .4s;
+}
+.step-dot.active { border-color: var(--primary); color: var(--primary); box-shadow: var(--glow); }
+.step-dot.done   { border-color: var(--success); background: var(--success); color: #000; }
+.step-line { flex: 1; max-width: 40px; height: 2px; background: var(--border); }
+
+/* ── Card ── */
+.card {
+  width: 100%; max-width: 480px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  box-shadow: 0 0 40px rgba(10,224,254,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+.card-title {
+  font-size: 1.2rem; font-weight: 700; color: var(--primary);
+  margin-bottom: 6px; text-shadow: 0 0 10px rgba(10,224,254,.4);
+}
+.card-sub { font-size: .82rem; color: rgba(200,230,255,.5); margin-bottom: 24px; }
+
+/* ── Steps ── */
+.step { display: none; }
+.step.active { display: block; }
+
+/* ── Google button ── */
+.btn-google {
+  width: 100%; padding: 14px;
+  background: #fff; color: #333;
+  border: none; border-radius: 10px;
+  font-size: 1rem; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
+  transition: transform .15s, box-shadow .15s;
+  text-decoration: none;
+}
+.btn-google:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,255,255,.15); }
+.btn-google img { width: 22px; height: 22px; }
+
+/* ── Generic button ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 24px; border-radius: 10px; border: none;
+  font-size: .95rem; font-weight: 700; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 16px rgba(10,224,254,.4); }
+.btn-primary:hover { box-shadow: 0 0 28px rgba(10,224,254,.7); }
+.btn-secondary { background: var(--secondary); color: #fff; box-shadow: 0 0 16px rgba(234,14,237,.3); }
+.btn-full { width: 100%; }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ── Input ── */
+.field { margin-bottom: 20px; }
+.field label { display: block; font-size: .82rem; color: rgba(200,230,255,.7); margin-bottom: 6px; }
+.field input, .field select {
+  width: 100%; padding: 12px 14px;
+  background: rgba(10,224,254,.06);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: .95rem;
+  outline: none; transition: border-color .2s;
+}
+.field input:focus, .field select:focus { border-color: var(--primary); }
+.field select option { background: #0a1535; }
+
+/* ── Character grid ── */
+.char-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 24px;
+}
+.char-card {
+  padding: 16px 12px; border-radius: 12px;
+  border: 2px solid var(--border);
+  cursor: pointer; text-align: center;
+  transition: all .25s; position: relative;
+  background: rgba(10,224,254,.03);
+}
+.char-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+.char-card.selected { border-width: 2px; background: rgba(10,224,254,.1); }
+.char-card .emoji { font-size: 2.2rem; display: block; margin-bottom: 6px; }
+.char-card .name { font-size: .8rem; font-weight: 700; }
+.char-card .desc { font-size: .7rem; opacity: .6; margin-top: 3px; }
+.char-card .badge {
+  position: absolute; top: 6px; right: 8px;
+  font-size: .65rem; padding: 2px 6px;
+  border-radius: 99px; font-weight: 700; display: none;
+}
+.char-card.selected .badge { display: block; }
+
+/* Characters colors */
+.char-chien_binh { --c: #0ae0fe; }
+.char-phu_thuy   { --c: #ea0eed; }
+.char-xa_thu     { --c: #4eff9f; }
+.char-hiep_si    { --c: #ffd700; }
+.char-card.selected { border-color: var(--c); box-shadow: 0 0 18px color-mix(in srgb, var(--c) 40%, transparent); }
+.char-card .badge { background: var(--c); color: #000; }
+
+/* ── Camera / canvas ── */
+.cam-box {
+  width: 100%; aspect-ratio: 4/3; border-radius: 12px;
+  overflow: hidden; background: #000;
+  border: 1px solid var(--border); margin-bottom: 16px; position: relative;
+}
+.cam-box video, .cam-box canvas { width: 100%; height: 100%; object-fit: cover; }
+.cam-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.face-guide {
+  width: 55%; aspect-ratio: 1/1;
+  border: 3px dashed rgba(10,224,254,.6);
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,.35);
+}
+
+.cam-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.cam-controls .btn { flex: 1; min-width: 120px; font-size: .85rem; padding: 10px; }
+
+/* ── Preview ── */
+.avatar-preview {
+  display: flex; gap: 16px; margin-bottom: 20px;
+  flex-wrap: wrap; justify-content: center;
+}
+.preview-item { text-align: center; }
+.preview-item img {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 2px solid var(--border); object-fit: cover;
+}
+.preview-item.final img {
+  width: 140px; height: 140px; border-radius: 16px;
+  border-color: var(--primary); box-shadow: 0 0 20px rgba(10,224,254,.4);
+}
+.preview-item p { font-size: .72rem; color: rgba(200,230,255,.5); margin-top: 6px; }
+
+/* ── Upload fallback ── */
+.upload-area {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 28px; text-align: center; cursor: pointer;
+  transition: border-color .2s; margin-bottom: 12px;
+}
+.upload-area:hover { border-color: var(--primary); }
+.upload-area input { display: none; }
+.upload-area p { font-size: .85rem; color: rgba(200,230,255,.5); margin-top: 8px; }
+
+/* ── Spinner ── */
+.spinner {
+  width: 40px; height: 40px; margin: 16px auto;
+  border: 3px solid rgba(10,224,254,.2);
+  border-top-color: var(--primary);
+  border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Pending screen ── */
+.pending-box { text-align: center; padding: 12px 0; }
+.pending-icon { font-size: 4rem; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.pending-title { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+.pending-sub { font-size: .9rem; opacity: .7; line-height: 1.6; }
+
+/* ── Error toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--danger); color: #fff; padding: 12px 24px;
+  border-radius: 10px; font-size: .9rem; z-index: 9999;
+  opacity: 0; transition: opacity .3s; pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .card { padding: 24px 18px; }
+  .char-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+  <div class="logo">⚔️ CHIẾN BINH <span>TOÁN</span></div>
+  <div class="subtitle">Hành trình chinh phục Toán Học bắt đầu từ đây</div>
+
+  <!-- Step indicator -->
+  <div class="steps">
+    <div class="step-dot active" id="dot1">1</div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="dot2">2</div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="dot3">3</div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="dot4">✓</div>
+  </div>
+
+  <div class="card">
+
+    <!-- ── STEP 1: Login ── -->
+    <div class="step active" id="step1">
+      <div class="card-title">🔐 Bước 1: Đăng nhập</div>
+      <div class="card-sub">Dùng tài khoản Gmail để bắt đầu hành trình</div>
+
+      <a href="/auth/google/login" class="btn-google" id="btnGoogle">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+        Đăng nhập với Google
+      </a>
+
+      <div style="margin-top:24px; padding:16px; background:rgba(10,224,254,.05); border-radius:10px; border:1px solid var(--border);">
+        <p style="font-size:.78rem; line-height:1.7; color:rgba(200,230,255,.6);">
+          🛡️ Thông tin Gmail chỉ dùng để tạo tài khoản học sinh.<br>
+          🎮 Sau khi đăng ký xong, thầy sẽ duyệt tài khoản và thông báo qua Telegram.<br>
+          ⏰ Thường được duyệt trong vòng 24h.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Name + Character ── -->
+    <div class="step" id="step2">
+      <div class="card-title">⚔️ Bước 2: Chọn nhân vật</div>
+      <div class="card-sub">Đặt tên và chọn nhân vật sẽ đồng hành cùng em</div>
+
+      <div class="field">
+        <label>Họ và tên của em</label>
+        <input type="text" id="inputName" placeholder="VD: Nguyễn Văn An" autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label>Lớp</label>
+        <select id="inputLop">
+          <option value="3" selected>Lớp 3</option>
+          <option value="4">Lớp 4</option>
+          <option value="5">Lớp 5</option>
+        </select>
+      </div>
+
+      <label style="font-size:.82rem; color:rgba(200,230,255,.7); display:block; margin-bottom:10px;">Chọn nhân vật</label>
+      <div class="char-grid">
+        <div class="char-card char-chien_binh selected" data-char="chien_binh" onclick="selectChar(this)">
+          <span class="emoji">⚔️</span>
+          <div class="name" style="color:#0ae0fe">Chiến Binh</div>
+          <div class="desc">Mạnh mẽ, kiên định</div>
+          <span class="badge">✓ Đang chọn</span>
+        </div>
+        <div class="char-card char-phu_thuy" data-char="phu_thuy" onclick="selectChar(this)">
+          <span class="emoji">🔮</span>
+          <div class="name" style="color:#ea0eed">Phù Thủy</div>
+          <div class="desc">Thông minh, sáng tạo</div>
+          <span class="badge">✓ Đang chọn</span>
+        </div>
+        <div class="char-card char-xa_thu" data-char="xa_thu" onclick="selectChar(this)">
+          <span class="emoji">🏹</span>
+          <div class="name" style="color:#4eff9f">Xạ Thủ</div>
+          <div class="desc">Nhanh nhẹn, chính xác</div>
+          <span class="badge">✓ Đang chọn</span>
+        </div>
+        <div class="char-card char-hiep_si" data-char="hiep_si" onclick="selectChar(this)">
+          <span class="emoji">🛡️</span>
+          <div class="name" style="color:#ffd700">Hiệp Sĩ</div>
+          <div class="desc">Dũng cảm, bảo vệ</div>
+          <span class="badge">✓ Đang chọn</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="goStep3()">Tiếp theo →</button>
+    </div>
+
+    <!-- ── STEP 3: Photo ── -->
+    <div class="step" id="step3">
+      <div class="card-title">📸 Bước 3: Ảnh đại diện</div>
+      <div class="card-sub">Chụp ảnh mặt để tạo nhân vật hoạt hình của em</div>
+
+      <!-- Camera -->
+      <div class="cam-box" id="camBox">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="cam-overlay"><div class="face-guide"></div></div>
+      </div>
+      <canvas id="snapCanvas" style="display:none"></canvas>
+
+      <div class="cam-controls">
+        <button class="btn btn-primary" id="btnCamera" onclick="startCamera()">📷 Mở camera</button>
+        <button class="btn btn-secondary" id="btnSnap" onclick="snapPhoto()" style="display:none">📸 Chụp ảnh</button>
+        <button class="btn" id="btnRetake" onclick="retakePhoto()"
+          style="display:none; background:rgba(255,0,85,.15); color:var(--danger); border:1px solid var(--danger)">
+          🔄 Chụp lại
+        </button>
+      </div>
+
+      <!-- Upload fallback -->
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(event)">
+        <div style="font-size:2rem">📁</div>
+        <p>Hoặc tải ảnh từ thư viện<br><small>(chụp ảnh mặt rõ, nền sáng)</small></p>
+      </div>
+
+      <!-- Preview -->
+      <div class="avatar-preview" id="previewBox" style="display:none">
+        <div class="preview-item">
+          <img id="previewFace" src="" alt="Ảnh gốc">
+          <p>Ảnh gốc</p>
+        </div>
+        <div class="preview-item">
+          <img id="previewCartoon" src="" alt="Hoạt hình">
+          <p>Hoạt hình</p>
+        </div>
+        <div class="preview-item final">
+          <img id="previewFinal" src="" alt="Avatar">
+          <p>Avatar nhân vật</p>
+        </div>
+      </div>
+
+      <div id="spinBox" style="display:none">
+        <div class="spinner"></div>
+        <p style="text-align:center; font-size:.85rem; color:rgba(200,230,255,.6)">
+          🎨 Đang tạo avatar hoạt hình...
+        </p>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="btnSubmit" onclick="submitProfile()" style="display:none; margin-top:8px">
+        🚀 Hoàn tất đăng ký!
+      </button>
+
+      <button class="btn btn-full" onclick="goStep(2)"
+        style="margin-top:10px; background:transparent; border:1px solid var(--border); color:rgba(200,230,255,.5); font-size:.85rem">
+        ← Quay lại
+      </button>
+    </div>
+
+    <!-- ── STEP 4: Pending ── -->
+    <div class="step" id="step4">
+      <div class="pending-box">
+        <div class="pending-icon">⏳</div>
+        <div class="pending-title">Đã gửi hồ sơ!</div>
+        <div class="pending-sub" id="pendingText">
+          Tài khoản của em đang chờ thầy duyệt.<br>
+          Thầy sẽ thông báo qua Telegram khi được duyệt.<br><br>
+          Thường trong vòng <strong style="color:var(--primary)">24 giờ</strong> 🚀
+        </div>
+        <div style="margin-top:24px">
+          <div class="preview-item final" style="display:inline-block">
+            <img id="pendingAvatar" src="" alt="Avatar" style="border-color:var(--secondary)">
+            <p id="pendingName" style="color:var(--primary); font-weight:700; font-size:.9rem; margin-top:8px"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP DONE ── -->
+    <div class="step" id="stepDone">
+      <div class="pending-box">
+        <div class="pending-icon">🎉</div>
+        <div class="pending-title" style="color:var(--success)">Tài khoản đã được duyệt!</div>
+        <div class="pending-sub">
+          Chào mừng chiến binh! Hãy mở Telegram và nhắn tin với bot để bắt đầu luyện Toán ngay nào! 🌟
+        </div>
+        <div style="margin-top:24px">
+          <div class="preview-item final" style="display:inline-block">
+            <img id="doneAvatar" src="" alt="Avatar" style="border-color:var(--success)">
+            <p id="doneName" style="color:var(--success); font-weight:700; font-size:.9rem; margin-top:8px"></p>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" style="margin-top:24px" onclick="window.open('https://t.me/chienbiantoanbot','_blank')">
+          🤖 Mở Telegram Bot
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /wrap -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────
+let token = '';
+let currentChar = 'chien_binh';
+let faceB64 = '';
+let stream = null;
+
+// ── Starfield ────────────────────────────────────────────────────────────
+(function() {
+  const c = document.getElementById('stars');
+  const ctx = c.getContext('2d');
+  let W, H, stars = [];
+  function resize() {
+    W = c.width = window.innerWidth;
+    H = c.height = window.innerHeight;
+  }
+  function init() {
+    resize();
+    stars = Array.from({length: 120}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      r: Math.random()*1.5+.3, s: Math.random()*.3+.05,
+      a: Math.random()
+    }));
+  }
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s => {
+      s.a += .008; if(s.a>1) s.a=0;
+      ctx.globalAlpha = Math.abs(Math.sin(s.a))*.7;
+      ctx.fillStyle = '#0ae0fe';
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  init(); draw();
+})();
+
+// ── Toast ────────────────────────────────────────────────────────────────
+function showToast(msg, ok=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? 'var(--success)' : 'var(--danger)';
+  t.style.color = ok ? '#000' : '#fff';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── URL params (token from OAuth callback) ───────────────────────────────
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get('token');
+  const step = params.get('step');
+  const err = params.get('error');
+
+  if (err) { showToast('Đăng nhập thất bại, thử lại!'); return; }
+
+  if (t) {
+    token = t;
+    localStorage.setItem('vsToken', t);
+    // Clean URL
+    window.history.replaceState({}, '', '/register');
+  } else {
+    token = localStorage.getItem('vsToken') || '';
+  }
+
+  if (!token) { goStep(1); return; }
+
+  // Verify token with server
+  try {
+    const res = await fetch('/auth/me', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    if (!res.ok) { localStorage.removeItem('vsToken'); token = ''; goStep(1); return; }
+    const user = await res.json();
+
+    if (step === 'done' || user.status === 'approved') {
+      document.getElementById('doneAvatar').src = user.avatar_final || '';
+      document.getElementById('doneName').textContent = user.ho_ten || user.email;
+      goStep('done'); return;
+    }
+    if (user.ho_ten && user.avatar_final) {
+      // Already submitted, show pending
+      document.getElementById('pendingAvatar').src = user.avatar_final;
+      document.getElementById('pendingName').textContent = user.ho_ten;
+      goStep(4); return;
+    }
+    // Step 2: fill profile
+    if (user.ho_ten) document.getElementById('inputName').value = user.ho_ten;
+    goStep(2);
+  } catch(e) {
+    goStep(1);
+  }
+})();
+
+// ── Step navigation ──────────────────────────────────────────────────────
+function goStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const el = typeof n === 'number'
+    ? document.getElementById('step' + n)
+    : document.getElementById('step' + n);
+  if (el) el.classList.add('active');
+
+  // Update dots
+  [1,2,3,4].forEach(i => {
+    const d = document.getElementById('dot' + i);
+    if (!d) return;
+    d.classList.remove('active','done');
+    if (typeof n === 'number') {
+      if (i < n) d.classList.add('done');
+      else if (i === n) d.classList.add('active');
+    }
+  });
+
+  if (n !== 3) stopCamera();
+}
+
+// ── Character selection ──────────────────────────────────────────────────
+function selectChar(el) {
+  document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentChar = el.dataset.char;
+}
+
+// ── Step 2 → 3 ──────────────────────────────────────────────────────────
+function goStep3() {
+  const name = document.getElementById('inputName').value.trim();
+  if (!name) { showToast('Em chưa nhập tên!'); return; }
+  goStep(3);
+}
+
+// ── Camera ──────────────────────────────────────────────────────────────
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    const video = document.getElementById('video');
+    video.srcObject = stream;
+    video.style.display = 'block';
+    document.getElementById('camBox').querySelector('canvas') &&
+      (document.getElementById('camBox').querySelector('canvas').style.display = 'none');
+    document.getElementById('btnCamera').style.display = 'none';
+    document.getElementById('btnSnap').style.display = '';
+    document.getElementById('uploadArea').style.display = 'none';
+    document.getElementById('previewBox').style.display = 'none';
+    document.getElementById('btnSubmit').style.display = 'none';
+  } catch(e) {
+    showToast('Không mở được camera, hãy tải ảnh từ thư viện!');
+  }
+}
+
+function snapPhoto() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('snapCanvas');
+  const SIZE = 512;
+  canvas.width = canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+
+  // Crop center square from video
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const side = Math.min(vw, vh);
+  const sx = (vw - side) / 2, sy = (vh - side) / 2;
+  ctx.drawImage(video, sx, sy, side, side, 0, 0, SIZE, SIZE);
+
+  faceB64 = canvas.toDataURL('image/jpeg', 0.88);
+  showPhotoPreview();
+}
+
+function uploadFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    // Crop to square via canvas
+    const img = new Image();
+    img.onload = () => {
+      const SIZE = 512;
+      const canvas = document.getElementById('snapCanvas');
+      canvas.width = canvas.height = SIZE;
+      const ctx = canvas.getContext('2d');
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
+      faceB64 = canvas.toDataURL('image/jpeg', 0.88);
+      showPhotoPreview();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showPhotoPreview() {
+  stopCamera();
+  document.getElementById('video').style.display = 'none';
+  document.getElementById('previewFace').src = faceB64;
+  document.getElementById('previewBox').style.display = 'flex';
+  document.getElementById('previewCartoon').src = '';
+  document.getElementById('previewFinal').src = '';
+  document.getElementById('btnCamera').style.display = '';
+  document.getElementById('btnSnap').style.display = 'none';
+  document.getElementById('btnRetake').style.display = '';
+  document.getElementById('uploadArea').style.display = '';
+  document.getElementById('btnSubmit').style.display = '';
+}
+
+function retakePhoto() {
+  faceB64 = '';
+  document.getElementById('previewBox').style.display = 'none';
+  document.getElementById('btnRetake').style.display = 'none';
+  document.getElementById('btnCamera').style.display = '';
+  document.getElementById('btnSubmit').style.display = 'none';
+  document.getElementById('video').style.display = '';
+}
+
+function stopCamera() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+}
+
+// ── Submit profile ───────────────────────────────────────────────────────
+async function submitProfile() {
+  if (!faceB64) { showToast('Em chưa chụp ảnh!'); return; }
+  const name = document.getElementById('inputName').value.trim();
+  const lop  = document.getElementById('inputLop').value;
+  if (!name) { showToast('Em chưa nhập tên!'); goStep(2); return; }
+
+  document.getElementById('spinBox').style.display = 'block';
+  document.getElementById('btnSubmit').disabled = true;
+
+  try {
+    const res = await fetch('/api/student/complete-profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        ho_ten: name,
+        lop: lop,
+        character_type: currentChar,
+        avatar_face_b64: faceB64
+      })
+    });
+
+    const data = await res.json();
+    document.getElementById('spinBox').style.display = 'none';
+
+    if (!res.ok) {
+      showToast(data.detail || 'Lỗi, thử lại!');
+      document.getElementById('btnSubmit').disabled = false;
+      return;
+    }
+
+    // Show preview
+    if (data.avatar_final) {
+      document.getElementById('previewFinal').src = data.avatar_final;
+    }
+
+    // Go to pending screen
+    document.getElementById('pendingAvatar').src = data.avatar_final || faceB64;
+    document.getElementById('pendingName').textContent = name;
+    goStep(4);
+
+  } catch(e) {
+    document.getElementById('spinBox').style.display = 'none';
+    document.getElementById('btnSubmit').disabled = false;
+    showToast('Lỗi kết nối, thử lại!');
+  }
+}
+</script>
+</body>
+</html>
