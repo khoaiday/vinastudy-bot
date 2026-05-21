@@ -59,10 +59,44 @@ async def init_db():
     CREATE TABLE IF NOT EXISTS gamification (
         telegram_id  BIGINT PRIMARY KEY,
         xp           INTEGER DEFAULT 0,
+        gold         INTEGER DEFAULT 0,
+        level        INTEGER DEFAULT 1,
+        role_name    TEXT DEFAULT 'Tân Binh',
         streak       INTEGER DEFAULT 0,
         streak_max   INTEGER DEFAULT 0,
         last_active  TEXT,
         badges       TEXT DEFAULT '[]'
+    );
+
+    -- Kho câu hỏi/Quái vật
+    CREATE TABLE IF NOT EXISTS questions (
+        id            SERIAL PRIMARY KEY,
+        lesson_id     INT REFERENCES lessons(id),
+        content       TEXT,
+        correct_answer TEXT,
+        tags          JSONB DEFAULT '[]'
+    );
+
+    -- Lượt làm bài (Session)
+    CREATE TABLE IF NOT EXISTS sessions (
+        id            SERIAL PRIMARY KEY,
+        student_id    INT REFERENCES students(id),
+        lesson_id     INT REFERENCES lessons(id),
+        started_at    TIMESTAMP DEFAULT NOW(),
+        completed_at  TIMESTAMP,
+        status        TEXT DEFAULT 'in_progress'
+    );
+
+    -- Vết Checkpoint (Lịch sử từng câu trả lời)
+    CREATE TABLE IF NOT EXISTS checkpoints (
+        id                 SERIAL PRIMARY KEY,
+        session_id         INT REFERENCES sessions(id),
+        question_id        INT REFERENCES questions(id),
+        attempt_number     INT DEFAULT 1,
+        submitted_answer   TEXT,
+        is_correct         BOOLEAN,
+        time_spent_seconds INT,
+        created_at         TIMESTAMP DEFAULT NOW()
     );
 
     -- Index

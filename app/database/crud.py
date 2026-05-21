@@ -32,6 +32,15 @@ async def get_all_students() -> list:
         rows = await conn.fetch("SELECT * FROM students WHERE active=TRUE ORDER BY ho_ten")
     return [dict(r) for r in rows]
 
+async def search_student_by_name(name: str) -> list:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT telegram_id, ho_ten, lop FROM students WHERE active=TRUE AND ho_ten ILIKE $1 ORDER BY ho_ten",
+            f"%{name}%"
+        )
+    return [dict(r) for r in rows]
+
 # ── Lessons ───────────────────────────────────────────────────────────
 
 async def upsert_lesson(so_buoi: int, ten: str, zoom_link: str = None,
@@ -117,6 +126,24 @@ async def get_results_student(telegram_id: int, limit: int = 10) -> list:
         rows = await conn.fetch(sql, telegram_id, limit)
     return [dict(r) for r in rows]
 
+async def get_student_results_summary(telegram_id: int) -> dict | None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        st = await conn.fetchrow("SELECT id, ho_ten FROM students WHERE telegram_id=$1", telegram_id)
+        if not st:
+            return None
+        rows = await conn.fetch("""
+            SELECT l.so_buoi, l.ten as ten_buoi, r.diem, r.tong_cau, r.phan_tram, r.thoi_gian
+            FROM results r
+            JOIN lessons l ON r.lesson_id = l.id
+            WHERE r.student_id = $1
+            ORDER BY r.thoi_gian DESC
+        """, st["id"])
+    return {
+        "ho_ten": st["ho_ten"],
+        "results": [dict(r) for r in rows],
+    }
+
 async def get_chua_lam(so_buoi: int) -> list:
     sql = """
         SELECT s.telegram_id, s.ho_ten
@@ -134,40 +161,107 @@ async def get_chua_lam(so_buoi: int) -> list:
         rows = await conn.fetch(sql, so_buoi)
     return [dict(r) for r in rows]
 
+# ── Checkpoints & Sessions ──────────────────────────────────────────────
+
+async def save_session_with_checkpoints(telegram_id: int, so_buoi: int, checkpoints: list):
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        st = await conn.fetchrow("SELECT id FROM students WHERE telegram_id=$1", telegram_id)
+        if not st: return None
+        student_id = st["id"]
+
+        ls = await conn.fetchrow("SELECT id FROM lessons WHERE so_buoi=$1", so_buoi)
+        lesson_id = ls["id"] if ls else None
+
+        async with conn.transaction():
+            # Tạo session
+            session_id = await conn.fetchval("""
+                INSERT INTO sessions (student_id, lesson_id, completed_at, status)
+                VALUES ($1, $2, NOW(), 'completed')
+                RETURNING id
+            """, student_id, lesson_id)
+            
+            # Insert checkpoints
+            if checkpoints:
+                vals = []
+                for cp in checkpoints:
+                    vals.append((
+                        session_id, 
+                        cp.get('question_id'), 
+                        cp.get('attempt_number', 1), 
+                        str(cp.get('submitted_answer', '')), 
+                        bool(cp.get('is_correct', False)), 
+                        int(cp.get('time_spent_seconds', 0))
+                    ))
+                
+                await conn.copy_records_to_table(
+                    'checkpoints',
+                    columns=['session_id', 'question_id', 'attempt_number', 'submitted_answer', 'is_correct', 'time_spent_seconds'],
+                    records=vals
+                )
+            
+            return session_id
+
+async def get_student_checkpoint_stats(telegram_id: int) -> dict:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        st = await conn.fetchrow("SELECT id, ho_ten FROM students WHERE telegram_id=$1", telegram_id)
+        if not st: return None
+        
+        # Thống kê grit (tổng số lần retry trung bình)
+        grit_row = await conn.fetchrow("""
+            SELECT AVG(attempt_number) as avg_attempts, MAX(attempt_number) as max_attempts 
+            FROM checkpoints c
+            JOIN sessions s ON c.session_id = s.id
+            WHERE s.student_id = $1
+        """, st["id"])
+        
+        # Thống kê time spent (trung bình cho các câu đúng ở lần 1)
+        time_row = await conn.fetchrow("""
+            SELECT AVG(time_spent_seconds) as avg_time 
+            FROM checkpoints c
+            JOIN sessions s ON c.session_id = s.id
+            WHERE s.student_id = $1 AND c.is_correct = TRUE AND c.attempt_number = 1
+        """, st["id"])
+        
+        return {
+            "ho_ten": st["ho_ten"],
+            "avg_attempts": round(float(grit_row["avg_attempts"] or 1), 2),
+            "max_attempts": grit_row["max_attempts"] or 1,
+            "avg_time": round(float(time_row["avg_time"] or 0), 2)
+        }
+
 # ── Gamification ──────────────────────────────────────────────────────
 
 async def get_gamification(telegram_id: int) -> dict | None:
     pool = get_pool()
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT xp, streak, streak_max, last_active, badges "
+            "SELECT xp, gold, level, role_name, streak, streak_max, last_active, badges "
             "FROM gamification WHERE telegram_id = $1",
             telegram_id
         )
     if row:
-        return {
-            "xp":          row["xp"],
-            "streak":      row["streak"],
-            "streak_max":  row["streak_max"],
-            "last_active": row["last_active"],
-            "badges":      row["badges"],
-        }
+        return dict(row)
     return None
 
-async def save_gamification(telegram_id: int, xp: int, streak: int,
+async def save_gamification(telegram_id: int, xp: int, gold: int, level: int, role_name: str, streak: int,
                             streak_max: int, last_active: str, badges: str):
     pool = get_pool()
     async with pool.acquire() as conn:
         await conn.execute("""
-            INSERT INTO gamification (telegram_id, xp, streak, streak_max, last_active, badges)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO gamification (telegram_id, xp, gold, level, role_name, streak, streak_max, last_active, badges)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ON CONFLICT (telegram_id) DO UPDATE SET
                 xp          = EXCLUDED.xp,
+                gold        = EXCLUDED.gold,
+                level       = EXCLUDED.level,
+                role_name   = EXCLUDED.role_name,
                 streak      = EXCLUDED.streak,
                 streak_max  = EXCLUDED.streak_max,
                 last_active = EXCLUDED.last_active,
                 badges      = EXCLUDED.badges
-        """, telegram_id, xp, streak, streak_max, last_active, badges)
+        """, telegram_id, xp, gold, level, role_name, streak, streak_max, last_active, badges)
 
 async def get_leaderboard(top_n: int = 10) -> list:
     pool = get_pool()

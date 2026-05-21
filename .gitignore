@@ -1,0 +1,24 @@
+# Data thô (180MB PDFs/images/transcripts)
+data lop 3/
+
+# Env & secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+
+# Temp files
+content/lop3/bai02/temp.py
+content/lop3/bai02/html_replacement.txt
+
+# OS
+.DS_Store
+Thumbs.db

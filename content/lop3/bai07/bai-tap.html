@@ -81,6 +81,135 @@
   .btn-retry { background:var(--teal); color:white; }
   .btn-review { background:var(--bg); color:var(--teal); border:2px solid var(--border); }
   @media(max-width:480px){ .q-card{padding:18px 16px 14px} .result-card{padding:28px 20px} }
+
+  /* =========================================
+     CYBERPUNK RESKIN OVERRIDES 
+     ========================================= */
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap');
+  
+  :root {
+    --primary: #0ae0fe;
+    --primary-glow: rgba(10, 224, 254, 0.5);
+    --secondary: #ea0eed;
+    --secondary-glow: rgba(234, 14, 237, 0.5);
+    --success: #4eff9f;
+    --danger: #ff0055;
+    --bg-base: #050a1f;
+    --bg-card: rgba(11, 19, 43, 0.85);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: rgba(10, 224, 254, 0.4);
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif !important;
+    background-color: var(--bg-base) !important;
+    color: var(--text-main) !important;
+    background-image: 
+      linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px) !important;
+  }
+
+  h1, .section-title, .result-title, .q-num, .check-btn, .submit-btn, .result-score, .result-btn {
+    font-family: 'Rajdhani', sans-serif !important;
+  }
+
+  .header {
+    background: transparent !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+  .header h1 {
+    color: var(--primary) !important;
+    text-shadow: 0 0 10px var(--primary-glow) !important;
+  }
+  .header p { color: var(--text-muted) !important; }
+  .header-badge {
+    background: rgba(10, 224, 254, 0.1) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+  }
+  
+  .score-bar {
+    background: var(--bg-base) !important;
+    border-bottom: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+  }
+  
+  .progress-wrap { margin-top: 10px; }
+  .progress-bar { background: rgba(255,255,255,0.1) !important; }
+  .progress-fill { background: linear-gradient(90deg, var(--primary), var(--secondary)) !important; box-shadow: 0 0 10px var(--secondary-glow) !important;}
+
+  .section-title {
+    color: var(--primary) !important;
+    text-shadow: 0 0 10px var(--primary-glow) !important;
+  }
+  .section-title::after {
+    background: linear-gradient(90deg, var(--primary), transparent) !important;
+  }
+
+  /* Inputs and Buttons */
+  .ans-input {
+    background: rgba(10,224,254,0.05) !important;
+    border: 2px solid var(--primary) !important;
+    color: var(--primary) !important;
+    text-shadow: 0 0 5px var(--primary-glow) !important;
+  }
+  .ans-input:focus {
+    box-shadow: 0 0 15px var(--primary-glow) !important;
+  }
+  .ans-input.correct-input { border-color: var(--success) !important; color: var(--success) !important; text-shadow: 0 0 5px var(--success) !important; }
+  .ans-input.wrong-input { border-color: var(--danger) !important; color: var(--danger) !important; text-shadow: 0 0 5px var(--danger) !important; }
+
+  .check-btn, .submit-btn, .result-btn {
+    background: rgba(10,224,254,0.1) !important;
+    border: 2px solid var(--primary) !important;
+    color: var(--primary) !important;
+    box-shadow: 0 0 15px var(--primary-glow) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+  }
+  .check-btn:hover:not(:disabled), .submit-btn:hover, .result-btn:hover {
+    background: var(--primary) !important;
+    color: #000 !important;
+  }
+  .check-btn:disabled {
+    border-color: var(--border) !important;
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* ── Cyber Box Style ── */
+  .method-box, .q-card, .result-card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .cyber-box {
+    position: relative;
+    border-radius: 16px !important;
+    background: transparent !important;
+  }
+  .cyber-box::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    padding: 2px; border-radius: inherit;
+    background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+    -webkit-mask-composite: xor !important; mask-composite: exclude !important;
+    pointer-events: none; z-index: 10;
+    box-shadow: 0 0 15px var(--primary-glow) !important;
+  }
+  .cyber-box::after {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit; z-index: -1;
+  }
+  
+  .method-box.cyber-box::after { background: #05152a !important; }
+  .q-card.cyber-box::after { background: #080e22 !important; }
+  .result-card.cyber-box::after { background: #0a122a !important; }
+
+  /* Fix z-index of content inside cyber-box */
+  .cyber-box > * { position: relative; z-index: 1; }
+
 </style>
 </head>
 <body>
@@ -359,6 +488,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
+
+  // Tự động thêm class cyber-box
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.method-box, .q-card, .result-card').forEach(el => {
+      el.classList.add('cyber-box');
+    });
+  });
+
+
 // Khởi tạo Telegram Web App
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }

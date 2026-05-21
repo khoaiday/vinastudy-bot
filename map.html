@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Bản Đồ Chiến Dịch — Chiến Binh Toán</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0ae0fe;
+    --primary-glow: rgba(10, 224, 254, 0.5);
+    --secondary: #ea0eed;
+    --secondary-glow: rgba(234, 14, 237, 0.5);
+    --success: #4eff9f;
+    --danger: #ff0055;
+    --bg-base: #050a1f;
+    --bg-card: rgba(11, 19, 43, 0.85);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: rgba(10, 224, 254, 0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-main);
+  }
+
+  /* ── Background Grid ── */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image: 
+      linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .app {
+    display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1;
+    background: radial-gradient(circle at top right, rgba(14, 23, 58, 0.8), var(--bg-base));
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 30px 20px 20px;
+    text-align: center; flex-shrink: 0;
+    position: relative; z-index: 5;
+    background: radial-gradient(circle at center top, rgba(10,224,254,0.1), transparent);
+    border-bottom: 2px solid var(--primary);
+    box-shadow: 0 5px 30px rgba(10,224,254,0.2);
+  }
+
+  .user-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(10, 224, 254, 0.1);
+    border: 1px solid var(--primary);
+    border-radius: 20px; padding: 5px 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: 1px;
+    margin-bottom: 12px; color: var(--primary);
+    box-shadow: 0 0 10px var(--primary-glow);
+  }
+
+  .header h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px; font-weight: 900;
+    line-height: 1.2; text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--primary);
+    text-shadow: 0 0 15px var(--primary-glow);
+  }
+  .header p { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ── Scroll Area ── */
+  .scroll {
+    flex: 1; overflow-y: auto; padding: 20px 16px 40px; 
+    -webkit-overflow-scrolling: touch; position: relative; z-index: 1;
+  }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  .zone-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--secondary); margin: 24px 0 16px;
+    display: flex; align-items: center; gap: 12px;
+    text-shadow: 0 0 10px var(--secondary-glow);
+  }
+  .zone-title::after {
+    content: ""; flex: 1; height: 2px;
+    background: linear-gradient(90deg, var(--secondary), transparent);
+  }
+
+  /* ── Cyber Box Style ── */
+  .cyber-box {
+    position: relative;
+    border-radius: 12px;
+    background: transparent !important;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .cyber-box:active { transform: scale(0.97); }
+
+  .cyber-box::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    padding: 2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 0 10px rgba(10, 224, 254, 0.3);
+  }
+  .cyber-box::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    z-index: -1;
+    background: var(--bg-card);
+    /* backdrop-filter: blur(8px); Removed for performance */
+  }
+
+  .card-content {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px;
+  }
+
+  .card-icon {
+    flex-shrink: 0; width: 50px; height: 50px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900; color: #fff;
+    background: rgba(10, 224, 254, 0.1);
+    border: 2px solid var(--primary);
+    box-shadow: inset 0 0 10px var(--primary-glow);
+    text-shadow: 0 0 10px var(--primary-glow);
+  }
+  
+  .card-body { flex: 1; min-width: 0; }
+  .card-level {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--secondary); margin-bottom: 4px;
+  }
+  .card-title { 
+    font-size: 16px; font-weight: 700; line-height: 1.3; 
+    color: var(--text-main);
+  }
+
+  .card-arrow {
+    flex-shrink: 0; font-size: 24px; color: var(--primary);
+    filter: drop-shadow(0 0 5px var(--primary-glow));
+  }
+
+  /* ── Slide-in Page ── */
+  .page {
+    position: fixed; inset: 0; background: var(--bg-base);
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    z-index: 10; display: flex; flex-direction: column;
+  }
+  .page.active { transform: translateX(0); }
+
+  .page-header {
+    background: rgba(11, 19, 43, 0.95);
+    color: white; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    border-bottom: 2px solid var(--primary);
+    box-shadow: 0 4px 15px rgba(10, 224, 254, 0.2);
+  }
+  
+  .back-btn {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: rgba(10, 224, 254, 0.1); border: 2px solid var(--primary);
+    color: var(--primary); font-size: 24px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 10px var(--primary-glow);
+    transition: all 0.2s;
+  }
+  .back-btn:active { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary-glow); }
+  
+  .page-header-info h2 { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
+  .page-header-info p  { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  .page-body { flex: 1; position: relative; overflow: hidden; }
+  .page-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
+
+  /* ── Loading ── */
+  .loading {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; background: var(--bg-base); z-index: 2;
+  }
+  .spinner {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid transparent; border-top-color: var(--primary); border-left-color: var(--secondary);
+    animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    box-shadow: 0 0 15px var(--primary-glow);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-size: 14px; color: var(--primary); font-weight: 700; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--primary-glow); }
+
+
+  /* ── Passed Level Badge ── */
+  .cyber-box.passed::before {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  }
+  .cyber-box.passed .card-icon {
+    background: rgba(255, 215, 0, 0.15); border-color: gold; color: gold; 
+    text-shadow: 0 0 10px gold; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  .cyber-box.passed .card-level { color: gold; }
+  .cyber-box.passed .card-arrow { color: gold; filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="grid-bg"></div>
+  
+  
+  <div class="header">
+    <div class="user-badge" id="userBadge">⚡ CHIẾN BINH TOÁN</div>
+    <div class="user-badge" id="badgeCount" style="margin-left: 10px; color: gold; border-color: gold; box-shadow: 0 0 10px gold;">🏆 x 0</div>
+    <h1>GIẢI CỨU NGÂN HÀ</h1>
+
+    <p>TRẠM 1: SAO THỦY CẤP TỐC</p>
+  </div>
+
+  <div class="scroll">
+    <div class="zone-title">TRẠM 1: SAO THỦY CẤP TỐC</div>
+
+    <div class="cyber-box" data-lesson="2" onclick="open_(2,'Quái Vật Ổ Khóa','content/lop3/bai02/bai-tap.html',this)">
+      <div class="card-content">
+        <div class="card-icon">ẢI 2</div>
+        <div class="card-body">
+          <div class="card-level">MISSION 02</div>
+          <div class="card-title">Quái Vật Ổ Khóa Số Học</div>
+        </div>
+        <div class="card-arrow">⚔️</div>
+      </div>
+    </div>
+
+    <div class="cyber-box" data-lesson="3" onclick="open_(3,'Đốm Đen Tinh Nghịch','content/lop3/bai03/bai-tap.html',this)">
+      <div class="card-content">
+        <div class="card-icon">ẢI 3</div>
+        <div class="card-body">
+          <div class="card-level">MISSION 03</div>
+          <div class="card-title">Đốm Đen Tinh Nghịch</div>
+        </div>
+        <div class="card-arrow">⚔️</div>
+      </div>
+    </div>
+
+    <div class="zone-title">TRẠM 2: SAO KIM RỰC RỠ</div>
+
+    <div class="cyber-box" data-lesson="4" onclick="open_(4,'Đám Mây Bão Lóc Chóc','content/lop3/bai04/bai-tap.html',this)">
+      <div class="card-content">
+        <div class="card-icon">ẢI 4</div>
+        <div class="card-body">
+          <div class="card-level">MISSION 04</div>
+          <div class="card-title">Đám Mây Bão Lóc Chóc</div>
+        </div>
+        <div class="card-arrow">⚔️</div>
+      </div>
+    </div>
+
+    <div class="cyber-box" data-lesson="5" onclick="open_(5,'Quái Vật Máy Xóa Số','content/lop3/bai05/bai-tap.html',this)">
+      <div class="card-content">
+        <div class="card-icon">ẢI 5</div>
+        <div class="card-body">
+          <div class="card-level">MISSION 05</div>
+          <div class="card-title">Quái Vật Máy Xóa Số</div>
+        </div>
+        <div class="card-arrow">⚔️</div>
+      </div>
+    </div>
+    
+    <div class="zone-title">TRẠM 3: TRÁI ĐẤT & SAO HỎA</div>
+
+    <div class="cyber-box" data-lesson="27" onclick="open_(27,'Chúa Tể Hỗn Loạn','content/lop3/bai27/bai-tap.html',this)">
+      <div class="card-content">
+        <div class="card-icon">ẢI 27</div>
+        <div class="card-body">
+          <div class="card-level">MISSION 27</div>
+          <div class="card-title">Truy Tìm Chúa Tể Hỗn Loạn</div>
+        </div>
+        <div class="card-arrow">⏳</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trang bài tập slide in -->
+<div class="page" id="pg">
+  <div class="page-header">
+    <button class="back-btn" onclick="close_()">‹</button>
+    <div class="page-header-info">
+      <h2 id="pgTitle"></h2>
+      <p id="pgSub"></p>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Đang Tải Dữ Liệu...</p>
+    </div>
+    <iframe id="frame" class="page-iframe" src=""
+      onload="document.getElementById('loading').style.display='none'"></iframe>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
+
+const BASE = (function() {
+  const loc = window.location;
+  const path = loc.pathname.endsWith('/')
+    ? loc.pathname.slice(0, -1)
+    : loc.pathname.replace(/\/[^/]*$/, '');
+  return loc.origin + path;
+})();
+
+function open_(buoi, title, path, el) {
+  document.getElementById('pgTitle').textContent = title;
+  document.getElementById('pgSub').textContent   = `Boss Battle • Mission ${buoi}`;
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('frame').src = `${BASE}/${path}`;
+
+  requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
+
+  if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
+  history.pushState({ lesson: buoi }, '');
+}
+
+function close_() {
+  document.getElementById('pg').classList.remove('active');
+  setTimeout(() => { document.getElementById('frame').src = ''; }, 300);
+  if (tg?.BackButton) tg.BackButton.hide();
+}
+
+window.addEventListener('popstate', () => {
+  if (document.getElementById('pg').classList.contains('active')) close_();
+});
+history.pushState({}, '');
+
+
+// Load player info from Splash Screen
+const savedName = localStorage.getItem('cbToan_name');
+const savedAvatar = localStorage.getItem('cbToan_avatar');
+if (savedName && savedAvatar) {
+  document.getElementById('userBadge').innerHTML = `${savedAvatar} ${savedName}`;
+}
+
+// Load badges
+let badges = [];
+try {
+  badges = JSON.parse(localStorage.getItem('cbToan_badges')) || [];
+} catch(e) {}
+document.getElementById('badgeCount').innerHTML = `🏆 x ${badges.length}`;
+
+document.querySelectorAll('.cyber-box').forEach(card => {
+  const lesson = card.getAttribute('data-lesson');
+  if (badges.includes(parseInt(lesson))) {
+    card.classList.add('passed');
+    card.querySelector('.card-arrow').innerHTML = '🏆';
+    card.querySelector('.card-level').innerHTML = 'ĐÃ VƯỢT QUA';
+  } else {
+    card.querySelector('.card-arrow').innerHTML = '🔓';
+
+  const progressData = localStorage.getItem('cbToan_progress_bai' + lesson);
+  if (progressData && !badges.includes(parseInt(lesson))) {
+    try {
+      const p = JSON.parse(progressData);
+      if (p && p.slide > 1) {
+         card.querySelector('.card-level').innerHTML = `⏳ ĐANG CHƠI (Câu ${p.slide}/${p.total}) - <b>TIẾP TỤC</b>`;
+         card.querySelector('.card-level').style.color = 'var(--primary)';
+         card.style.borderColor = 'var(--primary)';
+         card.style.boxShadow = '0 0 15px rgba(10,224,254,0.3)';
+      }
+    } catch(e){}
+  }
+  
+  }
+});
+
+// Lắng nghe sự kiện reload khi popup tắt
+const _origClose = close_;
+close_ = function() {
+  _origClose();
+  // Reload sau 1s để cập nhật huy hiệu
+  setTimeout(() => location.reload(), 1000);
+}
+</script>
+</body>
+</html>

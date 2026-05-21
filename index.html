@@ -2,349 +2,275 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Bài Tập — VInaStudy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Giới Thiệu — Chiến Binh Toán</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --teal:   #0f766e;
-    --teal2:  #0d9488;
-    --teal3:  #ccfbf1;
-    --teal4:  #5eead4;
-    --amber:  #d97706;
-    --amber2: #fbbf24;
-    --bg:     #f0fdfa;
-    --card:   #ffffff;
-    --text:   #134e4a;
-    --border: #ccfbf1;
-    --shadow: 0 4px 16px rgba(15,118,110,0.10);
-    --radius: 16px;
+    --primary: #0ae0fe;
+    --primary-glow: rgba(10, 224, 254, 0.5);
+    --secondary: #ea0eed;
+    --secondary-glow: rgba(234, 14, 237, 0.5);
+    --bg-base: #050a1f;
+    --text-main: #f8fafc;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   html, body {
     height: 100%; overflow: hidden;
-    font-family: 'Times New Roman', Times, serif;
-    background: var(--bg); color: var(--text);
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-main);
   }
 
-  /* ── App shell ── */
-  .app { display: flex; flex-direction: column; height: 100vh; }
+  /* ── Background Grid ── */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image: 
+      linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
+    z-index: 0;
+    pointer-events: none;
+    animation: slowPan 20s linear infinite;
+  }
+  @keyframes slowPan {
+    from { background-position: 0 0; }
+    to { background-position: 0 400px; }
+  }
 
-  /* ── Header ── */
-  .header {
-    background: linear-gradient(135deg, var(--teal) 0%, var(--teal2) 100%);
-    color: white; padding: 22px 20px 18px;
-    text-align: center; flex-shrink: 0;
+  .app {
+    display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1;
+    background: radial-gradient(circle at center, rgba(14, 23, 58, 0.7), var(--bg-base));
+  }
+
+  /* ── Scenes ── */
+  .scene {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+  }
+  .scene.active { opacity: 1; pointer-events: auto; }
+
+  /* ── Cyber Button Style ── */
+  .cyber-btn {
+    padding: 16px 40px; border: none; border-radius: 8px;
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary); font-family: 'Rajdhani', sans-serif;
+    font-size: 20px; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer;
+    box-shadow: 0 0 15px var(--primary-glow), inset 0 0 15px rgba(10, 224, 254, 0.2);
+    transition: all 0.3s;
+    margin-top: 30px;
+  }
+  .cyber-btn:hover, .cyber-btn:active {
+    background: var(--primary); color: #000;
+    box-shadow: 0 0 30px var(--primary);
+  }
+
+  /* ── Scene 1: Title ── */
+  .title-logo {
+    font-family: 'Rajdhani', sans-serif; font-size: 48px; font-weight: 900;
+    text-align: center; line-height: 1.1; text-transform: uppercase;
+    color: var(--primary); text-shadow: 0 0 20px var(--primary-glow);
+    margin-bottom: 20px;
+  }
+  .title-logo span { color: var(--secondary); text-shadow: 0 0 20px var(--secondary-glow); display: block; font-size: 32px; margin-top: 10px; }
+
+  /* ── Scene 2: Lore ── */
+  .lore-box {
+    max-width: 500px; width: 100%;
+    background: rgba(11, 19, 43, 0.8);
+    border: 1px solid rgba(10, 224, 254, 0.3);
+    padding: 30px 20px; border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
     position: relative; overflow: hidden;
   }
-  .header::before {
-    content: ""; position: absolute; top: -50px; right: -50px;
-    width: 200px; height: 200px;
-    background: rgba(255,255,255,0.06); border-radius: 50%;
+  .lore-box::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+  }
+  .lore-text {
+    font-size: 16px; line-height: 1.8; text-align: justify;
+    color: #cbd5e1; margin-bottom: 15px;
+  }
+  .lore-text strong { color: var(--primary); text-shadow: 0 0 5px var(--primary-glow); }
+  .lore-text .evil { color: var(--secondary); text-shadow: 0 0 5px var(--secondary-glow); font-weight: bold; }
+
+  /* ── Scene 3: Character Selection ── */
+  .char-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 900;
+    color: var(--primary); text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 30px; text-shadow: 0 0 10px var(--primary-glow);
+  }
+
+  .avatar-grid {
+    display: flex; gap: 20px; margin-bottom: 30px;
+    width: 100%; max-width: 400px; justify-content: center;
+  }
+
+  .cyber-box {
+    position: relative;
+    border-radius: 12px;
+    background: transparent !important;
+    cursor: pointer;
+    transition: transform 0.2s;
+    flex: 1; aspect-ratio: 3/4; max-width: 150px;
+  }
+  .cyber-box:active { transform: scale(0.95); }
+
+  .cyber-box::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    padding: 2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
     pointer-events: none;
+    z-index: 10;
   }
-  .header::after {
-    content: ""; position: absolute; bottom: -70px; left: -40px;
-    width: 240px; height: 240px;
-    background: rgba(251,191,36,0.08); border-radius: 50%;
-    pointer-events: none;
+  .cyber-box::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    z-index: -1;
+    background: rgba(11, 19, 43, 0.85);
+    backdrop-filter: blur(8px);
   }
-
-  .header-logo {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px; padding: 5px 14px;
-    font-size: 12px; font-weight: 700; letter-spacing: .4px;
-    margin-bottom: 12px; position: relative; z-index: 1;
-  }
-  .header-logo-icon {
-    width: 20px; height: 20px; border-radius: 5px;
-    background: rgba(255,255,255,0.25);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .header-logo-icon svg { width: 13px; height: 13px; display: block; }
-
-  .header h1 {
-    font-size: clamp(20px, 5vw, 26px); font-weight: 900;
-    line-height: 1.2; margin-bottom: 5px;
-    position: relative; z-index: 1;
-  }
-  .header p { font-size: 13px; opacity: .8; position: relative; z-index: 1; }
-
-  .progress-wrap { max-width: 340px; margin: 16px auto 0; position: relative; z-index: 1; }
-  .progress-info {
-    display: flex; justify-content: space-between;
-    font-size: 12px; font-weight: 700; margin-bottom: 7px; opacity: .9;
-  }
-  .progress-bar { height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--amber2), #fde68a);
-    border-radius: 10px; width: 100%;
+  .cyber-box.selected::before {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 0 15px var(--primary-glow);
   }
 
-  /* ── Scroll ── */
-  .scroll { flex: 1; overflow-y: auto; padding: 16px 14px 32px; -webkit-overflow-scrolling: touch; }
-  .scroll::-webkit-scrollbar { display: none; }
-
-  .label {
-    font-size: 11px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1.4px; color: var(--teal);
-    margin: 0 2px 12px;
-    display: flex; align-items: center; gap: 8px;
+  .avatar-card-inner {
+    width: 100%; height: 100%; padding: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
   }
-  .label::after {
-    content: ""; flex: 1; height: 2px;
-    background: linear-gradient(90deg, var(--border), transparent);
-    border-radius: 2px;
+  .avatar-img { 
+    width: 100%; height: 80%; object-fit: contain; 
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+  }
+  .avatar-name { 
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; 
+    text-transform: uppercase; letter-spacing: 1px; color: #fff; margin-bottom: 5px;
   }
 
-  /* ── Card ── */
-  .card {
-    display: flex; align-items: center; gap: 13px;
-    background: var(--card); border-radius: var(--radius);
-    padding: 14px 16px; margin-bottom: 10px;
-    box-shadow: var(--shadow); border: 1.5px solid var(--border);
-    cursor: pointer; position: relative; overflow: hidden;
-    -webkit-user-select: none; user-select: none;
-    transition: transform .15s cubic-bezier(.4,0,.2,1),
-                box-shadow .15s, border-color .15s;
+  .name-input-wrap {
+    width: 100%; max-width: 260px;
   }
-  .card:active { transform: scale(.97); box-shadow: 0 1px 6px rgba(15,118,110,0.06); }
+  .name-input {
+    width: 100%; background: rgba(10, 224, 254, 0.05);
+    border: 2px solid var(--primary); border-radius: 8px;
+    padding: 14px 16px; font-size: 18px; color: #fff;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; text-align: center;
+    outline: none; transition: all 0.3s;
+    text-transform: uppercase;
+  }
+  .name-input:focus { background: rgba(10, 224, 254, 0.15); box-shadow: 0 0 15px var(--primary-glow); }
+  .name-input::placeholder { color: rgba(255,255,255,0.3); text-transform: none; }
 
-  .ripple {
-    position: absolute; border-radius: 50%;
-    background: rgba(15,118,110,0.12);
-    transform: scale(0); animation: ripple .45s ease-out;
-    pointer-events: none;
-  }
-  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
-
-  .card-left {
-    flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 900; color: white;
-    background: linear-gradient(135deg, var(--teal), var(--teal2));
-  }
-  .card-body { flex: 1; min-width: 0; }
-  .card-buoi {
-    font-size: 11px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: .9px; color: var(--teal); margin-bottom: 3px;
-  }
-  .card-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
-  .card-arrow {
-    flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
-    background: var(--bg); border: 1.5px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--teal); font-size: 18px; font-weight: 300;
-  }
-
-  /* ── Page overlay ── */
-  .page {
-    position: fixed; inset: 0; background: var(--bg);
-    transform: translateX(100%);
-    transition: transform .28s cubic-bezier(.4,0,.2,1);
-    z-index: 10; display: flex; flex-direction: column;
-  }
-  .page.active { transform: translateX(0); }
-
-  .page-header {
-    background: linear-gradient(135deg, var(--teal), var(--teal2));
-    color: white; padding: 12px 14px;
-    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-  }
-  .back-btn {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: rgba(255,255,255,0.18); border: none;
-    color: white; font-size: 22px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background .15s; flex-shrink: 0;
-  }
-  .back-btn:active { background: rgba(255,255,255,0.3); }
-  .page-header-info h2 { font-size: 15px; font-weight: 800; line-height: 1.3; }
-  .page-header-info p  { font-size: 11px; opacity: .75; }
-
-  .page-body { flex: 1; position: relative; overflow: hidden; }
-  .page-iframe { width: 100%; height: 100%; border: none; display: block; }
-
-  /* ── Loading ── */
-  .loading {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 12px; background: var(--bg); z-index: 2;
-  }
-  .spinner {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 3px solid var(--border); border-top-color: var(--teal);
-    animation: spin .7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading p { font-size: 13px; color: var(--teal); font-weight: 600; }
-
-  /* ── Footer ── */
-  .footer {
-    padding: 14px 14px 20px; font-size: 11px;
-    color: var(--teal); font-weight: 600;
-    line-height: 2; text-align: center;
-  }
-  .footer a { color: var(--amber); font-weight: 700; text-decoration: none; }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <div class="header">
-    <div class="header-logo">
-      <div class="header-logo-icon">
-        <svg viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1.5 3h10M1.5 6.5h7M1.5 10h5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
+  <div class="grid-bg"></div>
+
+  <!-- Scene 1: Title -->
+  <div class="scene active" id="scene1">
+    <div class="title-logo">CHIẾN BINH<br>TOÁN <span>Hệ Mặt Trời Trí Tuệ</span></div>
+    <button class="cyber-btn" onclick="goToScene(2)">BẮT ĐẦU</button>
+  </div>
+
+  <!-- Scene 2: Lore -->
+  <div class="scene" id="scene2">
+    <div class="lore-box">
+      <div class="lore-text">Ở trung tâm Ngân Hà, <strong>Mặt Trời Trí Tuệ</strong> rực rỡ tỏa ra những Tia Sáng Sáng Tạo giúp các hành tinh luôn yên bình.</div>
+      <div class="lore-text">Thế nhưng, <span class="evil">Chúa Tể Hỗn Loạn</span> đã tạo ra Cơn Mưa Đen Tối, đánh cắp năng lượng và thả vô số Quái Vật Ổ Khóa khắp Hệ Mặt Trời.</div>
+      <div class="lore-text">Mặt Trời Trí Tuệ phát tín hiệu cầu cứu cuối cùng: <em>"Hỡi các bạn nhỏ Trái Đất, hãy hóa thân thành Chiến Binh Toán, thắp sáng lại vũ trụ!"</em></div>
+    </div>
+    <button class="cyber-btn" onclick="goToScene(3)">TIẾP TỤC</button>
+  </div>
+
+  <!-- Scene 3: Character Select -->
+  <div class="scene" id="scene3">
+    <div class="char-title">LỰA CHỌN CHIẾN BINH</div>
+    
+    <div class="avatar-grid">
+      <div class="cyber-box selected" onclick="selectAvatar('boy', this)">
+        <div class="avatar-card-inner">
+          <img src="assets/boy_avatar.png" class="avatar-img" alt="Chiến Binh Xanh">
+          <div class="avatar-name" style="color:var(--primary)">NAM</div>
+        </div>
       </div>
-      VInaStudy — Toán Lớp 3 HSG
-    </div>
-    <h1>📝 Chọn Bài Tập</h1>
-    <p>Thầy Nguyễn Thành Long • 8 buổi học</p>
-    <div class="progress-wrap">
-      <div class="progress-info">
-        <span>8 buổi học</span>
-        <span>100%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill"></div>
+      <div class="cyber-box" onclick="selectAvatar('girl', this)">
+        <div class="avatar-card-inner">
+          <img src="assets/girl_avatar.png" class="avatar-img" alt="Chiến Binh Tím">
+          <div class="avatar-name" style="color:var(--secondary)">NỮ</div>
+        </div>
       </div>
     </div>
+
+    <div class="name-input-wrap">
+      <input type="text" id="playerName" class="name-input" placeholder="Nhập tên chiến binh..." maxlength="12">
+    </div>
+
+    <button class="cyber-btn" id="startBtn" onclick="startGame()">KHỞI HÀNH</button>
   </div>
 
-  <div class="scroll">
-    <div class="label" style="margin-top:4px">Chọn buổi để làm bài</div>
-
-    <div class="card" onclick="open_(2,'Bài Toán Cấu Tạo Số','content/lop3/bai02/bai-tap.html',this)">
-      <div class="card-left">B2</div>
-      <div class="card-body"><div class="card-buoi">Buổi 2</div><div class="card-title">Bài Toán Cấu Tạo Số</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="card" onclick="open_(3,'Viết Số Tự Nhiên Thỏa Mãn Điều Kiện','content/lop3/bai03/bai-tap.html',this)">
-      <div class="card-left">B3</div>
-      <div class="card-body"><div class="card-buoi">Buổi 3</div><div class="card-title">Viết Số Tự Nhiên Thỏa Mãn Điều Kiện</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="card" onclick="open_(4,'Dãy Số Cách Đều','content/lop3/bai04/bai-tap.html',this)">
-      <div class="card-left">B4</div>
-      <div class="card-body"><div class="card-buoi">Buổi 4</div><div class="card-title">Dãy Số Cách Đều</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="card" onclick="open_(5,'Biểu Thức Số','content/lop3/bai05/bai-tap.html',this)">
-      <div class="card-left">B5</div>
-      <div class="card-body"><div class="card-buoi">Buổi 5</div><div class="card-title">Biểu Thức Số</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="card" onclick="open_(6,'Tính Tổng Dãy Số Ghép Cặp','content/lop3/bai06/bai-tap.html',this)">
-      <div class="card-left">B6</div>
-      <div class="card-body"><div class="card-buoi">Buổi 6</div><div class="card-title">Tính Tổng Dãy Số Ghép Cặp</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="card" onclick="open_(7,'Tính Tổng Dãy Số Ghép Cặp (Tiếp)','content/lop3/bai07/bai-tap.html',this)">
-      <div class="card-left">B7</div>
-      <div class="card-body"><div class="card-buoi">Buổi 7</div><div class="card-title">Tính Tổng Dãy Số Ghép Cặp (Tiếp)</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="card" onclick="open_(8,'Ôn Tập Dãy Số + Dãy Hình Quy Luật','content/lop3/bai08/bai-tap.html',this)">
-      <div class="card-left">B8</div>
-      <div class="card-body"><div class="card-buoi">Buổi 8</div><div class="card-title">Ôn Tập Dãy Số + Dãy Hình Quy Luật</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="card" onclick="open_(27,'Các Bài Toán Về Thời Gian','content/lop3/bai27/bai-tap.html',this)">
-      <div class="card-left" style="font-size:10px">B27</div>
-      <div class="card-body"><div class="card-buoi">Buổi 27</div><div class="card-title">Các Bài Toán Về Thời Gian</div></div>
-      <div class="card-arrow">›</div>
-    </div>
-
-    <div class="footer">
-      <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
-      <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
-      <div><a href="https://www.vinastudy.vn">www.vinastudy.vn</a> – 0932.39.39.56 – 0832.64.64.64</div>
-    </div>
-  </div>
-</div>
-
-<!-- Trang bài tập slide in -->
-<div class="page" id="pg">
-  <div class="page-header">
-    <button class="back-btn" onclick="close_()">‹</button>
-    <div class="page-header-info">
-      <h2 id="pgTitle"></h2>
-      <p id="pgSub"></p>
-    </div>
-  </div>
-  <div class="page-body">
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p>Đang tải bài tập...</p>
-    </div>
-    <iframe id="frame" class="page-iframe" src=""
-      onload="document.getElementById('loading').style.display='none'"></iframe>
-  </div>
 </div>
 
 <script>
 const tg = window.Telegram?.WebApp;
-if (tg) { tg.ready(); tg.expand(); }
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
 
-// Fix: tính BASE chính xác cho cả GitHub Pages dạng /repo/ lẫn root /
-const BASE = (function() {
-  const loc = window.location;
-  const path = loc.pathname.endsWith('/')
-    ? loc.pathname.slice(0, -1)
-    : loc.pathname.replace(/\/[^/]*$/, '');
-  return loc.origin + path;
-})();
+let currentAvatar = 'boy';
 
-function open_(buoi, title, path, el) {
-  // Ripple effect
-  const r = document.createElement('span');
-  r.className = 'ripple';
-  const rect = el.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  r.style.cssText = `width:${size}px;height:${size}px;left:${(rect.width - size) / 2}px;top:${(rect.height - size) / 2}px`;
-  el.appendChild(r);
-  setTimeout(() => r.remove(), 450);
-
-  // Load iframe
-  document.getElementById('pgTitle').textContent = title;
-  document.getElementById('pgSub').textContent   = `Buổi ${buoi} • VInaStudy`;
-  document.getElementById('loading').style.display = 'flex';
-  document.getElementById('frame').src = `${BASE}/${path}`;
-
-  // Slide in
-  requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
-
-  // Telegram back button
-  if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
-
-  // Push history cho Android back
-  history.pushState({ lesson: buoi }, '');
+function goToScene(sceneNum) {
+  document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+  document.getElementById('scene' + sceneNum).classList.add('active');
 }
 
-function close_() {
-  document.getElementById('pg').classList.remove('active');
-  setTimeout(() => { document.getElementById('frame').src = ''; }, 300);
-  if (tg?.BackButton) tg.BackButton.hide();
+function selectAvatar(type, element) {
+  currentAvatar = type;
+  document.querySelectorAll('.cyber-box').forEach(el => el.classList.remove('selected'));
+  element.classList.add('selected');
 }
 
-window.addEventListener('popstate', () => {
-  if (document.getElementById('pg').classList.contains('active')) close_();
+function startGame() {
+  const nameInput = document.getElementById('playerName').value.trim();
+  if (nameInput === '') {
+    alert("Vui lòng nhập tên chiến binh!");
+    return;
+  }
+  
+  // Lưu vào localStorage
+  localStorage.setItem('cbToan_name', nameInput);
+  
+  // Lưu icon tương ứng để hiển thị bên map
+  const avatarEmoji = (currentAvatar === 'boy') ? '👨‍🚀' : '👩‍🚀';
+  localStorage.setItem('cbToan_avatar', avatarEmoji);
+
+  // Chuyển hướng sang Bản Đồ Chiến Dịch
+  window.location.href = 'map.html';
+}
+
+document.getElementById('scene3').addEventListener('transitionend', function(e) {
+  if(e.propertyName === 'opacity' && this.classList.contains('active')){
+    document.getElementById('playerName').focus();
+  }
 });
-history.pushState({}, '');
 </script>
 </body>
 </html>

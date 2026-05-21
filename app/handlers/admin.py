@@ -6,6 +6,7 @@ from telegram.ext import ContextTypes
 
 import app.database.crud as crud
 from app.config import BUOI_CONFIG, ADMIN_ID, TELEGRAM_TOKEN
+from app.services.ai_claude import phan_tich_hoc_sinh
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ ADMIN_MENU = ReplyKeyboardMarkup([
     [KeyboardButton("📤 Gửi tài liệu buổi học"), KeyboardButton("📊 Thống kê lớp")],
     [KeyboardButton("⚠️ Nhắc học sinh nộp bài"), KeyboardButton("👥 Danh sách học sinh")],
     [KeyboardButton("➕ Thêm học sinh"),          KeyboardButton("📋 Báo cáo phụ huynh")],
+    [KeyboardButton("📢 Truy nã buổi"),           KeyboardButton("🔮 Phân tích học sinh")],
 ], resize_keyboard=True)
 
 admin_state = {"mode": "menu", "buoi_dang_gui": None}
@@ -135,6 +137,38 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         admin_state["mode"] = "menu"
         return
 
+    if text == "📢 Truy nã buổi":
+        admin_state["mode"] = "truyna_chon_buoi"
+        buoi_list = "\n".join([f"  {k}. Buổi {k} — {v['ten']}" for k, v in sorted(BUOI_CONFIG.items())])
+        await update.message.reply_text(
+            f"📢 *Lệnh Truy Nã Quái Vật*\n\nGửi thông báo chiến dịch buổi nào?\n\n{buoi_list}\n\nNhập số buổi:",
+            parse_mode="Markdown",
+        )
+        return
+
+    if admin_state["mode"] == "truyna_chon_buoi" and text.isdigit():
+        so_buoi = int(text)
+        if so_buoi not in BUOI_CONFIG:
+            await update.message.reply_text("Buổi không tồn tại, nhập lại:")
+            return
+        await _gui_truyna(update, so_buoi)
+        admin_state["mode"] = "menu"
+        return
+
+    if text == "🔮 Phân tích học sinh":
+        admin_state["mode"] = "phantich_tim"
+        await update.message.reply_text(
+            "🔮 *Phân tích năng lực học sinh*\n\nNhập tên hoặc Telegram ID của học sinh:",
+            parse_mode="Markdown",
+        )
+        return
+
+    if admin_state["mode"] == "phantich_tim":
+        await update.message.chat.send_action("typing")
+        await _xu_ly_phantich(update, text)
+        admin_state["mode"] = "menu"
+        return
+
     if text == "📋 Báo cáo phụ huynh":
         students = await crud.get_all_students()
         hs_bot = Bot(token=TELEGRAM_TOKEN)
@@ -211,6 +245,113 @@ async def broadcast_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     admin_state["mode"] = "menu"
     admin_state["buoi_dang_gui"] = None
     await update.message.reply_text(f"✅ Đã gửi tài liệu Buổi {buoi} cho {ok}/{len(students)} học sinh", reply_markup=ADMIN_MENU)
+
+async def _gui_truyna(update: Update, so_buoi: int):
+    students = await crud.get_all_students()
+    hs_bot = Bot(token=TELEGRAM_TOKEN)
+    ok = 0
+    ten = BUOI_CONFIG.get(so_buoi, {}).get("ten", f"Ải {so_buoi}")
+    video = BUOI_CONFIG.get(so_buoi, {}).get("video", "")
+
+    for hs in students:
+        try:
+            await hs_bot.send_message(
+                chat_id=hs["telegram_id"],
+                text=(
+                    f"⚠️ *Lệnh Truy Nã Quái Vật!*\n\n"
+                    f"Chiến binh *{hs['ho_ten']}* chú ý!\n"
+                    f"Quái vật *{ten}* đã xuất hiện tại Ải {so_buoi}.\n\n"
+                    f"{'📹 Video: ' + video + chr(10) if video else ''}"
+                    f"🛡 Mở *Bản đồ Chiến Dịch* để tiêu diệt ngay!"
+                ),
+                parse_mode="Markdown",
+            )
+            ok += 1
+            await asyncio.sleep(0.1)
+        except Exception as e:
+            logger.error(f"Truyna {hs['ho_ten']}: {e}")
+
+    await update.message.reply_text(
+        f"✅ Đã phát lệnh truy nã Ải {so_buoi} tới {ok}/{len(students)} chiến binh.",
+        reply_markup=ADMIN_MENU,
+    )
+
+
+async def _xu_ly_phantich(update: Update, query: str):
+    uid = None
+    summary = None
+
+    if query.isdigit():
+        uid = int(query)
+        summary = await crud.get_student_results_summary(uid)
+
+    if not summary:
+        found = await crud.search_student_by_name(query)
+        if not found:
+            await update.message.reply_text(f"❌ Không tìm thấy học sinh: '{query}'", reply_markup=ADMIN_MENU)
+            return
+        if len(found) > 1:
+            names = "\n".join([f"  • {s['ho_ten']} (ID: `{s['telegram_id']}`)" for s in found])
+            await update.message.reply_text(
+                f"🔍 Tìm thấy {len(found)} học sinh:\n{names}\n\nNhập chính xác tên hoặc dùng ID.",
+                parse_mode="Markdown", reply_markup=ADMIN_MENU,
+            )
+            return
+        uid = found[0]["telegram_id"]
+        summary = await crud.get_student_results_summary(uid)
+
+    if not summary:
+        await update.message.reply_text("Học sinh chưa có dữ liệu bài tập.", reply_markup=ADMIN_MENU)
+        return
+
+    ho_ten = summary["ho_ten"]
+    results = summary["results"]
+    tong_bai = len(results)
+    diem_tb = round(sum(r["phan_tram"] for r in results) / tong_bai) if results else 0
+
+    header = (
+        f"🔮 *Phân Tích Năng Lực — {ho_ten}*\n\n"
+        f"📚 Tổng bài đã làm: *{tong_bai}*\n"
+        f"📈 Điểm TB: *{diem_tb}%*\n"
+    )
+
+    if uid:
+        grit = await crud.get_student_checkpoint_stats(uid)
+        if grit and grit.get("avg_time", 0) > 0:
+            header += (
+                f"\n⏱ Tốc độ TB: *{grit['avg_time']}s/câu*\n"
+                f"💪 Kiên trì: *{grit['avg_attempts']}* lần thử/câu (max: {grit['max_attempts']})\n"
+            )
+
+    await update.message.reply_text(header, parse_mode="Markdown")
+    ai_msg = await phan_tich_hoc_sinh(ho_ten, results)
+    await update.message.reply_text(f"🤖 *Đánh giá AI:*\n\n{ai_msg}", parse_mode="Markdown", reply_markup=ADMIN_MENU)
+
+
+async def truyna_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id): return
+    args = context.args
+    if not args:
+        await update.message.reply_text("Nhập số ải. VD: `/truyna 2`", parse_mode="Markdown")
+        return
+    try:
+        so_buoi = int(args[0])
+    except Exception:
+        await update.message.reply_text("Số ải không hợp lệ.")
+        return
+    await _gui_truyna(update, so_buoi)
+
+async def nangluc_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id): return
+    args = context.args
+    if not args:
+        await update.message.reply_text(
+            "Nhập tên hoặc Telegram ID học sinh.\nVD: `/nangluc 123456789` hoặc `/nangluc Nguyễn Văn An`",
+            parse_mode="Markdown",
+        )
+        return
+    await update.message.chat.send_action("typing")
+    await _xu_ly_phantich(update, " ".join(args))
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Error: {context.error}", exc_info=context.error)

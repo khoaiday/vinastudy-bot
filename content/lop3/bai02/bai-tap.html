@@ -3,486 +3,863 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bài 2 — Bài Toán Cấu Tạo Số</title>
+<title>Toán Lớp 3 - Bài Tập Đấu Quái</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --teal:   #0f766e;
-    --teal2:  #14b8a6;
-    --teal3:  #99f6e4;
-    --amber:  #d97706;
-    --amber2: #fbbf24;
-    --bg:     #f0fdfa;
-    --card:   #ffffff;
-    --text:   #134e4a;
-    --muted:  #5eead4;
-    --border: #ccfbf1;
-    --green:  #10b981;
-    --red:    #ef4444;
-    --radius: 20px;
-    --shadow: 0 8px 32px rgba(15,118,110,0.12);
+    --primary: #0ae0fe;
+    --primary-glow: rgba(10, 224, 254, 0.5);
+    --secondary: #ea0eed;
+    --secondary-glow: rgba(234, 14, 237, 0.5);
+    --success: #4eff9f;
+    --danger: #ff0055;
+    --bg-base: #050a1f;
+    --bg-card: rgba(11, 19, 43, 0.85);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: rgba(10, 224, 254, 0.4);
+    --radius: 0px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Times New Roman', Times, serif;
-    background: var(--bg);
-    color: var(--text);
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-main);
     min-height: 100vh;
-    background-image:
-      radial-gradient(circle at 15% 15%, rgba(20,184,166,0.15) 0%, transparent 50%),
-      radial-gradient(circle at 85% 85%, rgba(217,119,6,0.10) 0%, transparent 50%);
+    background-image: 
+      linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
   }
 
-  /* ── Header ── */
-  .header {
-    background: linear-gradient(135deg, var(--teal) 0%, #0d9488 100%);
-    color: white;
-    padding: 28px 20px 24px;
-    text-align: center;
-    position: relative;
+  /* ── Battle Arena ── */
+  .battle-arena {
+    background: radial-gradient(circle at center, #0e173a, #050a1f);
+    padding: 30px 20px 20px;
+    border-bottom: 2px solid var(--primary);
+    box-shadow: 0 5px 30px rgba(10,224,254,0.2);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  
+  .arena-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
     overflow: hidden;
+    pointer-events: none;
+    perspective: 800px;
   }
-  .header::before {
-    content: "";
-    position: absolute; top: -50px; right: -50px;
-    width: 200px; height: 200px;
-    background: rgba(255,255,255,0.06); border-radius: 50%;
+  
+  /* Sàn lưới Grid 3D */
+  .arena-grid-wrapper {
+    position: absolute;
+    bottom: 0; left: -50%; width: 200%; height: 200%;
+    transform: rotateX(75deg);
+    transform-origin: center bottom;
+    -webkit-mask-image: linear-gradient(transparent 50%, black 100%);
   }
-  .header::after {
-    content: "";
-    position: absolute; bottom: -70px; left: -40px;
-    width: 240px; height: 240px;
-    background: rgba(251,191,36,0.08); border-radius: 50%;
+  .arena-grid {
+    position: absolute;
+    inset: 0;
+    /* Dùng SVG thay cho CSS Gradient để khử Moiré triệt để, nét dày 3px */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0 L0 0 0 60' fill='none' stroke='%230ae0fe' stroke-width='3' stroke-opacity='0.3'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+    animation: gridMove 2s linear infinite;
   }
-  .header-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px; padding: 4px 14px;
-    font-size: 12px; font-weight: 700;
-    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px;
+  @keyframes gridMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 60px; }
   }
-  .header h1 {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: clamp(22px, 5vw, 30px);
-    font-weight: 900; line-height: 1.2; margin-bottom: 8px;
-  }
-  .header p { font-size: 14px; opacity: 0.8; margin-bottom: 20px; }
 
-  /* ── Progress ── */
-  .progress-wrap { max-width: 500px; margin: 0 auto; }
-  .progress-info {
-    display: flex; justify-content: space-between;
-    font-size: 13px; font-weight: 700; margin-bottom: 8px; opacity: 0.9;
+  /* Ký hiệu lơ lửng */
+  .math-particles {
+    position: absolute; inset: 0;
+    perspective: 600px;
   }
-  .progress-bar { height: 10px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--amber2), #fde68a);
-    border-radius: 10px; transition: width 0.5s cubic-bezier(.4,0,.2,1); width: 0%;
+  .math-particles span {
+    position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    left: var(--startX); top: var(--startY);
+    opacity: 0; animation: flyForward linear infinite;
+  }
+  @keyframes flyForward {
+    0% { transform: translateZ(-600px) scale(0.5); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translateZ(300px) scale(1.5); opacity: 0; }
+  }
+  .p1 { --startX: 10%; --startY: 20%; color: var(--primary); font-size: 30px; animation-duration: 4s; animation-delay: 0s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p2 { --startX: 80%; --startY: 10%; color: var(--amber, #fbbf24); font-size: 40px; animation-duration: 5s; animation-delay: 1s; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
+  .p3 { --startX: 20%; --startY: 60%; color: var(--primary); font-size: 35px; animation-duration: 6s; animation-delay: 2s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p4 { --startX: 70%; --startY: 50%; color: var(--secondary); font-size: 28px; animation-duration: 4.5s; animation-delay: 0.5s; text-shadow: 0 0 10px var(--secondary-glow); }
+  .p5 { --startX: 40%; --startY: 30%; color: #4eff9f; font-size: 32px; animation-duration: 5.5s; animation-delay: 1.5s; text-shadow: 0 0 10px rgba(78,255,159,0.5); }
+  .p6 { --startX: 60%; --startY: 20%; color: var(--primary); font-size: 25px; animation-duration: 4.2s; animation-delay: 2.5s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p7 { --startX: 90%; --startY: 60%; color: var(--secondary); font-size: 45px; animation-duration: 6.5s; animation-delay: 3s; text-shadow: 0 0 10px var(--secondary-glow); }
+  .p8 { --startX: 15%; --startY: 40%; color: #fbbf24; font-size: 26px; animation-duration: 5s; animation-delay: 3.5s; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
+  .p9 { --startX: 50%; --startY: 70%; color: var(--primary); font-size: 38px; animation-duration: 4.8s; animation-delay: 4s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p10 { --startX: 30%; --startY: 10%; color: var(--secondary); font-size: 30px; animation-duration: 5.2s; animation-delay: 0.8s; text-shadow: 0 0 10px var(--secondary-glow); }
+
+  .battle-title {
+    font-size: 24px; font-weight: 900; color: var(--primary);
+    text-transform: uppercase; margin-bottom: 24px;
+    text-shadow: 0 0 15px var(--primary-glow); z-index: 2;
+    letter-spacing: 3px;
+  }
+  
+  .combat-zone {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    width: 100%; max-width: 500px; position: relative; z-index: 2;
+    padding: 0 20px;
+  }
+  
+  .fighter { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 110px; }
+  
+  .avatar {
+    font-size: 64px; line-height: 1;
+    filter: drop-shadow(0 0 15px var(--primary-glow));
+    animation: idle 2s ease-in-out infinite;
+    position: relative;
+    background: rgba(10,224,254,0.1);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  
+  .player .avatar { 
+    animation-delay: 0s; transform-origin: bottom center; 
+    border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow);
+  }
+  .boss .avatar { 
+    animation-delay: 1s; transform-origin: bottom center; 
+    border-color: var(--secondary); box-shadow: 0 0 15px var(--secondary-glow);
+    background: rgba(234,14,237,0.1);
+    filter: drop-shadow(0 0 15px var(--secondary-glow));
+  }
+  
+  .hp-bar-container {
+    width: 100%; background: rgba(0,0,0,0.6);
+    border: 2px solid var(--border); border-radius: 4px; height: 16px;
+    overflow: hidden; position: relative;
+    box-shadow: inset 0 0 5px #000;
+  }
+  .hp-bar-fill { height: 100%; width: 100%; transition: width 0.3s ease; }
+  .player .hp-bar-fill { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+  .boss .hp-bar-fill { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); }
+  
+  .fighter-name { font-size: 16px; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase;}
+  
+  /* Projectiles */
+  .projectile {
+    position: absolute; font-size: 38px;
+    top: 50%; transform: translateY(-50%);
+    z-index: 3; pointer-events: none;
+    filter: drop-shadow(0 0 20px currentColor);
+  }
+  
+  /* Animations */
+  @keyframes idle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05) translateY(-2px); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); filter: brightness(1); }
+    20% { transform: translateX(-10px); filter: brightness(1.5) saturate(3); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-10px); }
+    80% { transform: translateX(10px); }
+  }
+  @keyframes castMagic {
+    0% { transform: scale(1) translateX(0); }
+    50% { transform: scale(1.1) translateX(20px) rotate(5deg); }
+    100% { transform: scale(1) translateX(0); }
+  }
+  @keyframes castBossMagic {
+    0% { transform: scale(1) translateX(0); }
+    50% { transform: scale(1.1) translateX(-20px) rotate(-5deg); }
+    100% { transform: scale(1) translateX(0); }
+  }
+  @keyframes flyRight {
+    0% { left: 80px; opacity: 1; transform: translateY(-50%) scale(0.5); }
+    100% { left: calc(100% - 100px); opacity: 0; transform: translateY(-50%) scale(2); }
+  }
+  @keyframes flyLeft {
+    0% { right: 80px; opacity: 1; transform: translateY(-50%) scale(0.5); }
+    100% { right: calc(100% - 100px); opacity: 0; transform: translateY(-50%) scale(2); }
   }
 
   /* ── Score bar ── */
   .score-bar {
     display: flex; justify-content: center; gap: 20px;
-    padding: 14px 20px; background: white;
+    padding: 14px 20px; background: rgba(5,10,31,0.9);
     border-bottom: 1px solid var(--border);
     position: sticky; top: 0; z-index: 50;
-    box-shadow: 0 2px 12px rgba(15,118,110,0.08);
+    backdrop-filter: blur(5px);
   }
-  .score-item { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; }
-  .score-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .score-item { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; letter-spacing: 1px; }
+  .score-dot { width: 12px; height: 12px; border-radius: 2px; }
 
   /* ── Main ── */
   .main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
 
   /* ── Method box ── */
   .method-box {
-    background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
-    border: 2px solid var(--teal2);
-    border-radius: 16px; padding: 16px 18px; margin-bottom: 24px;
-    font-size: 13px; line-height: 1.7; color: var(--teal);
+    background: transparent !important;
+    padding: 18px 20px; margin-bottom: 28px;
+    font-size: 18px; line-height: 1.7; color: var(--text-main);
+    box-shadow: inset 0 0 20px rgba(10,224,254,0.1);
   }
-  .method-box strong { font-weight: 800; color: var(--teal); }
+  .method-box strong { font-weight: 900; color: var(--primary); }
   .method-box code {
-    background: white; padding: 1px 6px; border-radius: 6px;
-    font-family: monospace; font-size: 13px; color: var(--amber);
-    font-weight: 700;
+    background: rgba(10,224,254,0.1); padding: 2px 8px; border-radius: 4px;
+    font-family: 'Rajdhani', monospace; font-size: 18px; color: var(--primary);
+    font-weight: 700; border: 1px solid var(--primary);
   }
 
   /* ── Section title ── */
   .section-title {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 13px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--teal); margin: 32px 0 14px;
-    display: flex; align-items: center; gap: 8px;
+    font-size: 20px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--primary); margin: 36px 0 18px;
+    display: flex; align-items: center; gap: 12px;
+    text-shadow: 0 0 10px var(--primary-glow);
   }
   .section-title::after {
     content: ""; flex: 1; height: 2px;
-    background: linear-gradient(90deg, var(--border), transparent);
-    border-radius: 2px;
+    background: linear-gradient(90deg, var(--primary), transparent);
   }
 
   /* ── Question card ── */
   .q-card {
-    background: var(--card); border-radius: var(--radius);
-    padding: 22px 22px 18px; margin-bottom: 14px;
-    box-shadow: var(--shadow); border: 1.5px solid var(--border);
-    transition: border-color 0.3s, box-shadow 0.3s;
+    background: transparent !important;
+    padding: 24px 24px 20px; margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transition: all 0.3s;
     animation: fadeUp 0.4s ease both;
   }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .q-card.correct { border-color: var(--green); background: #f0fdf9; }
-  .q-card.wrong   { border-color: var(--red);   background: #fff5f5; }
+  .q-card.correct { border-color: var(--success); box-shadow: 0 0 15px rgba(78,255,159,0.2); }
+  .q-card.wrong   { border-color: var(--danger); box-shadow: 0 0 15px rgba(255,0,85,0.2); }
 
   .q-num {
-    font-size: 11px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--teal); margin-bottom: 8px;
-    display: flex; align-items: center; gap: 6px;
+    font-size: 16px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--primary); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
   }
   .q-num-badge {
-    background: var(--teal); color: white;
-    border-radius: 8px; padding: 2px 8px; font-size: 11px;
+    background: var(--primary); color: #000;
+    border-radius: 4px; padding: 2px 12px; font-size: 14px;
+    box-shadow: 0 0 10px var(--primary-glow);
   }
   .q-text {
-    font-size: 15px; font-weight: 600; line-height: 1.65;
-    margin-bottom: 14px; color: var(--text);
+    font-size: 19px; font-weight: 600; line-height: 1.6;
+    margin-bottom: 20px; color: var(--text-main);
   }
-  .q-text strong { color: var(--teal); }
+  .q-text strong { color: var(--primary); }
 
   /* ── Inputs ── */
   .ans-input {
-    border: 2px solid var(--border); border-radius: 12px;
-    padding: 9px 14px; font-size: 15px;
-    font-family: 'Times New Roman', Times, serif; font-weight: 700;
-    outline: none; transition: border 0.2s, box-shadow 0.2s;
-    background: white; color: var(--text); min-width: 120px;
+    border: 2px solid var(--primary); border-radius: 4px;
+    padding: 10px 16px; font-size: 18px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    outline: none; transition: all 0.2s;
+    background: rgba(10,224,254,0.05); color: var(--primary); min-width: 120px;
+    text-shadow: 0 0 5px var(--primary-glow);
+    user-select: auto !important; -webkit-user-select: auto !important;
+    pointer-events: auto !important;
   }
-  .ans-input:focus { border-color: var(--teal2); box-shadow: 0 0 0 3px rgba(20,184,166,0.15); }
-  .ans-input.correct-input { border-color: var(--green); background: #f0fdf9; }
-  .ans-input.wrong-input   { border-color: var(--red);   background: #fff5f5; }
+  .ans-input:focus { background: rgba(10,224,254,0.15); box-shadow: 0 0 15px var(--primary-glow); }
+  .ans-input.correct-input { border-color: var(--success); color: var(--success); background: rgba(78,255,159,0.1); text-shadow: 0 0 5px var(--success); }
+  .ans-input.wrong-input   { border-color: var(--danger); color: var(--danger); background: rgba(255,0,85,0.1); text-shadow: 0 0 5px var(--danger); }
 
-  .choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .choices { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
   .choice-btn {
-    padding: 9px 18px; border: 2px solid var(--border);
-    border-radius: 12px; background: white;
-    font-family: 'Times New Roman', Times, serif; font-size: 14px; font-weight: 700;
-    cursor: pointer; transition: all 0.2s; color: var(--text);
+    padding: 10px 20px; border: 2px solid var(--border);
+    border-radius: 4px; background: rgba(10,224,254,0.05);
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; color: var(--text-main);
+    text-transform: uppercase; letter-spacing: 1px;
   }
-  .choice-btn:hover:not(:disabled) { border-color: var(--teal2); background: #f0fdfa; color: var(--teal); }
-  .choice-btn.selected { border-color: var(--teal2); background: #f0fdfa; color: var(--teal); }
-  .choice-btn.correct  { border-color: var(--green); background: #f0fdf9; color: var(--green); }
-  .choice-btn.wrong    { border-color: var(--red);   background: #fff5f5; color: var(--red); }
+  .choice-btn:hover:not(:disabled) { border-color: var(--primary); background: rgba(10,224,254,0.2); box-shadow: 0 0 15px var(--primary-glow); }
+  .choice-btn.selected { border-color: var(--primary); background: rgba(10,224,254,0.2); color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+  .choice-btn.correct  { border-color: var(--success); background: rgba(78,255,159,0.2); color: var(--success); box-shadow: 0 0 15px rgba(78,255,159,0.4); }
+  .choice-btn.wrong    { border-color: var(--danger); background: rgba(255,0,85,0.2); color: var(--danger); box-shadow: 0 0 15px rgba(255,0,85,0.4); }
 
   /* ── Feedback ── */
   .feedback {
-    margin-top: 12px; padding: 10px 14px; border-radius: 12px;
-    font-size: 14px; font-weight: 600; display: none;
-    animation: fadeUp 0.3s ease;
+    margin-top: 16px; padding: 14px 18px; border-radius: 4px;
+    font-size: 18px; font-weight: 700; display: none;
+    animation: fadeUp 0.3s ease; border-left: 4px solid;
   }
-  .feedback.show { display: flex; align-items: flex-start; gap: 8px; }
-  .feedback.correct-fb { background: #dcfce7; color: #166534; }
-  .feedback.wrong-fb   { background: #fee2e2; color: #991b1b; }
+  .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
+  .feedback.correct-fb { background: rgba(78,255,159,0.1); color: var(--success); border-color: var(--success); text-shadow: 0 0 5px rgba(78,255,159,0.5); }
+  .feedback.wrong-fb   { background: rgba(255,0,85,0.1); color: var(--danger); border-color: var(--danger); text-shadow: 0 0 5px rgba(255,0,85,0.5); }
 
   /* ── Check button ── */
   .check-btn {
-    margin-top: 14px; padding: 10px 22px;
-    background: var(--teal); color: white; border: none;
-    border-radius: 12px; font-family: 'Times New Roman', Times, serif;
-    font-size: 14px; font-weight: 800; cursor: pointer;
-    transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+    margin-top: 20px; padding: 12px 28px;
+    background: rgba(10,224,254,0.1); color: var(--primary); 
+    border: 2px solid var(--primary);
+    border-radius: 4px; font-family: 'Rajdhani', sans-serif;
+    font-size: 16px; font-weight: 900; cursor: pointer;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    text-transform: uppercase; letter-spacing: 2px;
   }
-  .check-btn:hover:not(:disabled) { background: var(--teal2); transform: translateY(-1px); }
-  .check-btn:disabled { background: var(--border); color: #94a3b8; cursor: not-allowed; transform: none; }
+  .check-btn:hover:not(:disabled) { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary-glow); }
+  .check-btn:disabled { border-color: var(--border); color: var(--text-muted); background: transparent; cursor: not-allowed; opacity: 0.5; }
 
   /* ── Submit ── */
-  .submit-wrap { text-align: center; margin-top: 36px; }
+  .submit-wrap { text-align: center; margin-top: 48px; }
   .submit-btn {
-    padding: 16px 48px;
-    background: linear-gradient(135deg, var(--teal), #0d9488);
-    color: white; border: none; border-radius: 16px;
-    font-family: 'Times New Roman', Times, serif; font-size: 18px; font-weight: 800;
+    padding: 18px 48px;
+    background: var(--primary);
+    color: #000; border: none; border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 900;
     cursor: pointer; transition: all 0.25s;
-    box-shadow: 0 8px 24px rgba(15,118,110,0.3); letter-spacing: -0.3px;
+    box-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase; letter-spacing: 2px;
   }
-  .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(15,118,110,0.35); }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--primary); background: #fff; }
 
   /* ── Result overlay ── */
   .result-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(15,23,42,0.7); z-index: 200;
+    background: rgba(5,10,31,0.9); z-index: 200;
     align-items: center; justify-content: center; padding: 20px;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
   }
   .result-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   .result-card {
-    background: white; border-radius: 28px; padding: 36px 32px;
+    background: transparent !important; padding: 40px 32px;
     max-width: 440px; width: 100%; text-align: center;
-    box-shadow: 0 24px 64px rgba(15,23,42,0.25);
+    box-shadow: 0 0 40px var(--primary-glow);
     animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
   }
   @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-  .result-emoji { font-size: 64px; margin-bottom: 12px; display: block; }
-  .result-title { font-family: 'Times New Roman', Times, serif; font-size: 26px; font-weight: 900; color: var(--teal); margin-bottom: 6px; }
+  .result-emoji { font-size: 64px; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 20px var(--primary)); }
+  .result-title { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 900; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px var(--primary-glow); }
   .result-score {
-    font-size: 48px; font-weight: 900; font-family: 'Times New Roman', Times, serif; margin: 12px 0;
-    background: linear-gradient(135deg, var(--teal), var(--teal2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 56px; font-weight: 900; margin: 16px 0;
+    color: #fff; text-shadow: 0 0 20px var(--primary);
   }
   .result-level {
-    display: inline-block; padding: 8px 20px; border-radius: 20px;
-    font-weight: 800; font-size: 15px; margin: 8px 0 20px;
+    display: inline-block; padding: 10px 24px; border-radius: 4px;
+    font-weight: 900; font-size: 16px; margin: 10px 0 24px;
+    border: 2px solid; background: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 2px;
   }
-  .result-detail { display: flex; justify-content: center; gap: 24px; margin-bottom: 24px; }
+  .result-detail { display: flex; justify-content: center; gap: 32px; margin-bottom: 32px; }
   .result-detail-item { text-align: center; }
-  .result-detail-num { font-size: 24px; font-weight: 900; font-family: 'Times New Roman', Times, serif; }
-  .result-detail-label { font-size: 12px; color: #64748b; font-weight: 600; }
+  .result-detail-num { font-size: 28px; font-weight: 900; }
+  .result-detail-label { font-size: 14px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;}
 
   .result-btn {
-    padding: 13px 32px; border-radius: 14px;
-    font-family: 'Times New Roman', Times, serif; font-size: 15px; font-weight: 800;
-    cursor: pointer; border: none; transition: all 0.2s; margin: 0 6px;
+    padding: 14px 32px; border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900;
+    cursor: pointer; transition: all 0.2s; margin: 0 8px; text-transform: uppercase; letter-spacing: 2px;
   }
-  .btn-retry { background: var(--teal); color: white; }
-  .btn-retry:hover { background: var(--teal2); transform: translateY(-2px); }
-  .btn-review { background: var(--bg); color: var(--teal); border: 2px solid var(--border); }
-  .btn-review:hover { border-color: var(--teal2); }
+  .btn-retry { background: var(--primary); color: #000; border: none; box-shadow: 0 0 15px var(--primary-glow); }
+  .btn-retry:hover { background: #fff; box-shadow: 0 0 25px var(--primary); }
+  .btn-review { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-review:hover { background: rgba(10,224,254,0.1); box-shadow: 0 0 15px var(--primary-glow); }
 
-  .answer-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .answer-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
 
   @media (max-width: 480px) {
     .q-card { padding: 18px 16px 14px; }
-    .result-card { padding: 28px 20px; }
+    .result-card { padding: 32px 20px; }
   }
-</style>
+  
+    
+  
+  
+  
+  
+  
+    /* ── Cyber Box Style ── */
+  .cyber-box {
+    position: relative;
+    z-index: 1; /* Fix cho lỗi border gradient biến mất dưới body */
+    border-radius: 16px;
+    background: transparent !important;
+  }
+  /* Viền Gradient liền mạch bo tròn (Không dùng mask để tránh lỗi liệt click) */
+  .cyber-box::before {
+    content: "";
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    z-index: -2;
+    box-shadow: 0 0 15px var(--primary-glow);
+  }
+  /* Nền khối hộp đè lên trên lớp gradient để tạo thành viền */
+  .cyber-box::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 16px;
+    z-index: -1;
+  }
+  
+  .method-box.cyber-box::after { background: #05152a; }
+  .q-card.cyber-box::after { background: #080e22; }
+  .result-card.cyber-box::after { background: #0a122a; }
+
+  /* ── Slides ── */
+  .q-slide { display: none; animation: fadeInRight 0.4s ease forwards; }
+  .q-slide.active { display: block; }
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Next Button Pulse ── */
+  @keyframes pulseNeon {
+    0% { box-shadow: 0 0 10px var(--primary-glow); }
+    50% { box-shadow: 0 0 30px var(--primary); }
+    100% { box-shadow: 0 0 10px var(--primary-glow); }
+  }
+  .btn-next-pulse {
+    animation: pulseNeon 1.5s infinite !important;
+    background: var(--primary) !important;
+    color: #000 !important;
+  }
+
+  /* ── NPC Mo-Mo ── */
+  .momo-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,10,31,0.85); z-index: 300;
+    align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(5px);
+  }
+  .momo-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  .momo-box {
+    background: rgba(11, 19, 43, 0.95); padding: 30px;
+    max-width: 400px; width: 100%; border-radius: 16px;
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 30px var(--primary-glow);
+    text-align: center; position: relative;
+  }
+  .momo-header {
+    position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+    background: var(--primary); color: #000;
+    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900;
+    padding: 8px 24px; border-radius: 20px; text-transform: uppercase;
+    box-shadow: 0 0 15px var(--primary-glow); white-space: nowrap;
+  }
+  .momo-text {
+    font-size: 18px; line-height: 1.6; color: #fff; margin-top: 16px; margin-bottom: 24px; font-weight: 500;
+  }
+  .momo-btn {
+    padding: 12px 32px; background: transparent; border: 2px solid var(--success);
+    color: var(--success); border-radius: 8px; font-family: 'Rajdhani', sans-serif;
+    font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; box-shadow: inset 0 0 10px rgba(78,255,159,0.2);
+  }
+  .momo-btn:hover { background: var(--success); color: #000; box-shadow: 0 0 20px rgba(78,255,159,0.5); }
+
+  /* Damage & FX */
+  .damage-number {
+    position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    font-size: 28px; color: var(--danger); z-index: 100;
+    animation: floatDamage 1s ease-out forwards;
+    text-shadow: 0 0 10px rgba(255,0,85,0.8);
+    pointer-events: none;
+    left: 50%; top: 0; transform: translateX(-50%);
+  }
+  @keyframes floatDamage {
+    0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -60px) scale(1.5); }
+  }
+  .explosion {
+    position: absolute; font-size: 60px; pointer-events: none;
+    animation: explodeAnim 0.5s ease-out forwards;
+    z-index: 100; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  }
+  @keyframes explodeAnim {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+  }
+  .game-over-overlay {
+    position: fixed; inset: 0; background: rgba(5,10,31,0.95); z-index: 20000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s;
+  }
+  .game-over-overlay.show { opacity: 1; pointer-events: auto; }
+  .game-over-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 64px; font-weight: 900;
+    color: var(--danger); text-shadow: 0 0 20px var(--danger); margin-bottom: 20px;
+    letter-spacing: 5px;
+  }
+  .game-over-btn {
+    background: transparent; border: 2px solid var(--primary);
+    color: var(--primary); padding: 12px 24px; border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900;
+    cursor: pointer; transition: all 0.2s; box-shadow: 0 0 15px rgba(10,224,254,0.3);
+  }
+  .game-over-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 25px var(--primary); }
+
+  /* Combo System */
+  .combo-display {
+    position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    z-index: 150; pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-align: center;
+  }
+  .combo-display.show { transform: translate(-50%, -50%) scale(1); }
+  .combo-text { display: block; font-size: 24px; letter-spacing: 4px; color: var(--primary); text-shadow: 0 0 20px var(--primary-glow); }
+  .combo-count { color: #fbbf24; text-shadow: 0 0 30px rgba(251, 191, 36, 0.8); font-size: 64px; display: block; line-height: 1; }
+  .combo-display.fire .combo-count { color: var(--danger); animation: comboFire 0.5s infinite alternate; text-shadow: 0 0 30px var(--danger); }
+  @keyframes comboFire { from { filter: brightness(1); transform: scale(1); } to { filter: brightness(1.2); transform: scale(1.1); } }
+
+  /* Energy Beam */
+  .energy-beam {
+    position: absolute; height: 6px; background: var(--primary);
+    box-shadow: 0 0 15px var(--primary), 0 0 30px var(--secondary);
+    border-radius: 3px; z-index: 10;
+  }
+  @keyframes fireBeam {
+    0% { width: 0; left: 60px; opacity: 1; }
+    50% { width: 150px; left: 60px; opacity: 1; }
+    100% { width: 0; left: calc(100% - 60px); opacity: 0; }
+  }
+
+
+  /* --- VIDEO POPUP MODAL --- */
+  .video-modal {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(5, 10, 31, 0.95);
+    backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .video-modal.show { display: flex; }
+  .video-container {
+    width: 90%; max-width: 800px;
+    background: var(--bg-card);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    box-shadow: 0 0 30px var(--primary-glow);
+    overflow: hidden;
+    position: relative;
+  }
+  .video-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 15px; background: rgba(10, 224, 254, 0.1);
+    border-bottom: 1px solid var(--primary);
+  }
+  .video-title { font-family: 'Rajdhani', sans-serif; font-weight: bold; color: var(--primary); font-size: 18px; }
+  .close-video-btn {
+    background: transparent; border: none; color: white; font-size: 24px; cursor: pointer;
+  }
+  .video-iframe-wrapper {
+    position: relative; padding-bottom: 56.25%; /* 16:9 */ height: 0;
+  }
+  .video-iframe-wrapper iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+  }
+
+
+  .video-modal {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(5, 10, 31, 0.95);
+    backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .video-modal.show { display: flex; }
+    \n</style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
-    <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VInaStudy" style="height:44px;object-fit:contain;filter:brightness(0) invert(1)">
-    <span style="font-size:15px;font-weight:800;letter-spacing:0.3px;opacity:0.95">VInaStudy — Toán Lớp 3 HSG</span>
-  </div>
-  <h1>🔢 Bài 2 — Bài Toán<br>Cấu Tạo Số</h1>
-  <p>Thầy Nguyễn Thành Long • 12 câu bài tập</p>
-  <div class="progress-wrap">
-    <div class="progress-info">
-      <span id="progressText">0 / 12 câu</span>
-      <span id="progressPct">0%</span>
+<!-- Battle Arena -->
+<div class="battle-arena">
+
+<div class="progress-bar-container" style="position: absolute; top: 15px; right: 15px; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); z-index: 100;">
+  <button onclick="restartGame()" style="background: rgba(255,165,0,0.2); border: 1px solid orange; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 15px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: bold; position: relative; z-index: 20;">🔄 CHƠI LẠI</button>
+  <button onclick="pauseGame()" style="background: rgba(255,0,85,0.2); border: 1px solid var(--danger); color: white; padding: 6px 12px; border-radius: 6px; margin-right: 15px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: bold;">⏸️ DỪNG LẠI</button>
+  <span style="font-family: 'Rajdhani', sans-serif; font-size: 18px; letter-spacing: 1px;">TIẾN ĐỘ: <span id="progressText">1/12</span></span>
+</div>
+
+  <div class="arena-bg">
+    <div class="arena-grid-wrapper">
+      <div class="arena-grid"></div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="math-particles">
+      <span class="p1">π</span>
+      <span class="p2">∫</span>
+      <span class="p3">√</span>
+      <span class="p4">∑</span>
+      <span class="p5">÷</span>
+      <span class="p6">±</span>
+      <span class="p7">[]</span>
+      <span class="p8">x²</span>
+      <span class="p9">∞</span>
+      <span class="p10">½</span>
+    </div>
+  </div>
+  <div class="battle-title">ẢI 2: QUÁI VẬT Ổ KHÓA SỐ HỌC</div>
+  <div class="combat-zone" id="combatZone">
+    <div class="fighter player">
+      <div class="fighter-name">Chiến Binh</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="playerHp"></div></div>
+      <div class="avatar" id="playerAvatar">🧙‍♂️</div>
+    </div>
+    
+    <div style="font-size:36px; font-weight:900; color:var(--primary); text-shadow:0 0 15px var(--primary-glow); opacity:0.9; font-family:'Rajdhani', sans-serif">VS</div>
+    
+    <div class="fighter boss">
+      <div class="fighter-name">Quái Vật</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="bossHp"></div></div>
+      <div class="avatar" id="bossAvatar">🐲</div>
+    </div>
   </div>
 </div>
 
 <!-- Score bar -->
 <div class="score-bar">
-  <div class="score-item"><div class="score-dot" style="background:var(--green)"></div><span id="scoreCorrect">0</span> Đúng</div>
-  <div class="score-item"><div class="score-dot" style="background:var(--red)"></div><span id="scoreWrong">0</span> Sai</div>
-  <div class="score-item"><div class="score-dot" style="background:var(--border)"></div><span id="scoreLeft">12</span> Chưa làm</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--success); box-shadow: 0 0 10px var(--success)"></div><span id="scoreCorrect">0</span> ĐÚNG</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--danger); box-shadow: 0 0 10px var(--danger)"></div><span id="scoreWrong">0</span> SAI</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--text-muted)"></div><span id="scoreLeft">12</span> CHƯA LÀM</div>
+</div>
+
+
+<!-- Mo-Mo Overlay -->
+<div class="momo-overlay" id="momoOverlay">
+  <div class="momo-box">
+    <div class="momo-header">🤖 Mo-Mo Gợi Ý</div>
+    <div id="momoText" class="momo-text"></div>
+    <button class="momo-btn" onclick="closeMomo()" style="margin-bottom: 10px;">Thử Lại Nhé!</button>
+    <button class="momo-btn" onclick="openVideoHelp()" style="background: transparent; color: var(--primary); border: 2px solid var(--primary); margin-left: 10px;">🎬 Xem Video Bài Giảng</button>
+  </div>
 </div>
 
 <!-- Main -->
 <div class="main">
 
-  <!-- Method reminder -->
-  <div class="method-box">
-    💡 <strong>Nhớ phương pháp thầy Long:</strong><br>
-    Viết thêm chữ số <strong>d</strong> vào bên trái số <strong>ab</strong> → số mới = <code>d×100 + ab</code><br>
-    <strong>Cách 1:</strong> Lập phương trình cấu tạo số &nbsp;|&nbsp; <strong>Cách 2:</strong> Vẽ sơ đồ đoạn thẳng
+  <!-- Slide 1 -->
+  <div class="q-slide active" id="slide1">
+    <!-- Dạng 1: 1 chữ số -->
+    <div class="section-title">1️⃣ Dạng 1 — Số có 1 chữ số</div>
+    <!-- Câu 1 -->
+    <div class="q-card" id="q1">
+      <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 133379</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q1ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q1','q1ans',['2'],'✅ Đúng! 1a = 10 + a = 6a → 10 = 5a → a = 2. Kiểm tra: 12 = 6×2 ✓', 'Viết thêm số 1 vào bên trái số có 1 chữ số <code>a</code>, ta được số <code>1a</code>.<br>Giá trị của <code>1a = 10 + a</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq1"></div>
+    </div>
   </div>
 
-  <!-- Dạng 1: 1 chữ số -->
-  <div class="section-title">1️⃣ Dạng 1 — Số có 1 chữ số</div>
-
-  <!-- Câu 1 -->
-  <div class="q-card" id="q1">
-    <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 133379</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q1ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+  <!-- Slide 2 -->
+  <div class="q-slide" id="slide2">
+    <!-- Câu 2 -->
+    <div class="q-card" id="q2">
+      <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 133380</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q2ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q2','q2ans',['5'],'✅ Đúng! 2a = 20 + a = 5a → 20 = 4a → a = 5. Kiểm tra: 25 = 5×5 ✓', 'Viết thêm số 2 vào bên trái số <code>a</code>, ta được số <code>2a</code>.<br>Giá trị của <code>2a = 20 + a</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq2"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q1','q1ans',['2'],'✅ Đúng! 1a = 10 + a = 6a → 10 = 5a → a = 2. Kiểm tra: 12 = 6×2 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq1"></div>
   </div>
 
-  <!-- Câu 2 -->
-  <div class="q-card" id="q2">
-    <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 133380</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q2ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+  <!-- Slide 3 -->
+  <div class="q-slide" id="slide3">
+    <!-- Câu 3 -->
+    <div class="q-card" id="q3">
+      <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 133381</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 11 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q3ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q3','q3ans',['4'],'✅ Đúng! 4a = 40 + a = 11a → 40 = 10a → a = 4. Kiểm tra: 44 = 11×4 ✓', 'Viết thêm số 4 vào bên trái số <code>a</code>, ta được số <code>4a</code>.<br>Giá trị của <code>4a = 40 + a</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq3"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q2','q2ans',['5'],'✅ Đúng! 2a = 20 + a = 5a → 20 = 4a → a = 5. Kiểm tra: 25 = 5×5 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq2"></div>
   </div>
 
-  <!-- Câu 3 -->
-  <div class="q-card" id="q3">
-    <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 133381</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 11 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q3ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+  <!-- Slide 4 -->
+  <div class="q-slide" id="slide4">
+    <!-- Câu 4 -->
+    <div class="q-card" id="q4">
+      <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 133382</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>3</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q4ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q4','q4ans',['6'],'✅ Đúng! 3a = 30 + a = 6a → 30 = 5a → a = 6. Kiểm tra: 36 = 6×6 ✓', 'Viết thêm số 3 vào bên trái số <code>a</code>, ta được số <code>3a = 30 + a</code>.<br>Phương trình: <code>30 + a = 6×a</code>')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq4"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q3','q3ans',['4'],'✅ Đúng! 4a = 40 + a = 11a → 40 = 10a → a = 4. Kiểm tra: 44 = 11×4 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq3"></div>
   </div>
 
-  <!-- Câu 4 -->
-  <div class="q-card" id="q4">
-    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 133382</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>3</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q4ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+  <!-- Slide 5 -->
+  <div class="q-slide" id="slide5">
+    <!-- Dạng 2: 2 chữ số -->
+    <div class="section-title">2️⃣ Dạng 2 — Số có 2 chữ số</div>
+    <!-- Câu 5 -->
+    <div class="q-card" id="q5">
+      <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 133383</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q5ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q5','q5ans',['25'],'✅ Đúng! 2ab = 200 + ab = 9×ab → 200 = 8×ab → ab = 25. Kiểm tra: 225 = 9×25 ✓', 'Viết thêm số 2 vào bên trái số có 2 chữ số <code>ab</code>, ta được <code>2ab</code>.<br>Giá trị của <code>2ab = 200 + ab</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq5"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q4','q4ans',['6'],'✅ Đúng! 3a = 30 + a = 6a → 30 = 5a → a = 6. Kiểm tra: 36 = 6×6 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq4"></div>
   </div>
 
-  <!-- Dạng 2: 2 chữ số -->
-  <div class="section-title">2️⃣ Dạng 2 — Số có 2 chữ số</div>
-
-  <!-- Câu 5 -->
-  <div class="q-card" id="q5">
-    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 133383</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q5ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+  <!-- Slide 6 -->
+  <div class="q-slide" id="slide6">
+    <!-- Câu 6 -->
+    <div class="q-card" id="q6">
+      <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 133384</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q6ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q6','q6ans',['20'],'✅ Đúng! 1ab = 100 + ab = 6×ab → 100 = 5×ab → ab = 20. Kiểm tra: 120 = 6×20 ✓', 'Viết thêm số 1 vào bên trái số <code>ab</code>, ta được <code>1ab = 100 + ab</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq6"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q5','q5ans',['25'],'✅ Đúng! 2ab = 200 + ab = 9×ab → 200 = 8×ab → ab = 25. Kiểm tra: 225 = 9×25 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq5"></div>
   </div>
 
-  <!-- Câu 6 -->
-  <div class="q-card" id="q6">
-    <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 133384</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q6ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+  <!-- Slide 7 -->
+  <div class="q-slide" id="slide7">
+    <!-- Câu 7 (BTVN) -->
+    <div class="q-card" id="q7">
+      <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 133385 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q7ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q7','q7ans',['50'],'✅ Đúng! 4ab = 400 + ab = 9×ab → 400 = 8×ab → ab = 50. Kiểm tra: 450 = 9×50 ✓', 'Viết thêm số 4 vào bên trái số <code>ab</code>, ta được <code>4ab = 400 + ab</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq7"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q6','q6ans',['20'],'✅ Đúng! 1ab = 100 + ab = 6×ab → 100 = 5×ab → ab = 20. Kiểm tra: 120 = 6×20 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq6"></div>
   </div>
 
-  <!-- Câu 7 (BTVN) -->
-  <div class="q-card" id="q7">
-    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 133385 &nbsp;🏠 Bài tập về nhà</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q7ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+  <!-- Slide 8 -->
+  <div class="q-slide" id="slide8">
+    <!-- Dạng 3: 3 chữ số -->
+    <div class="section-title">3️⃣ Dạng 3 — Số có 3 chữ số</div>
+    <!-- Câu 8 -->
+    <div class="q-card" id="q8">
+      <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 133386</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q8ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q8','q8ans',['250'],'✅ Đúng! 1abc = 1000 + abc = 5×abc → 1000 = 4×abc → abc = 250. Kiểm tra: 1250 = 5×250 ✓', 'Viết thêm số 2 vào bên trái số có 3 chữ số <code>abc</code>, ta được <code>2abc</code>.<br>Giá trị của <code>2abc = 2000 + abc</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq8"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q7','q7ans',['50'],'✅ Đúng! 4ab = 400 + ab = 9×ab → 400 = 8×ab → ab = 50. Kiểm tra: 450 = 9×50 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq7"></div>
   </div>
 
-  <!-- Dạng 3: 3 chữ số -->
-  <div class="section-title">3️⃣ Dạng 3 — Số có 3 chữ số</div>
-
-  <!-- Câu 8 -->
-  <div class="q-card" id="q8">
-    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 133386</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q8ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+  <!-- Slide 9 -->
+  <div class="q-slide" id="slide9">
+    <!-- Câu 9 -->
+    <div class="q-card" id="q9">
+      <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 133387</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q9ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q9','q9ans',['250'],'✅ Đúng! 2abc = 2000 + abc = 9×abc → 2000 = 8×abc → abc = 250. Kiểm tra: 2250 = 9×250 ✓', 'Viết thêm số 1 vào bên trái số <code>abc</code>, ta được <code>1abc = 1000 + abc</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq9"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q8','q8ans',['250'],'✅ Đúng! 1abc = 1000 + abc = 5×abc → 1000 = 4×abc → abc = 250. Kiểm tra: 1250 = 5×250 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq8"></div>
   </div>
 
-  <!-- Câu 9 -->
-  <div class="q-card" id="q9">
-    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 133387</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q9ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+  <!-- Slide 10 -->
+  <div class="q-slide" id="slide10">
+    <!-- Câu 10 (BTVN) -->
+    <div class="q-card" id="q10">
+      <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 133388 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
+      <div class="answer-row">
+        <span>Số cần tìm là</span>
+        <input class="ans-input" id="q10ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q10','q10ans',['400'],'✅ Đúng! 2abc = 2000 + abc = 6×abc → 2000 = 5×abc → abc = 400. Kiểm tra: 2400 = 6×400 ✓', 'Viết thêm số 3 vào bên phải số có 1 chữ số <code>a</code>, ta được số <code>a3</code>.<br>Giá trị của <code>a3 = a×10 + 3</code>.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq10"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q9','q9ans',['250'],'✅ Đúng! 2abc = 2000 + abc = 9×abc → 2000 = 8×abc → abc = 250. Kiểm tra: 2250 = 9×250 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq9"></div>
   </div>
 
-  <!-- Câu 10 (BTVN) -->
-  <div class="q-card" id="q10">
-    <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 133388 &nbsp;🏠 Bài tập về nhà</div>
-    <div class="q-text">Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
-    <div class="answer-row">
-      <span>Số cần tìm là</span>
-      <input class="ans-input" id="q10ans" placeholder="?" style="min-width:100px;width:100px;text-align:center">
+  <!-- Slide 11 -->
+  <div class="q-slide" id="slide11">
+    <!-- Dạng 4: Tư duy -->
+    <div class="section-title">🧠 Dạng 4 — Bài toán tư duy</div>
+    <!-- Câu 11 -->
+    <div class="q-card" id="q11">
+      <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 133389</div>
+      <div class="q-text">
+        Theo quy luật, hãy tìm tên của ổ khóa cuối cùng:<br><br>
+        🔒 ADA → chìa <strong>141</strong><br>
+        🔒 DGA → chìa <strong>471</strong><br>
+        🔒 DAG → chìa <strong>417</strong><br>
+        🔒 <strong>?</strong> → chìa <strong>717</strong>
+      </div>
+      <div class="choices" id="q11choices">
+        <button class="choice-btn" onclick="selectChoice('q11','GAG',this)">GAG</button>
+        <button class="choice-btn" onclick="selectChoice('q11','GGA',this)">GGA</button>
+        <button class="choice-btn" onclick="selectChoice('q11','AGG',this)">AGG</button>
+        <button class="choice-btn" onclick="selectChoice('q11','GAD',this)">GAD</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q11','GAG','✅ Đúng! A=1, D=4, G=7. Chìa 717 → 7,1,7 → G,A,G → GAG ✓')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq11"></div>
     </div>
-    <button class="check-btn" onclick="checkText('q10','q10ans',['400'],'✅ Đúng! 2abc = 2000 + abc = 6×abc → 2000 = 5×abc → abc = 400. Kiểm tra: 2400 = 6×400 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq10"></div>
   </div>
 
-  <!-- Dạng 4: Tư duy -->
-  <div class="section-title">🧠 Dạng 4 — Bài toán tư duy</div>
-
-  <!-- Câu 11 -->
-  <div class="q-card" id="q11">
-    <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 133389</div>
-    <div class="q-text">
-      Theo quy luật, hãy tìm tên của ổ khóa cuối cùng:<br><br>
-      🔒 ADA → chìa <strong>141</strong><br>
-      🔒 DGA → chìa <strong>471</strong><br>
-      🔒 DAG → chìa <strong>417</strong><br>
-      🔒 <strong>?</strong> → chìa <strong>717</strong>
+  <!-- Slide 12 -->
+  <div class="q-slide" id="slide12">
+    <!-- Câu 12 -->
+    <div class="q-card" id="q12">
+      <div class="q-num"><span class="q-num-badge">Câu 12</span> Mã VinaID 141531</div>
+      <div class="q-text">
+        Các số tự nhiên 1, 2, 3, 4, 5 được điền vào các vòng tròn sao cho mỗi số điền 1 lần. <strong>Chiều mũi tên chỉ từ số bé đến số lớn.</strong><br><br>
+        Sơ đồ: <strong>A → T</strong> &nbsp;|&nbsp; <strong>M → X ← H</strong> &nbsp;|&nbsp; <strong>A ← M</strong> &nbsp;|&nbsp; <strong>T → X</strong><br><br>
+        Tìm số được điền ở vòng tròn <strong>A</strong>.
+      </div>
+      <div class="choices" id="q12choices">
+        <button class="choice-btn" onclick="selectChoice('q12','1',this)">1</button>
+        <button class="choice-btn" onclick="selectChoice('q12','2',this)">2</button>
+        <button class="choice-btn" onclick="selectChoice('q12','3',this)">3</button>
+        <button class="choice-btn" onclick="selectChoice('q12','4',this)">4</button>
+        <button class="choice-btn" onclick="selectChoice('q12','5',this)">5</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q12','2','✅ Đúng! Từ sơ đồ: H < A < M và A < T. Suy ra: A lớn hơn H, A bé hơn 3 số còn lại → A = 2. Dãy: 1 < 2(A) < 3 < 4 < 5 ✓')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq12"></div>
     </div>
-    <div class="choices" id="q11choices">
-      <button class="choice-btn" onclick="selectChoice('q11','GAG',this)">GAG</button>
-      <button class="choice-btn" onclick="selectChoice('q11','GGA',this)">GGA</button>
-      <button class="choice-btn" onclick="selectChoice('q11','AGG',this)">AGG</button>
-      <button class="choice-btn" onclick="selectChoice('q11','GAD',this)">GAD</button>
-    </div>
-    <button class="check-btn" disabled onclick="checkChoice('q11','GAG','✅ Đúng! A=1, D=4, G=7. Chìa 717 → 7,1,7 → G,A,G → GAG ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq11"></div>
   </div>
 
-  <!-- Câu 12 -->
-  <div class="q-card" id="q12">
-    <div class="q-num"><span class="q-num-badge">Câu 12</span> Mã VinaID 141531</div>
-    <div class="q-text">
-      Các số tự nhiên 1, 2, 3, 4, 5 được điền vào các vòng tròn sao cho mỗi số điền 1 lần. <strong>Chiều mũi tên chỉ từ số bé đến số lớn.</strong><br><br>
-      Sơ đồ: <strong>A → T</strong> &nbsp;|&nbsp; <strong>M → X ← H</strong> &nbsp;|&nbsp; <strong>A ← M</strong> &nbsp;|&nbsp; <strong>T → X</strong><br><br>
-      Tìm số được điền ở vòng tròn <strong>A</strong>.
-    </div>
-    <div class="choices" id="q12choices">
-      <button class="choice-btn" onclick="selectChoice('q12','1',this)">1</button>
-      <button class="choice-btn" onclick="selectChoice('q12','2',this)">2</button>
-      <button class="choice-btn" onclick="selectChoice('q12','3',this)">3</button>
-      <button class="choice-btn" onclick="selectChoice('q12','4',this)">4</button>
-      <button class="choice-btn" onclick="selectChoice('q12','5',this)">5</button>
-    </div>
-    <button class="check-btn" disabled onclick="checkChoice('q12','2','✅ Đúng! Từ sơ đồ: H < A < M và A < T. Suy ra: A lớn hơn H, A bé hơn 3 số còn lại → A = 2. Dãy: 1 < 2(A) < 3 < 4 < 5 ✓')">✓ Kiểm tra</button>
-    <div class="feedback" id="fbq12"></div>
-  </div>
+</div>
 
-  <!-- Submit -->
-  <div class="submit-wrap">
-    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
-  </div>
+<div class="game-over-overlay" id="gameOverOverlay">
+  <div class="game-over-title">GAME OVER</div>
+  <button class="game-over-btn" onclick="restartGame()">🔄 CHƠI LẠI TỪ ĐẦU</button>
 </div>
 
 <!-- Result overlay -->
   <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:2;text-align:center">
     <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
     <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
-    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
-  </div>
     <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
   </div>
 
@@ -513,11 +890,45 @@
   </div>
 </div>
 
+<div class="combo-display" id="comboDisplay">
+  <span class="combo-text">COMBO</span>
+  <span class="combo-count" id="comboCount">x2</span>
+</div>
+
 <script>
 const TOTAL = 12;
 const _TOTAL = 12; window._TOTAL = 12; window._BUOI = 2;
 let answered = {}; window._answered = answered;
 let selected = {};
+
+// Gameplay variables
+let playerHpVal = 100;
+let bossHpVal = 100;
+let comboStreak = 0;
+
+function updateComboUI() {
+  const cd = document.getElementById('comboDisplay');
+  const cc = document.getElementById('comboCount');
+  if(!cd || !cc) return;
+  if (comboStreak >= 2) {
+    cc.textContent = 'x' + comboStreak;
+    cd.classList.add('show');
+    if (comboStreak >= 3) cd.classList.add('fire');
+    else cd.classList.remove('fire');
+  } else {
+    cd.classList.remove('show', 'fire');
+  }
+}
+
+function updateBattleHp() {
+  document.getElementById('bossHp').style.width = bossHpVal + '%';
+  document.getElementById('playerHp').style.width = playerHpVal + '%';
+}
+
+// Khai báo biến hỗ trợ Checkpoint
+window._checkpoints = [];
+window._attempts = {};
+window._lastInteractionTime = Date.now();
 
 function updateScore() {
   const c = Object.values(answered).filter(v => v === true).length;
@@ -526,10 +937,317 @@ function updateScore() {
   document.getElementById('scoreCorrect').textContent = c;
   document.getElementById('scoreWrong').textContent = w;
   document.getElementById('scoreLeft').textContent = TOTAL - done;
-  document.getElementById('progressText').textContent = `${done} / ${TOTAL} câu`;
-  const pct = Math.round(done / TOTAL * 100);
-  document.getElementById('progressPct').textContent = pct + '%';
-  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// Gameplay logic
+let currentSlide = 1;
+function nextSlide() {
+  const current = document.getElementById('slide' + currentSlide);
+  if (current) current.classList.remove('active');
+  currentSlide++;
+  const next = document.getElementById('slide' + currentSlide);
+  if (next) {
+    next.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    // End of questions
+    submitAll();
+  }
+}
+
+function handleAfterAttack(btn, qId) {
+    btn.disabled = false;
+    btn.innerHTML = '⏭ Câu tiếp theo';
+    btn.classList.add('btn-next-pulse');
+    btn.onclick = function() { nextSlide(); };
+}
+
+
+
+// --- AUTO SAVE & RESUME LOGIC ---
+const lessonIdMatch = window.location.pathname.match(/bai(\d+)/);
+const LESSON_ID = lessonIdMatch ? parseInt(lessonIdMatch[1]) : 0;
+const SAVE_KEY = 'cbToan_progress_bai' + LESSON_ID;
+
+function saveProgress() {
+  if (currentSlide > TOTAL) return; // Đã submit
+  const data = {
+    slide: currentSlide,
+    answered: answered,
+    attempts: window._attempts || {},
+    playerHp: playerHpVal,
+    bossHp: bossHpVal,
+    combo: comboStreak,
+    total: TOTAL
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+}
+
+function restartGame() {
+  if (confirm("Bạn có chắc muốn chơi lại từ đầu không? Toàn bộ quá trình hiện tại sẽ bị xóa!")) {
+    localStorage.removeItem(SAVE_KEY);
+    window.location.reload();
+  }
+}
+
+function pauseGame() {
+  saveProgress();
+  if (window.parent && window.parent.close_) {
+     window.parent.close_();
+  } else if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.close();
+  } else {
+     window.history.back();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Always initialize checkpoint tracking variables
+  window._attempts = window._attempts || {};
+  window._checkpoints = window._checkpoints || [];
+  window._lastInteractionTime = window._lastInteractionTime || Date.now();
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (saved && saved.slide >= 1 && saved.slide <= TOTAL) {
+      // Restore states
+      answered = saved.answered || {};
+      window._answered = answered;
+      // Disable inputs for answered questions
+      for (const [qId, isCorrect] of Object.entries(answered)) {
+         const input = document.getElementById(qId + 'ans');
+         if (input) input.disabled = true;
+         const card = document.getElementById(qId);
+         if (card) {
+            card.classList.add(isCorrect ? 'correct' : 'wrong');
+            const btn = card.querySelector('.check-btn');
+            if (btn) {
+               btn.disabled = false;
+               btn.innerHTML = '⏭ Câu tiếp theo';
+               btn.classList.add('btn-next-pulse');
+               btn.onclick = function() { nextSlide(); };
+            }
+         }
+      }
+      window._attempts = saved.attempts || {};
+      playerHpVal = saved.playerHp !== undefined ? saved.playerHp : 100;
+      bossHpVal = saved.bossHp !== undefined ? saved.bossHp : 100;
+      comboStreak = saved.combo || 0;
+      
+      updateComboUI();
+      // Update HP variables immediately if needed
+      if(typeof updateBattleHp === 'function') updateBattleHp();
+      if(typeof updateScore === 'function') updateScore();
+
+      // Jump to slide
+      const currentActive = document.querySelector('.q-slide.active');
+      if (currentActive) currentActive.classList.remove('active');
+      currentSlide = saved.slide;
+      const target = document.getElementById('slide' + currentSlide);
+      if(target) target.classList.add('active');
+    }
+  } catch(e) {}
+
+  document.getElementById('progressText').innerText = currentSlide + '/' + TOTAL;
+});
+
+// Hook into nextSlide
+if (typeof nextSlide === 'function') {
+  const _origNextSlide = nextSlide;
+  nextSlide = function() {
+    _origNextSlide();
+    document.getElementById('progressText').innerText = Math.min(currentSlide, TOTAL) + '/' + TOTAL;
+    saveProgress();
+  }
+}
+
+// Hook into submitAll
+if (typeof submitAll === 'function') {
+  const _origSubmitAllProgress = submitAll;
+  submitAll = function() {
+    localStorage.removeItem(SAVE_KEY); // Xóa progress khi đã làm xong
+    _origSubmitAllProgress();
+  }
+}
+
+// Hook vào handleAfterAttack để lưu tiến độ ngay sau khi có kết quả
+if (typeof handleAfterAttack === 'function') {
+  const _origHandle = handleAfterAttack;
+  handleAfterAttack = function(btn, qId) {
+    _origHandle(btn, qId);
+    saveProgress();
+  }
+}
+
+
+
+// --- VIDEO HELP LOGIC ---
+const VIDEO_ID = "tQPklWVzur8";
+const Q_TIMESTAMPS = {
+  "q1": 144, "q2": 144, "q3": 144, "q4": 435,
+  "q5": 1056, "q6": 1056, "q7": 1056,
+  "q8": 1398, "q9": 1398, "q10": 1398,
+  "q11": 1636, "q12": 1745
+};
+let currentHelpQid = "";
+
+// currentHelpQid is set directly inside checkText when Mo-Mo overlay is shown
+
+function openVideoHelp() {
+  document.getElementById('momoOverlay').classList.remove('show'); // Ẩn Momo
+  const startTime = Q_TIMESTAMPS[currentHelpQid] || 0;
+  const watchUrl = "https://www.youtube.com/watch?v=" + VIDEO_ID + "&t=" + startTime + "s";
+  window.open(watchUrl, '_blank');
+}
+
+function closeVideo() {
+  document.getElementById('videoModal').classList.remove('show');
+  document.getElementById('videoWrapper').innerHTML = ""; // Stop video
+}
+
+
+// Khởi tạo Mo-Mo
+const momoHinted = {};
+
+function closeMomo() {
+  document.getElementById('momoOverlay').classList.remove('show');
+  // Focus right into the active slide's input!
+  const input = document.querySelector('.q-slide.active .ans-input');
+  if(input && !input.disabled) { 
+    input.focus(); 
+    input.value = ''; 
+    // Trigger input event to disable button again
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+// Override playerAvatar logic with localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  const savedAvatar = localStorage.getItem('cbToan_avatar');
+  if (savedAvatar) {
+    document.getElementById('playerAvatar').textContent = savedAvatar;
+  }
+});
+
+
+
+function showDamage(targetId, dmgText, isCritical) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const dmg = document.createElement('div');
+  dmg.className = 'damage-number';
+  dmg.textContent = dmgText;
+  if (isCritical) {
+    dmg.style.color = '#fbbf24';
+    dmg.style.textShadow = '0 0 15px #fbbf24';
+    dmg.style.fontSize = '40px';
+  }
+  const offsetX = (Math.random() - 0.5) * 60;
+  dmg.style.marginLeft = offsetX + 'px';
+  target.parentElement.appendChild(dmg);
+  setTimeout(() => dmg.remove(), 1000);
+}
+
+function spawnExplosion(targetId) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const expl = document.createElement('div');
+  expl.className = 'explosion';
+  expl.textContent = '💥';
+  target.parentElement.appendChild(expl);
+  setTimeout(() => expl.remove(), 500);
+}
+
+function playerAttack() {
+  const pAvatar = document.getElementById('playerAvatar');
+  const bAvatar = document.getElementById('bossAvatar');
+  const zone = document.getElementById('combatZone');
+  
+  pAvatar.style.animation = 'none';
+  void pAvatar.offsetWidth;
+  pAvatar.style.animation = 'castMagic 0.5s ease';
+  
+  const beam = document.createElement('div');
+  beam.className = 'energy-beam';
+  beam.style.top = '50%';
+  beam.style.animation = 'fireBeam 0.4s ease-in forwards';
+  zone.appendChild(beam);
+  
+  setTimeout(() => {
+    beam.remove();
+    bAvatar.style.animation = 'none';
+    void bAvatar.offsetWidth;
+    bAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    
+    const baseDmg = 100 / TOTAL;
+    const comboMult = 1 + (Math.max(0, comboStreak - 1) * 0.1);
+    const dmg = Math.round(baseDmg * comboMult);
+    bossHpVal = Math.max(0, bossHpVal - dmg);
+    updateBattleHp();
+    if(dmg > 0) showDamage('bossAvatar', '-' + dmg, comboStreak >= 2);
+    spawnExplosion('bossAvatar');
+    
+    if (bossHpVal <= 0) {
+      bAvatar.style.transition = 'all 1s ease';
+      bAvatar.style.transform = 'scale(1.5)';
+      bAvatar.style.filter = 'brightness(2) drop-shadow(0 0 20px var(--primary))';
+      showDamage('bossAvatar', 'DEFEATED!', true);
+      setTimeout(() => { bAvatar.style.opacity = '0'; }, 1000);
+    } else {
+      setTimeout(() => {
+         pAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animationDelay = '1s';
+      }, 500);
+    }
+  }, 400);
+}
+
+function bossAttack() {
+  const pAvatar = document.getElementById('playerAvatar');
+  const bAvatar = document.getElementById('bossAvatar');
+  const zone = document.getElementById('combatZone');
+  
+  if (bossHpVal <= 0) return;
+  
+  playerHpVal = Math.max(0, playerHpVal - 10);
+  
+  bAvatar.style.animation = 'none';
+  void bAvatar.offsetWidth;
+  bAvatar.style.animation = 'castBossMagic 0.5s ease';
+  
+  const orb = document.createElement('div');
+  orb.className = 'projectile';
+  orb.textContent = '🌑';
+  orb.style.color = 'var(--secondary)';
+  orb.style.animation = 'flyLeft 0.6s ease-in forwards';
+  zone.appendChild(orb);
+  
+  setTimeout(() => {
+    orb.remove();
+    pAvatar.style.animation = 'none';
+    void pAvatar.offsetWidth;
+    pAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    updateBattleHp();
+    showDamage('playerAvatar', '-10');
+    
+    document.body.style.transition = 'background 0.2s';
+    const oldBg = document.body.style.background;
+    document.body.style.background = '#fef2f2';
+    setTimeout(() => { document.body.style.background = oldBg; }, 200);
+    
+    if (playerHpVal <= 0) {
+      setTimeout(() => {
+        document.getElementById('gameOverOverlay').classList.add('show');
+      }, 500);
+    } else {
+      setTimeout(() => {
+         pAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animationDelay = '1s';
+      }, 500);
+    }
+  }, 500);
 }
 
 function showFeedback(id, correct, msg) {
@@ -541,7 +1259,7 @@ function showFeedback(id, correct, msg) {
   card.classList.add(correct ? 'correct' : 'wrong');
 }
 
-function checkText(qId, inputId, correctList, explanation) {
+function checkText(qId, inputId, correctList, explanation, hintMsg) {
   const input = document.getElementById(inputId);
   const val = input.value.trim().toLowerCase();
   if (!val) {
@@ -552,14 +1270,48 @@ function checkText(qId, inputId, correctList, explanation) {
   }
   input.style.borderColor = '';
   const isCorrect = correctList.some(c => c.toLowerCase() === val);
+  
+  if (!isCorrect && !momoHinted[qId]) {
+    // Sai lần 1 -> Hiện Mo-Mo
+    momoHinted[qId] = true;
+    currentHelpQid = qId;
+    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
+    document.getElementById('momoOverlay').classList.add('show');
+    return; // Dừng lại, chưa trừ điểm
+  }
+
+  // Lưu Checkpoint
+  const now = Date.now();
+  const timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
+  window._lastInteractionTime = now;
+  window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+  
+  window._checkpoints.push({
+    question_id: parseInt(qId.replace('q', '')),
+    attempt_number: window._attempts[qId],
+    submitted_answer: val,
+    is_correct: isCorrect,
+    time_spent_seconds: timeSpent
+  });
+
   answered[qId] = isCorrect;
   updateScore();
+  if (isCorrect) {
+    comboStreak++;
+    updateComboUI();
+    playerAttack();
+  } else {
+    comboStreak = 0;
+    updateComboUI();
+    bossAttack();
+  }
+  
   input.className = 'ans-input ' + (isCorrect ? 'correct-input' : 'wrong-input');
   input.disabled = true;
   showFeedback(`fb${qId}`, isCorrect,
     isCorrect ? explanation : `Chưa đúng. ${explanation}`
   );
-  document.querySelector(`#${qId} .check-btn`).disabled = true;
+  handleAfterAttack(document.querySelector(`#${qId} .check-btn`), qId);
 }
 
 // Gán sự kiện input để enable/disable nút Kiểm tra theo trạng thái ô nhập
@@ -578,6 +1330,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' && !btn.disabled) btn.click();
     });
   });
+
+  // Tự động thêm class cyber-box
+  document.querySelectorAll('.method-box, .q-card, .result-card').forEach(el => {
+    el.classList.add('cyber-box');
+  });
 });
 
 function selectChoice(qId, val, btn) {
@@ -590,12 +1347,51 @@ function selectChoice(qId, val, btn) {
   document.querySelector(`#${qId} .check-btn`).disabled = false;
 }
 
-function checkChoice(qId, correct, explanation) {
+function checkChoice(qId, correct, explanation, hintMsg) {
   if (!selected[qId]) { alert('Em chưa chọn đáp án!'); return; }
   if (answered[qId] !== undefined) return;
   const isCorrect = selected[qId] === correct;
+  
+  if (!isCorrect && !momoHinted[qId]) {
+    momoHinted[qId] = true;
+    currentHelpQid = qId;
+    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
+    document.getElementById('momoOverlay').classList.add('show');
+    
+    // Reset selected
+    selected[qId] = null;
+    const btns = document.querySelectorAll('#' + qId + 'choices .choice-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+    document.querySelector('#' + qId + ' .check-btn').disabled = true;
+    return;
+  }
+
+  // Lưu Checkpoint
+  const now = Date.now();
+  const timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
+  window._lastInteractionTime = now;
+  window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+  
+  window._checkpoints.push({
+    question_id: parseInt(qId.replace('q', '')),
+    attempt_number: window._attempts[qId],
+    submitted_answer: selected[qId],
+    is_correct: isCorrect,
+    time_spent_seconds: timeSpent
+  });
+
   answered[qId] = isCorrect;
   updateScore();
+  if (isCorrect) {
+    comboStreak++;
+    updateComboUI();
+    playerAttack();
+  } else {
+    comboStreak = 0;
+    updateComboUI();
+    bossAttack();
+  }
+
   const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
   btns.forEach(b => {
     b.disabled = true;
@@ -609,7 +1405,7 @@ function checkChoice(qId, correct, explanation) {
   showFeedback(`fb${qId}`, isCorrect,
     isCorrect ? explanation : `Chưa đúng. ${explanation}`
   );
-  document.querySelector(`#${qId} .check-btn`).disabled = true;
+  handleAfterAttack(document.querySelector(`#${qId} .check-btn`), qId);
 }
 
 function submitAll() {
@@ -632,7 +1428,23 @@ function submitAll() {
   document.getElementById('rdCorrect').textContent = c;
   document.getElementById('rdWrong').textContent = w;
   document.getElementById('rdSkip').textContent = skip;
+  
+  // LƯU HUY HIỆU NẾU ĐẠT TRÊN 50%
+  if (pct >= 50) {
+    const currentLesson = parseInt(window.location.pathname.match(/bai(\d+)/)?.[1] || 0);
+    if (currentLesson > 0) {
+      let badges = [];
+      try { badges = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
+      if (!badges.includes(currentLesson)) {
+        badges.push(currentLesson);
+        localStorage.setItem('cbToan_badges', JSON.stringify(badges));
+      }
+    }
+    // Đổi Title chúc mừng nhận huy hiệu
+    document.getElementById('resultTitle').innerHTML = '🏆 Bạn Đã Nhận Được Huy Hiệu!';
+  }
   document.getElementById('resultOverlay').classList.add('show');
+
 }
 </script>
 
@@ -659,6 +1471,7 @@ window.submitAll = function() {
     diem:      correct,
     tong:      total,
     chi_tiet:  answered,
+    checkpoints: window._checkpoints || [],
   };
 
   // Gửi về Telegram bot
@@ -668,5 +1481,21 @@ window.submitAll = function() {
 };
 </script>
 
-</body>
+
+<!-- Video Popup -->
+<div class="video-modal" id="videoModal">
+  <div class="video-container">
+    <div class="video-header">
+      <span class="video-title">🎬 BÀI GIẢNG: BÀI TOÁN CẤU TẠO SỐ</span>
+      <button class="close-video-btn" onclick="closeVideo()">✖</button>
+    </div>
+    <div class="video-iframe-wrapper" id="videoWrapper">
+      <!-- Iframe will be injected here -->
+    </div>
+  </div>
+</div>
+
+
+<!-- Video Help: opens YouTube in new tab via openVideoHelp() -->
+\n</body>
 </html>

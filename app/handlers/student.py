@@ -44,11 +44,11 @@ def make_main_menu() -> ReplyKeyboardMarkup:
     webapp_url = f"{BASE_URL}/index.html"
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton("📝 Làm bài tập", web_app=WebAppInfo(url=webapp_url)), KeyboardButton("🎯 Kiểm tra năng lực")],
-            [KeyboardButton("📊 Bảng điểm"), KeyboardButton("📹 Xem video")],
-            [KeyboardButton("💬 Hỏi bài"), KeyboardButton("📚 Chọn buổi học")],
-            [KeyboardButton("🏅 Hồ sơ"), KeyboardButton("🏆 Xếp hạng")],
-            [KeyboardButton("🗑️ Xoá lịch sử")],
+            [KeyboardButton("🗺️ Bản đồ Chiến Dịch", web_app=WebAppInfo(url=webapp_url)), KeyboardButton("🔮 Đánh giá Năng lực")],
+            [KeyboardButton("📊 Bảng điểm"), KeyboardButton("📹 Xem bí kíp (Video)")],
+            [KeyboardButton("💬 Hỏi Chỉ Huy"), KeyboardButton("📚 Chọn Căn cứ (Buổi)")],
+            [KeyboardButton("🏅 Hồ sơ Chiến Binh"), KeyboardButton("🏆 Xếp hạng Bang hội")],
+            [KeyboardButton("📅 Lịch học"), KeyboardButton("🗑️ Xoá lịch sử")],
         ],
         resize_keyboard=True,
     )
@@ -81,7 +81,7 @@ async def dangky(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         hs = await crud.add_student(uid, ho_ten)
         await update.message.reply_text(
-            f"✅ Đăng ký thành công!\n\n👤 Tên: *{hs['ho_ten']}*\n🎓 Lớp: {hs['lop']}\n\nEm có thể bắt đầu làm bài tập ngay! 👇",
+            f"✅ Ghi danh thành công!\n\n👤 Tên: *{hs['ho_ten']}*\n🎓 Lớp: {hs['lop']}\n\nChiến binh có thể bắt đầu hành trình ngay! 👇",
             parse_mode="Markdown", reply_markup=MAIN_MENU,
         )
     except Exception as e:
@@ -91,7 +91,7 @@ async def dangky(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clear_history(update.effective_user.id)
     await update.message.reply_text(
-        f"👋 Chào {update.effective_user.first_name}!\n\n🎓 Bot học Toán *VInaStudy* — Thầy Nguyễn Thành Long\n\nChọn chức năng bên dưới để bắt đầu! 👇",
+        f"👋 Chào mừng Chiến binh {update.effective_user.first_name}!\n\n🎓 Chào mừng đến với Học viện Toán *VInaStudy* — Tổng Chỉ huy: Nguyễn Thành Long\n\nHãy chọn hành động bên dưới để bắt đầu! 👇",
         parse_mode="Markdown", reply_markup=MAIN_MENU,
     )
 
@@ -104,9 +104,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await xu_ly_ket_qua_webapp(update, context)
         return
 
-    if text == "🏠 Bài tập về nhà":
+    if text == "🗺️ Bản đồ Chiến Dịch":
         state["mode"] = "btvn_menu"
-        await update.message.reply_text("🏠 *Bài Tập Về Nhà*\n\nChọn buổi học để làm bài.\n_(Buổi mới nhất ở dưới cùng)_ 👇", parse_mode="Markdown", reply_markup=BTVN_MENU)
+        await update.message.reply_text("🏠 *Bản đồ Chiến Dịch*\n\nChọn ải để tiêu diệt quái vật.\n_(Ải mới nhất ở dưới cùng)_ 👇", parse_mode="Markdown", reply_markup=BTVN_MENU)
         return
 
     if text.startswith("📖 Buổi "):
@@ -131,46 +131,76 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Buổi này chưa có bài tập.", reply_markup=BTVN_MENU)
         return
 
-    if text == "🎯 Kiểm tra năng lực":
-        uid_ls = lich_su_hs(uid)
-        if not uid_ls:
-            msg = "📊 Em chưa làm bài tập nào. Hãy làm *🏠 Bài tập về nhà* trước nhé!"
-        else:
-            lines = ["📊 *Tổng kết năng lực của em:*\n"]
-            for ls in reversed(uid_ls[-8:]):
-                bar = "🟢" if ls["phan_tram"]>=80 else ("🟡" if ls["phan_tram"]>=60 else ("🟠" if ls["phan_tram"]>=40 else "🔴"))
-                lines.append(f"{bar} Buổi {ls['buoi']}: *{ls['diem']}/{ls['tong']}* ({ls['phan_tram']}%) — {ls['thoi_gian']}")
-            msg = "\n".join(lines)
+    if text == "🔮 Đánh giá Năng lực":
+        try:
+            db_results = await crud.get_results_student(uid, limit=8)
+            if db_results:
+                lines = ["📊 *Tổng kết năng lực của em:*\n"]
+                for r in db_results:
+                    pct = r["phan_tram"]
+                    bar = "🟢" if pct >= 80 else ("🟡" if pct >= 60 else ("🟠" if pct >= 40 else "🔴"))
+                    ten_buoi = r.get("ten_buoi", f"Buổi {r.get('so_buoi', '?')}")
+                    tg = r["thoi_gian"]
+                    tg_str = tg.strftime("%d/%m") if hasattr(tg, "strftime") else str(tg)[:10]
+                    lines.append(f"{bar} {ten_buoi}: *{r['diem']}/{r['tong_cau']}* ({pct}%) — {tg_str}")
+                msg = "\n".join(lines)
+            else:
+                raise ValueError("no db data")
+        except Exception:
+            uid_ls = lich_su_hs(uid)
+            if not uid_ls:
+                msg = "📊 Em chưa làm bài tập nào. Hãy làm *🗺️ Bản đồ Chiến Dịch* trước nhé!"
+            else:
+                lines = ["📊 *Tổng kết năng lực của em:*\n"]
+                for ls in reversed(uid_ls[-8:]):
+                    bar = "🟢" if ls["phan_tram"] >= 80 else ("🟡" if ls["phan_tram"] >= 60 else ("🟠" if ls["phan_tram"] >= 40 else "🔴"))
+                    lines.append(f"{bar} Buổi {ls['buoi']}: *{ls['diem']}/{ls['tong']}* ({ls['phan_tram']}%) — {ls['thoi_gian']}")
+                msg = "\n".join(lines)
         await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
     if text == "📊 Bảng điểm":
-        uid_ls = lich_su_hs(uid)
-        if not uid_ls:
-            msg = "📋 Em chưa có kết quả nào. Hãy làm bài tập trước nhé!"
-        else:
-            lines = ["📋 *Lịch sử bài làm của em:*\n"]
-            for i, ls in enumerate(reversed(uid_ls), 1):
-                pct = ls["phan_tram"]
-                lvl = "🏆" if pct>=80 else ("⭐" if pct>=60 else ("📖" if pct>=40 else "🌱"))
-                lines.append(f"{i}. {lvl} Buổi {ls['buoi']} — {ls['diem']}/{ls['tong']} ({pct}%)\n   📅 {ls['thoi_gian']}")
-            msg = "\n".join(lines)
+        try:
+            db_results = await crud.get_results_student(uid, limit=15)
+            if db_results:
+                lines = ["📋 *Lịch sử bài làm của em:*\n"]
+                for i, r in enumerate(db_results, 1):
+                    pct = r["phan_tram"]
+                    lvl = "🏆" if pct >= 80 else ("⭐" if pct >= 60 else ("📖" if pct >= 40 else "🌱"))
+                    ten_buoi = r.get("ten_buoi", f"Buổi {r.get('so_buoi', '?')}")
+                    tg = r["thoi_gian"]
+                    tg_str = tg.strftime("%d/%m/%Y %H:%M") if hasattr(tg, "strftime") else str(tg)[:16]
+                    lines.append(f"{i}. {lvl} {ten_buoi}: *{r['diem']}/{r['tong_cau']}* ({pct}%)\n   📅 {tg_str}")
+                msg = "\n".join(lines)
+            else:
+                raise ValueError("no db data")
+        except Exception:
+            uid_ls = lich_su_hs(uid)
+            if not uid_ls:
+                msg = "📋 Em chưa có kết quả nào. Hãy làm bài tập trước nhé!"
+            else:
+                lines = ["📋 *Lịch sử bài làm của em:*\n"]
+                for i, ls in enumerate(reversed(uid_ls), 1):
+                    pct = ls["phan_tram"]
+                    lvl = "🏆" if pct >= 80 else ("⭐" if pct >= 60 else ("📖" if pct >= 40 else "🌱"))
+                    lines.append(f"{i}. {lvl} Buổi {ls['buoi']} — {ls['diem']}/{ls['tong']} ({pct}%)\n   📅 {ls['thoi_gian']}")
+                msg = "\n".join(lines)
         await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
-    if text == "📹 Xem video":
+    if text == "📹 Xem bí kíp (Video)":
         buoi = state.get("buoi", DEFAULT_BUOI)
         cfg = BUOI_CONFIG[buoi]
         await update.message.reply_text(f"📹 *Video — Buổi {buoi}*\n_{cfg['ten']}_\n\n🔗 {cfg['video']}", parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
-    if text == "💬 Hỏi bài":
+    if text == "💬 Hỏi Chỉ Huy":
         state["mode"] = "chat"
         buoi = state.get("buoi", DEFAULT_BUOI)
         await update.message.reply_text(f"💬 *Hỏi bài — Buổi {buoi}: {BUOI_CONFIG[buoi]['ten']}*\n\nGõ bài toán cần giải, thầy Long AI sẽ hướng dẫn từng bước! 👇", parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
-    if text == "📚 Chọn buổi học":
+    if text == "📚 Chọn Căn cứ (Buổi)":
         state["mode"] = "chon_buoi"
         await update.message.reply_text("📚 *Chọn buổi học*", parse_mode="Markdown", reply_markup=BUOI_MENU)
         return
@@ -187,6 +217,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"✅ Đã chuyển sang *Buổi {so_buoi}: {BUOI_CONFIG[so_buoi]['ten']}*", parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
+    if text == "📅 Lịch học":
+        lines = ["📅 *Lịch học VInaStudy — Lớp 3*\n"]
+        for so_buoi, cfg in sorted(BUOI_CONFIG.items()):
+            lines.append(f"📘 Buổi {so_buoi}: *{cfg['ten']}*\n   📹 {cfg['video']}")
+        await update.message.reply_text("\n".join(lines), parse_mode="Markdown", reply_markup=MAIN_MENU)
+        return
+
     if text == "🗑️ Xoá lịch sử":
         clear_history(uid)
         await update.message.reply_text("🗑️ Đã xoá lịch sử hội thoại!", reply_markup=MAIN_MENU)
@@ -197,14 +234,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("🏠 Menu chính!", reply_markup=MAIN_MENU)
         return
 
-    if text == "🏅 Hồ sơ":
+    if text == "🏅 Hồ sơ Chiến Binh":
         hs = await crud.get_student(uid)
         ho_ten = hs["ho_ten"] if hs else update.effective_user.first_name
         profile = await hien_thi_profile(uid, ho_ten)
         await update.message.reply_text(profile, parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
 
-    if text == "🏆 Xếp hạng":
+    if text == "🏆 Xếp hạng Bang hội":
         xh = await bang_xep_hang(top_n=10)
         await update.message.reply_text(xh, parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
@@ -228,6 +265,7 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
         diem = data.get("diem", 0)
         tong = data.get("tong", 0)
         chi_tiet = data.get("chi_tiet", {})
+        checkpoints = data.get("checkpoints", [])
     except Exception as e:
         logger.error(f"Web app data error: {e}")
         await update.message.reply_text("❌ Lỗi nhận kết quả, em thử lại nhé!", reply_markup=MAIN_MENU)
@@ -237,10 +275,12 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
     luu_ket_qua(uid, buoi, diem, tong, chi_tiet)
     try:
         await crud.save_result(uid, buoi, diem, tong, chi_tiet)
+        if checkpoints:
+            await crud.save_session_with_checkpoints(uid, buoi, checkpoints)
     except Exception as e:
         logger.warning(f"DB save result: {e}")
 
-    await update.message.reply_text(f"✅ *Đã nộp bài — Buổi {buoi}*\n\n📊 Điểm: *{diem}/{tong}* câu ({phan_tram}%)\n\n⏳ Đang tính điểm thưởng...", parse_mode="Markdown")
+    await update.message.reply_text(f"✅ *Hoàn thành Chiến dịch — Ải {buoi}*\n\n📊 Đã tiêu diệt: *{diem}/{tong}* quái vật ({phan_tram}%)\n\n⏳ Đang thu thập chiến lợi phẩm...", parse_mode="Markdown")
 
     lich_su = lich_su_hs(uid)
     tong_buoi = len(set(r["buoi"] for r in lich_su))
@@ -253,7 +293,7 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
 
     await update.message.chat.send_action("typing")
     danh_gia = await danh_gia_nang_luc(diem, tong, chi_tiet, buoi, lich_su[:-1])
-    await update.message.reply_text(f"🎓 *Đánh giá năng lực*\n\n{danh_gia}\n\n📹 Xem lại: {BUOI_CONFIG.get(buoi,{{}}).get('video','')}", parse_mode="Markdown", reply_markup=MAIN_MENU)
+    await update.message.reply_text(f"🎓 *Đánh giá năng lực*\n\n{danh_gia}\n\n📹 Xem lại: {BUOI_CONFIG.get(buoi, {}).get('video', '')}", parse_mode="Markdown", reply_markup=MAIN_MENU)
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -266,7 +306,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         file_bytes = await file.download_as_bytearray()
         img_b64 = base64.standard_b64encode(file_bytes).decode("utf-8")
         caption = update.message.caption or ""
-        user_text = f"Em gửi ảnh bài toán.{{' Ghi chú: ' + caption if caption else ''}}"
+        user_text = f"Em gửi ảnh bài toán.{' Ghi chú: ' + caption if caption else ''}"
         
         reply = await ask_claude_with_image(state["history"], user_text, img_b64, state.get("buoi", DEFAULT_BUOI))
         await update.message.reply_text(reply, reply_markup=MAIN_MENU)
@@ -295,9 +335,9 @@ async def bangdiem_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lines = ["📋 *Lịch sử bài làm:*\n"]
         for i, ls in enumerate(reversed(uid_ls), 1):
             lvl = "🏆" if ls["phan_tram"]>=80 else ("⭐" if ls["phan_tram"]>=60 else ("📖" if ls["phan_tram"]>=40 else "🌱"))
-            lines.append(f"{{i}}. {{lvl}} Buổi {{ls['buoi']}} — {{ls['diem']}}/{{ls['tong']}} ({{ls['phan_tram']}}%) | {{ls['thoi_gian']}}")
+            lines.append(f"{i}. {lvl} Buổi {ls['buoi']} — {ls['diem']}/{ls['tong']} ({ls['phan_tram']}%) | {ls['thoi_gian']}")
         msg = "\n".join(lines)
     await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
-    logger.error(f"Error: {{context.error}}", exc_info=context.error)
+    logger.error(f"Error: {context.error}", exc_info=context.error)

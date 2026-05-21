@@ -20,13 +20,13 @@ BADGES = {
 }
 
 LEVELS = [
-    (0,    "🌱", "Học sinh mới"),
-    (200,  "📗", "Học sinh tiến bộ"),
-    (500,  "📘", "Học sinh khá"),
-    (1000, "📙", "Học sinh giỏi"),
-    (2000, "🏅", "Học sinh xuất sắc"),
-    (3500, "🥇", "Nhà toán học nhỏ"),
-    (5000, "👑", "Thiên tài toán học"),
+    (0,    "🌱", "Tân Binh"),
+    (200,  "📗", "Chiến Binh Tập Sự"),
+    (500,  "📘", "Chiến Binh Thực Thụ"),
+    (1000, "📙", "Dũng Sĩ"),
+    (2000, "🏅", "Kỵ Sĩ Toán Học"),
+    (3500, "🥇", "Tướng Quân"),
+    (5000, "👑", "Chiến Thần"),
 ]
 
 def tinh_cap_do(xp: int) -> tuple:
@@ -44,7 +44,7 @@ def tinh_cap_do(xp: int) -> tuple:
 async def cap_nhat_gamification(telegram_id: int, buoi: int, diem: int, tong: int, lich_su: list, tong_buoi_hoan_thanh: int) -> dict:
     g = await crud.get_gamification(telegram_id)
     if not g:
-        g = {"xp": 0, "streak": 0, "streak_max": 0, "last_active": None, "badges": "[]"}
+        g = {"xp": 0, "gold": 0, "level": 1, "role_name": "Tân Binh", "streak": 0, "streak_max": 0, "last_active": None, "badges": "[]"}
     
     if isinstance(g["badges"], str):
         try:
@@ -76,20 +76,31 @@ async def cap_nhat_gamification(telegram_id: int, buoi: int, diem: int, tong: in
     g["last_active"] = today
 
     g["xp"] += xp_bai
+    gold_bai = xp_bai // 2
+    g["gold"] = g.get("gold", 0) + gold_bai
 
     huy_hieu_moi = _kiem_tra_badges(g, badges, lich_su, phan_tram, tong_buoi_hoan_thanh, buoi)
     for badge_key in huy_hieu_moi:
         if badge_key not in badges:
             badges.append(badge_key)
-            g["xp"] += BADGES[badge_key]["xp"]
-
-    await crud.save_gamification(telegram_id, g["xp"], g["streak"], g["streak_max"], g["last_active"], json.dumps(badges))
+            badge_xp = BADGES[badge_key]["xp"]
+            g["xp"] += badge_xp
+            g["gold"] += badge_xp // 2
 
     icon_cap, ten_cap, next_xp = tinh_cap_do(g["xp"])
+    
+    # Cập nhật level dựa trên index
+    level_num = 1
+    for i, lvl in enumerate(LEVELS):
+        if g["xp"] >= lvl[0]: level_num = i + 1
+
+    await crud.save_gamification(telegram_id, g["xp"], g["gold"], level_num, ten_cap, g["streak"], g["streak_max"], g["last_active"], json.dumps(badges))
 
     return {
         "xp_bai":      xp_bai,
+        "gold_bai":    gold_bai,
         "xp_tong":     g["xp"],
+        "gold_tong":   g["gold"],
         "streak":      g["streak"],
         "streak_tang": g["streak"] > streak_truoc,
         "badges_moi":  huy_hieu_moi,
@@ -148,7 +159,7 @@ def _kiem_tra_badges(g: dict, badges: list, lich_su: list, phan_tram: int, tong_
 async def hien_thi_profile(telegram_id: int, ho_ten: str) -> str:
     g = await crud.get_gamification(telegram_id)
     if not g:
-        g = {"xp": 0, "streak": 0, "streak_max": 0, "last_active": None, "badges": "[]"}
+        g = {"xp": 0, "gold": 0, "level": 1, "role_name": "Tân Binh", "streak": 0, "streak_max": 0, "last_active": None, "badges": "[]"}
     
     if isinstance(g["badges"], str):
         try:
@@ -183,8 +194,9 @@ async def hien_thi_profile(telegram_id: int, ho_ten: str) -> str:
 
     return (
         f"👤 *{ho_ten}*\n"
-        f"{icon_cap} Cấp độ: *{ten_cap}*\n\n"
-        f"✨ XP: {xp_line}\n"
+        f"{icon_cap} Cấp độ {g.get('level', 1)}: *{ten_cap}*\n\n"
+        f"✨ Kinh nghiệm: {xp_line}\n"
+        f"💰 Vàng: *{g.get('gold', 0)}*\n"
         f"{streak_line}\n"
         f"{badge_line}"
     )
@@ -192,6 +204,7 @@ async def hien_thi_profile(telegram_id: int, ho_ten: str) -> str:
 def thong_bao_ket_qua_game(result: dict, ho_ten: str) -> str:
     lines = []
     lines.append(f"✨ *+{result['xp_bai']} XP* — Tổng: {result['xp_tong']} XP")
+    lines.append(f"💰 *+{result.get('gold_bai', 0)} Vàng* — Tổng: {result.get('gold_tong', 0)} Vàng")
     lines.append(f"{result['icon_cap']} Cấp độ: *{result['ten_cap']}*")
     if result["next_xp"]:
         con_lai = result["next_xp"] - result["xp_tong"]

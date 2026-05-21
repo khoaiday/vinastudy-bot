@@ -29,6 +29,8 @@ def main():
     
     app.add_handler(CommandHandler("start",     admin.start))
     app.add_handler(CommandHandler("broadcast", admin.broadcast_cmd))
+    app.add_handler(CommandHandler("truyna",    admin.truyna_cmd))
+    app.add_handler(CommandHandler("nangluc",   admin.nangluc_cmd))
     app.add_handler(MessageHandler(filters.TEXT  & ~filters.COMMAND, admin.handle_message))
     app.add_handler(MessageHandler(filters.PHOTO, admin.handle_photo))
     app.add_error_handler(admin.error_handler)
