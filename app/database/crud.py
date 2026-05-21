@@ -329,6 +329,16 @@ def _row_to_web_user(row) -> dict | None:
     return d
 
 
+async def get_web_user_by_telegram_id(telegram_id: int) -> dict | None:
+    pool = get_pool()
+    if not pool:
+        return None
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM web_users WHERE telegram_id=$1", telegram_id)
+    return _row_to_web_user(row)
+
+
 async def upsert_web_user(google_id: str, email: str, display_name: str = "") -> dict:
     sql = """
         INSERT INTO web_users (google_id, email, ho_ten)

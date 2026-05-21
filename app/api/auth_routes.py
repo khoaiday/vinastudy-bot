@@ -14,22 +14,23 @@ router = APIRouter()
 
 
 @router.get("/google/login")
-async def google_login():
-    """Redirect sang Google OAuth."""
-    url = get_login_url()
+async def google_login(tg_id: str = ""):
+    """Redirect sang Google OAuth. tg_id được forward qua state."""
+    url = get_login_url(state=tg_id or "")
     return RedirectResponse(url)
 
 
 @router.get("/google/callback")
-async def google_callback(code: str = "", error: str = ""):
-    """Google callback: đổi code → token → user info → tạo session."""
+async def google_callback(code: str = "", error: str = "", state: str = ""):
+    """Google callback: đổi code → token → user info → tạo session.
+    state chứa tg_id (telegram_id) được forward từ login URL."""
     if error or not code:
         return RedirectResponse(f"{BASE_DOMAIN}/register?error=cancelled")
 
     try:
         tokens    = await exchange_code(code)
         user_info = await get_user_info(tokens["access_token"])
-    except ValueError as e:
+    except ValueError:
         return RedirectResponse(f"{BASE_DOMAIN}/register?error=oauth_fail")
 
     google_id = user_info["id"]
@@ -45,11 +46,14 @@ async def google_callback(code: str = "", error: str = ""):
         "status":  web_user["status"],
     })
 
+    # Forward tg_id (state) về register để JS lưu vào localStorage
+    tg_param = f"&tg_id={state}" if state and state.isdigit() else ""
+
     # Redirect về register với token
     if web_user["status"] == "approved":
-        redirect = f"{BASE_DOMAIN}/register?token={session_token}&step=done"
+        redirect = f"{BASE_DOMAIN}/register?token={session_token}&step=done{tg_param}"
     else:
-        redirect = f"{BASE_DOMAIN}/register?token={session_token}&step=2"
+        redirect = f"{BASE_DOMAIN}/register?token={session_token}&step=2{tg_param}"
 
     return RedirectResponse(redirect)
 

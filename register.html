@@ -270,7 +270,7 @@ body {
       <div class="card-title">🔐 Bước 1: Đăng nhập</div>
       <div class="card-sub">Dùng tài khoản Gmail để bắt đầu hành trình</div>
 
-      <a href="/auth/google/login" class="btn-google" id="btnGoogle">
+      <a href="#" class="btn-google" id="btnGoogle" onclick="doGoogleLogin(event)">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
         Đăng nhập với Google
       </a>
@@ -446,6 +446,14 @@ let currentChar = 'chien_binh';
 let faceB64 = '';
 let stream = null;
 
+// ── Google login với tg_id ───────────────────────────────────────────────
+function doGoogleLogin(e) {
+  e.preventDefault();
+  const tgId = localStorage.getItem('vsTgId') || '';
+  const url = tgId ? `/auth/google/login?tg_id=${tgId}` : '/auth/google/login';
+  window.location.href = url;
+}
+
 // ── Starfield ────────────────────────────────────────────────────────────
 (function() {
   const c = document.getElementById('stars');
@@ -491,11 +499,15 @@ function showToast(msg, ok=false) {
 // ── URL params (token from OAuth callback) ───────────────────────────────
 (async function init() {
   const params = new URLSearchParams(window.location.search);
-  const t = params.get('token');
-  const step = params.get('step');
-  const err = params.get('error');
+  const t      = params.get('token');
+  const step   = params.get('step');
+  const err    = params.get('error');
+  const tgId   = params.get('tg_id');
 
   if (err) { showToast('Đăng nhập thất bại, thử lại!'); return; }
+
+  // Lưu tg_id vào localStorage ngay khi có (từ link bot hoặc từ callback)
+  if (tgId) localStorage.setItem('vsTgId', tgId);
 
   if (t) {
     token = t;
@@ -668,18 +680,22 @@ async function submitProfile() {
   document.getElementById('btnSubmit').disabled = true;
 
   try {
+    const tgId = localStorage.getItem('vsTgId');
+    const body = {
+      ho_ten: name,
+      lop: lop,
+      character_type: currentChar,
+      avatar_face_b64: faceB64,
+    };
+    if (tgId) body.telegram_id = parseInt(tgId);
+
     const res = await fetch('/api/student/complete-profile', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify({
-        ho_ten: name,
-        lop: lop,
-        character_type: currentChar,
-        avatar_face_b64: faceB64
-      })
+      body: JSON.stringify(body)
     });
 
     const data = await res.json();

@@ -6,11 +6,65 @@ from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboard
 from telegram.ext import ContextTypes
 
 import app.database.crud as crud
-from app.config import BASE_URL, BUOI_CONFIG, BTVN_CONFIG, DEFAULT_BUOI
+from app.config import BASE_URL, BASE_DOMAIN, BUOI_CONFIG, BTVN_CONFIG, DEFAULT_BUOI
 from app.services.ai_claude import ask_claude, ask_claude_with_image, danh_gia_nang_luc
 from app.services.gamification import cap_nhat_gamification, hien_thi_profile, thong_bao_ket_qua_game, bang_xep_hang
 
 logger = logging.getLogger(__name__)
+
+
+# ── Login gate ────────────────────────────────────────────────────────────
+
+async def check_web_status(telegram_id: int) -> str:
+    """Kiểm tra trạng thái tài khoản web của học sinh.
+    Returns: 'approved' | 'pending' | 'rejected' | 'not_found'
+    """
+    try:
+        user = await crud.get_web_user_by_telegram_id(telegram_id)
+        if not user:
+            return "not_found"
+        return user.get("status", "not_found")
+    except Exception as e:
+        logger.warning(f"check_web_status error: {e}")
+        return "not_found"
+
+
+async def send_login_required(update: Update):
+    """Gửi màn hình yêu cầu đăng ký web."""
+    uid = update.effective_user.id
+    first_name = update.effective_user.first_name or "Chiến Binh"
+    reg_url = f"{BASE_DOMAIN}/register?tg_id={uid}"
+
+    keyboard = InlineKeyboardMarkup([[
+        InlineKeyboardButton("⚔️ Đăng ký tài khoản", url=reg_url)
+    ]])
+    await update.message.reply_text(
+        f"👋 Chào *{first_name}*!\n\n"
+        "🔐 Em cần *đăng ký tài khoản* trước khi tham gia Chiến Binh Toán!\n\n"
+        "📋 *Các bước:*\n"
+        "1️⃣ Nhấn nút bên dưới → đăng nhập Gmail\n"
+        "2️⃣ Chọn nhân vật & chụp ảnh đại diện\n"
+        "3️⃣ Chờ thầy duyệt *(thường trong 24h)*\n"
+        "4️⃣ Bot tự thông báo khi được duyệt ✅\n\n"
+        "👇 Nhấn để bắt đầu hành trình!",
+        parse_mode="Markdown",
+        reply_markup=keyboard,
+    )
+
+
+async def send_pending(update: Update):
+    """Gửi thông báo đang chờ duyệt."""
+    first_name = update.effective_user.first_name or "Chiến Binh"
+    await update.message.reply_text(
+        f"⏳ Chào *{first_name}*!\n\n"
+        "Hồ sơ của em đang *chờ thầy duyệt* ⚙️\n\n"
+        "Thầy sẽ thông báo qua đây ngay khi duyệt xong!\n"
+        "Thường trong vòng *24 giờ* 🚀",
+        parse_mode="Markdown",
+    )
+
+
+# ── State ─────────────────────────────────────────────────────────────────
 
 # State
 user_state: dict = {}
@@ -69,35 +123,60 @@ BTVN_MENU = make_btvn_menu()
 BUOI_MENU = make_buoi_menu()
 
 async def dangky(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Redirect sang web registration thay vì đăng ký cũ."""
     uid = update.effective_user.id
-    args = context.args
-    if not args:
+    status = await check_web_status(uid)
+    if status == "approved":
         await update.message.reply_text(
-            "📝 *Đăng ký học*\n\nNhập lệnh kèm tên của em:\n`/dangky Họ và tên`\n\nVí dụ: `/dangky Nguyễn Văn An`",
-            parse_mode="Markdown",
+            "✅ Em đã có tài khoản và được duyệt rồi!\n\nChọn chức năng bên dưới để bắt đầu nhé! 👇",
+            reply_markup=MAIN_MENU,
         )
-        return
-    ho_ten = " ".join(args)
-    try:
-        hs = await crud.add_student(uid, ho_ten)
-        await update.message.reply_text(
-            f"✅ Ghi danh thành công!\n\n👤 Tên: *{hs['ho_ten']}*\n🎓 Lớp: {hs['lop']}\n\nChiến binh có thể bắt đầu hành trình ngay! 👇",
-            parse_mode="Markdown", reply_markup=MAIN_MENU,
-        )
-    except Exception as e:
-        logger.error(f"Dangky error: {e}")
-        await update.message.reply_text("❌ Lỗi đăng ký, thử lại nhé!")
+    elif status == "pending":
+        await send_pending(update)
+    else:
+        await send_login_required(update)
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    clear_history(update.effective_user.id)
-    await update.message.reply_text(
-        f"👋 Chào mừng Chiến binh {update.effective_user.first_name}!\n\n🎓 Chào mừng đến với Học viện Toán *VInaStudy* — Tổng Chỉ huy: Nguyễn Thành Long\n\nHãy chọn hành động bên dưới để bắt đầu! 👇",
-        parse_mode="Markdown", reply_markup=MAIN_MENU,
-    )
+    uid = update.effective_user.id
+    clear_history(uid)
+
+    status = await check_web_status(uid)
+
+    if status == "approved":
+        # Lấy tên từ web_user nếu có
+        try:
+            web_user = await crud.get_web_user_by_telegram_id(uid)
+            ten = web_user["ho_ten"] if web_user and web_user.get("ho_ten") else update.effective_user.first_name
+        except Exception:
+            ten = update.effective_user.first_name
+
+        await update.message.reply_text(
+            f"⚔️ Chào mừng *{ten}* trở lại!\n\n"
+            "🎓 Học viện Toán *VInaStudy* — Tổng Chỉ huy: Nguyễn Thành Long\n\n"
+            "Hãy chọn hành động bên dưới để bắt đầu! 👇",
+            parse_mode="Markdown", reply_markup=MAIN_MENU,
+        )
+    elif status == "pending":
+        await send_pending(update)
+    else:
+        await send_login_required(update)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     text = (update.message.text or "").strip()
+
+    # ── Login gate ──────────────────────────────────────────────────────
+    status = await check_web_status(uid)
+    if status == "not_found" or status == "rejected":
+        await send_login_required(update)
+        return
+    if status == "pending":
+        await send_pending(update)
+        return
+    # status == "approved" → tiếp tục bình thường
+    # ───────────────────────────────────────────────────────────────────
+
     state = get_state(uid)
 
     if text == "🗺️ Bản đồ Chiến Dịch":
@@ -253,6 +332,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
+
+    # WebApp data: không cần gate vì chỉ học sinh có link mới làm được bài
     state = get_state(uid)
 
     try:
@@ -294,6 +375,17 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
+
+    # ── Login gate ──────────────────────────────────────────────────────
+    status = await check_web_status(uid)
+    if status != "approved":
+        if status == "pending":
+            await send_pending(update)
+        else:
+            await send_login_required(update)
+        return
+    # ───────────────────────────────────────────────────────────────────
+
     state = get_state(uid)
     await update.message.chat.send_action("typing")
     try:

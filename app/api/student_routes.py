@@ -28,7 +28,8 @@ class CompleteProfileBody(BaseModel):
     ho_ten:         str
     lop:            str = "3"
     character_type: str = "chien_binh"
-    avatar_face_b64: str   # base64 ảnh mặt đã crop (từ canvas client)
+    avatar_face_b64: str           # base64 ảnh mặt đã crop (từ canvas client)
+    telegram_id:    int | None = None  # tg_id từ link bot
 
 
 class UpdateProfileBody(BaseModel):
@@ -64,6 +65,10 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
         avatar_cartoon  = avatar_result["cartoon_b64"],
         avatar_final    = avatar_result["final_b64"],
     )
+
+    # Lưu telegram_id nếu có (gửi từ link bot)
+    if body.telegram_id:
+        await crud.patch_web_user(google_id, {"telegram_id": body.telegram_id})
 
     return JSONResponse({"ok": True, "status": "pending",
                          "avatar_final": avatar_result["final_b64"]})
