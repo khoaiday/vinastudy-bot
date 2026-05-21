@@ -326,6 +326,10 @@ def _row_to_web_user(row) -> dict | None:
     d = dict(row)
     # Bỏ avatar_original (lớn, không cần trả về toàn bộ)
     d.pop("avatar_original", None)
+    # Chuyển datetime → string để JSON serialize được
+    for k, v in d.items():
+        if hasattr(v, "isoformat"):
+            d[k] = v.isoformat()
     return d
 
 
