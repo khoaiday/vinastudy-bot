@@ -95,7 +95,8 @@ def lich_su_hs(user_id: int) -> list:
     return ket_qua_hs.get(user_id, [])
 
 def make_main_menu() -> ReplyKeyboardMarkup:
-    webapp_url = f"{BASE_URL}/index.html"
+    # Dùng BASE_DOMAIN (web server mới) thay vì BASE_URL cũ
+    webapp_url = f"{BASE_DOMAIN}/game"
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton("🗺️ Bản đồ Chiến Dịch", web_app=WebAppInfo(url=webapp_url)), KeyboardButton("🔮 Đánh giá Năng lực")],
@@ -197,7 +198,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             cfg = BTVN_CONFIG[so_buoi]
             ten = BUOI_CONFIG[so_buoi]["ten"]
-            webapp_url = f"{BASE_URL}/{cfg['html']}"
+            webapp_url = f"{BASE_DOMAIN}/content/lop3/{cfg.get('folder','')}/bai-tap.html" if cfg.get('folder') else f"{BASE_URL}/{cfg['html']}"
 
             keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(text=f"📝 Làm bài — Buổi {so_buoi}", web_app=WebAppInfo(url=webapp_url))]])
             await update.message.reply_text(f"🏠 *Bài tập về nhà — Buổi {so_buoi}*\n_{ten}_\n\n📋 {cfg['so_cau']} câu bài tập\n📹 Video: {BUOI_CONFIG[so_buoi]['video']}\n\n👇 Nhấn nút bên dưới để làm bài:", parse_mode="Markdown", reply_markup=keyboard)

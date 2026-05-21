@@ -327,6 +327,45 @@
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
 
+// ── Auth Gate ─────────────────────────────────────────────────────────────
+(async function authGate() {
+  const tgId = tg?.initDataUnsafe?.user?.id;
+  if (!tgId) return; // Browser test → cho qua
+
+  try {
+    const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
+    const data = await res.json();
+
+    if (data.status === 'approved') {
+      // Cập nhật user badge với tên thật
+      const CHARS = { chien_binh:'⚔️', phu_thuy:'🔮', xa_thu:'🏹', hiep_si:'🛡️' };
+      const emoji = CHARS[data.character_type] || '⚔️';
+      const badge = document.getElementById('userBadge');
+      if (badge && data.ho_ten) badge.innerHTML = `${emoji} ${data.ho_ten.toUpperCase()}`;
+      return;
+    }
+
+    if (data.status === 'pending') {
+      document.body.innerHTML = `
+        <div style="min-height:100vh;background:#050a1f;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;font-family:'Roboto',sans-serif;">
+          <div style="font-size:52px;animation:float 3s ease-in-out infinite">⏳</div>
+          <style>@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}</style>
+          <div style="font-size:22px;font-weight:800;color:#0ae0fe;margin:16px 0 8px">Đang chờ duyệt</div>
+          <div style="color:rgba(248,250,252,.6);line-height:1.7">Hồ sơ của em đang chờ thầy duyệt.<br>Thầy sẽ thông báo qua Telegram khi xong!<br><br><strong style="color:#0ae0fe">Thường trong 24 giờ 🚀</strong></div>
+        </div>`;
+      return;
+    }
+
+    // Chưa đăng ký → về trang đăng ký
+    window.location.replace(`/register?tg_id=${tgId}`);
+
+  } catch(e) {
+    console.warn('Auth gate error:', e);
+    // Fail open
+  }
+})();
+// ─────────────────────────────────────────────────────────────────────────
+
 const BASE = (function() {
   const loc = window.location;
   const path = loc.pathname.endsWith('/')

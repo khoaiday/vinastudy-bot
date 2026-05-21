@@ -3,188 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Giới Thiệu — Chiến Binh Toán</title>
+<title>Chiến Binh Toán</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #0ae0fe;
-    --primary-glow: rgba(10, 224, 254, 0.5);
-    --secondary: #ea0eed;
-    --secondary-glow: rgba(234, 14, 237, 0.5);
-    --bg-base: #050a1f;
-    --text-main: #f8fafc;
-  }
+:root {
+  --primary: #0ae0fe;
+  --primary-glow: rgba(10,224,254,0.5);
+  --secondary: #ea0eed;
+  --secondary-glow: rgba(234,14,237,0.5);
+  --success: #4eff9f;
+  --bg: #050a1f;
+  --text: #f8fafc;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* ── Auth overlay (mặc định hiển thị trong khi check) ── */
+#authOverlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+}
+.spinner {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--primary); border-left-color: var(--secondary);
+  animation: spin .9s linear infinite;
+  box-shadow: 0 0 18px var(--primary-glow);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.auth-label { font-family: 'Rajdhani', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--primary); }
 
-  html, body {
-    height: 100%; overflow: hidden;
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--bg-base);
-    color: var(--text-main);
-  }
+/* ── Pending overlay ── */
+#pendingOverlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  padding: 28px; text-align: center;
+}
+.pending-icon { font-size: 56px; animation: float 3s ease-in-out infinite; margin-bottom: 18px; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.pending-title { font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
+.pending-sub { font-size: 15px; line-height: 1.7; color: rgba(248,250,252,.6); }
 
-  /* ── Background Grid ── */
-  .grid-bg {
-    position: absolute; inset: 0;
-    background-image: 
-      linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center top;
-    z-index: 0;
-    pointer-events: none;
-    animation: slowPan 20s linear infinite;
-  }
-  @keyframes slowPan {
-    from { background-position: 0 0; }
-    to { background-position: 0 400px; }
-  }
+/* ── Grid bg ── */
+.grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(10,224,254,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,224,254,.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+  animation: slowPan 20s linear infinite;
+}
+@keyframes slowPan { from { background-position: 0 0; } to { background-position: 0 400px; } }
 
-  .app {
-    display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1;
-    background: radial-gradient(circle at center, rgba(14, 23, 58, 0.7), var(--bg-base));
-  }
+.app {
+  display: flex; flex-direction: column; height: 100vh;
+  position: relative; z-index: 1;
+  background: radial-gradient(circle at center, rgba(14,23,58,.7), var(--bg));
+}
 
-  /* ── Scenes ── */
-  .scene {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 20px;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.5s ease-in-out;
-  }
-  .scene.active { opacity: 1; pointer-events: auto; }
+/* ── Scenes ── */
+.scene {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px; opacity: 0; pointer-events: none;
+  transition: opacity .5s;
+}
+.scene.active { opacity: 1; pointer-events: auto; }
 
-  /* ── Cyber Button Style ── */
-  .cyber-btn {
-    padding: 16px 40px; border: none; border-radius: 8px;
-    background: transparent;
-    border: 2px solid var(--primary);
-    color: var(--primary); font-family: 'Rajdhani', sans-serif;
-    font-size: 20px; font-weight: 900; letter-spacing: 2px;
-    text-transform: uppercase; cursor: pointer;
-    box-shadow: 0 0 15px var(--primary-glow), inset 0 0 15px rgba(10, 224, 254, 0.2);
-    transition: all 0.3s;
-    margin-top: 30px;
-  }
-  .cyber-btn:hover, .cyber-btn:active {
-    background: var(--primary); color: #000;
-    box-shadow: 0 0 30px var(--primary);
-  }
+/* ── Cyber button ── */
+.cyber-btn {
+  padding: 14px 38px; border: 2px solid var(--primary);
+  border-radius: 8px; background: transparent;
+  color: var(--primary); font-family: 'Rajdhani', sans-serif;
+  font-size: 20px; font-weight: 900; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer;
+  box-shadow: 0 0 15px var(--primary-glow), inset 0 0 15px rgba(10,224,254,.2);
+  transition: all .3s; margin-top: 28px;
+}
+.cyber-btn:active { background: var(--primary); color: #000; }
 
-  /* ── Scene 1: Title ── */
-  .title-logo {
-    font-family: 'Rajdhani', sans-serif; font-size: 48px; font-weight: 900;
-    text-align: center; line-height: 1.1; text-transform: uppercase;
-    color: var(--primary); text-shadow: 0 0 20px var(--primary-glow);
-    margin-bottom: 20px;
-  }
-  .title-logo span { color: var(--secondary); text-shadow: 0 0 20px var(--secondary-glow); display: block; font-size: 32px; margin-top: 10px; }
+/* ── Scene 1: Title ── */
+.title-logo {
+  font-family: 'Rajdhani', sans-serif; font-size: 48px; font-weight: 900;
+  text-align: center; line-height: 1.1; text-transform: uppercase;
+  color: var(--primary); text-shadow: 0 0 20px var(--primary-glow);
+  margin-bottom: 16px;
+}
+.title-logo span { color: var(--secondary); text-shadow: 0 0 20px var(--secondary-glow); display: block; font-size: 28px; margin-top: 8px; }
 
-  /* ── Scene 2: Lore ── */
-  .lore-box {
-    max-width: 500px; width: 100%;
-    background: rgba(11, 19, 43, 0.8);
-    border: 1px solid rgba(10, 224, 254, 0.3);
-    padding: 30px 20px; border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    position: relative; overflow: hidden;
-  }
-  .lore-box::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-    background: linear-gradient(90deg, transparent, var(--secondary), transparent);
-  }
-  .lore-text {
-    font-size: 16px; line-height: 1.8; text-align: justify;
-    color: #cbd5e1; margin-bottom: 15px;
-  }
-  .lore-text strong { color: var(--primary); text-shadow: 0 0 5px var(--primary-glow); }
-  .lore-text .evil { color: var(--secondary); text-shadow: 0 0 5px var(--secondary-glow); font-weight: bold; }
+/* ── Scene 2: Lore ── */
+.lore-box {
+  max-width: 500px; width: 100%;
+  background: rgba(11,19,43,.85); border: 1px solid rgba(10,224,254,.3);
+  padding: 28px 20px; border-radius: 12px;
+  position: relative; overflow: hidden;
+}
+.lore-box::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+}
+.lore-text { font-size: 16px; line-height: 1.8; text-align: justify; color: #cbd5e1; margin-bottom: 12px; }
+.lore-text strong { color: var(--primary); }
+.lore-text .evil { color: var(--secondary); font-weight: bold; }
 
-  /* ── Scene 3: Character Selection ── */
-  .char-title {
-    font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 900;
-    color: var(--primary); text-transform: uppercase; letter-spacing: 2px;
-    margin-bottom: 30px; text-shadow: 0 0 10px var(--primary-glow);
-  }
-
-  .avatar-grid {
-    display: flex; gap: 20px; margin-bottom: 30px;
-    width: 100%; max-width: 400px; justify-content: center;
-  }
-
-  .cyber-box {
-    position: relative;
-    border-radius: 12px;
-    background: transparent !important;
-    cursor: pointer;
-    transition: transform 0.2s;
-    flex: 1; aspect-ratio: 3/4; max-width: 150px;
-  }
-  .cyber-box:active { transform: scale(0.95); }
-
-  .cyber-box::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    padding: 2px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    z-index: 10;
-  }
-  .cyber-box::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: inherit;
-    z-index: -1;
-    background: rgba(11, 19, 43, 0.85);
-    backdrop-filter: blur(8px);
-  }
-  .cyber-box.selected::before {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    box-shadow: 0 0 15px var(--primary-glow);
-  }
-
-  .avatar-card-inner {
-    width: 100%; height: 100%; padding: 10px;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-  }
-  .avatar-img { 
-    width: 100%; height: 80%; object-fit: contain; 
-    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
-  }
-  .avatar-name { 
-    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; 
-    text-transform: uppercase; letter-spacing: 1px; color: #fff; margin-bottom: 5px;
-  }
-
-  .name-input-wrap {
-    width: 100%; max-width: 260px;
-  }
-  .name-input {
-    width: 100%; background: rgba(10, 224, 254, 0.05);
-    border: 2px solid var(--primary); border-radius: 8px;
-    padding: 14px 16px; font-size: 18px; color: #fff;
-    font-family: 'Rajdhani', sans-serif; font-weight: 700; text-align: center;
-    outline: none; transition: all 0.3s;
-    text-transform: uppercase;
-  }
-  .name-input:focus { background: rgba(10, 224, 254, 0.15); box-shadow: 0 0 15px var(--primary-glow); }
-  .name-input::placeholder { color: rgba(255,255,255,0.3); text-transform: none; }
-
+/* ── Scene 3: Welcome (thay thế chọn nhân vật cũ) ── */
+.welcome-card {
+  background: rgba(11,19,43,.9); border: 1px solid rgba(10,224,254,.35);
+  border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 360px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.welcome-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+.wc-avatar {
+  width: 100px; height: 100px; border-radius: 16px;
+  border: 2px solid var(--primary); margin: 0 auto 14px;
+  object-fit: cover; display: block;
+  box-shadow: 0 0 24px var(--primary-glow);
+}
+.wc-avatar-placeholder {
+  width: 100px; height: 100px; border-radius: 16px;
+  border: 2px solid var(--primary); margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; box-shadow: 0 0 24px var(--primary-glow);
+}
+.wc-name {
+  font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 900;
+  color: var(--primary); text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.wc-sub { font-size: 13px; color: rgba(248,250,252,.5); letter-spacing: 1px; }
+.wc-badge {
+  display: inline-block; margin-top: 10px;
+  font-size: 12px; font-weight: 700; padding: 3px 10px;
+  border-radius: 99px; background: rgba(78,255,159,.12);
+  color: var(--success); border: 1px solid rgba(78,255,159,.3);
+}
 </style>
 </head>
 <body>
 
-<div class="app">
+<!-- Auth overlay (hiện trong khi đang check) -->
+<div id="authOverlay">
+  <div class="spinner"></div>
+  <div class="auth-label">ĐANG XÁC THỰC...</div>
+</div>
+
+<!-- Pending overlay -->
+<div id="pendingOverlay">
+  <div class="pending-icon">⏳</div>
+  <div class="pending-title">Đang chờ duyệt</div>
+  <div class="pending-sub">
+    Hồ sơ của em đã gửi thành công!<br>
+    Thầy sẽ duyệt và thông báo qua Telegram.<br><br>
+    <strong style="color:var(--primary)">Thường trong 24 giờ 🚀</strong>
+  </div>
+</div>
+
+<div class="app" id="mainApp" style="display:none">
   <div class="grid-bg"></div>
 
   <!-- Scene 1: Title -->
@@ -203,74 +184,104 @@
     <button class="cyber-btn" onclick="goToScene(3)">TIẾP TỤC</button>
   </div>
 
-  <!-- Scene 3: Character Select -->
+  <!-- Scene 3: Welcome với dữ liệu thật -->
   <div class="scene" id="scene3">
-    <div class="char-title">LỰA CHỌN CHIẾN BINH</div>
-    
-    <div class="avatar-grid">
-      <div class="cyber-box selected" onclick="selectAvatar('boy', this)">
-        <div class="avatar-card-inner">
-          <img src="assets/boy_avatar.png" class="avatar-img" alt="Chiến Binh Xanh">
-          <div class="avatar-name" style="color:var(--primary)">NAM</div>
-        </div>
-      </div>
-      <div class="cyber-box" onclick="selectAvatar('girl', this)">
-        <div class="avatar-card-inner">
-          <img src="assets/girl_avatar.png" class="avatar-img" alt="Chiến Binh Tím">
-          <div class="avatar-name" style="color:var(--secondary)">NỮ</div>
-        </div>
-      </div>
+    <div class="welcome-card">
+      <div id="wcAvatarWrap"></div>
+      <div class="wc-name" id="wcName">CHIẾN BINH</div>
+      <div class="wc-sub" id="wcSub">LỚP 3 • CHIẾN BINH TOÁN</div>
+      <div class="wc-badge">✅ TÀI KHOẢN ĐÃ ĐƯỢC DUYỆT</div>
     </div>
-
-    <div class="name-input-wrap">
-      <input type="text" id="playerName" class="name-input" placeholder="Nhập tên chiến binh..." maxlength="12">
-    </div>
-
-    <button class="cyber-btn" id="startBtn" onclick="startGame()">KHỞI HÀNH</button>
+    <button class="cyber-btn" onclick="goToMap()">KHỞI HÀNH ⚔️</button>
   </div>
-
 </div>
 
 <script>
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
 
-let currentAvatar = 'boy';
+const CHARS = {
+  chien_binh: '⚔️', phu_thuy: '🔮', xa_thu: '🏹', hiep_si: '🛡️'
+};
 
-function goToScene(sceneNum) {
-  document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
-  document.getElementById('scene' + sceneNum).classList.add('active');
-}
+let vsUser = null;
 
-function selectAvatar(type, element) {
-  currentAvatar = type;
-  document.querySelectorAll('.cyber-box').forEach(el => el.classList.remove('selected'));
-  element.classList.add('selected');
-}
+// ── Auth Gate ─────────────────────────────────────────────────────────────
+(async function authGate() {
+  const tgId = tg?.initDataUnsafe?.user?.id;
 
-function startGame() {
-  const nameInput = document.getElementById('playerName').value.trim();
-  if (nameInput === '') {
-    alert("Vui lòng nhập tên chiến binh!");
+  if (!tgId) {
+    // Không mở từ Telegram (test trên browser) → cho qua
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('mainApp').style.display = '';
     return;
   }
-  
-  // Lưu vào localStorage
-  localStorage.setItem('cbToan_name', nameInput);
-  
-  // Lưu icon tương ứng để hiển thị bên map
-  const avatarEmoji = (currentAvatar === 'boy') ? '👨‍🚀' : '👩‍🚀';
-  localStorage.setItem('cbToan_avatar', avatarEmoji);
 
-  // Chuyển hướng sang Bản Đồ Chiến Dịch
-  window.location.href = 'map.html';
+  try {
+    const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
+    const data = await res.json();
+
+    if (data.status === 'approved') {
+      vsUser = data;
+      // Điền thông tin thật vào scene 3
+      setupWelcomeCard(data);
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('mainApp').style.display = '';
+
+      // Nếu đã từng chơi → skip thẳng vào map
+      if (localStorage.getItem('vsPlayed_' + tgId)) {
+        goToMap();
+        return;
+      }
+      return;
+    }
+
+    if (data.status === 'pending') {
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('pendingOverlay').style.display = 'flex';
+      return;
+    }
+
+    // not_found / rejected → về trang đăng ký
+    window.location.replace(`/register?tg_id=${tgId}`);
+
+  } catch(e) {
+    // Lỗi mạng → cho qua (fail open)
+    console.warn('Auth gate error:', e);
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('mainApp').style.display = '';
+  }
+})();
+
+// ── Setup welcome card ────────────────────────────────────────────────────
+function setupWelcomeCard(user) {
+  const wrap = document.getElementById('wcAvatarWrap');
+  if (user.avatar_final) {
+    wrap.innerHTML = `<img src="${user.avatar_final}" class="wc-avatar" alt="Avatar">`;
+  } else {
+    const emoji = CHARS[user.character_type] || '⚔️';
+    wrap.innerHTML = `<div class="wc-avatar-placeholder">${emoji}</div>`;
+  }
+  document.getElementById('wcName').textContent = (user.ho_ten || 'CHIẾN BINH').toUpperCase();
+  document.getElementById('wcSub').textContent = `LỚP ${user.lop || '3'} • ${(user.character_type || 'chien_binh').replace('_', ' ').toUpperCase()}`;
 }
 
-document.getElementById('scene3').addEventListener('transitionend', function(e) {
-  if(e.propertyName === 'opacity' && this.classList.contains('active')){
-    document.getElementById('playerName').focus();
-  }
-});
+// ── Navigation ────────────────────────────────────────────────────────────
+function goToScene(n) {
+  document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+  document.getElementById('scene' + n).classList.add('active');
+}
+
+function goToMap() {
+  // Đánh dấu đã chơi để lần sau skip intro
+  const tgId = tg?.initDataUnsafe?.user?.id;
+  if (tgId) localStorage.setItem('vsPlayed_' + tgId, '1');
+
+  // Truyền dữ liệu thật qua sessionStorage cho map.html dùng
+  if (vsUser) sessionStorage.setItem('vsUser', JSON.stringify(vsUser));
+
+  window.location.href = 'map.html';
+}
 </script>
 </body>
 </html>

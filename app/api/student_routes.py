@@ -111,6 +111,21 @@ async def update_profile(body: UpdateProfileBody, request: Request):
     }})
 
 
+@router.get("/tg-status")
+async def tg_status(tg_id: int):
+    """Kiểm tra trạng thái tài khoản theo Telegram ID. Dùng bởi HTML WebApp."""
+    user = await crud.get_web_user_by_telegram_id(tg_id)
+    if not user:
+        return JSONResponse({"status": "not_found"})
+    return JSONResponse({
+        "status":         user["status"],
+        "ho_ten":         user.get("ho_ten") or "",
+        "character_type": user.get("character_type") or "chien_binh",
+        "avatar_final":   user.get("avatar_final") or "",
+        "lop":            user.get("lop") or "3",
+    })
+
+
 @router.get("/profile")
 async def get_profile(request: Request):
     payload  = get_current_user(request)

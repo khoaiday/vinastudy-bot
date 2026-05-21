@@ -54,6 +54,35 @@ async def home():
     return HTMLResponse("<h1>VInaStudy Bot</h1><a href='/register'>Đăng ký</a>")
 
 
+@app.get("/game", response_class=HTMLResponse)
+async def game_page():
+    """Splash/intro — index.html (được mở từ bot qua WebApp)."""
+    p = Path("index.html")
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
+@app.get("/map", response_class=HTMLResponse)
+async def map_page():
+    """Bản đồ chiến dịch — map.html."""
+    p = Path("map.html")
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
+# Cho phép index.html / map.html theo đúng tên file
+@app.get("/index.html", response_class=HTMLResponse)
+async def index_html():
+    return await game_page()
+
+
+@app.get("/map.html", response_class=HTMLResponse)
+async def map_html():
+    return await map_page()
+
+
 @app.get("/register", response_class=HTMLResponse)
 async def register_page():
     p = Path("register.html")
