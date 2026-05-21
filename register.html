@@ -449,9 +449,18 @@ let stream = null;
 // ── Google login với tg_id ───────────────────────────────────────────────
 function doGoogleLogin(e) {
   e.preventDefault();
-  const tgId = localStorage.getItem('vsTgId') || '';
-  const url = tgId ? `/auth/google/login?tg_id=${tgId}` : '/auth/google/login';
-  window.location.href = url;
+  const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id
+             || localStorage.getItem('vsTgId') || '';
+  if (tgId) localStorage.setItem('vsTgId', String(tgId));
+  const path = tgId ? `/auth/google/login?tg_id=${tgId}` : '/auth/google/login';
+  const fullUrl = window.location.origin + path;
+  // Google OAuth không cho phép login trong WebView/in-app browser
+  // → Buộc mở bằng trình duyệt hệ thống (Chrome/Safari)
+  if (window.Telegram?.WebApp?.openLink) {
+    window.Telegram.WebApp.openLink(fullUrl);
+  } else {
+    window.open(fullUrl, '_blank') || (window.location.href = fullUrl);
+  }
 }
 
 // ── Starfield ────────────────────────────────────────────────────────────
