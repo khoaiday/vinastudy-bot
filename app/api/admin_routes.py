@@ -27,6 +27,25 @@ class NotifyBody(BaseModel):
     message: str
 
 
+class CreateUserBody(BaseModel):
+    ho_ten:         str
+    lop:            str = "3"
+    gioi_tinh:      str = "nam"
+    character_type: str = "chien_binh"
+    telegram_id:    int | None = None
+    email:          str | None = None
+    status:         str = "approved"
+
+
+class UpdateUserBody(BaseModel):
+    ho_ten:         str | None = None
+    lop:            str | None = None
+    gioi_tinh:      str | None = None
+    character_type: str | None = None
+    telegram_id:    int | None = None
+    status:         str | None = None
+
+
 # ── Pending accounts ───────────────────────────────────────────────────
 
 @router.get("/pending")
@@ -106,6 +125,46 @@ async def get_student_results(user_id: int,
         return JSONResponse({"results": []})
     summary = await crud.get_student_results_summary(user["telegram_id"])
     return JSONResponse(summary or {"results": []})
+
+
+# ── Admin CRUD users ───────────────────────────────────────────────────
+
+@router.post("/users")
+async def create_user(body: CreateUserBody,
+                      x_admin_token: str = Header(default="")):
+    require_admin(x_admin_token)
+    user = await crud.create_web_user_admin(
+        ho_ten=body.ho_ten, lop=body.lop, gioi_tinh=body.gioi_tinh,
+        character_type=body.character_type, telegram_id=body.telegram_id,
+        email=body.email, status=body.status,
+    )
+    if body.status == "approved" and body.telegram_id:
+        await crud.sync_web_user_to_student(user["id"])
+    return JSONResponse({"ok": True, "user": user})
+
+
+@router.put("/users/{user_id}")
+async def update_user(user_id: int, body: UpdateUserBody,
+                      x_admin_token: str = Header(default="")):
+    require_admin(x_admin_token)
+    updates = {k: v for k, v in body.model_dump().items() if v is not None}
+    if updates:
+        await crud.update_web_user_admin(user_id, updates)
+    if body.status == "approved":
+        await crud.sync_web_user_to_student(user_id)
+    user = await crud.get_web_user_by_id(user_id)
+    return JSONResponse({"ok": True, "user": user})
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: int,
+                      x_admin_token: str = Header(default="")):
+    require_admin(x_admin_token)
+    user = await crud.get_web_user_by_id(user_id)
+    if not user:
+        raise HTTPException(404, "Không tìm thấy user")
+    await crud.delete_web_user(user_id)
+    return JSONResponse({"ok": True, "message": f"Đã xóa {user['ho_ten']}"})
 
 
 # ── Dashboard stats ────────────────────────────────────────────────────

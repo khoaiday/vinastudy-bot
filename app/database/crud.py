@@ -1,4 +1,5 @@
 import json
+import uuid
 import logging
 from app.database.connection import get_pool
 
@@ -459,3 +460,50 @@ async def sync_web_user_to_student(user_id: int):
                     lop    = EXCLUDED.lop,
                     active = TRUE
         """, wu["telegram_id"], wu["ho_ten"], wu["lop"])
+
+
+# ── Admin CRUD ─────────────────────────────────────────────────────────
+
+async def create_web_user_admin(ho_ten: str, lop: str, gioi_tinh: str,
+                                character_type: str, telegram_id=None,
+                                email: str = None, status: str = "approved") -> dict:
+    gid = f"admin_{uuid.uuid4().hex[:20]}"
+    if not email:
+        email = f"{gid}@admin.local"
+    sql = """
+        INSERT INTO web_users
+            (google_id, email, ho_ten, lop, gioi_tinh, character_type,
+             telegram_id, status, approved_at)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8, CASE WHEN $8='approved' THEN NOW() ELSE NULL END)
+        RETURNING *
+    """
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(sql, gid, email, ho_ten, lop,
+                                  gioi_tinh, character_type, telegram_id, status)
+    return _row_to_web_user(row)
+
+
+async def update_web_user_admin(user_id: int, updates: dict):
+    allowed = {"ho_ten", "lop", "gioi_tinh", "character_type",
+               "telegram_id", "status", "avatar_final", "avatar_cartoon",
+               "avatar_original", "rejection_reason"}
+    fields = {k: v for k, v in updates.items() if k in allowed}
+    if not fields:
+        return
+    # Nếu status → approved thì cập nhật approved_at
+    extra = ""
+    if fields.get("status") == "approved":
+        extra = ", approved_at = NOW()"
+    cols = ", ".join(f"{k}=${i+2}" for i, k in enumerate(fields))
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            f"UPDATE web_users SET {cols}{extra} WHERE id=$1",
+            user_id, *fields.values())
+
+
+async def delete_web_user(user_id: int):
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("DELETE FROM web_users WHERE id=$1", user_id)

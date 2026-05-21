@@ -238,6 +238,19 @@ canvas#snap { display: none; }
         <option value="5">Lớp 5</option>
       </select>
     </div>
+    <div class="field">
+      <label>Giới tính</label>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button type="button" id="btnNam" onclick="selectGender('nam')"
+          style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--primary);
+                 background:rgba(10,224,254,0.15);color:var(--primary);font-size:1rem;
+                 cursor:pointer;font-weight:700">♂ Nam</button>
+        <button type="button" id="btnNu" onclick="selectGender('nu')"
+          style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--border);
+                 background:rgba(234,14,237,0.08);color:var(--text);font-size:1rem;
+                 cursor:pointer;font-weight:700">♀ Nữ</button>
+      </div>
+    </div>
   </div>
 
   <!-- Nhân vật -->
@@ -285,9 +298,19 @@ const CHARS = {
 
 let tgId = null;
 let currentChar = 'chien_binh';
-let newFaceB64 = null;   // ảnh mặt mới (nếu người dùng chụp/upload)
+let currentGender = 'nam';
+let newFaceB64 = null;
 let stream = null;
 let hasNewAvatar = false;
+
+function selectGender(gt) {
+  currentGender = gt;
+  const on  = 'border:2px solid var(--secondary);background:rgba(234,14,237,0.25);color:var(--secondary)';
+  const off = 'border:2px solid var(--border);background:rgba(10,224,254,0.08);color:var(--text)';
+  const base = ';flex:1;padding:10px;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:700';
+  document.getElementById('btnNam').style.cssText = (gt==='nam' ? on : off) + base;
+  document.getElementById('btnNu').style.cssText  = (gt==='nu'  ? on : off) + base;
+}
 
 // ── Load profile ──────────────────────────────────────────────────────────
 (async function load() {
@@ -331,7 +354,9 @@ function showError(msg) {
 function fillForm(data) {
   document.getElementById('inputName').value = data.ho_ten || '';
   document.getElementById('inputLop').value  = data.lop   || '3';
-  currentChar = data.character_type || 'chien_binh';
+  currentChar   = data.character_type || 'chien_binh';
+  currentGender = data.gioi_tinh     || 'nam';
+  selectGender(currentGender);
 
   // Avatar
   const wrap = document.getElementById('avatarDisplay');
@@ -439,6 +464,7 @@ async function saveProfile() {
     tg_id:          tgId,
     ho_ten:         name,
     lop:            document.getElementById('inputLop').value,
+    gioi_tinh:      currentGender,
     character_type: currentChar,
   };
   if (newFaceB64) body.avatar_face_b64 = newFaceB64;

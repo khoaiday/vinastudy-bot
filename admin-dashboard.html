@@ -390,10 +390,19 @@ body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'S
         </select>
       </div>
 
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button onclick="openCreateUser()"
+          style="padding:9px 18px;border-radius:10px;border:1px solid var(--success);
+                 background:rgba(78,255,159,.12);color:var(--success);font-weight:700;
+                 cursor:pointer;font-size:.88rem">
+          ➕ Thêm học sinh
+        </button>
+      </div>
+
       <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:auto;">
         <table class="stu-table">
           <thead><tr>
-            <th>Học sinh</th><th>Lớp</th><th>Nhân vật</th><th>Email</th><th>Trạng thái</th><th>Ngày đăng ký</th><th></th>
+            <th>Học sinh</th><th>Lớp</th><th>Nhân vật</th><th>Email</th><th>Trạng thái</th><th>Ngày đăng ký</th><th>Thao tác</th>
           </tr></thead>
           <tbody id="stuBody">
             <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
@@ -404,6 +413,103 @@ body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'S
 
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- ── Modal: Create / Edit user ── -->
+<div class="modal-bg" id="userModal">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-close" onclick="closeModal('userModal')">✕</button>
+    <div class="modal-title" id="userModalTitle">➕ Thêm học sinh</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+      <div>
+        <label style="font-size:.78rem;color:rgba(200,230,255,.5);display:block;margin-bottom:5px">Họ và tên *</label>
+        <input id="um_name" type="text" placeholder="Nguyễn Văn A"
+          style="width:100%;padding:9px 12px;background:rgba(10,224,254,.05);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-size:.9rem;outline:none">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label style="font-size:.78rem;color:rgba(200,230,255,.5);display:block;margin-bottom:5px">Lớp</label>
+          <select id="um_lop"
+            style="width:100%;padding:9px 12px;background:rgba(10,224,254,.05);border:1px solid var(--border);
+                   border-radius:8px;color:var(--text);font-size:.9rem;outline:none">
+            <option value="3">Lớp 3</option>
+            <option value="4">Lớp 4</option>
+            <option value="5">Lớp 5</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:rgba(200,230,255,.5);display:block;margin-bottom:5px">Giới tính</label>
+          <select id="um_gt"
+            style="width:100%;padding:9px 12px;background:rgba(10,224,254,.05);border:1px solid var(--border);
+                   border-radius:8px;color:var(--text);font-size:.9rem;outline:none">
+            <option value="nam">♂ Nam</option>
+            <option value="nu">♀ Nữ</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:rgba(200,230,255,.5);display:block;margin-bottom:5px">Nhân vật</label>
+        <select id="um_char"
+          style="width:100%;padding:9px 12px;background:rgba(10,224,254,.05);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-size:.9rem;outline:none">
+          <option value="chien_binh">⚔️ Chiến Binh</option>
+          <option value="phu_thuy">🔮 Phù Thủy</option>
+          <option value="xa_thu">🏹 Xạ Thủ</option>
+          <option value="hiep_si">🛡️ Hiệp Sĩ</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label style="font-size:.78rem;color:rgba(200,230,255,.5);display:block;margin-bottom:5px">Telegram ID</label>
+          <input id="um_tgid" type="number" placeholder="(tùy chọn)"
+            style="width:100%;padding:9px 12px;background:rgba(10,224,254,.05);border:1px solid var(--border);
+                   border-radius:8px;color:var(--text);font-size:.9rem;outline:none">
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:rgba(200,230,255,.5);display:block;margin-bottom:5px">Trạng thái</label>
+          <select id="um_status"
+            style="width:100%;padding:9px 12px;background:rgba(10,224,254,.05);border:1px solid var(--border);
+                   border-radius:8px;color:var(--text);font-size:.9rem;outline:none">
+            <option value="approved">✅ Đã duyệt</option>
+            <option value="pending">⏳ Chờ duyệt</option>
+            <option value="rejected">❌ Từ chối</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:rgba(200,230,255,.5);display:block;margin-bottom:5px">Email (tùy chọn)</label>
+        <input id="um_email" type="email" placeholder="hocsinh@gmail.com"
+          style="width:100%;padding:9px 12px;background:rgba(10,224,254,.05);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-size:.9rem;outline:none">
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:18px">
+      <button id="userModalBtn" class="btn-approve" onclick="submitUserModal()"
+        style="flex:1;padding:12px;font-size:.9rem">💾 Lưu</button>
+      <button class="btn-reject" onclick="closeModal('userModal')"
+        style="flex:0.4;padding:12px;font-size:.9rem">Huỷ</button>
+    </div>
+    <div id="userModalErr" style="display:none;margin-top:10px;font-size:.82rem;color:var(--danger);text-align:center"></div>
+  </div>
+</div>
+
+<!-- ── Modal: Delete confirm ── -->
+<div class="modal-bg" id="deleteModal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div class="modal-title" style="color:var(--danger)">🗑️ Xác nhận xóa</div>
+    <p id="deleteMsg" style="font-size:.9rem;margin:14px 0;color:rgba(200,230,255,.7)"></p>
+    <div class="modal-actions">
+      <button id="confirmDeleteBtn" onclick="doDelete()"
+        style="flex:1;padding:12px;border-radius:9px;border:none;background:var(--danger);
+               color:#fff;font-weight:700;cursor:pointer">🗑️ Xóa</button>
+      <button onclick="closeModal('deleteModal')"
+        style="flex:1;padding:12px;border-radius:9px;border:1px solid var(--border);
+               background:transparent;color:var(--text);cursor:pointer">Huỷ</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Modal: Reject reason ── -->
 <div class="modal-bg" id="rejectModal">
@@ -718,11 +824,15 @@ function renderStudents(users) {
       <td style="font-size:.78rem;color:rgba(200,230,255,.5)">${esc(u.email||'')}</td>
       <td>${statusBadge}</td>
       <td style="font-size:.78rem;color:rgba(200,230,255,.4)">${dateStr}</td>
-      <td>
+      <td style="white-space:nowrap;display:flex;gap:5px;padding:10px 14px">
         ${u.status==='pending'
-          ? `<button class="btn-approve" style="padding:6px 12px;font-size:.75rem" onclick="approveUser(${u.id},'${esc(u.ho_ten||'')}')">✅ Duyệt</button>`
-          : `<button class="btn-detail" style="padding:6px 10px;font-size:.75rem" onclick="showDetail(${JSON.stringify(u).replace(/"/g,'&quot;')})">👁</button>`
-        }
+          ? `<button class="btn-approve" style="padding:5px 10px;font-size:.72rem" onclick="approveUser(${u.id},'${esc(u.ho_ten||'')}')">✅</button>`
+          : ''}
+        <button class="btn-detail" style="padding:5px 10px;font-size:.72rem"
+          onclick='openEditUser(${JSON.stringify(u).replace(/'/g,"&#39;")})'>✏️</button>
+        <button style="padding:5px 10px;font-size:.72rem;border-radius:7px;border:1px solid rgba(255,0,85,.4);
+          background:rgba(255,0,85,.1);color:#ff4466;cursor:pointer"
+          onclick="confirmDelete(${u.id},'${esc(u.ho_ten||'')}')">🗑️</button>
       </td>
     </tr>`;
   }).join('');
@@ -778,6 +888,115 @@ function charName(t)  { return CHARS[t]?.name  || t || '—'; }
 document.querySelectorAll('.modal-bg').forEach(m => {
   m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
 });
+
+// ── User CRUD ──────────────────────────────────────────────────────────────
+let editUserId = null;
+
+function openCreateUser() {
+  editUserId = null;
+  document.getElementById('userModalTitle').textContent = '➕ Thêm học sinh';
+  document.getElementById('userModalBtn').textContent = '➕ Thêm';
+  document.getElementById('um_name').value  = '';
+  document.getElementById('um_lop').value   = '3';
+  document.getElementById('um_gt').value    = 'nam';
+  document.getElementById('um_char').value  = 'chien_binh';
+  document.getElementById('um_tgid').value  = '';
+  document.getElementById('um_email').value = '';
+  document.getElementById('um_status').value = 'approved';
+  document.getElementById('userModalErr').style.display = 'none';
+  document.getElementById('userModal').classList.add('open');
+}
+
+function openEditUser(u) {
+  if (typeof u === 'string') u = JSON.parse(u);
+  editUserId = u.id;
+  document.getElementById('userModalTitle').textContent = '✏️ Sửa hồ sơ';
+  document.getElementById('userModalBtn').textContent = '💾 Lưu';
+  document.getElementById('um_name').value   = u.ho_ten  || '';
+  document.getElementById('um_lop').value    = u.lop     || '3';
+  document.getElementById('um_gt').value     = u.gioi_tinh || 'nam';
+  document.getElementById('um_char').value   = u.character_type || 'chien_binh';
+  document.getElementById('um_tgid').value   = u.telegram_id || '';
+  document.getElementById('um_email').value  = u.email   || '';
+  document.getElementById('um_status').value = u.status  || 'approved';
+  document.getElementById('userModalErr').style.display = 'none';
+  document.getElementById('userModal').classList.add('open');
+}
+
+async function submitUserModal() {
+  const name = document.getElementById('um_name').value.trim();
+  if (!name) {
+    const err = document.getElementById('userModalErr');
+    err.textContent = 'Vui lòng nhập tên học sinh!';
+    err.style.display = 'block';
+    return;
+  }
+  const tgVal   = document.getElementById('um_tgid').value.trim();
+  const emailVal = document.getElementById('um_email').value.trim();
+  const payload = {
+    ho_ten:         name,
+    lop:            document.getElementById('um_lop').value,
+    gioi_tinh:      document.getElementById('um_gt').value,
+    character_type: document.getElementById('um_char').value,
+    status:         document.getElementById('um_status').value,
+    telegram_id:    tgVal    ? parseInt(tgVal)   : null,
+    email:          emailVal || null,
+  };
+
+  const btn = document.getElementById('userModalBtn');
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+  document.getElementById('userModalErr').style.display = 'none';
+
+  try {
+    const url    = editUserId ? `/api/admin/users/${editUserId}` : '/api/admin/users';
+    const method = editUserId ? 'PUT' : 'POST';
+    const res    = await api(url, { method, body: JSON.stringify(payload) });
+    const data   = await res.json();
+
+    if (!res.ok) throw new Error(data.detail || 'Lỗi lưu');
+    closeModal('userModal');
+    showToast(editUserId ? '✅ Đã cập nhật!' : '✅ Đã thêm học sinh!', 'success');
+    loadStudents();
+  } catch(e) {
+    const err = document.getElementById('userModalErr');
+    err.textContent = e.message;
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editUserId ? '💾 Lưu' : '➕ Thêm';
+  }
+}
+
+let deleteTargetId = null;
+let deleteTargetName = '';
+
+function confirmDelete(id, name) {
+  deleteTargetId   = id;
+  deleteTargetName = name;
+  document.getElementById('deleteMsg').textContent =
+    `Xóa học sinh "${name}"? Hành động này không thể hoàn tác.`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+async function doDelete() {
+  if (!deleteTargetId) return;
+  const btn = document.getElementById('confirmDeleteBtn');
+  btn.disabled = true; btn.textContent = 'Đang xóa...';
+
+  try {
+    const res  = await api(`/api/admin/users/${deleteTargetId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Lỗi xóa');
+    closeModal('deleteModal');
+    showToast(`🗑️ Đã xóa ${deleteTargetName}`, 'success');
+    loadStudents();
+  } catch(e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '🗑️ Xóa';
+    deleteTargetId = null;
+  }
+}
 </script>
 </body>
 </html>
