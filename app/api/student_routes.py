@@ -136,7 +136,6 @@ async def update_tg_profile(body: TgProfileBody):
     avatar_final = None
     if body.avatar_face_b64:
         char = body.character_type or user["character_type"]
-        from app.auth.avatar import generate_avatar_pipeline
         res = generate_avatar_pipeline(body.avatar_face_b64, char)
         if res["ok"]:
             updates["avatar_original"] = body.avatar_face_b64

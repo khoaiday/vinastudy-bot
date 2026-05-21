@@ -6,7 +6,7 @@ from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboard
 from telegram.ext import ContextTypes
 
 import app.database.crud as crud
-from app.config import BASE_URL, BASE_DOMAIN, BUOI_CONFIG, BTVN_CONFIG, DEFAULT_BUOI
+from app.config import BASE_URL, BASE_DOMAIN, BUOI_CONFIG, BTVN_CONFIG, DEFAULT_BUOI, ADMIN_ID
 from app.services.ai_claude import ask_claude, ask_claude_with_image, danh_gia_nang_luc
 from app.services.gamification import cap_nhat_gamification, hien_thi_profile, thong_bao_ket_qua_game, bang_xep_hang
 
@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 # ── Login gate ────────────────────────────────────────────────────────────
+
+def is_admin(uid: int) -> bool:
+    """Admin (thầy) luôn bypass login gate."""
+    return ADMIN_ID and uid == ADMIN_ID
+
 
 async def check_web_status(telegram_id: int) -> str:
     """Kiểm tra trạng thái tài khoản web của học sinh.
@@ -142,6 +147,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     clear_history(uid)
 
+    # Admin bypass
+    if is_admin(uid):
+        await update.message.reply_text(
+            f"👑 Chào *Thầy*! Menu quản lý đang chạy trên bot admin.\n\n"
+            "Đây là bot học sinh — dùng để test giao diện.",
+            parse_mode="Markdown", reply_markup=MAIN_MENU,
+        )
+        return
+
     status = await check_web_status(uid)
 
     if status == "approved":
@@ -167,15 +181,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     text = (update.message.text or "").strip()
 
-    # ── Login gate ──────────────────────────────────────────────────────
-    status = await check_web_status(uid)
-    if status == "not_found" or status == "rejected":
-        await send_login_required(update)
-        return
-    if status == "pending":
-        await send_pending(update)
-        return
-    # status == "approved" → tiếp tục bình thường
+    # ── Login gate (admin bypass) ────────────────────────────────────────
+    if not is_admin(uid):
+        status = await check_web_status(uid)
+        if status in ("not_found", "rejected"):
+            await send_login_required(update)
+            return
+        if status == "pending":
+            await send_pending(update)
+            return
     # ───────────────────────────────────────────────────────────────────
 
     state = get_state(uid)
@@ -312,20 +326,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if text == "🏅 Hồ sơ Chiến Binh":
         profile_url = f"{BASE_DOMAIN}/profile?tg_id={uid}"
-        keyboard = InlineKeyboardMarkup([[
-            InlineKeyboardButton("🏅 Xem & Chỉnh sửa hồ sơ", web_app=WebAppInfo(url=profile_url))
-        ]])
-        # Lấy thống kê game nếu có
+        # Lấy thống kê game + thông tin nhân vật
         try:
             web_user = await crud.get_web_user_by_telegram_id(uid)
             hs = await crud.get_student(uid)
             ho_ten = (web_user or {}).get("ho_ten") or (hs or {}).get("ho_ten") or update.effective_user.first_name
             char = (web_user or {}).get("character_type", "chien_binh")
             char_names = {"chien_binh":"⚔️ Chiến Binh","phu_thuy":"🔮 Phù Thủy","xa_thu":"🏹 Xạ Thủ","hiep_si":"🛡️ Hiệp Sĩ"}
+            has_avatar = bool((web_user or {}).get("avatar_final"))
+            avatar_hint = "" if has_avatar else "\n\n📷 _Em chưa có avatar — nhấn nút để tạo ngay!_"
             profile_text = await hien_thi_profile(uid, ho_ten)
-            msg = f"{profile_text}\n\n🎭 Nhân vật: *{char_names.get(char, char)}*"
+            msg = f"{profile_text}\n\n🎭 Nhân vật: *{char_names.get(char, char)}*{avatar_hint}"
         except Exception:
             msg = "🏅 *Hồ sơ Chiến Binh*\n\nNhấn nút bên dưới để xem và chỉnh sửa!"
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("✏️ Chỉnh sửa hồ sơ & Avatar", url=profile_url)
+        ]])
         await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=keyboard)
         return
 
@@ -389,14 +405,15 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
 
-    # ── Login gate ──────────────────────────────────────────────────────
-    status = await check_web_status(uid)
-    if status != "approved":
+    # ── Login gate (admin bypass) ────────────────────────────────────────
+    if not is_admin(uid):
+        status = await check_web_status(uid)
         if status == "pending":
             await send_pending(update)
-        else:
+            return
+        if status != "approved":
             await send_login_required(update)
-        return
+            return
     # ───────────────────────────────────────────────────────────────────
 
     state = get_state(uid)
