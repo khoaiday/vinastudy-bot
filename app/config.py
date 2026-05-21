@@ -52,7 +52,7 @@ DEFAULT_BUOI = 27
 
 # ── Web server & OAuth ──────────────────────────────────────────────────
 WEB_PORT        = int(os.getenv("PORT", "8080"))
-BASE_DOMAIN     = os.getenv("BASE_DOMAIN", "http://localhost:8080")
+BASE_DOMAIN     = os.getenv("BASE_DOMAIN", "https://app.soichido.vn")
 SECRET_KEY      = os.getenv("SECRET_KEY", "changeme-use-random-32-chars")
 ADMIN_SECRET    = os.getenv("ADMIN_SECRET", "admin-secret-token")
 

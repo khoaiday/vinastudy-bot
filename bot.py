@@ -13,7 +13,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)s %(message)s", level=loggin
 logger = logging.getLogger(__name__)
 
 # Version tag — cập nhật mỗi khi deploy để dễ verify
-BOT_VERSION = "2026-domain-debug"
+BOT_VERSION = "2026-domain-fixed"
 
 
 async def post_init(app: Application):
