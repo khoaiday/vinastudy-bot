@@ -138,6 +138,23 @@ async def init_db():
     """
     migration = """
     ALTER TABLE web_users ADD COLUMN IF NOT EXISTS gioi_tinh VARCHAR(10) DEFAULT 'nam';
+
+    -- Thách đấu giữa học sinh
+    CREATE TABLE IF NOT EXISTS challenges (
+        id               SERIAL PRIMARY KEY,
+        challenger_id    BIGINT NOT NULL,
+        challengee_id    BIGINT NOT NULL,
+        so_buoi          INT NOT NULL,
+        challenger_score INT,
+        challengee_score INT,
+        status           TEXT DEFAULT 'pending',
+        winner_id        BIGINT,
+        created_at       TIMESTAMP DEFAULT NOW(),
+        expires_at       TIMESTAMP DEFAULT NOW() + INTERVAL '24 hours'
+    );
+    CREATE INDEX IF NOT EXISTS idx_challenges_challenger ON challenges(challenger_id);
+    CREATE INDEX IF NOT EXISTS idx_challenges_challengee ON challenges(challengee_id);
+    CREATE INDEX IF NOT EXISTS idx_challenges_status     ON challenges(status);
     """
     try:
         async with pool.acquire() as conn:

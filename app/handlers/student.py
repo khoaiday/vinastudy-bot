@@ -3,7 +3,7 @@ import json
 import base64
 from datetime import datetime
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, CallbackQueryHandler
 
 import app.database.crud as crud
 from app.config import BASE_URL, BASE_DOMAIN, BUOI_CONFIG, BTVN_CONFIG, DEFAULT_BUOI, ADMIN_ID
@@ -346,6 +346,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if text == "🏆 Xếp hạng Bang hội":
+        lb_url = f"{BASE_DOMAIN}/leaderboard"
+        await update.message.reply_text(
+            f"🏆 *Bảng Xếp Hạng Chiến Binh*\n\n"
+            f"🌐 Xem bảng xếp hạng đẹp tại:\n{lb_url}",
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🏆 Mở Bảng Xếp Hạng", url=lb_url)
+            ]]))
         xh = await bang_xep_hang(top_n=10)
         await update.message.reply_text(xh, parse_mode="Markdown", reply_markup=MAIN_MENU)
         return
@@ -400,6 +408,145 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
     await update.message.chat.send_action("typing")
     danh_gia = await danh_gia_nang_luc(diem, tong, chi_tiet, buoi, lich_su[:-1])
     await update.message.reply_text(f"🎓 *Đánh giá năng lực*\n\n{danh_gia}\n\n📹 Xem lại: {BUOI_CONFIG.get(buoi, {}).get('video', '')}", parse_mode="Markdown", reply_markup=MAIN_MENU)
+
+    # ── Kiểm tra thách đấu đang chờ ────────────────────────────────────
+    try:
+        challenge = await crud.get_pending_challenge(uid, buoi)
+        if challenge:
+            result = await crud.complete_challenge(challenge["id"], phan_tram)
+            c_score = challenge["challenger_score"] or 0
+            first_name = update.effective_user.first_name or "Chiến Binh"
+
+            # Lấy tên challenger
+            ch_info = await crud.get_student(challenge["challenger_id"])
+            ch_name = (ch_info or {}).get("ho_ten", "Đối thủ")
+
+            if result.get("winner_id") == uid:
+                await update.message.reply_text(
+                    f"⚔️ *Thách đấu hoàn thành!*\n\n"
+                    f"🏆 *{first_name} THẮNG!* 🎉\n\n"
+                    f"📊 {first_name}: *{phan_tram}%*\n"
+                    f"📊 {ch_name}: *{c_score}%*",
+                    parse_mode="Markdown")
+                # Thông báo cho challenger
+                try:
+                    await context.bot.send_message(
+                        challenge["challenger_id"],
+                        f"⚔️ *Kết quả thách đấu — Buổi {buoi}*\n\n"
+                        f"😅 *{first_name}* đã nhận thách đấu và thắng!\n"
+                        f"📊 {first_name}: *{phan_tram}%*\n"
+                        f"📊 Bạn: *{c_score}%*\n\n"
+                        f"💪 Luyện tập thêm để lần sau thắng nhé!",
+                        parse_mode="Markdown")
+                except Exception: pass
+            elif result.get("winner_id") == challenge["challenger_id"]:
+                await update.message.reply_text(
+                    f"⚔️ *Thách đấu hoàn thành!*\n\n"
+                    f"😅 *{ch_name} thắng lần này!*\n\n"
+                    f"📊 {first_name}: *{phan_tram}%*\n"
+                    f"📊 {ch_name}: *{c_score}%*\n\n"
+                    f"💪 Luyện tập thêm để rửa hận nhé!",
+                    parse_mode="Markdown")
+                try:
+                    await context.bot.send_message(
+                        challenge["challenger_id"],
+                        f"⚔️ *{ch_name} THẮNG thách đấu — Buổi {buoi}!* 🏆\n\n"
+                        f"📊 {first_name}: *{phan_tram}%*\n"
+                        f"📊 Bạn: *{c_score}%*",
+                        parse_mode="Markdown")
+                except Exception: pass
+            else:
+                await update.message.reply_text(
+                    f"⚔️ *Thách đấu kết thúc — Hòa!* 🤝\n\n"
+                    f"Cả hai đều đạt *{phan_tram}%*!", parse_mode="Markdown")
+    except Exception as e:
+        logger.warning(f"Challenge check error: {e}")
+
+    # ── Nút thách đấu bạn học ────────────────────────────────────────────
+    try:
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("⚔️ Thách đấu bạn học!", callback_data=f"ch_select_{buoi}_{phan_tram}")
+        ]])
+        await update.message.reply_text(
+            "🏅 Muốn thách đấu bạn cùng buổi này không?",
+            reply_markup=keyboard)
+    except Exception as e:
+        logger.warning(f"Challenge button error: {e}")
+
+
+# ── Challenge callback handlers ───────────────────────────────────────────
+
+async def handle_challenge_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Xử lý callback từ nút thách đấu."""
+    query = update.callback_query
+    await query.answer()
+    uid = query.from_user.id
+    data = query.data  # ch_select_<buoi>_<score> | ch_target_<target>_<buoi>_<score>
+
+    if data.startswith("ch_select_"):
+        # Hiển thị danh sách bạn học
+        parts = data.split("_")
+        buoi, score = int(parts[2]), int(parts[3])
+        classmates = await crud.get_active_classmates(uid)
+        if not classmates:
+            await query.edit_message_text("😕 Chưa có bạn học nào trong hệ thống.")
+            return
+        btns = []
+        for cm in classmates[:10]:
+            xp_str = f" ({cm['xp']} XP)" if cm.get("xp") else ""
+            btns.append([InlineKeyboardButton(
+                f"⚔️ {cm['ho_ten']}{xp_str}",
+                callback_data=f"ch_target_{cm['telegram_id']}_{buoi}_{score}"
+            )])
+        btns.append([InlineKeyboardButton("❌ Thôi", callback_data="ch_cancel")])
+        await query.edit_message_text(
+            f"⚔️ *Chọn người muốn thách đấu — Buổi {buoi}*\n_(Điểm của bạn: {score}%)_",
+            reply_markup=InlineKeyboardMarkup(btns),
+            parse_mode="Markdown")
+
+    elif data.startswith("ch_target_"):
+        parts = data.split("_")
+        target_id, buoi, score = int(parts[2]), int(parts[3]), int(parts[4])
+        challenger_name = query.from_user.first_name or "Ai đó"
+
+        try:
+            await crud.create_challenge(uid, target_id, buoi, score)
+            target_info = await crud.get_student(target_id)
+            target_name = (target_info or {}).get("ho_ten", "Bạn học")
+
+            await query.edit_message_text(
+                f"⚔️ *Đã gửi thách đấu đến {target_name}!*\n\n"
+                f"📊 Điểm của bạn: *{score}%*\n"
+                f"⏰ Bạn có *24 giờ* để nhận thách đấu.\n"
+                f"🔔 Tự động thông báo khi có kết quả!",
+                parse_mode="Markdown")
+
+            # Notify target
+            try:
+                cfg = BUOI_CONFIG.get(buoi, {})
+                btvn = BTVN_CONFIG.get(buoi)
+                keyboard_target = None
+                if btvn and cfg.get("folder"):
+                    webapp_url = f"{BASE_DOMAIN}/content/lop3/{cfg['folder']}/bai-tap.html"
+                    keyboard_target = InlineKeyboardMarkup([[
+                        InlineKeyboardButton("⚔️ Nhận thách đấu!", web_app=WebAppInfo(url=webapp_url))
+                    ]])
+                await context.bot.send_message(
+                    target_id,
+                    f"⚔️ *{challenger_name} thách đấu bạn — Buổi {buoi}!*\n\n"
+                    f"📖 _{cfg.get('ten', '')}_{chr(10)}"
+                    f"📊 Điểm thách đấu: *{score}%*\n\n"
+                    f"💪 Bạn có *24 giờ* để làm bài và chứng minh!",
+                    parse_mode="Markdown",
+                    reply_markup=keyboard_target)
+            except Exception as e:
+                logger.warning(f"Notify challenge target error: {e}")
+        except Exception as e:
+            logger.warning(f"Create challenge error: {e}")
+            await query.edit_message_text("❌ Lỗi tạo thách đấu, thử lại nhé!")
+
+    elif data == "ch_cancel":
+        await query.edit_message_text("👍 Không thách đấu lần này.")
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):

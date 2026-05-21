@@ -2,7 +2,7 @@ import os
 import logging
 from datetime import datetime
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 from app.config import TELEGRAM_TOKEN, BUOI_CONFIG, BASE_DOMAIN
 from app.database.connection import init_pool, close_pool
 from app.database.init_db import init_db
@@ -13,7 +13,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)s %(message)s", level=loggin
 logger = logging.getLogger(__name__)
 
 # Version tag — cập nhật mỗi khi deploy để dễ verify
-BOT_VERSION = "2026-domain-fixed-v2"
+BOT_VERSION = "2026-features-v1"
 
 
 async def post_init(app: Application):
@@ -76,6 +76,9 @@ def main():
     # Text & Photo
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, student.handle_message))
     app.add_handler(MessageHandler(filters.PHOTO,                   student.handle_photo))
+
+    # Inline keyboard callbacks (thách đấu)
+    app.add_handler(CallbackQueryHandler(student.handle_challenge_callback, pattern=r"^ch_"))
 
     app.add_error_handler(student.error_handler)
 

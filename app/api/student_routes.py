@@ -198,3 +198,23 @@ async def get_profile(request: Request):
         "status":         user["status"],
         "created_at":     str(user["created_at"]),
     })
+
+
+# ── Leaderboard (public) ───────────────────────────────────────────────
+
+@router.get("/leaderboard")
+async def leaderboard(top: int = 20):
+    """Bảng xếp hạng công khai — không cần đăng nhập."""
+    from app.services.gamification import BADGES, tinh_cap_do
+    rows = await crud.get_leaderboard_web(min(top, 50))
+    for r in rows:
+        icon, _, _ = tinh_cap_do(r["xp"])
+        r["level_icon"] = icon
+        # Chuyển badge keys → {icon, ten}
+        badge_list = []
+        for bk in (r.get("badges") or []):
+            if bk in BADGES:
+                badge_list.append({"key": bk, "icon": BADGES[bk]["icon"], "ten": BADGES[bk]["ten"]})
+        r["badge_list"] = badge_list
+        r.pop("badges", None)
+    return JSONResponse({"leaderboard": rows, "total": len(rows)})

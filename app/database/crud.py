@@ -281,6 +281,85 @@ async def get_leaderboard(top_n: int = 10) -> list:
         """, top_n)
     return [dict(r) for r in rows]
 
+
+async def get_leaderboard_web(top_n: int = 20) -> list:
+    """Leaderboard đầy đủ cho trang web (kèm avatar, nhân vật, buổi học)."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("""
+            SELECT
+                s.ho_ten,
+                s.telegram_id,
+                g.xp,
+                g.level,
+                g.role_name,
+                g.streak,
+                g.streak_max,
+                g.badges,
+                COALESCE(json_array_length(g.badges::json), 0) AS so_huy_hieu,
+                wu.character_type,
+                wu.gioi_tinh,
+                wu.avatar_final,
+                (SELECT COUNT(DISTINCT r.lesson_id)
+                 FROM results r
+                 JOIN students s2 ON r.student_id = s2.id
+                 WHERE s2.telegram_id = g.telegram_id) AS so_buoi
+            FROM gamification g
+            JOIN students s ON s.telegram_id = g.telegram_id AND s.active = TRUE
+            LEFT JOIN web_users wu
+                   ON wu.telegram_id = g.telegram_id AND wu.status = 'approved'
+            ORDER BY g.xp DESC
+            LIMIT $1
+        """, top_n)
+    result = []
+    for r in rows:
+        d = dict(r)
+        if isinstance(d.get("badges"), str):
+            try:    d["badges"] = json.loads(d["badges"])
+            except: d["badges"] = []
+        result.append(d)
+    return result
+
+
+async def get_student_full_stats(telegram_id: int) -> dict | None:
+    """Thống kê đầy đủ cho admin: XP, streak, badge, từng buổi."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        g = await conn.fetchrow(
+            "SELECT * FROM gamification WHERE telegram_id=$1", telegram_id)
+        results = await conn.fetch("""
+            SELECT l.so_buoi, l.ten AS ten_buoi, r.diem, r.tong_cau,
+                   r.phan_tram, r.thoi_gian
+            FROM results r
+            JOIN students s ON r.student_id = s.id
+            JOIN lessons  l ON r.lesson_id  = l.id
+            WHERE s.telegram_id = $1
+            ORDER BY r.thoi_gian DESC
+        """, telegram_id)
+    if not g:
+        return None
+    badges_raw = g["badges"] or "[]"
+    if isinstance(badges_raw, str):
+        try:    badges = json.loads(badges_raw)
+        except: badges = []
+    else:
+        badges = list(badges_raw)
+    return {
+        "xp":         g["xp"],
+        "gold":       g["gold"],
+        "level":      g["level"],
+        "role_name":  g["role_name"],
+        "streak":     g["streak"],
+        "streak_max": g["streak_max"],
+        "last_active":g["last_active"],
+        "badges":     badges,
+        "results":    [
+            {k: (v.isoformat() if hasattr(v, "isoformat") else v)
+             for k, v in dict(r).items()}
+            for r in results
+        ],
+    }
+
 async def get_leaderboard_group(telegram_ids: list, top_n: int = 10) -> list:
     if not telegram_ids:
         return []
@@ -507,3 +586,83 @@ async def delete_web_user(user_id: int):
     pool = get_pool()
     async with pool.acquire() as conn:
         await conn.execute("DELETE FROM web_users WHERE id=$1", user_id)
+
+
+# ── Challenges ─────────────────────────────────────────────────────────
+
+async def create_challenge(challenger_id: int, challengee_id: int,
+                           so_buoi: int, challenger_score: int) -> dict:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            INSERT INTO challenges
+                (challenger_id, challengee_id, so_buoi, challenger_score, status)
+            VALUES ($1, $2, $3, $4, 'pending')
+            RETURNING *
+        """, challenger_id, challengee_id, so_buoi, challenger_score)
+    return dict(row)
+
+
+async def get_pending_challenge(challengee_id: int, so_buoi: int) -> dict | None:
+    """Tìm thách đấu đang chờ challengee hoàn thành buổi này."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT * FROM challenges
+            WHERE challengee_id = $1
+              AND so_buoi = $2
+              AND status = 'pending'
+              AND expires_at > NOW()
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, challengee_id, so_buoi)
+    return dict(row) if row else None
+
+
+async def complete_challenge(challenge_id: int, challengee_score: int) -> dict:
+    """Cập nhật điểm challengee và xác định người thắng."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        ch = await conn.fetchrow(
+            "SELECT * FROM challenges WHERE id=$1", challenge_id)
+        if not ch:
+            return {}
+        winner_id = None
+        if ch["challenger_score"] is not None:
+            if challengee_score > ch["challenger_score"]:
+                winner_id = ch["challengee_id"]
+            elif challengee_score < ch["challenger_score"]:
+                winner_id = ch["challenger_id"]
+            # ngang = None (hòa)
+        row = await conn.fetchrow("""
+            UPDATE challenges SET
+                challengee_score = $2,
+                status           = 'completed',
+                winner_id        = $3
+            WHERE id = $1
+            RETURNING *
+        """, challenge_id, challengee_score, winner_id)
+    return dict(row) if row else {}
+
+
+async def get_challenge_by_id(challenge_id: int) -> dict | None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM challenges WHERE id=$1", challenge_id)
+    return dict(row) if row else None
+
+
+async def get_active_classmates(exclude_id: int) -> list:
+    """Danh sách học sinh khác để chọn thách đấu."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("""
+            SELECT s.telegram_id, s.ho_ten, g.xp, g.role_name
+            FROM students s
+            LEFT JOIN gamification g ON g.telegram_id = s.telegram_id
+            WHERE s.active = TRUE AND s.telegram_id != $1
+            ORDER BY g.xp DESC NULLS LAST
+            LIMIT 20
+        """, exclude_id)
+    return [dict(r) for r in rows]

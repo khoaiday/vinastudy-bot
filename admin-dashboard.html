@@ -276,6 +276,34 @@ body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'S
 .empty { text-align:center; padding:48px 0; color:rgba(200,230,255,.3); }
 .empty .e-icon { font-size:3rem; margin-bottom:12px; }
 
+/* ── Game stats in detail modal ── */
+.stat-mini { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+.stat-chip {
+  background:rgba(10,224,254,.08); border:1px solid rgba(10,224,254,.2);
+  border-radius:8px; padding:6px 12px; font-size:.8rem;
+  display:flex; flex-direction:column; align-items:center; min-width:70px;
+}
+.stat-chip .sc-val { font-size:1.1rem; font-weight:700; color:var(--primary); }
+.stat-chip .sc-lbl { font-size:.65rem; color:rgba(200,230,255,.4); margin-top:2px; }
+.xp-bar-wrap { margin:8px 0; }
+.xp-bar-bg { background:rgba(255,255,255,.07); border-radius:99px; height:8px; overflow:hidden; }
+.xp-bar-fill { height:100%; background:linear-gradient(90deg,var(--primary),var(--secondary)); border-radius:99px; transition:width .5s; }
+.badge-item {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(255,215,0,.08); border:1px solid rgba(255,215,0,.2);
+  border-radius:7px; padding:4px 8px; font-size:.75rem; margin:3px;
+}
+.lesson-result {
+  display:flex; align-items:center; gap:8px;
+  padding:6px 0; border-bottom:1px solid rgba(10,224,254,.06); font-size:.8rem;
+}
+.lesson-pct {
+  font-weight:700; min-width:38px; text-align:right;
+}
+.pct-good { color:var(--success); }
+.pct-ok   { color:var(--gold); }
+.pct-bad  { color:var(--danger); }
+
 /* ── Loading ── */
 .loading { text-align:center; padding:32px; }
 .spinner { width:32px; height:32px; margin:0 auto 10px; border:3px solid rgba(10,224,254,.15); border-top-color:var(--primary); border-radius:50%; animation:spin .7s linear infinite; }
@@ -526,11 +554,20 @@ body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'S
 
 <!-- ── Modal: Student detail ── -->
 <div class="modal-bg" id="detailModal">
-  <div class="modal">
+  <div class="modal" style="max-width:540px">
     <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
     <div class="modal-title" id="detailName">Chi tiết học sinh</div>
     <img id="detailAvatar" src="" alt="" class="modal-avatar" style="display:none">
     <div id="detailContent" style="font-size:.85rem; line-height:1.8;"></div>
+    <!-- Game stats section -->
+    <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:14px;">
+      <div style="font-size:.8rem;color:rgba(200,230,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">
+        🎮 Thống kê game
+      </div>
+      <div id="gameStatsContent">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -829,6 +866,8 @@ function renderStudents(users) {
           ? `<button class="btn-approve" style="padding:5px 10px;font-size:.72rem" onclick="approveUser(${u.id},'${esc(u.ho_ten||'')}')">✅</button>`
           : ''}
         <button class="btn-detail" style="padding:5px 10px;font-size:.72rem"
+          onclick="showDetailById(${u.id}, ${JSON.stringify(u).replace(/"/g,'&quot;')})">📊</button>
+        <button class="btn-detail" style="padding:5px 10px;font-size:.72rem"
           onclick='openEditUser(${JSON.stringify(u).replace(/'/g,"&#39;")})'>✏️</button>
         <button style="padding:5px 10px;font-size:.72rem;border-radius:7px;border:1px solid rgba(255,0,85,.4);
           background:rgba(255,0,85,.1);color:#ff4466;cursor:pointer"
@@ -839,7 +878,7 @@ function renderStudents(users) {
 }
 
 // ── Detail modal ──────────────────────────────────────────────────────────
-function showDetail(u) {
+function showDetailById(userId, u) {
   if (typeof u === 'string') u = JSON.parse(u);
   document.getElementById('detailName').textContent = u.ho_ten || u.email;
   const img = document.getElementById('detailAvatar');
@@ -850,6 +889,7 @@ function showDetail(u) {
     <table style="width:100%;border-collapse:collapse">
       ${row('📧 Email', u.email)}
       ${row('🎓 Lớp', 'Lớp ' + (u.lop||'3'))}
+      ${row('♀♂ Giới tính', u.gioi_tinh==='nu' ? '♀ Nữ' : '♂ Nam')}
       ${row('⚔️ Nhân vật', charEmoji(u.character_type) + ' ' + charName(u.character_type))}
       ${row('📊 Trạng thái', u.status)}
       ${row('📅 Đăng ký', u.created_at ? new Date(u.created_at).toLocaleString('vi-VN') : '—')}
@@ -858,7 +898,113 @@ function showDetail(u) {
       ${u.telegram_id ? row('📱 Telegram ID', u.telegram_id) : ''}
     </table>
   `;
+  document.getElementById('gameStatsContent').innerHTML =
+    '<div class="loading"><div class="spinner"></div></div>';
   document.getElementById('detailModal').classList.add('open');
+  loadGameStats(userId);
+}
+
+// Legacy: called from pending card
+function showDetail(u) {
+  if (typeof u === 'string') u = JSON.parse(u);
+  showDetailById(u.id, u);
+}
+
+async function loadGameStats(userId) {
+  try {
+    const res = await api(`/api/admin/students/${userId}/full-stats`);
+    const { stats } = await res.json();
+    if (!stats) {
+      document.getElementById('gameStatsContent').innerHTML =
+        '<p style="color:rgba(200,230,255,.3);font-size:.82rem">Chưa có dữ liệu game.</p>';
+      return;
+    }
+
+    // XP bar
+    const LEVELS = [
+      [0,'🌱','Tân Binh'],[200,'📗','Chiến Binh Tập Sự'],
+      [500,'📘','Chiến Binh Thực Thụ'],[1000,'📙','Dũng Sĩ'],
+      [2000,'🏅','Kỵ Sĩ Toán Học'],[3500,'🥇','Tướng Quân'],[5000,'👑','Chiến Thần']
+    ];
+    let cur=[0,'🌱','Tân Binh'], nxt=null;
+    for(let i=0;i<LEVELS.length;i++){
+      if(stats.xp>=LEVELS[i][0]){ cur=LEVELS[i]; nxt=LEVELS[i+1]||null; }
+    }
+    const pct = nxt ? Math.min(100, Math.round((stats.xp - cur[0]) / (nxt[0] - cur[0]) * 100)) : 100;
+
+    // Badges
+    const badgesHtml = (stats.badge_list||[]).length
+      ? (stats.badge_list||[]).map(b =>
+          `<span class="badge-item">${b.icon} ${b.ten}</span>`).join('')
+      : '<span style="color:rgba(200,230,255,.3);font-size:.78rem">Chưa có huy hiệu</span>';
+
+    // Lesson results
+    const resultsHtml = (stats.results||[]).slice(0,15).map(r => {
+      const pctCls = r.phan_tram >= 80 ? 'pct-good' : r.phan_tram >= 60 ? 'pct-ok' : 'pct-bad';
+      const dateStr = r.thoi_gian ? new Date(r.thoi_gian).toLocaleDateString('vi-VN') : '';
+      return `<div class="lesson-result">
+        <span style="min-width:70px;color:rgba(200,230,255,.5)">Buổi ${r.so_buoi}</span>
+        <span style="flex:1;color:rgba(200,230,255,.7);font-size:.75rem" title="${esc(r.ten_buoi||'')}">
+          ${esc((r.ten_buoi||'').substring(0,25))}
+        </span>
+        <span style="font-size:.75rem;color:rgba(200,230,255,.3)">${r.diem}/${r.tong_cau}</span>
+        <span class="lesson-pct ${pctCls}">${r.phan_tram}%</span>
+        <span style="font-size:.7rem;color:rgba(200,230,255,.25);min-width:65px;text-align:right">${dateStr}</span>
+      </div>`;
+    }).join('');
+
+    document.getElementById('gameStatsContent').innerHTML = `
+      <div class="stat-mini">
+        <div class="stat-chip">
+          <div class="sc-val">${stats.level_icon||'🌱'} ${stats.level||1}</div>
+          <div class="sc-lbl">Cấp độ</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val" style="color:var(--primary)">${(stats.xp||0).toLocaleString()}</div>
+          <div class="sc-lbl">Tổng XP</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val" style="color:var(--gold)">${(stats.gold||0).toLocaleString()}</div>
+          <div class="sc-lbl">Vàng</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val" style="color:#ff9f4a">🔥 ${stats.streak||0}</div>
+          <div class="sc-lbl">Streak</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val">${stats.streak_max||0}🔥</div>
+          <div class="sc-lbl">Kỷ lục</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val" style="color:var(--secondary)">${(stats.badge_list||[]).length}</div>
+          <div class="sc-lbl">Huy hiệu</div>
+        </div>
+      </div>
+
+      <div class="xp-bar-wrap">
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:rgba(200,230,255,.4);margin-bottom:4px">
+          <span>${cur[2]}</span>
+          <span>${stats.xp} XP${nxt ? ' / ' + nxt[0] + ' XP' : ' — MAX'}</span>
+        </div>
+        <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+
+      <div style="margin:10px 0">
+        <div style="font-size:.72rem;color:rgba(200,230,255,.3);margin-bottom:5px">🎖 Huy hiệu</div>
+        ${badgesHtml}
+      </div>
+
+      ${resultsHtml ? `<div style="margin-top:10px">
+        <div style="font-size:.72rem;color:rgba(200,230,255,.3);margin-bottom:6px">
+          📚 Lịch sử bài tập (${(stats.results||[]).length} lần)
+        </div>
+        ${resultsHtml}
+      </div>` : ''}
+    `;
+  } catch(e) {
+    document.getElementById('gameStatsContent').innerHTML =
+      `<p style="color:var(--danger);font-size:.8rem">Lỗi tải: ${e.message}</p>`;
+  }
 }
 
 function row(k,v) {

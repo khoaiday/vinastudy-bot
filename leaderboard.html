@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng Xếp Hạng Chiến Binh — VInaStudy</title>
+<style>
+  :root {
+    --primary: #0ae0fe;
+    --secondary: #ea0eed;
+    --success: #4eff9f;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --bg: #050a1f;
+    --card: #0d1b3e;
+    --border: rgba(10,224,254,0.2);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: #e0f4ff;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at top, #0d1b3e 0%, #050a1f 70%);
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+    margin-top: 1.5rem;
+  }
+  .header h1 {
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p { color: #7ab8d0; margin-top: .4rem; font-size: .9rem; }
+  .refresh-btn {
+    position: absolute; right: 1.2rem; top: 2.5rem;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--primary); padding: .4rem .9rem; border-radius: 6px;
+    cursor: pointer; font-size: .85rem; transition: all .2s;
+  }
+  .refresh-btn:hover { background: rgba(10,224,254,.1); }
+
+  /* Nav */
+  .nav {
+    display: flex; justify-content: center; gap: .6rem;
+    padding: .8rem 1rem;
+  }
+  .nav a {
+    color: #7ab8d0; text-decoration: none; font-size: .85rem;
+    padding: .3rem .7rem; border-radius: 6px; border: 1px solid transparent;
+    transition: all .2s;
+  }
+  .nav a:hover { border-color: var(--border); color: var(--primary); }
+
+  /* Podium top 3 */
+  .podium {
+    display: flex; justify-content: center; align-items: flex-end;
+    gap: 1rem; padding: 1.5rem 1rem 2rem;
+    max-width: 700px; margin: 0 auto;
+  }
+  .podium-card {
+    flex: 1; max-width: 200px; border-radius: 16px;
+    background: var(--card); border: 1px solid var(--border);
+    text-align: center; padding: 1.2rem .8rem 1rem;
+    position: relative; overflow: hidden; cursor: default;
+    transition: transform .2s;
+  }
+  .podium-card:hover { transform: translateY(-4px); }
+  .podium-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .podium-card.rank-1 {
+    border-color: var(--gold); box-shadow: 0 0 24px rgba(255,215,0,.25);
+    padding-bottom: 1.4rem;
+  }
+  .podium-card.rank-2 { border-color: var(--silver); }
+  .podium-card.rank-3 { border-color: var(--bronze); }
+
+  .medal { font-size: 2rem; margin-bottom: .4rem; display: block; }
+  .podium-card.rank-1 .medal { font-size: 2.4rem; }
+
+  .avatar-wrap {
+    width: 72px; height: 72px; margin: 0 auto .6rem;
+    border-radius: 50%; overflow: hidden;
+    border: 2px solid var(--border);
+    background: #0d1b3e;
+  }
+  .podium-card.rank-1 .avatar-wrap {
+    width: 84px; height: 84px; border-color: var(--gold);
+    box-shadow: 0 0 12px rgba(255,215,0,.4);
+  }
+  .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-wrap .no-avatar {
+    width: 100%; height: 100%; display: flex; align-items: center;
+    justify-content: center; font-size: 2rem; background: #0a1635;
+  }
+
+  .player-name {
+    font-weight: 700; font-size: .95rem; margin-bottom: .2rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .podium-card.rank-1 .player-name { font-size: 1.05rem; }
+
+  .level-tag {
+    font-size: .7rem; color: #7ab8d0; margin-bottom: .5rem;
+  }
+  .xp-val {
+    font-size: 1.1rem; font-weight: 800; color: var(--primary);
+    letter-spacing: 1px;
+  }
+  .podium-card.rank-1 .xp-val { font-size: 1.3rem; color: var(--gold); }
+  .xp-label { font-size: .7rem; color: #5d8fa0; }
+
+  .stat-row {
+    display: flex; justify-content: center; gap: .8rem;
+    font-size: .72rem; color: #7ab8d0; margin-top: .5rem;
+  }
+
+  /* Rank list */
+  .list-section {
+    max-width: 700px; margin: 0 auto; padding: 0 1rem 3rem;
+  }
+  .list-title {
+    font-size: .8rem; text-transform: uppercase; letter-spacing: 2px;
+    color: #5d8fa0; margin-bottom: .7rem; padding-left: .3rem;
+  }
+  .rank-row {
+    display: flex; align-items: center; gap: .8rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: .7rem 1rem; margin-bottom: .5rem;
+    transition: border-color .2s;
+  }
+  .rank-row:hover { border-color: rgba(10,224,254,.4); }
+  .rank-num {
+    width: 28px; text-align: center; font-weight: 700;
+    font-size: .95rem; color: #5d8fa0; flex-shrink: 0;
+  }
+  .rank-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    overflow: hidden; border: 1px solid var(--border); flex-shrink: 0;
+    background: #0a1635;
+  }
+  .rank-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .rank-avatar .no-avatar-sm {
+    width: 100%; height: 100%; display: flex; align-items: center;
+    justify-content: center; font-size: 1.2rem;
+  }
+  .rank-info { flex: 1; min-width: 0; }
+  .rank-name {
+    font-weight: 600; font-size: .9rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rank-sub { font-size: .72rem; color: #5d8fa0; margin-top: .1rem; }
+  .rank-xp {
+    font-weight: 700; color: var(--primary); font-size: .95rem;
+    text-align: right; flex-shrink: 0;
+  }
+  .badges-mini {
+    font-size: .8rem; margin-left: .3rem; letter-spacing: .1rem;
+  }
+
+  /* Skeleton */
+  .skeleton {
+    background: linear-gradient(90deg, #0d1b3e 25%, #162040 50%, #0d1b3e 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* Empty / Error */
+  .empty { text-align: center; padding: 3rem 1rem; color: #5d8fa0; }
+  .empty .icon { font-size: 3rem; margin-bottom: 1rem; }
+
+  /* Glow pulse for rank 1 */
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 24px rgba(255,215,0,.25); }
+    50%       { box-shadow: 0 0 40px rgba(255,215,0,.5); }
+  }
+  .podium-card.rank-1 { animation: glow 2.5s ease-in-out infinite; }
+
+  /* Updated time */
+  .updated-bar {
+    text-align: center; font-size: .72rem; color: #3a5568;
+    padding: .5rem; margin-bottom: .5rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="refresh-btn" onclick="loadLeaderboard()">🔄 Làm mới</button>
+  <h1>🏆 Bảng Xếp Hạng</h1>
+  <p>Chiến binh toán học xuất sắc nhất tuần này</p>
+</div>
+
+<nav class="nav">
+  <a href="/">🏠 Trang chủ</a>
+  <a href="/profile">👤 Hồ sơ</a>
+  <a href="/register">📝 Đăng ký</a>
+</nav>
+
+<div id="updatedBar" class="updated-bar">Đang tải...</div>
+
+<!-- Podium top 3 -->
+<div class="podium" id="podium"></div>
+
+<!-- Rank 4+ list -->
+<div class="list-section">
+  <div class="list-title" id="listTitle"></div>
+  <div id="rankList"></div>
+</div>
+
+<script>
+const CHAR_EMOJI = {
+  chien_binh: '⚔️', phu_thuy: '🔮', xa_thu: '🏹', hiep_si: '🛡️'
+};
+
+function charEmoji(c) { return CHAR_EMOJI[c] || '⚔️'; }
+
+function avatarEl(avatar_final, character_type, size = 'normal') {
+  const wrap = document.createElement('div');
+  wrap.className = size === 'small' ? 'rank-avatar' : 'avatar-wrap';
+  if (avatar_final) {
+    const img = document.createElement('img');
+    img.src = 'data:image/png;base64,' + avatar_final;
+    img.alt = 'avatar';
+    wrap.appendChild(img);
+  } else {
+    const d = document.createElement('div');
+    d.className = size === 'small' ? 'no-avatar-sm' : 'no-avatar';
+    d.textContent = charEmoji(character_type);
+    wrap.appendChild(d);
+  }
+  return wrap;
+}
+
+function podiumCard(player, rank) {
+  const medals = ['🥇', '🥈', '🥉'];
+  const card = document.createElement('div');
+  card.className = `podium-card rank-${rank}`;
+
+  const medalSpan = document.createElement('span');
+  medalSpan.className = 'medal';
+  medalSpan.textContent = medals[rank - 1];
+  card.appendChild(medalSpan);
+
+  card.appendChild(avatarEl(player.avatar_final, player.character_type));
+
+  const name = document.createElement('div');
+  name.className = 'player-name';
+  name.textContent = player.ho_ten || 'Ẩn danh';
+  card.appendChild(name);
+
+  const lv = document.createElement('div');
+  lv.className = 'level-tag';
+  lv.textContent = `${player.level_icon || '🌱'} ${player.role_name || 'Tân Binh'}`;
+  card.appendChild(lv);
+
+  const xp = document.createElement('div');
+  xp.className = 'xp-val';
+  xp.textContent = player.xp.toLocaleString('vi');
+  card.appendChild(xp);
+
+  const xl = document.createElement('div');
+  xl.className = 'xp-label';
+  xl.textContent = 'XP';
+  card.appendChild(xl);
+
+  const stats = document.createElement('div');
+  stats.className = 'stat-row';
+
+  const badgeIcons = (player.badge_list || []).slice(0, 4).map(b => b.icon).join('');
+  stats.innerHTML = `<span>🔥${player.streak}d</span><span>📚${player.so_buoi || 0}</span><span>${badgeIcons}</span>`;
+  card.appendChild(stats);
+
+  return card;
+}
+
+function rankRow(player, rank) {
+  const row = document.createElement('div');
+  row.className = 'rank-row';
+
+  const num = document.createElement('div');
+  num.className = 'rank-num';
+  num.textContent = rank + '.';
+  row.appendChild(num);
+
+  row.appendChild(avatarEl(player.avatar_final, player.character_type, 'small'));
+
+  const info = document.createElement('div');
+  info.className = 'rank-info';
+
+  const name = document.createElement('div');
+  name.className = 'rank-name';
+  name.textContent = player.ho_ten || 'Ẩn danh';
+  info.appendChild(name);
+
+  const sub = document.createElement('div');
+  sub.className = 'rank-sub';
+  const badgeIcons = (player.badge_list || []).slice(0, 5).map(b => b.icon).join('');
+  sub.innerHTML = `${player.level_icon || '🌱'} ${player.role_name || 'Tân Binh'} &nbsp;·&nbsp; 🔥${player.streak}d &nbsp;·&nbsp; <span class="badges-mini">${badgeIcons}</span>`;
+  info.appendChild(sub);
+
+  row.appendChild(info);
+
+  const xp = document.createElement('div');
+  xp.className = 'rank-xp';
+  xp.textContent = player.xp.toLocaleString('vi') + ' XP';
+  row.appendChild(xp);
+
+  return row;
+}
+
+async function loadLeaderboard() {
+  document.getElementById('updatedBar').textContent = 'Đang tải...';
+  document.getElementById('podium').innerHTML = '';
+  document.getElementById('rankList').innerHTML = '';
+  document.getElementById('listTitle').textContent = '';
+
+  try {
+    const resp = await fetch('/api/student/leaderboard?top=20');
+    if (!resp.ok) throw new Error('API lỗi ' + resp.status);
+    const data = await resp.json();
+    const lb = data.leaderboard || [];
+
+    if (lb.length === 0) {
+      document.getElementById('podium').innerHTML =
+        '<div class="empty"><div class="icon">🏆</div><p>Chưa có dữ liệu xếp hạng.<br>Hãy làm bài tập để ghi danh!</p></div>';
+      return;
+    }
+
+    // Podium top 3
+    const podiumEl = document.getElementById('podium');
+    // Sắp xếp vị trí podium: 2-1-3
+    const topThree = lb.slice(0, 3);
+    const podiumOrder = [topThree[1], topThree[0], topThree[2]].filter(Boolean);
+    const rankMap = { 0: 2, 1: 1, 2: 3 };
+
+    // Nếu chỉ có 1 người
+    if (topThree.length === 1) {
+      podiumEl.appendChild(podiumCard(topThree[0], 1));
+    } else {
+      podiumOrder.forEach((p, i) => {
+        if (p) podiumEl.appendChild(podiumCard(p, rankMap[i]));
+      });
+    }
+
+    // Rank 4+
+    const rest = lb.slice(3);
+    if (rest.length > 0) {
+      document.getElementById('listTitle').textContent = 'Bảng đấu hạng';
+      const listEl = document.getElementById('rankList');
+      rest.forEach((p, i) => {
+        listEl.appendChild(rankRow(p, i + 4));
+      });
+    }
+
+    const now = new Date();
+    document.getElementById('updatedBar').textContent =
+      `Cập nhật: ${now.toLocaleTimeString('vi-VN')} — Tổng ${data.total} chiến binh`;
+
+  } catch (e) {
+    document.getElementById('podium').innerHTML =
+      `<div class="empty"><div class="icon">⚠️</div><p>Lỗi tải dữ liệu.<br>${e.message}</p></div>`;
+    document.getElementById('updatedBar').textContent = 'Lỗi — nhấn Làm mới để thử lại';
+  }
+}
+
+// Auto-refresh mỗi 60 giây
+loadLeaderboard();
+setInterval(loadLeaderboard, 60000);
+</script>
+</body>
+</html>

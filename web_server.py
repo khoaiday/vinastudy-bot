@@ -108,6 +108,15 @@ async def admin_page():
     return HTMLResponse("<h1>Admin dashboard chưa sẵn sàng</h1>", status_code=503)
 
 
+@app.get("/leaderboard", response_class=HTMLResponse)
+async def leaderboard_page():
+    """Bảng xếp hạng chiến binh."""
+    p = Path("leaderboard.html")
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "web"}

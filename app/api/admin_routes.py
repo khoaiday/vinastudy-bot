@@ -127,6 +127,29 @@ async def get_student_results(user_id: int,
     return JSONResponse(summary or {"results": []})
 
 
+@router.get("/students/{user_id}/full-stats")
+async def get_student_full_stats(user_id: int,
+                                  x_admin_token: str = Header(default="")):
+    """Thống kê đầy đủ: XP, level, streak, badge, từng buổi học."""
+    require_admin(x_admin_token)
+    user = await crud.get_web_user_by_id(user_id)
+    if not user or not user.get("telegram_id"):
+        return JSONResponse({"ok": False, "error": "Không có telegram_id"})
+    from app.services.gamification import BADGES, tinh_cap_do
+    stats = await crud.get_student_full_stats(user["telegram_id"])
+    if not stats:
+        return JSONResponse({"ok": True, "stats": None})
+    icon, _, _ = tinh_cap_do(stats["xp"])
+    stats["level_icon"] = icon
+    badge_list = []
+    for bk in (stats.get("badges") or []):
+        if bk in BADGES:
+            badge_list.append({"key": bk, "icon": BADGES[bk]["icon"],
+                                "ten": BADGES[bk]["ten"], "mo_ta": BADGES[bk]["mo_ta"]})
+    stats["badge_list"] = badge_list
+    return JSONResponse({"ok": True, "stats": stats})
+
+
 # ── Admin CRUD users ───────────────────────────────────────────────────
 
 @router.post("/users")
