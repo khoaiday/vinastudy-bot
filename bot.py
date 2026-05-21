@@ -1,3 +1,4 @@
+import os
 import logging
 from datetime import datetime
 from telegram import Update
@@ -12,7 +13,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)s %(message)s", level=loggin
 logger = logging.getLogger(__name__)
 
 # Version tag — cập nhật mỗi khi deploy để dễ verify
-BOT_VERSION = "2026-domain-fix"
+BOT_VERSION = "2026-domain-debug"
 
 
 async def post_init(app: Application):
@@ -41,7 +42,8 @@ async def ping(update: Update, context):
         f"📅 Deploy: `{datetime.now().strftime('%d/%m/%Y %H:%M')}`\n"
         f"🆔 Telegram ID: `{uid}`\n"
         f"🔐 Trạng thái: {status_icon} `{status}`\n\n"
-        f"🌐 Web: `{BASE_DOMAIN}`",
+        f"🌐 Web: `{BASE_DOMAIN}`\n"
+        f"🔧 ENV: `{os.getenv('BASE_DOMAIN', 'NOT SET')}`",
         parse_mode="Markdown",
     )
 
