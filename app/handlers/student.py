@@ -311,10 +311,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if text == "🏅 Hồ sơ Chiến Binh":
-        hs = await crud.get_student(uid)
-        ho_ten = hs["ho_ten"] if hs else update.effective_user.first_name
-        profile = await hien_thi_profile(uid, ho_ten)
-        await update.message.reply_text(profile, parse_mode="Markdown", reply_markup=MAIN_MENU)
+        profile_url = f"{BASE_DOMAIN}/profile?tg_id={uid}"
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("🏅 Xem & Chỉnh sửa hồ sơ", web_app=WebAppInfo(url=profile_url))
+        ]])
+        # Lấy thống kê game nếu có
+        try:
+            web_user = await crud.get_web_user_by_telegram_id(uid)
+            hs = await crud.get_student(uid)
+            ho_ten = (web_user or {}).get("ho_ten") or (hs or {}).get("ho_ten") or update.effective_user.first_name
+            char = (web_user or {}).get("character_type", "chien_binh")
+            char_names = {"chien_binh":"⚔️ Chiến Binh","phu_thuy":"🔮 Phù Thủy","xa_thu":"🏹 Xạ Thủ","hiep_si":"🛡️ Hiệp Sĩ"}
+            profile_text = await hien_thi_profile(uid, ho_ten)
+            msg = f"{profile_text}\n\n🎭 Nhân vật: *{char_names.get(char, char)}*"
+        except Exception:
+            msg = "🏅 *Hồ sơ Chiến Binh*\n\nNhấn nút bên dưới để xem và chỉnh sửa!"
+        await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=keyboard)
         return
 
     if text == "🏆 Xếp hạng Bang hội":

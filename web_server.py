@@ -83,6 +83,15 @@ async def map_html():
     return await map_page()
 
 
+@app.get("/profile", response_class=HTMLResponse)
+async def profile_page():
+    """Trang chỉnh sửa hồ sơ học sinh."""
+    p = Path("profile.html")
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
 @app.get("/register", response_class=HTMLResponse)
 async def register_page():
     p = Path("register.html")

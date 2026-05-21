@@ -111,6 +111,54 @@ async def update_profile(body: UpdateProfileBody, request: Request):
     }})
 
 
+class TgProfileBody(BaseModel):
+    tg_id:          int
+    ho_ten:         str | None = None
+    lop:            str | None = None
+    character_type: str | None = None
+    avatar_face_b64: str | None = None   # ảnh mặt mới (nếu muốn đổi)
+
+
+@router.put("/tg-profile")
+async def update_tg_profile(body: TgProfileBody):
+    """Cập nhật hồ sơ từ Telegram WebApp (dùng tg_id, không cần JWT)."""
+    user = await crud.get_web_user_by_telegram_id(body.tg_id)
+    if not user:
+        raise HTTPException(404, "Không tìm thấy tài khoản")
+    if user["status"] != "approved":
+        raise HTTPException(403, "Tài khoản chưa được duyệt")
+
+    updates = {}
+    if body.ho_ten:         updates["ho_ten"]        = body.ho_ten.strip()
+    if body.lop:            updates["lop"]            = body.lop
+    if body.character_type: updates["character_type"] = body.character_type
+
+    avatar_final = None
+    if body.avatar_face_b64:
+        char = body.character_type or user["character_type"]
+        from app.auth.avatar import generate_avatar_pipeline
+        res = generate_avatar_pipeline(body.avatar_face_b64, char)
+        if res["ok"]:
+            updates["avatar_original"] = body.avatar_face_b64
+            updates["avatar_cartoon"]  = res["cartoon_b64"]
+            updates["avatar_final"]    = res["final_b64"]
+            avatar_final = res["final_b64"]
+        else:
+            raise HTTPException(500, f"Lỗi tạo avatar: {res['error']}")
+
+    if updates:
+        await crud.patch_web_user(user["google_id"], updates)
+
+    updated = await crud.get_web_user_by_telegram_id(body.tg_id)
+    return JSONResponse({
+        "ok":           True,
+        "ho_ten":       updated["ho_ten"],
+        "lop":          updated["lop"],
+        "character_type": updated["character_type"],
+        "avatar_final": updated["avatar_final"],
+    })
+
+
 @router.get("/tg-status")
 async def tg_status(tg_id: int):
     """Kiểm tra trạng thái tài khoản theo Telegram ID. Dùng bởi HTML WebApp."""

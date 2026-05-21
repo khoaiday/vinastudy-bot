@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hồ Sơ Chiến Binh</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --primary: #0ae0fe;
+  --secondary: #ea0eed;
+  --success: #4eff9f;
+  --danger: #ff0055;
+  --gold: #ffd700;
+  --bg: #050a1f;
+  --card: #0d1b3e;
+  --border: rgba(10,224,254,0.22);
+  --text: #c8e6ff;
+  --glow: 0 0 18px rgba(10,224,254,0.45);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* ── Loading ── */
+#loadOverlay {
+  position: fixed; inset: 0; z-index: 999; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+}
+.spinner { width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--primary); border-left-color: var(--secondary); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-txt { font-size: 13px; letter-spacing: 2px; color: var(--primary); }
+
+/* ── Wrap ── */
+.wrap { padding: 0 0 40px; max-width: 480px; margin: 0 auto; }
+
+/* ── Header ── */
+.hdr {
+  padding: 20px 20px 16px;
+  background: linear-gradient(180deg, rgba(10,224,254,.07) 0%, transparent 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.hdr-title { font-size: 1.1rem; font-weight: 800; color: var(--primary); text-shadow: var(--glow); }
+.hdr-sub { font-size: .75rem; color: rgba(200,230,255,.4); margin-top: 2px; }
+
+/* ── Section ── */
+.section { padding: 20px 20px 0; }
+.sec-title { font-size: .72rem; font-weight: 700; color: rgba(200,230,255,.35); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; }
+
+/* ── Avatar block ── */
+.avatar-block { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 4px; }
+.avatar-current {
+  width: 120px; height: 120px; border-radius: 18px;
+  border: 2px solid var(--primary); object-fit: cover;
+  box-shadow: 0 0 28px rgba(10,224,254,.35);
+}
+.avatar-placeholder {
+  width: 120px; height: 120px; border-radius: 18px;
+  border: 2px dashed var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.2rem; background: rgba(10,224,254,.04);
+}
+
+/* ── Camera area ── */
+.cam-wrap {
+  width: 100%; border-radius: 14px; overflow: hidden;
+  background: #000; border: 1px solid var(--border);
+  position: relative; aspect-ratio: 4/3; display: none;
+}
+.cam-wrap video, .cam-wrap canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+.face-guide {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%);
+  width: 52%; aspect-ratio: 1; border: 3px dashed rgba(10,224,254,.7);
+  border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,.32);
+}
+canvas#snap { display: none; }
+
+.cam-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.cam-actions .btn { flex: 1; min-width: 100px; }
+
+/* ── Preview strip ── */
+.preview-strip { display: flex; gap: 12px; justify-content: center; margin-top: 14px; display: none; }
+.preview-strip .pv-item { text-align: center; }
+.preview-strip img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; border: 1.5px solid var(--border); }
+.preview-strip .pv-final img { width: 100px; height: 100px; border-color: var(--primary); box-shadow: 0 0 14px rgba(10,224,254,.4); }
+.preview-strip p { font-size: .65rem; color: rgba(200,230,255,.4); margin-top: 5px; }
+
+/* ── Fields ── */
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: .78rem; color: rgba(200,230,255,.6); margin-bottom: 6px; }
+.field input, .field select {
+  width: 100%; padding: 11px 14px;
+  background: rgba(10,224,254,.05); border: 1px solid var(--border);
+  border-radius: 9px; color: var(--text); font-size: .95rem; outline: none;
+  transition: border-color .2s;
+}
+.field input:focus, .field select:focus { border-color: var(--primary); }
+.field select option { background: #0d1b3e; }
+
+/* ── Character grid ── */
+.char-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+.char-card {
+  padding: 14px 10px; border-radius: 11px; border: 2px solid var(--border);
+  cursor: pointer; text-align: center; transition: all .22s;
+  background: rgba(10,224,254,.03);
+}
+.char-card:active { transform: scale(.97); }
+.char-card .em { font-size: 1.8rem; display: block; margin-bottom: 5px; }
+.char-card .nm { font-size: .78rem; font-weight: 700; }
+.char-card.selected { background: rgba(10,224,254,.09); }
+.char-chien_binh.selected { border-color: #0ae0fe; box-shadow: 0 0 14px rgba(10,224,254,.3); }
+.char-phu_thuy.selected   { border-color: #ea0eed; box-shadow: 0 0 14px rgba(234,14,237,.3); }
+.char-xa_thu.selected     { border-color: #4eff9f; box-shadow: 0 0 14px rgba(78,255,159,.3); }
+.char-hiep_si.selected    { border-color: #ffd700; box-shadow: 0 0 14px rgba(255,215,0,.3); }
+.char-chien_binh .nm { color: #0ae0fe; }
+.char-phu_thuy   .nm { color: #ea0eed; }
+.char-xa_thu     .nm { color: #4eff9f; }
+.char-hiep_si    .nm { color: #ffd700; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 11px 20px; border-radius: 10px; border: none;
+  font-size: .9rem; font-weight: 700; cursor: pointer; transition: all .18s;
+}
+.btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 14px rgba(10,224,254,.35); }
+.btn-primary:active { transform: scale(.97); }
+.btn-outline {
+  background: rgba(10,224,254,.07); color: var(--primary);
+  border: 1px solid var(--border);
+}
+.btn-outline:active { border-color: var(--primary); }
+.btn-danger-outline {
+  background: rgba(255,0,85,.08); color: var(--danger);
+  border: 1px solid rgba(255,0,85,.35);
+}
+.btn-full { width: 100%; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── Save bar ── */
+.save-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 14px 20px; background: var(--bg);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 24px rgba(5,10,31,.8);
+  max-width: 480px; margin: 0 auto;
+}
+
+/* ── Spinner small ── */
+.spin-sm { width: 18px; height: 18px; border-radius: 50%; border: 2px solid transparent; border-top-color: #000; animation: spin .7s linear infinite; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  padding: 10px 22px; border-radius: 10px; font-size: .88rem; font-weight: 600;
+  opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; z-index: 9999;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="loadOverlay">
+  <div class="spinner"></div>
+  <div class="load-txt">ĐANG TẢI HỒ SƠ...</div>
+</div>
+
+<div class="wrap" id="mainContent" style="display:none">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">🏅 Hồ Sơ Chiến Binh</div>
+      <div class="hdr-sub">Chỉnh sửa thông tin và avatar của em</div>
+    </div>
+  </div>
+
+  <!-- Avatar -->
+  <div class="section">
+    <div class="sec-title">Ảnh đại diện</div>
+
+    <div class="avatar-block">
+      <div id="avatarDisplay"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-outline" id="btnOpenCam" onclick="openCamera()">📷 Chụp ảnh mới</button>
+        <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">📁 Chọn từ thư viện</button>
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="onFileSelect(event)">
+      </div>
+    </div>
+
+    <!-- Camera -->
+    <div class="cam-wrap" id="camWrap">
+      <video id="video" autoplay playsinline muted></video>
+      <div class="face-guide"></div>
+    </div>
+    <canvas id="snap"></canvas>
+
+    <div class="cam-actions" id="camActions" style="display:none">
+      <button class="btn btn-primary" id="btnSnap" onclick="snapPhoto()">📸 Chụp</button>
+      <button class="btn btn-danger-outline" onclick="stopCamera()">✕ Huỷ</button>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-strip" id="previewStrip">
+      <div class="pv-item">
+        <img id="pvFace" src="" alt="">
+        <p>Ảnh gốc</p>
+      </div>
+      <div class="pv-item">
+        <img id="pvCartoon" src="" alt="">
+        <p>Hoạt hình</p>
+      </div>
+      <div class="pv-item pv-final">
+        <img id="pvFinal" src="" alt="">
+        <p>Avatar</p>
+      </div>
+    </div>
+
+    <div id="genSpinner" style="display:none; text-align:center; padding:16px">
+      <div class="spinner" style="margin:0 auto 8px"></div>
+      <p style="font-size:.82rem;color:rgba(200,230,255,.5)">🎨 Đang tạo avatar hoạt hình...</p>
+    </div>
+  </div>
+
+  <!-- Thông tin -->
+  <div class="section" style="margin-top:24px">
+    <div class="sec-title">Thông tin</div>
+    <div class="field">
+      <label>Họ và tên</label>
+      <input type="text" id="inputName" placeholder="Nhập họ và tên">
+    </div>
+    <div class="field">
+      <label>Lớp</label>
+      <select id="inputLop">
+        <option value="3">Lớp 3</option>
+        <option value="4">Lớp 4</option>
+        <option value="5">Lớp 5</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Nhân vật -->
+  <div class="section" style="margin-top:24px">
+    <div class="sec-title">Nhân vật</div>
+    <div class="char-grid">
+      <div class="char-card char-chien_binh" data-char="chien_binh" onclick="selectChar(this)">
+        <span class="em">⚔️</span><div class="nm">Chiến Binh</div>
+      </div>
+      <div class="char-card char-phu_thuy" data-char="phu_thuy" onclick="selectChar(this)">
+        <span class="em">🔮</span><div class="nm">Phù Thủy</div>
+      </div>
+      <div class="char-card char-xa_thu" data-char="xa_thu" onclick="selectChar(this)">
+        <span class="em">🏹</span><div class="nm">Xạ Thủ</div>
+      </div>
+      <div class="char-card char-hiep_si" data-char="hiep_si" onclick="selectChar(this)">
+        <span class="em">🛡️</span><div class="nm">Hiệp Sĩ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spacer for save bar -->
+  <div style="height:80px"></div>
+</div>
+
+<!-- Save bar -->
+<div class="save-bar" id="saveBar" style="display:none">
+  <button class="btn btn-primary btn-full" id="btnSave" onclick="saveProfile()">
+    💾 Lưu hồ sơ
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
+
+const CHARS = {
+  chien_binh: { emoji: '⚔️', name: 'Chiến Binh' },
+  phu_thuy:   { emoji: '🔮', name: 'Phù Thủy'   },
+  xa_thu:     { emoji: '🏹', name: 'Xạ Thủ'     },
+  hiep_si:    { emoji: '🛡️', name: 'Hiệp Sĩ'    },
+};
+
+let tgId = null;
+let currentChar = 'chien_binh';
+let newFaceB64 = null;   // ảnh mặt mới (nếu người dùng chụp/upload)
+let stream = null;
+let hasNewAvatar = false;
+
+// ── Load profile ──────────────────────────────────────────────────────────
+(async function load() {
+  tgId = tg?.initDataUnsafe?.user?.id || null;
+  if (!tgId) {
+    // Dev: lấy từ URL
+    tgId = parseInt(new URLSearchParams(location.search).get('tg_id')) || null;
+  }
+
+  if (!tgId) {
+    showError('Không xác định được tài khoản. Vui lòng mở từ bot Telegram!');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
+    const data = await res.json();
+
+    if (data.status !== 'approved') {
+      showError(data.status === 'pending'
+        ? 'Tài khoản đang chờ duyệt!'
+        : 'Tài khoản chưa đăng ký. Hãy đăng ký trước!');
+      return;
+    }
+
+    fillForm(data);
+    document.getElementById('loadOverlay').style.display = 'none';
+    document.getElementById('mainContent').style.display = '';
+    document.getElementById('saveBar').style.display = '';
+
+  } catch(e) {
+    showError('Lỗi kết nối, thử lại!');
+  }
+})();
+
+function showError(msg) {
+  document.getElementById('loadOverlay').innerHTML =
+    `<div style="text-align:center;padding:28px;font-size:.95rem;color:var(--danger)">${msg}</div>`;
+}
+
+function fillForm(data) {
+  document.getElementById('inputName').value = data.ho_ten || '';
+  document.getElementById('inputLop').value  = data.lop   || '3';
+  currentChar = data.character_type || 'chien_binh';
+
+  // Avatar
+  const wrap = document.getElementById('avatarDisplay');
+  if (data.avatar_final) {
+    wrap.innerHTML = `<img src="${data.avatar_final}" class="avatar-current" id="currentAvatar" alt="Avatar">`;
+  } else {
+    const emoji = CHARS[data.character_type]?.emoji || '⚔️';
+    wrap.innerHTML = `<div class="avatar-placeholder" id="currentAvatar">${emoji}</div>`;
+  }
+
+  // Character selection
+  document.querySelectorAll('.char-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.char === currentChar);
+  });
+}
+
+// ── Character ──────────────────────────────────────────────────────────────
+function selectChar(el) {
+  document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentChar = el.dataset.char;
+}
+
+// ── Camera ────────────────────────────────────────────────────────────────
+async function openCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    const video = document.getElementById('video');
+    video.srcObject = stream;
+    document.getElementById('camWrap').style.display = '';
+    document.getElementById('camActions').style.display = 'flex';
+    document.getElementById('btnOpenCam').style.display = 'none';
+    document.getElementById('previewStrip').style.display = 'none';
+  } catch(e) {
+    showToast('Không mở được camera!', false);
+  }
+}
+
+function snapPhoto() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('snap');
+  const SIZE = 512;
+  canvas.width = canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const side = Math.min(vw, vh);
+  ctx.drawImage(video, (vw-side)/2, (vh-side)/2, side, side, 0, 0, SIZE, SIZE);
+  newFaceB64 = canvas.toDataURL('image/jpeg', .88);
+  stopCamera();
+  showPreview();
+}
+
+function onFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const SIZE = 512;
+      const canvas = document.getElementById('snap');
+      canvas.width = canvas.height = SIZE;
+      const ctx = canvas.getContext('2d');
+      const side = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width-side)/2, (img.height-side)/2, side, side, 0, 0, SIZE, SIZE);
+      newFaceB64 = canvas.toDataURL('image/jpeg', .88);
+      showPreview();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function stopCamera() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  document.getElementById('camWrap').style.display = 'none';
+  document.getElementById('camActions').style.display = 'none';
+  document.getElementById('btnOpenCam').style.display = '';
+}
+
+function showPreview() {
+  document.getElementById('pvFace').src = newFaceB64;
+  document.getElementById('pvCartoon').src = '';
+  document.getElementById('pvFinal').src = '';
+  document.getElementById('previewStrip').style.display = 'flex';
+  hasNewAvatar = true;
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────
+async function saveProfile() {
+  const name = document.getElementById('inputName').value.trim();
+  if (!name) { showToast('Chưa nhập tên!', false); return; }
+
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin-sm"></div> Đang lưu...';
+
+  // Nếu có ảnh mới → hiện spinner generate
+  if (newFaceB64) {
+    document.getElementById('genSpinner').style.display = '';
+    document.getElementById('previewStrip').style.display = 'none';
+  }
+
+  const body = {
+    tg_id:          tgId,
+    ho_ten:         name,
+    lop:            document.getElementById('inputLop').value,
+    character_type: currentChar,
+  };
+  if (newFaceB64) body.avatar_face_b64 = newFaceB64;
+
+  try {
+    const res = await fetch('/api/student/tg-profile', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    });
+    const data = await res.json();
+
+    document.getElementById('genSpinner').style.display = 'none';
+
+    if (!res.ok) {
+      showToast(data.detail || 'Lỗi lưu hồ sơ!', false);
+      btn.disabled = false; btn.innerHTML = '💾 Lưu hồ sơ';
+      return;
+    }
+
+    // Cập nhật avatar hiển thị
+    if (data.avatar_final) {
+      document.getElementById('avatarDisplay').innerHTML =
+        `<img src="${data.avatar_final}" class="avatar-current" alt="Avatar">`;
+      // Show avatar preview
+      document.getElementById('pvFinal').src = data.avatar_final;
+      document.getElementById('previewStrip').style.display = 'flex';
+    }
+    newFaceB64 = null; hasNewAvatar = false;
+
+    showToast('✅ Đã lưu hồ sơ!', true);
+    btn.disabled = false; btn.innerHTML = '💾 Lưu hồ sơ';
+
+    // Telegram close button callback
+    if (tg?.MainButton) {
+      tg.MainButton.hide();
+    }
+
+  } catch(e) {
+    document.getElementById('genSpinner').style.display = 'none';
+    showToast('Lỗi kết nối!', false);
+    btn.disabled = false; btn.innerHTML = '💾 Lưu hồ sơ';
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function showToast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? 'var(--success)' : 'var(--danger)';
+  t.style.color = ok ? '#000' : '#fff';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

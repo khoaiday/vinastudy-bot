@@ -233,10 +233,12 @@
   
   
   <div class="header">
-    <div class="user-badge" id="userBadge">⚡ CHIẾN BINH TOÁN</div>
-    <div class="user-badge" id="badgeCount" style="margin-left: 10px; color: gold; border-color: gold; box-shadow: 0 0 10px gold;">🏆 x 0</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">
+      <div class="user-badge" id="userBadge">⚡ CHIẾN BINH TOÁN</div>
+      <div class="user-badge" id="badgeCount" style="color:gold;border-color:gold;box-shadow:0 0 10px gold">🏆 x 0</div>
+      <button onclick="openProfile()" style="background:rgba(10,224,254,.1);border:1px solid var(--primary);color:var(--primary);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px">🏅 HỒ SƠ</button>
+    </div>
     <h1>GIẢI CỨU NGÂN HÀ</h1>
-
     <p>TRẠM 1: SAO THỦY CẤP TỐC</p>
   </div>
 
@@ -373,6 +375,17 @@ const BASE = (function() {
     : loc.pathname.replace(/\/[^/]*$/, '');
   return loc.origin + path;
 })();
+
+function openProfile() {
+  const tgId = tg?.initDataUnsafe?.user?.id || '';
+  document.getElementById('pgTitle').textContent = 'Hồ Sơ Chiến Binh';
+  document.getElementById('pgSub').textContent   = 'Chỉnh sửa thông tin & avatar';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('frame').src = `/profile${tgId ? '?tg_id=' + tgId : ''}`;
+  requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
+  if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
+  history.pushState({ lesson: 'profile' }, '');
+}
 
 function open_(buoi, title, path, el) {
   document.getElementById('pgTitle').textContent = title;
