@@ -136,9 +136,13 @@ async def init_db():
     CREATE INDEX IF NOT EXISTS idx_web_sessions_gid   ON web_sessions(google_id);
     CREATE INDEX IF NOT EXISTS idx_web_sessions_exp   ON web_sessions(expires_at);
     """
+    migration = """
+    ALTER TABLE web_users ADD COLUMN IF NOT EXISTS gioi_tinh VARCHAR(10) DEFAULT 'nam';
+    """
     try:
         async with pool.acquire() as conn:
             await conn.execute(sql)
+            await conn.execute(migration)
         logger.info("✅ Database schema initialized")
     except Exception as e:
         logger.error(f"❌ DB init error: {e}")

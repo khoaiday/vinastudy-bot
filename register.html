@@ -295,6 +295,24 @@ body {
       </div>
 
       <div class="field">
+        <label>Giới tính</label>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button type="button" id="btnNam" onclick="selectGender('nam')"
+            style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--primary);
+                   background:rgba(10,224,254,0.15);color:var(--primary);font-size:1.1rem;
+                   cursor:pointer;font-weight:700;transition:.2s">
+            ♂ Nam
+          </button>
+          <button type="button" id="btnNu" onclick="selectGender('nu')"
+            style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--border);
+                   background:rgba(234,14,237,0.08);color:var(--text);font-size:1.1rem;
+                   cursor:pointer;font-weight:700;transition:.2s">
+            ♀ Nữ
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
         <label>Lớp</label>
         <select id="inputLop">
           <option value="3" selected>Lớp 3</option>
@@ -443,8 +461,17 @@ body {
 // ── State ────────────────────────────────────────────────────────────────
 let token = '';
 let currentChar = 'chien_binh';
+let currentGender = 'nam';
 let faceB64 = '';
 let stream = null;
+
+function selectGender(gt) {
+  currentGender = gt;
+  const activeStyle = 'border:2px solid var(--secondary);background:rgba(234,14,237,0.25);color:var(--secondary)';
+  const inactiveStyle = 'border:2px solid var(--border);background:rgba(10,224,254,0.08);color:var(--text)';
+  document.getElementById('btnNam').style.cssText = (gt === 'nam' ? activeStyle : inactiveStyle) + ';flex:1;padding:10px;border-radius:10px;font-size:1.1rem;cursor:pointer;font-weight:700;transition:.2s';
+  document.getElementById('btnNu').style.cssText  = (gt === 'nu'  ? activeStyle : inactiveStyle) + ';flex:1;padding:10px;border-radius:10px;font-size:1.1rem;cursor:pointer;font-weight:700;transition:.2s';
+}
 
 // ── Google login với tg_id ───────────────────────────────────────────────
 function doGoogleLogin(e) {
@@ -693,6 +720,7 @@ async function submitProfile() {
     const body = {
       ho_ten: name,
       lop: lop,
+      gioi_tinh: currentGender,
       character_type: currentChar,
       avatar_face_b64: faceB64,
     };

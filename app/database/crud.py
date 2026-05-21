@@ -392,7 +392,8 @@ async def get_all_web_users() -> list:
 
 async def update_web_user_profile(google_id: str, ho_ten: str, lop: str,
                                    character_type: str, avatar_original: str,
-                                   avatar_cartoon: str, avatar_final: str):
+                                   avatar_cartoon: str, avatar_final: str,
+                                   gioi_tinh: str = "nam"):
     sql = """
         UPDATE web_users SET
             ho_ten          = $2,
@@ -400,18 +401,20 @@ async def update_web_user_profile(google_id: str, ho_ten: str, lop: str,
             character_type  = $4,
             avatar_original = $5,
             avatar_cartoon  = $6,
-            avatar_final    = $7
+            avatar_final    = $7,
+            gioi_tinh       = $8
         WHERE google_id = $1
     """
     pool = get_pool()
     async with pool.acquire() as conn:
         await conn.execute(sql, google_id, ho_ten, lop, character_type,
-                           avatar_original, avatar_cartoon, avatar_final)
+                           avatar_original, avatar_cartoon, avatar_final, gioi_tinh)
 
 
 async def patch_web_user(google_id: str, updates: dict):
     allowed = {"ho_ten", "lop", "character_type",
-               "avatar_original", "avatar_cartoon", "avatar_final", "telegram_id"}
+               "avatar_original", "avatar_cartoon", "avatar_final",
+               "telegram_id", "gioi_tinh"}
     fields  = {k: v for k, v in updates.items() if k in allowed}
     if not fields:
         return

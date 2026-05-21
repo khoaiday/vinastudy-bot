@@ -25,18 +25,20 @@ def get_current_user(request: Request) -> dict:
 # ── Pydantic models ────────────────────────────────────────────────────
 
 class CompleteProfileBody(BaseModel):
-    ho_ten:         str
-    lop:            str = "3"
-    character_type: str = "chien_binh"
-    avatar_face_b64: str           # base64 ảnh mặt đã crop (từ canvas client)
-    telegram_id:    int | None = None  # tg_id từ link bot
+    ho_ten:          str
+    lop:             str = "3"
+    gioi_tinh:       str = "nam"
+    character_type:  str = "chien_binh"
+    avatar_face_b64: str
+    telegram_id:     int | None = None
 
 
 class UpdateProfileBody(BaseModel):
-    ho_ten:         str | None = None
-    lop:            str | None = None
-    character_type: str | None = None
-    avatar_face_b64: str | None = None  # nếu muốn đổi ảnh
+    ho_ten:          str | None = None
+    lop:             str | None = None
+    gioi_tinh:       str | None = None
+    character_type:  str | None = None
+    avatar_face_b64: str | None = None
 
 
 # ── Routes ──────────────────────────────────────────────────────────────
@@ -52,7 +54,8 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
         raise HTTPException(404, "Tài khoản không tồn tại")
 
     # Generate avatar
-    avatar_result = generate_avatar_pipeline(body.avatar_face_b64, body.character_type)
+    avatar_result = generate_avatar_pipeline(
+        body.avatar_face_b64, body.character_type, body.gioi_tinh)
     if not avatar_result["ok"]:
         raise HTTPException(500, f"Lỗi tạo avatar: {avatar_result['error']}")
 
@@ -64,6 +67,7 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
         avatar_original = body.avatar_face_b64,
         avatar_cartoon  = avatar_result["cartoon_b64"],
         avatar_final    = avatar_result["final_b64"],
+        gioi_tinh       = body.gioi_tinh,
     )
 
     # Lưu telegram_id nếu có (gửi từ link bot)
@@ -89,11 +93,13 @@ async def update_profile(body: UpdateProfileBody, request: Request):
     updates = {}
     if body.ho_ten:         updates["ho_ten"]         = body.ho_ten
     if body.lop:            updates["lop"]             = body.lop
+    if body.gioi_tinh:      updates["gioi_tinh"]       = body.gioi_tinh
     if body.character_type: updates["character_type"]  = body.character_type
 
     if body.avatar_face_b64:
         char = body.character_type or user["character_type"]
-        res  = generate_avatar_pipeline(body.avatar_face_b64, char)
+        gt   = body.gioi_tinh or user.get("gioi_tinh", "nam")
+        res  = generate_avatar_pipeline(body.avatar_face_b64, char, gt)
         if res["ok"]:
             updates["avatar_original"] = body.avatar_face_b64
             updates["avatar_cartoon"]  = res["cartoon_b64"]
@@ -106,17 +112,19 @@ async def update_profile(body: UpdateProfileBody, request: Request):
     return JSONResponse({"ok": True, "user": {
         "ho_ten":         updated["ho_ten"],
         "lop":            updated["lop"],
+        "gioi_tinh":      updated.get("gioi_tinh", "nam"),
         "character_type": updated["character_type"],
         "avatar_final":   updated["avatar_final"],
     }})
 
 
 class TgProfileBody(BaseModel):
-    tg_id:          int
-    ho_ten:         str | None = None
-    lop:            str | None = None
-    character_type: str | None = None
-    avatar_face_b64: str | None = None   # ảnh mặt mới (nếu muốn đổi)
+    tg_id:           int
+    ho_ten:          str | None = None
+    lop:             str | None = None
+    gioi_tinh:       str | None = None
+    character_type:  str | None = None
+    avatar_face_b64: str | None = None
 
 
 @router.put("/tg-profile")
@@ -131,12 +139,14 @@ async def update_tg_profile(body: TgProfileBody):
     updates = {}
     if body.ho_ten:         updates["ho_ten"]        = body.ho_ten.strip()
     if body.lop:            updates["lop"]            = body.lop
+    if body.gioi_tinh:      updates["gioi_tinh"]      = body.gioi_tinh
     if body.character_type: updates["character_type"] = body.character_type
 
     avatar_final = None
     if body.avatar_face_b64:
         char = body.character_type or user["character_type"]
-        res = generate_avatar_pipeline(body.avatar_face_b64, char)
+        gt   = body.gioi_tinh or user.get("gioi_tinh", "nam")
+        res  = generate_avatar_pipeline(body.avatar_face_b64, char, gt)
         if res["ok"]:
             updates["avatar_original"] = body.avatar_face_b64
             updates["avatar_cartoon"]  = res["cartoon_b64"]
