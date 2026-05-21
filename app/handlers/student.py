@@ -100,10 +100,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (update.message.text or "").strip()
     state = get_state(uid)
 
-    if update.message.web_app_data:
-        await xu_ly_ket_qua_webapp(update, context)
-        return
-
     if text == "🗺️ Bản đồ Chiến Dịch":
         state["mode"] = "btvn_menu"
         await update.message.reply_text("🏠 *Bản đồ Chiến Dịch*\n\nChọn ải để tiêu diệt quái vật.\n_(Ải mới nhất ở dưới cùng)_ 👇", parse_mode="Markdown", reply_markup=BTVN_MENU)
