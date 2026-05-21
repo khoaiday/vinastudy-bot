@@ -578,6 +578,61 @@
   }
   .video-modal.show { display: flex; }
 
+  /* ── Custom Numpad ── */
+  .numpad-overlay {
+    position: fixed; inset: 0; z-index: 6000;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    pointer-events: none; opacity: 0; transition: opacity 0.18s;
+  }
+  .numpad-overlay.show { pointer-events: auto; opacity: 1; }
+  .numpad-bd { position: absolute; inset: 0; background: rgba(5,10,31,0.6); }
+  .numpad-panel {
+    position: relative; background: #080f21;
+    border-top: 2px solid var(--primary);
+    box-shadow: 0 -8px 40px rgba(10,224,254,0.35);
+    padding: 10px 10px calc(env(safe-area-inset-bottom, 0px) + 14px);
+    transform: translateY(100%);
+    transition: transform 0.24s cubic-bezier(0.34,1.1,0.64,1);
+  }
+  .numpad-overlay.show .numpad-panel { transform: translateY(0); }
+  .numpad-display {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(10,224,254,0.06); border: 1.5px solid var(--primary);
+    border-radius: 8px; padding: 8px 14px; margin-bottom: 10px;
+  }
+  .np-cur-val {
+    font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 900;
+    color: var(--primary); text-shadow: 0 0 8px var(--primary-glow);
+    min-width: 64px; letter-spacing: 3px;
+  }
+  .np-cur-label { flex: 1; font-size: 12px; color: #5d8fa0; text-align: right; }
+  .np-close-btn {
+    background: transparent; border: none; color: #5d8fa0;
+    font-size: 20px; cursor: pointer; padding: 4px 8px; line-height: 1;
+  }
+  .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .np-btn {
+    height: 72px; border-radius: 10px;
+    border: 1.5px solid rgba(10,224,254,0.2);
+    background: rgba(10,224,254,0.06); color: #e0f4ff;
+    font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.08s, transform 0.08s;
+    -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation;
+  }
+  .np-btn:active { background: rgba(10,224,254,0.28); border-color: var(--primary); transform: scale(0.9); }
+  .np-btn.np-del {
+    color: #ff6688; border-color: rgba(255,0,85,0.25);
+    background: rgba(255,0,85,0.07); font-size: 26px;
+  }
+  .np-btn.np-del:active { background: rgba(255,0,85,0.25); border-color: var(--danger); }
+  .np-btn.np-ok {
+    background: linear-gradient(135deg, var(--primary), #00c8e0);
+    color: #000; border-color: var(--primary); font-size: 20px; font-weight: 900;
+    box-shadow: 0 0 16px var(--primary-glow);
+  }
+  .np-btn.np-ok:active { background: #fff; transform: scale(0.9); }
+
 </style>
 </head>
 <body>
@@ -1503,5 +1558,141 @@ window.submitAll = function() {
 
 
 <!-- Video Help: opens YouTube in new tab via openVideoHelp() -->
+
+<!-- ── Custom Numpad HTML ── -->
+<div class="numpad-overlay" id="numpadOverlay">
+  <div class="numpad-bd" id="numpadBd"></div>
+  <div class="numpad-panel">
+    <div class="numpad-display">
+      <span class="np-cur-val" id="npVal">?</span>
+      <span class="np-cur-label" id="npLabel">Nhập đáp án</span>
+      <button class="np-close-btn" id="npCloseBtn">✕</button>
+    </div>
+    <div class="numpad-grid">
+      <button class="np-btn" data-d="1">1</button>
+      <button class="np-btn" data-d="2">2</button>
+      <button class="np-btn" data-d="3">3</button>
+      <button class="np-btn" data-d="4">4</button>
+      <button class="np-btn" data-d="5">5</button>
+      <button class="np-btn" data-d="6">6</button>
+      <button class="np-btn" data-d="7">7</button>
+      <button class="np-btn" data-d="8">8</button>
+      <button class="np-btn" data-d="9">9</button>
+      <button class="np-btn np-del" id="npDel">⌫</button>
+      <button class="np-btn" data-d="0">0</button>
+      <button class="np-btn np-ok" id="npOk">✓ OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Custom Numpad Logic ── */
+(function () {
+  'use strict';
+  var _inp = null, _checkBtn = null;
+
+  function npSync() {
+    var el = document.getElementById('npVal');
+    if (el) el.textContent = (_inp && _inp.value) ? _inp.value : '?';
+  }
+
+  window._showNumpad = function (inp) {
+    if (!inp || inp.disabled) return;
+    _inp = inp;
+    var card = inp.closest('.q-card');
+    _checkBtn = card ? card.querySelector('.check-btn') : null;
+    var badge = card ? card.querySelector('.q-num-badge') : null;
+    var labelEl = document.getElementById('npLabel');
+    if (labelEl) labelEl.textContent = badge ? badge.textContent : 'Nhập đáp án';
+    npSync();
+    document.getElementById('numpadOverlay').classList.add('show');
+  };
+
+  window._hideNumpad = function () {
+    document.getElementById('numpadOverlay').classList.remove('show');
+    _inp = null; _checkBtn = null;
+  };
+
+  /* Digit buttons */
+  document.querySelectorAll('.np-btn[data-d]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (!_inp || _inp.disabled) return;
+      if (_inp.value.length >= 6) return;
+      _inp.value += this.dataset.d;
+      _inp.dispatchEvent(new Event('input', { bubbles: true }));
+      npSync();
+    });
+  });
+
+  /* Delete */
+  document.getElementById('npDel').addEventListener('click', function () {
+    if (!_inp) return;
+    _inp.value = _inp.value.slice(0, -1);
+    _inp.dispatchEvent(new Event('input', { bubbles: true }));
+    npSync();
+  });
+
+  /* OK — submit answer */
+  document.getElementById('npOk').addEventListener('click', function () {
+    if (!_inp || !_inp.value.trim()) return;
+    var btn = _checkBtn;
+    window._hideNumpad();
+    setTimeout(function () { if (btn && !btn.disabled) btn.click(); }, 80);
+  });
+
+  /* Backdrop + X */
+  document.getElementById('numpadBd').addEventListener('click', window._hideNumpad);
+  document.getElementById('npCloseBtn').addEventListener('click', window._hideNumpad);
+
+  /* Hook all .ans-input — replace keyboard with numpad */
+  function hookAll() {
+    document.querySelectorAll('.ans-input').forEach(function (inp) {
+      if (inp.dataset.npHooked) return;
+      inp.dataset.npHooked = '1';
+      inp.setAttribute('readonly', 'readonly');
+      inp.setAttribute('inputmode', 'none');
+      inp.style.cursor = 'pointer';
+      inp.style.caretColor = 'transparent';
+
+      inp.addEventListener('click', function (e) {
+        if (this.disabled) return;
+        e.preventDefault(); e.stopPropagation();
+        window._showNumpad(this);
+      });
+      inp.addEventListener('focus', function () { this.blur(); });
+      inp.addEventListener('touchstart', function (e) {
+        if (this.disabled) return;
+        e.preventDefault();
+        window._showNumpad(this);
+      }, { passive: false });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hookAll);
+  } else {
+    hookAll();
+  }
+
+  /* Override closeMomo: show numpad again after hint instead of keyboard */
+  function overrideMomo() {
+    window.closeMomo = function () {
+      document.getElementById('momoOverlay').classList.remove('show');
+      var inp = document.querySelector('.q-slide.active .ans-input');
+      if (inp && !inp.disabled) {
+        inp.value = '';
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+        setTimeout(function () { window._showNumpad(inp); }, 220);
+      }
+    };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', overrideMomo);
+  } else {
+    overrideMomo();
+  }
+})();
+</script>
 \n</body>
 </html>
