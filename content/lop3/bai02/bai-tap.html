@@ -234,6 +234,10 @@
     background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.45); color: #fbbf24;
   }
   .btn-help:hover { background: rgba(251,191,36,0.22); }
+  .btn-pause {
+    background: rgba(255,80,80,0.08); border: 1px solid rgba(255,80,80,0.35); color: #ff8080;
+  }
+  .btn-pause:hover { background: rgba(255,80,80,0.18); }
 
   /* ── Help overlay ── */
   .help-overlay {
@@ -1125,14 +1129,17 @@ function nextSlide() {
 }
 
 function handleAfterAttack(btn, qId) {
-    // Hiện nút Câu tiếp theo trong action bar
     var nb = document.getElementById('actionNextBtn');
+    var pb = document.getElementById('actionPauseBtn');
     if (nb) nb.style.display = '';
+    if (pb) pb.style.display = 'none';
 }
 
 function _showNextBtn() {
     var nb = document.getElementById('actionNextBtn');
+    var pb = document.getElementById('actionPauseBtn');
     if (nb) nb.style.display = '';
+    if (pb) pb.style.display = 'none';
 }
 
 
@@ -1219,7 +1226,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const curCard = curSlideEl.querySelector('.q-card');
         if (curCard && answered[curCard.id] !== undefined) {
           const nb = document.getElementById('actionNextBtn');
+          const pb = document.getElementById('actionPauseBtn');
           if (nb) nb.style.display = '';
+          if (pb) pb.style.display = 'none';
         }
       }
       window._attempts = saved.attempts || {};
@@ -1773,7 +1782,8 @@ window.submitAll = function() {
 <!-- ── Action bar ── -->
 <div class="action-bar">
   <button class="btn-help" onclick="showHelp()">💡 Trợ giúp</button>
-  <button class="btn-next-action" id="actionNextBtn" style="display:none;" onclick="(function(nb){nb.style.display='none';nextSlide();})(this)">⏭ Câu tiếp theo</button>
+  <button class="btn-pause" id="actionPauseBtn" onclick="pauseGame()">⏸ Dừng chơi</button>
+  <button class="btn-next-action" id="actionNextBtn" style="display:none;" onclick="(function(){var nb=document.getElementById('actionNextBtn'),pb=document.getElementById('actionPauseBtn');if(nb)nb.style.display='none';if(pb)pb.style.display='';nextSlide();}())">⏭ Câu tiếp theo</button>
 </div>
 
 <!-- ── Help Overlay ── -->
