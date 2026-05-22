@@ -411,6 +411,17 @@
   .choice-btn.wrong    { border-color: var(--danger); background: rgba(255,0,85,0.2); color: var(--danger); box-shadow: 0 0 15px rgba(255,0,85,0.4); }
 
   /* ── Feedback ── */
+  /* Resume toast */
+  #resumeToast {
+    position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+    background: rgba(10,224,254,0.12); border: 1px solid rgba(10,224,254,0.4);
+    color: var(--primary); font-size: 13px; font-weight: 700;
+    padding: 7px 18px; border-radius: 20px; z-index: 9000;
+    white-space: nowrap; letter-spacing: 0.5px;
+    animation: fadeUp 0.3s ease;
+    text-shadow: 0 0 8px var(--primary-glow);
+    pointer-events: none;
+  }
   .feedback {
     margin-top: 8px; padding: 10px 14px; border-radius: 4px;
     font-size: 18px; font-weight: 700; display: none;
@@ -814,6 +825,7 @@
 
 </div>
 <span id="progressText" style="display:none;">1/12</span>
+<div id="resumeToast" style="display:none;"></div>
 
 
 <!-- Mo-Mo Overlay -->
@@ -1247,6 +1259,14 @@ document.addEventListener('DOMContentLoaded', () => {
       currentSlide = saved.slide;
       const target = document.getElementById('slide' + currentSlide);
       if(target) target.classList.add('active');
+
+      // Hiện toast "Đã tới câu X/12"
+      const toast = document.getElementById('resumeToast');
+      if (toast) {
+        toast.textContent = '▶ Đã tới câu ' + saved.slide + '/' + TOTAL;
+        toast.style.display = '';
+        setTimeout(function () { toast.style.display = 'none'; }, 2800);
+      }
     }
   } catch(e) {}
 
