@@ -1,0 +1,2306 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toán Lớp 3 - Cấu Tạo Số Tự Nhiên</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0ae0fe;
+    --primary-glow: rgba(10, 224, 254, 0.5);
+    --secondary: #ea0eed;
+    --secondary-glow: rgba(234, 14, 237, 0.5);
+    --success: #4eff9f;
+    --danger: #ff0055;
+    --bg-base: #050a1f;
+    --bg-card: rgba(11, 19, 43, 0.85);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: rgba(10, 224, 254, 0.4);
+    --radius: 0px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    min-height: 100vh;
+    background-image: 
+      linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
+  }
+
+  /* ── Battle Arena ── */
+  .battle-arena {
+    background: radial-gradient(circle at center, #0e173a, #050a1f);
+    padding: 12px 20px 16px;
+    border-bottom: 2px solid var(--primary);
+    box-shadow: 0 5px 30px rgba(10,224,254,0.2);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  
+  .arena-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    perspective: 800px;
+  }
+  
+  /* Sàn lưới Grid 3D */
+  .arena-grid-wrapper {
+    position: absolute;
+    bottom: 0; left: -50%; width: 200%; height: 200%;
+    transform: rotateX(75deg);
+    transform-origin: center bottom;
+    -webkit-mask-image: linear-gradient(transparent 50%, black 100%);
+  }
+  .arena-grid {
+    position: absolute;
+    inset: 0;
+    /* Dùng SVG thay cho CSS Gradient để khử Moiré triệt để, nét dày 3px */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0 L0 0 0 60' fill='none' stroke='%230ae0fe' stroke-width='3' stroke-opacity='0.3'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+    animation: gridMove 2s linear infinite;
+  }
+  @keyframes gridMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 60px; }
+  }
+
+  /* Ký hiệu lơ lửng */
+  .math-particles {
+    position: absolute; inset: 0;
+    perspective: 600px;
+  }
+  .math-particles span {
+    position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    left: var(--startX); top: var(--startY);
+    opacity: 0; animation: flyForward linear infinite;
+  }
+  @keyframes flyForward {
+    0% { transform: translateZ(-600px) scale(0.5); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translateZ(300px) scale(1.5); opacity: 0; }
+  }
+  .p1 { --startX: 10%; --startY: 20%; color: var(--primary); font-size: 30px; animation-duration: 4s; animation-delay: 0s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p2 { --startX: 80%; --startY: 10%; color: var(--amber, #fbbf24); font-size: 40px; animation-duration: 5s; animation-delay: 1s; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
+  .p3 { --startX: 20%; --startY: 60%; color: var(--primary); font-size: 35px; animation-duration: 6s; animation-delay: 2s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p4 { --startX: 70%; --startY: 50%; color: var(--secondary); font-size: 28px; animation-duration: 4.5s; animation-delay: 0.5s; text-shadow: 0 0 10px var(--secondary-glow); }
+  .p5 { --startX: 40%; --startY: 30%; color: #4eff9f; font-size: 32px; animation-duration: 5.5s; animation-delay: 1.5s; text-shadow: 0 0 10px rgba(78,255,159,0.5); }
+  .p6 { --startX: 60%; --startY: 20%; color: var(--primary); font-size: 25px; animation-duration: 4.2s; animation-delay: 2.5s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p7 { --startX: 90%; --startY: 60%; color: var(--secondary); font-size: 45px; animation-duration: 6.5s; animation-delay: 3s; text-shadow: 0 0 10px var(--secondary-glow); }
+  .p8 { --startX: 15%; --startY: 40%; color: #fbbf24; font-size: 26px; animation-duration: 5s; animation-delay: 3.5s; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
+  .p9 { --startX: 50%; --startY: 70%; color: var(--primary); font-size: 38px; animation-duration: 4.8s; animation-delay: 4s; text-shadow: 0 0 10px var(--primary-glow); }
+  .p10 { --startX: 30%; --startY: 10%; color: var(--secondary); font-size: 30px; animation-duration: 5.2s; animation-delay: 0.8s; text-shadow: 0 0 10px var(--secondary-glow); }
+
+  .battle-title {
+    font-size: 24px; font-weight: 900; color: var(--primary);
+    text-transform: uppercase; margin-bottom: 24px;
+    text-shadow: 0 0 15px var(--primary-glow); z-index: 2;
+    letter-spacing: 3px;
+  }
+  
+  .combat-zone {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    width: 100%; max-width: 500px; position: relative; z-index: 2;
+    padding: 0 20px;
+  }
+  
+  .fighter { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 120px; }
+
+  .avatar {
+    font-size: 64px; line-height: 1;
+    filter: drop-shadow(0 0 15px var(--primary-glow));
+    animation: idle 2s ease-in-out infinite;
+    position: relative;
+    background: rgba(10,224,254,0.1);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  
+  .player .avatar { 
+    animation-delay: 0s; transform-origin: bottom center; 
+    border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow);
+  }
+  .boss .avatar { 
+    animation-delay: 1s; transform-origin: bottom center; 
+    border-color: var(--secondary); box-shadow: 0 0 15px var(--secondary-glow);
+    background: rgba(234,14,237,0.1);
+    filter: drop-shadow(0 0 15px var(--secondary-glow));
+  }
+  
+  .hp-bar-container {
+    width: 100%; background: rgba(0,0,0,0.6);
+    border: 2px solid var(--border); border-radius: 4px; height: 20px;
+    overflow: hidden; position: relative;
+    box-shadow: inset 0 0 5px #000;
+  }
+  .hp-bar-fill { height: 100%; width: 100%; transition: width 0.3s ease; }
+  .player .hp-bar-fill { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+  .boss .hp-bar-fill { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); }
+  
+  .fighter-name { font-size: 14px; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase;}
+  
+  /* Projectiles */
+  .projectile {
+    position: absolute; font-size: 38px;
+    top: 50%; transform: translateY(-50%);
+    z-index: 3; pointer-events: none;
+    filter: drop-shadow(0 0 20px currentColor);
+  }
+  
+  /* Animations */
+  @keyframes idle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05) translateY(-2px); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); filter: brightness(1); }
+    20% { transform: translateX(-10px); filter: brightness(1.5) saturate(3); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-10px); }
+    80% { transform: translateX(10px); }
+  }
+  @keyframes castMagic {
+    0% { transform: scale(1) translateX(0); }
+    50% { transform: scale(1.1) translateX(20px) rotate(5deg); }
+    100% { transform: scale(1) translateX(0); }
+  }
+  @keyframes castBossMagic {
+    0% { transform: scale(1) translateX(0); }
+    50% { transform: scale(1.1) translateX(-20px) rotate(-5deg); }
+    100% { transform: scale(1) translateX(0); }
+  }
+  @keyframes flyRight {
+    0% { left: 80px; opacity: 1; transform: translateY(-50%) scale(0.5); }
+    100% { left: calc(100% - 100px); opacity: 0; transform: translateY(-50%) scale(2); }
+  }
+  @keyframes flyLeft {
+    0% { right: 80px; opacity: 1; transform: translateY(-50%) scale(0.5); }
+    100% { right: calc(100% - 100px); opacity: 0; transform: translateY(-50%) scale(2); }
+  }
+
+  /* ── Arena Stats (thay score-bar) ── */
+  .arena-stats {
+    display: flex; justify-content: center; gap: 16px;
+    position: relative; z-index: 2;
+    margin-bottom: 8px; width: 100%;
+  }
+  .astat {
+    display: flex; flex-direction: row; align-items: center; gap: 5px;
+  }
+  .astat-num {
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; line-height: 1;
+  }
+  .astat-lbl {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .astat-ok  .astat-num { color: var(--success); text-shadow: 0 0 6px rgba(78,255,159,0.5); }
+  .astat-ok  .astat-lbl { color: var(--success); opacity: 0.85; }
+  .astat-err .astat-num { color: var(--danger);  text-shadow: 0 0 6px rgba(255,0,85,0.5); }
+  .astat-err .astat-lbl { color: var(--danger); opacity: 0.85; }
+  .astat-rem .astat-num { color: #7ab8d0; }
+  .astat-rem .astat-lbl { color: #5d8fa0; }
+
+  /* ── Main ── */
+  .main { max-width: 720px; margin: 0 auto; padding: 16px 16px 60px; }
+
+  /* ── Action bar (bottom fixed) ── */
+  .action-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
+    display: flex; gap: 8px;
+    padding: 7px 12px calc(env(safe-area-inset-bottom, 0px) + 7px);
+    background: rgba(5,10,31,0.97);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+  .action-bar button {
+    flex: 1; padding: 8px 8px;
+    border-radius: 6px; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.5px; transition: all 0.18s; text-transform: uppercase;
+  }
+  .btn-help {
+    background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.45); color: #fbbf24;
+  }
+  .btn-help:hover { background: rgba(251,191,36,0.22); }
+  .btn-pause {
+    background: rgba(255,80,80,0.08); border: 1px solid rgba(255,80,80,0.35); color: #ff8080;
+  }
+  .btn-pause:hover { background: rgba(255,80,80,0.18); }
+
+  /* ── Countdown Timer (Level 3) ── */
+  #timerWrap {
+    display: none; /* flex khi active */
+    align-items: center; gap: 8px;
+    margin-bottom: 12px;
+    padding: 6px 10px;
+    background: rgba(10,224,254,0.05);
+    border: 1px solid rgba(10,224,254,0.2);
+    border-radius: 10px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  #timerWrap.tw { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.05); }
+  #timerWrap.td { border-color: rgba(255,0,85,0.45);   background: rgba(255,0,85,0.07); }
+  .timer-icon { font-size: 15px; flex-shrink: 0; }
+  .timer-track {
+    flex: 1; height: 7px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px; overflow: hidden;
+  }
+  .timer-fill {
+    height: 100%; width: 100%;
+    background: #0ae0fe; border-radius: 4px;
+    transition: width 0.95s linear, background 0.3s;
+    box-shadow: 0 0 6px #0ae0fe88;
+  }
+  .timer-fill.tw { background: #fbbf24; box-shadow: 0 0 6px #fbbf2488; }
+  .timer-fill.td { background: #ff0055; box-shadow: 0 0 8px #ff005588; }
+  .timer-num {
+    font-size: 16px; font-weight: 900; font-family: 'Rajdhani', sans-serif;
+    color: #0ae0fe; min-width: 26px; text-align: right; flex-shrink: 0;
+    transition: color 0.3s;
+  }
+  .timer-num.tw { color: #fbbf24; }
+  .timer-num.td { color: #ff0055; animation: tpulse 0.4s ease-in-out infinite; }
+  @keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+
+  /* ── Câu 11: decode rows ── */
+  .decode-section { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .decode-row {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 12px;
+    background:rgba(10,224,254,0.04);
+    border:1px solid rgba(10,224,254,0.15);
+    border-radius:10px;
+    transition:background 0.4s, border-color 0.4s;
+  }
+  .decode-row.unlocked {
+    background:rgba(78,255,159,0.07);
+    border-color:rgba(78,255,159,0.35);
+  }
+  .decode-lock-ico { flex-shrink:0; width:34px; height:42px; display:flex; align-items:center; justify-content:center; }
+  .decode-lbl { font-size:15px; font-weight:700; color:var(--primary); min-width:56px; }
+  .decode-row.unlocked .decode-lbl { color:var(--success); }
+  .decode-inp { width:54px !important; text-align:center; font-size:18px; font-weight:900; flex-shrink:0; }
+  .decode-cta {
+    margin-left:auto; flex-shrink:0;
+    padding:7px 14px; font-size:13px; font-weight:700;
+    border-radius:8px; cursor:pointer;
+    background:rgba(10,224,254,0.1); border:1px solid rgba(10,224,254,0.4); color:var(--primary);
+    transition:all 0.2s;
+  }
+  .decode-cta:disabled { opacity:0.3; cursor:not-allowed; }
+  .decode-cta:not(:disabled):hover { background:rgba(10,224,254,0.22); }
+
+  /* ── Help overlay ── */
+  .help-overlay {
+    display: none; position: fixed; inset: 0; z-index: 5500;
+    background: #050a1f; flex-direction: column;
+    overflow-y: auto; padding: 20px 16px 110px;
+  }
+  .help-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+  .help-panel { max-width: 560px; margin: 0 auto; width: 100%; }
+  .help-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px; padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .help-header-icon { font-size: 26px; }
+  .help-header-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900;
+    color: var(--primary); letter-spacing: 2px; text-transform: uppercase;
+    text-shadow: 0 0 10px var(--primary-glow);
+  }
+  .help-section {
+    background: rgba(10,224,254,0.04); border: 1px solid rgba(10,224,254,0.15);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;
+  }
+  .help-section-label {
+    font-size: 12px; font-weight: 700; color: var(--primary);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px;
+  }
+  .help-body {
+    font-size: 16px; line-height: 1.65; color: #e0f4ff;
+  }
+  .help-body code {
+    background: rgba(10,224,254,0.12); padding: 1px 6px; border-radius: 3px;
+    font-family: 'Rajdhani', monospace; color: var(--primary); font-size: 16px;
+    border: 1px solid rgba(10,224,254,0.3); font-weight: 700;
+  }
+  @keyframes magicColor {
+    0%   { color: #0ae0fe; text-shadow: 0 0 10px #0ae0fe88; }
+    25%  { color: #ea0eed; text-shadow: 0 0 10px #ea0eed88; }
+    50%  { color: #fbbf24; text-shadow: 0 0 10px #fbbf2488; }
+    75%  { color: #4eff9f; text-shadow: 0 0 10px #4eff9f88; }
+    100% { color: #0ae0fe; text-shadow: 0 0 10px #0ae0fe88; }
+  }
+  .tc-formula {
+    margin-top: 12px; text-align: center;
+    font-size: 15px; font-weight: 800; letter-spacing: 0.3px;
+    padding: 10px 14px; border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    animation: magicColor 3s linear infinite;
+  }
+  .tc-formula strong { animation: magicColor 3s linear infinite; }
+  .help-encourage {
+    margin-top: 12px; padding: 10px 12px;
+    background: rgba(78,255,159,0.06); border-left: 3px solid var(--success);
+    border-radius: 6px; font-size: 13.5px; line-height: 1.6;
+    color: #a8f0c8; font-style: italic;
+  }
+  .help-video-note {
+    text-align: center; font-size: 13px; color: #5d8fa0; margin-bottom: 14px;
+  }
+  .help-btns { display: flex; gap: 9px; }
+  .help-btn-ok, .help-btn-video {
+    flex: 1; padding: 12px 8px; border-radius: 8px; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase; transition: all 0.18s;
+  }
+  .help-btn-ok {
+    background: rgba(78,255,159,0.1); border: 1px solid rgba(78,255,159,0.4); color: var(--success);
+  }
+  .help-btn-ok:hover { background: rgba(78,255,159,0.22); }
+  .help-btn-video {
+    background: rgba(234,14,237,0.08); border: 1px solid rgba(234,14,237,0.35); color: var(--secondary);
+  }
+  .help-btn-video:hover { background: rgba(234,14,237,0.2); }
+
+  /* ── Method box ── */
+  .method-box {
+    background: transparent !important;
+    padding: 18px 20px; margin-bottom: 28px;
+    font-size: 18px; line-height: 1.7; color: var(--text-main);
+    box-shadow: inset 0 0 20px rgba(10,224,254,0.1);
+  }
+  .method-box strong { font-weight: 900; color: var(--primary); }
+  .method-box code {
+    background: rgba(10,224,254,0.1); padding: 2px 8px; border-radius: 4px;
+    font-family: 'Rajdhani', monospace; font-size: 18px; color: var(--primary);
+    font-weight: 700; border: 1px solid var(--primary);
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 20px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--primary); margin: 8px 0 8px;
+    display: flex; align-items: center; gap: 12px;
+    text-shadow: 0 0 10px var(--primary-glow);
+  }
+  .section-title::after {
+    content: ""; flex: 1; height: 2px;
+    background: linear-gradient(90deg, var(--primary), transparent);
+  }
+
+  /* ── Question card ── */
+  .q-card {
+    background: transparent !important;
+    padding: 12px 16px 12px; margin-bottom: 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transition: all 0.3s;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .q-card.correct { border-color: var(--success); box-shadow: 0 0 15px rgba(78,255,159,0.2); }
+  .q-card.wrong   { border-color: var(--danger); box-shadow: 0 0 15px rgba(255,0,85,0.2); }
+
+  .q-num {
+    font-size: 16px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--primary); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  /* Khi q-num ra ngoài card → dùng style giống section-title cũ */
+  .q-slide > .q-num {
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px var(--primary-glow);
+  }
+  .q-slide > .q-num::after {
+    content: ""; flex: 1; height: 2px;
+    background: linear-gradient(90deg, var(--primary), transparent);
+  }
+  .q-num-badge {
+    background: transparent; color: var(--primary);
+    font-size: 14px;
+  }
+  .q-num-badge::after { content: "/12"; opacity: 0.6; }
+  .vinaid { display: none; }
+  .q-text {
+    font-size: 19px; font-weight: 600; line-height: 1.6;
+    margin-bottom: 10px; color: var(--text-main);
+  }
+  .q-text strong { color: var(--primary); }
+
+  /* ── Inputs ── */
+  .ans-input {
+    border: 2px solid var(--primary); border-radius: 4px;
+    padding: 10px 16px; font-size: 18px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    outline: none; transition: all 0.2s;
+    background: rgba(10,224,254,0.05); color: var(--primary); min-width: 120px;
+    text-shadow: 0 0 5px var(--primary-glow);
+    user-select: auto !important; -webkit-user-select: auto !important;
+    pointer-events: auto !important;
+  }
+  .ans-input:focus { background: rgba(10,224,254,0.15); box-shadow: 0 0 15px var(--primary-glow); }
+  .ans-input.correct-input { border-color: var(--success); color: var(--success); background: rgba(78,255,159,0.1); text-shadow: 0 0 5px var(--success); }
+  .ans-input.wrong-input   { border-color: var(--danger); color: var(--danger); background: rgba(255,0,85,0.1); text-shadow: 0 0 5px var(--danger); }
+
+  .choices { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .choice-btn {
+    padding: 10px 20px; border: 2px solid var(--border);
+    border-radius: 4px; background: rgba(10,224,254,0.05);
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; color: var(--text-main);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--primary); background: rgba(10,224,254,0.2); box-shadow: 0 0 15px var(--primary-glow); }
+  .choice-btn.selected { border-color: var(--primary); background: rgba(10,224,254,0.2); color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+  .choice-btn.correct  { border-color: var(--success); background: rgba(78,255,159,0.2); color: var(--success); box-shadow: 0 0 15px rgba(78,255,159,0.4); }
+  .choice-btn.wrong    { border-color: var(--danger); background: rgba(255,0,85,0.2); color: var(--danger); box-shadow: 0 0 15px rgba(255,0,85,0.4); }
+
+  /* ── Feedback ── */
+  /* Resume toast */
+  #resumeToast {
+    position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+    background: rgba(10,224,254,0.12); border: 1px solid rgba(10,224,254,0.4);
+    color: var(--primary); font-size: 13px; font-weight: 700;
+    padding: 7px 18px; border-radius: 20px; z-index: 9000;
+    white-space: nowrap; letter-spacing: 0.5px;
+    animation: fadeUp 0.3s ease;
+    text-shadow: 0 0 8px var(--primary-glow);
+    pointer-events: none;
+  }
+  .feedback {
+    margin-top: 8px; padding: 10px 14px; border-radius: 4px;
+    font-size: 18px; font-weight: 700; display: none;
+    animation: fadeUp 0.3s ease; border-left: 4px solid;
+  }
+  .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
+  .feedback.correct-fb { background: rgba(78,255,159,0.1); color: var(--success); border-color: var(--success); text-shadow: 0 0 5px rgba(78,255,159,0.5); }
+  .feedback.wrong-fb   { background: rgba(255,0,85,0.1); color: var(--danger); border-color: var(--danger); text-shadow: 0 0 5px rgba(255,0,85,0.5); }
+
+  /* ── Check button — ẩn, chỉ dùng qua numpad OK ── */
+  .check-btn { display: none !important; }
+
+  /* ── Next action button (action bar) ── */
+  .btn-next-action {
+    background: rgba(10,224,254,0.12); border: 1px solid rgba(10,224,254,0.55); color: var(--primary);
+    animation: pulseNeon 1.5s infinite;
+  }
+  .btn-next-action:hover { background: rgba(10,224,254,0.28); }
+
+  /* ── Submit ── */
+  .submit-wrap { text-align: center; margin-top: 48px; }
+  .submit-btn {
+    padding: 18px 48px;
+    background: var(--primary);
+    color: #000; border: none; border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 900;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase; letter-spacing: 2px;
+  }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--primary); background: #fff; }
+
+  /* ── Result overlay ── */
+  .result-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,10,31,0.9); z-index: 200;
+    align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .result-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .result-card {
+    background: transparent !important; padding: 40px 32px;
+    max-width: 440px; width: 100%; text-align: center;
+    box-shadow: 0 0 40px var(--primary-glow);
+    animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .result-emoji { font-size: 64px; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 20px var(--primary)); }
+  .result-title { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 900; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px var(--primary-glow); }
+  .result-score {
+    font-size: 56px; font-weight: 900; margin: 16px 0;
+    color: #fff; text-shadow: 0 0 20px var(--primary);
+  }
+  .result-level {
+    display: inline-block; padding: 10px 24px; border-radius: 4px;
+    font-weight: 900; font-size: 16px; margin: 10px 0 24px;
+    border: 2px solid; background: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 2px;
+  }
+  .result-detail { display: flex; justify-content: center; gap: 32px; margin-bottom: 32px; }
+  .result-detail-item { text-align: center; }
+  .result-detail-num { font-size: 28px; font-weight: 900; }
+  .result-detail-label { font-size: 14px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;}
+
+  .result-btn {
+    padding: 14px 32px; border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900;
+    cursor: pointer; transition: all 0.2s; margin: 0 8px; text-transform: uppercase; letter-spacing: 2px;
+  }
+  .btn-retry { background: var(--primary); color: #000; border: none; box-shadow: 0 0 15px var(--primary-glow); }
+  .btn-retry:hover { background: #fff; box-shadow: 0 0 25px var(--primary); }
+  .btn-review { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-review:hover { background: rgba(10,224,254,0.1); box-shadow: 0 0 15px var(--primary-glow); }
+
+  .answer-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+
+  @media (max-width: 480px) {
+    .q-card { padding: 18px 16px 14px; }
+    .result-card { padding: 32px 20px; }
+  }
+  
+    
+  
+  
+  
+  
+  
+    /* ── Cyber Box Style ── */
+  .cyber-box {
+    position: relative;
+    z-index: 1; /* Fix cho lỗi border gradient biến mất dưới body */
+    border-radius: 16px;
+    background: transparent !important;
+  }
+  /* Viền Gradient liền mạch bo tròn (Không dùng mask để tránh lỗi liệt click) */
+  .cyber-box::before {
+    content: "";
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    z-index: -2;
+    box-shadow: 0 0 15px var(--primary-glow);
+  }
+  /* Nền khối hộp đè lên trên lớp gradient để tạo thành viền */
+  .cyber-box::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 16px;
+    z-index: -1;
+  }
+  
+  .method-box.cyber-box::after { background: #05152a; }
+  .q-card.cyber-box::after { background: #080e22; }
+  .result-card.cyber-box::after { background: #0a122a; }
+
+  /* ── Slides ── */
+  .q-slide { display: none; animation: fadeInRight 0.4s ease forwards; }
+  .q-slide.active {
+    display: flex; flex-direction: column;
+    align-items: stretch; justify-content: center;
+    min-height: calc(100dvh - 326px);
+  }
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Next Button Pulse ── */
+  @keyframes pulseNeon {
+    0% { box-shadow: 0 0 10px var(--primary-glow); }
+    50% { box-shadow: 0 0 30px var(--primary); }
+    100% { box-shadow: 0 0 10px var(--primary-glow); }
+  }
+  .btn-next-pulse {
+    animation: pulseNeon 1.5s infinite !important;
+    background: var(--primary) !important;
+    color: #000 !important;
+  }
+
+  /* ── NPC Mo-Mo ── */
+  .momo-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,10,31,0.85); z-index: 300;
+    align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(5px);
+  }
+  .momo-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  .momo-box {
+    background: rgba(11, 19, 43, 0.95); padding: 30px;
+    max-width: 400px; width: 100%; border-radius: 16px;
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 30px var(--primary-glow);
+    text-align: center; position: relative;
+  }
+  .momo-header {
+    position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+    background: var(--primary); color: #000;
+    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900;
+    padding: 8px 24px; border-radius: 20px; text-transform: uppercase;
+    box-shadow: 0 0 15px var(--primary-glow); white-space: nowrap;
+  }
+  .momo-text {
+    font-size: 18px; line-height: 1.6; color: #fff; margin-top: 16px; margin-bottom: 24px; font-weight: 500;
+  }
+  .momo-btn {
+    padding: 12px 32px; background: transparent; border: 2px solid var(--success);
+    color: var(--success); border-radius: 8px; font-family: 'Rajdhani', sans-serif;
+    font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; box-shadow: inset 0 0 10px rgba(78,255,159,0.2);
+  }
+  .momo-btn:hover { background: var(--success); color: #000; box-shadow: 0 0 20px rgba(78,255,159,0.5); }
+
+  /* Damage & FX */
+  .damage-number {
+    position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    font-size: 28px; color: var(--danger); z-index: 100;
+    animation: floatDamage 1s ease-out forwards;
+    text-shadow: 0 0 10px rgba(255,0,85,0.8);
+    pointer-events: none;
+    left: 50%; top: 0; transform: translateX(-50%);
+  }
+  @keyframes floatDamage {
+    0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -60px) scale(1.5); }
+  }
+  .explosion {
+    position: absolute; font-size: 60px; pointer-events: none;
+    animation: explodeAnim 0.5s ease-out forwards;
+    z-index: 100; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  }
+  @keyframes explodeAnim {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+  }
+  .game-over-overlay {
+    position: fixed; inset: 0; background: rgba(5,10,31,0.95); z-index: 20000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s;
+  }
+  .game-over-overlay.show { opacity: 1; pointer-events: auto; }
+  .game-over-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 64px; font-weight: 900;
+    color: var(--danger); text-shadow: 0 0 20px var(--danger); margin-bottom: 20px;
+    letter-spacing: 5px;
+  }
+  .game-over-btn {
+    background: transparent; border: 2px solid var(--primary);
+    color: var(--primary); padding: 12px 24px; border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900;
+    cursor: pointer; transition: all 0.2s; box-shadow: 0 0 15px rgba(10,224,254,0.3);
+  }
+  .game-over-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 25px var(--primary); }
+
+  /* Combo System */
+  .combo-display {
+    position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    z-index: 150; pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-align: center;
+  }
+  .combo-display.show { transform: translate(-50%, -50%) scale(1); }
+  .combo-text { display: block; font-size: 24px; letter-spacing: 4px; color: var(--primary); text-shadow: 0 0 20px var(--primary-glow); }
+  .combo-count { color: #fbbf24; text-shadow: 0 0 30px rgba(251, 191, 36, 0.8); font-size: 64px; display: block; line-height: 1; }
+  .combo-display.fire .combo-count { color: var(--danger); animation: comboFire 0.5s infinite alternate; text-shadow: 0 0 30px var(--danger); }
+  @keyframes comboFire { from { filter: brightness(1); transform: scale(1); } to { filter: brightness(1.2); transform: scale(1.1); } }
+
+  /* Energy Beam */
+  .energy-beam {
+    position: absolute; height: 6px; background: var(--primary);
+    box-shadow: 0 0 15px var(--primary), 0 0 30px var(--secondary);
+    border-radius: 3px; z-index: 10;
+  }
+  @keyframes fireBeam {
+    0% { width: 0; left: 60px; opacity: 1; }
+    50% { width: 150px; left: 60px; opacity: 1; }
+    100% { width: 0; left: calc(100% - 60px); opacity: 0; }
+  }
+
+
+  /* --- VIDEO POPUP MODAL --- */
+  .video-modal {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(5, 10, 31, 0.95);
+    backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .video-modal.show { display: flex; }
+  .video-container {
+    width: 90%; max-width: 800px;
+    background: var(--bg-card);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    box-shadow: 0 0 30px var(--primary-glow);
+    overflow: hidden;
+    position: relative;
+  }
+  .video-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 15px; background: rgba(10, 224, 254, 0.1);
+    border-bottom: 1px solid var(--primary);
+  }
+  .video-title { font-family: 'Rajdhani', sans-serif; font-weight: bold; color: var(--primary); font-size: 18px; }
+  .close-video-btn {
+    background: transparent; border: none; color: white; font-size: 24px; cursor: pointer;
+  }
+  .video-iframe-wrapper {
+    position: relative; padding-bottom: 56.25%; /* 16:9 */ height: 0;
+  }
+  .video-iframe-wrapper iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+  }
+
+
+  .video-modal {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(5, 10, 31, 0.95);
+    backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .video-modal.show { display: flex; }
+
+  /* ── Custom Numpad ── */
+  .numpad-overlay {
+    position: fixed; inset: 0; z-index: 6000;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    pointer-events: none; opacity: 0; transition: opacity 0.18s;
+  }
+  .numpad-overlay.show { pointer-events: auto; opacity: 1; }
+  .numpad-bd { position: absolute; inset: 0; background: rgba(5,10,31,0.6); }
+  .numpad-panel {
+    position: relative; background: #080f21;
+    border-top: 2px solid var(--primary);
+    box-shadow: 0 -8px 40px rgba(10,224,254,0.35);
+    padding: 10px 10px calc(env(safe-area-inset-bottom, 0px) + 14px);
+    transform: translateY(100%);
+    transition: transform 0.24s cubic-bezier(0.34,1.1,0.64,1);
+  }
+  .numpad-overlay.show .numpad-panel { transform: translateY(0); }
+  .numpad-display {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(10,224,254,0.06); border: 1.5px solid var(--primary);
+    border-radius: 8px; padding: 8px 14px; margin-bottom: 10px;
+  }
+  .np-cur-val {
+    font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 900;
+    color: var(--primary); text-shadow: 0 0 8px var(--primary-glow);
+    min-width: 64px; letter-spacing: 3px;
+  }
+  .np-cur-label { flex: 1; font-size: 12px; color: #5d8fa0; text-align: right; }
+  .np-close-btn {
+    background: transparent; border: none; color: #5d8fa0;
+    font-size: 20px; cursor: pointer; padding: 4px 8px; line-height: 1;
+  }
+  .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .np-btn {
+    height: 72px; border-radius: 10px;
+    border: 1.5px solid rgba(10,224,254,0.2);
+    background: rgba(10,224,254,0.06); color: #e0f4ff;
+    font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.08s, transform 0.08s;
+    -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation;
+  }
+  .np-btn:active { background: rgba(10,224,254,0.28); border-color: var(--primary); transform: scale(0.9); }
+  .np-btn.np-del {
+    color: #ff6688; border-color: rgba(255,0,85,0.25);
+    background: rgba(255,0,85,0.07); font-size: 26px;
+  }
+  .np-btn.np-del:active { background: rgba(255,0,85,0.25); border-color: var(--danger); }
+  .np-btn.np-ok {
+    background: linear-gradient(135deg, var(--primary), #00c8e0);
+    color: #000; border-color: var(--primary); font-size: 20px; font-weight: 900;
+    box-shadow: 0 0 16px var(--primary-glow);
+  }
+  .np-btn.np-ok:active { background: #fff; transform: scale(0.9); }
+
+</style>
+</head>
+<body>
+
+
+
+<!-- Battle Arena -->
+<div class="battle-arena">
+
+  <div class="arena-bg">
+    <div class="arena-grid-wrapper">
+      <div class="arena-grid"></div>
+    </div>
+    <div class="math-particles">
+      <span class="p1">π</span>
+      <span class="p2">∫</span>
+      <span class="p3">√</span>
+      <span class="p4">∑</span>
+      <span class="p5">÷</span>
+      <span class="p6">±</span>
+      <span class="p7">[]</span>
+      <span class="p8">x²</span>
+      <span class="p9">∞</span>
+      <span class="p10">½</span>
+    </div>
+  </div>
+  <!-- Stats inside arena — 1 hàng trên avatar -->
+  <div class="arena-stats">
+    <div class="astat astat-ok">
+      <span class="astat-num" id="scoreCorrect">0</span>
+      <span class="astat-lbl">✅ ĐÚNG</span>
+    </div>
+    <div class="astat astat-err">
+      <span class="astat-num" id="scoreWrong">0</span>
+      <span class="astat-lbl">❌ SAI</span>
+    </div>
+    <div class="astat astat-rem">
+      <span class="astat-num" id="scoreLeft">10</span>
+      <span class="astat-lbl">▪ CHƯA LÀM</span>
+    </div>
+  </div>
+
+  <div class="combat-zone" id="combatZone">
+    <div class="fighter player">
+      <div class="fighter-name">Chiến Binh</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="playerHp"></div></div>
+      <div class="avatar" id="playerAvatar">🧙‍♂️</div>
+    </div>
+
+    <div style="font-size:36px; font-weight:900; color:var(--primary); text-shadow:0 0 15px var(--primary-glow); opacity:0.9; font-family:'Rajdhani', sans-serif">VS</div>
+
+    <div class="fighter boss">
+      <div class="fighter-name">Số Thần</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="bossHp"></div></div>
+      <div class="avatar" id="bossAvatar">🤖</div>
+    </div>
+  </div>
+
+</div>
+<span id="progressText" style="display:none;">1/10</span>
+<div id="resumeToast" style="display:none;"></div>
+
+
+<!-- Mo-Mo Overlay -->
+<div class="momo-overlay" id="momoOverlay">
+  <div class="momo-box">
+    <div class="momo-header">🤖 Mo-Mo Gợi Ý</div>
+    <div id="momoText" class="momo-text"></div>
+    <button class="momo-btn" onclick="closeMomo()" style="margin-bottom: 10px;">Thử Lại Nhé!</button>
+    <button class="momo-btn" onclick="openVideoHelp()" style="background: transparent; color: var(--primary); border: 2px solid var(--primary); margin-left: 10px;">🎬 Xem Video Bài Giảng</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Slide 1 -->
+  <div class="q-slide active" id="slide1">
+    <!-- Câu 1 -->
+    <div class="q-card" id="q1">
+      <div class="q-num"><span class="q-num-badge">Câu 1</span> <span class="vinaid">VinaID 133369 &nbsp;📖 Lý thuyết</div>
+      <div class="q-text">Số <strong>237</strong> được viết thành tổng của hàng trăm, hàng chục và hàng đơn vị như thế nào?</div>
+      <div class="choices" id="q1choices">
+        <button class="choice-btn" onclick="selectChoice('q1','A',this)">A. 200+37</button>
+        <button class="choice-btn" onclick="selectChoice('q1','B',this)">B. 20+30+7</button>
+        <button class="choice-btn" onclick="selectChoice('q1','C',this)">C. 200+30+7</button>
+        <button class="choice-btn" onclick="selectChoice('q1','D',this)">D. 200+3+7</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q1','C','✅ Đúng! 237 = 2×100 + 3×10 + 7 = 200+30+7.','Gợi ý: Hàng trăm = 2 → 200, hàng chục = 3 → 30, đơn vị = 7.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq1"></div>
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="q-slide" id="slide2">
+    <!-- Câu 2 -->
+    <div class="q-card" id="q2">
+      <div class="q-num"><span class="q-num-badge">Câu 2</span> <span class="vinaid">VinaID 133369 &nbsp;📖 Lý thuyết</div>
+      <div class="q-text">Điền số thích hợp vào chỗ trống:<br><br>
+        <code style="font-size:1.15em">2850 = 2800 + ___ + 0</code>
+      </div>
+      <div class="answer-row">
+        <span>Đáp án:</span>
+        <input class="ans-input" id="q2ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q2','q2ans',['50'],'✅ Đúng! 2850 = 2000+800+50+0 = 2800+50+0.','Hàng chục của 2850 là 5, vậy hàng chục = 50.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq2"></div>
+    </div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="q-slide" id="slide3">
+    <div class="q-card" id="q3">
+      <div class="q-num"><span class="q-num-badge">Câu 3</span> <span class="vinaid">VinaID 133369 &nbsp;📖 Lý thuyết</div>
+      <div class="q-text">Số <strong>109</strong> được viết thành tổng như thế nào?</div>
+      <div class="choices" id="q3choices">
+        <button class="choice-btn" onclick="selectChoice('q3','A',this)">A. 100+0+9</button>
+        <button class="choice-btn" onclick="selectChoice('q3','B',this)">B. 100+9</button>
+        <button class="choice-btn" onclick="selectChoice('q3','C',this)">C. 10+9</button>
+        <button class="choice-btn" onclick="selectChoice('q3','D',this)">D. 100+90</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q3','A','✅ Đúng! 109 = 1×100 + 0×10 + 9 = 100+0+9.','Gợi ý: Hàng chục của 109 = 0, ta vẫn phải viết 0 vào.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq3"></div>
+    </div>
+  </div>
+
+  <!-- Slide 4 -->
+  <div class="q-slide" id="slide4">
+    <div class="q-card" id="q4">
+      <div class="q-num"><span class="q-num-badge">Câu 4</span> <span class="vinaid">VinaID 133369 &nbsp;📖 Lý thuyết</div>
+      <div class="q-text">Số <code style="font-size:1.1em"><span style="text-decoration:overline">1bc</span></code> (trong đó b, c là các chữ số) bằng tổng nào sau đây?</div>
+      <div class="choices" id="q4choices">
+        <button class="choice-btn" onclick="selectChoice('q4','A',this)">A. 100+bc</button>
+        <button class="choice-btn" onclick="selectChoice('q4','B',this)">B. 100+b0+c</button>
+        <button class="choice-btn" onclick="selectChoice('q4','C',this)">C. 1+b+c</button>
+        <button class="choice-btn" onclick="selectChoice('q4','D',this)">D. 10b+c</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q4','B','✅ Đúng! 1bc = 100 + b×10 + c = 100+b0+c.','Gợi ý: Hàng trăm = 1 → 100, hàng chục = b → b0, đơn vị = c.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq4"></div>
+    </div>
+  </div>
+
+  <!-- Slide 5 -->
+  <div class="q-slide" id="slide5">
+    <div class="q-card" id="q5">
+      <div class="q-num"><span class="q-num-badge">Câu 5</span> <span class="vinaid">VinaID 133369 &nbsp;📖 Lý thuyết</div>
+      <div class="q-text">Số <code style="font-size:1.1em"><span style="text-decoration:overline">a0c</span></code> (hàng chục = 0) bằng tổng nào sau đây?</div>
+      <div class="choices" id="q5choices">
+        <button class="choice-btn" onclick="selectChoice('q5','A',this)">A. a00+0+c</button>
+        <button class="choice-btn" onclick="selectChoice('q5','B',this)">B. a0+c</button>
+        <button class="choice-btn" onclick="selectChoice('q5','C',this)">C. a00+c0</button>
+        <button class="choice-btn" onclick="selectChoice('q5','D',this)">D. a+c</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q5','A','✅ Đúng! a0c = a×100 + 0×10 + c = a00+0+c.','Gợi ý: Hàng trăm = a → a00, hàng chục = 0, đơn vị = c.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq5"></div>
+    </div>
+  </div>
+
+  <!-- Slide 6 -->
+  <div class="q-slide" id="slide6">
+    <div class="q-card" id="q6">
+      <div class="q-num"><span class="q-num-badge">Câu 6</span> <span class="vinaid">VinaID 133370 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-text">Điền số thích hợp vào chỗ trống:<br><br>
+        <code style="font-size:1.15em">315 = ___ + 5</code>
+      </div>
+      <div class="answer-row">
+        <span>Đáp án:</span>
+        <input class="ans-input" id="q6ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q6','q6ans',['310'],'✅ Đúng! 315 = 310+5 (phần trăm-chục = 310, đơn vị = 5).','Lấy 315 − 5 = 310.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq6"></div>
+    </div>
+  </div>
+
+  <!-- Slide 7 -->
+  <div class="q-slide" id="slide7">
+    <div class="q-card" id="q7">
+      <div class="q-num"><span class="q-num-badge">Câu 7</span> <span class="vinaid">VinaID 133370 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-text">Điền số thích hợp vào chỗ trống:<br><br>
+        <code style="font-size:1.15em">7602 = ___ + 2</code>
+      </div>
+      <div class="answer-row">
+        <span>Đáp án:</span>
+        <input class="ans-input" id="q7ans" placeholder="?" style="min-width:80px;width:80px;text-align:center">
+      </div>
+      <button class="check-btn" onclick="checkText('q7','q7ans',['7600'],'✅ Đúng! 7602 = 7600+2 (phần nghìn-trăm-chục = 7600, đơn vị = 2).','Lấy 7602 − 2 = 7600.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq7"></div>
+    </div>
+  </div>
+
+  <!-- Slide 8 -->
+  <div class="q-slide" id="slide8">
+    <div class="q-card" id="q8">
+      <div class="q-num"><span class="q-num-badge">Câu 8</span> <span class="vinaid">VinaID 133370 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-text">Số <code style="font-size:1.1em"><span style="text-decoration:overline">8bc</span></code>. Tổng của hàng chục và hàng đơn vị bằng?</div>
+      <div class="choices" id="q8choices">
+        <button class="choice-btn" onclick="selectChoice('q8','A',this)">A. b0+c</button>
+        <button class="choice-btn" onclick="selectChoice('q8','B',this)">B. 8+b+c</button>
+        <button class="choice-btn" onclick="selectChoice('q8','C',this)">C. 800+b+c</button>
+        <button class="choice-btn" onclick="selectChoice('q8','D',this)">D. 80+c</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q8','A','✅ Đúng! Hàng chục = b×10 = b0, đơn vị = c. Tổng = b0+c.','Gợi ý: 8bc = 800 + b×10 + c. Tổng chục + đơn vị = b×10 + c = b0+c.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq8"></div>
+    </div>
+  </div>
+
+  <!-- Slide 9 -->
+  <div class="q-slide" id="slide9">
+    <div class="q-card" id="q9">
+      <div class="q-num"><span class="q-num-badge">Câu 9</span> <span class="vinaid">VinaID 133374 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-text">So sánh:<br><br>
+        <code style="font-size:1.1em"><span style="text-decoration:overline">a6b8</span> &nbsp;○&nbsp; <span style="text-decoration:overline">a</span>000 + 400 + <span style="text-decoration:overline">b</span>0 + 7</code>
+      </div>
+      <div class="choices" id="q9choices">
+        <button class="choice-btn" onclick="selectChoice('q9','A',this)">A. &gt; (lớn hơn)</button>
+        <button class="choice-btn" onclick="selectChoice('q9','B',this)">B. &lt; (bé hơn)</button>
+        <button class="choice-btn" onclick="selectChoice('q9','C',this)">C. = (bằng nhau)</button>
+        <button class="choice-btn" onclick="selectChoice('q9','D',this)">D. Không xác định</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q9','A','✅ Đúng! Vế phải = a4b7. Hàng trăm: 6 > 4 nên a6b8 > a4b7.','Gợi ý: a000+400+b0+7 = a×1000+4×100+b×10+7 = a4b7. So sánh hàng trăm: 6 > 4.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq9"></div>
+    </div>
+  </div>
+
+  <!-- Slide 10 -->
+  <div class="q-slide" id="slide10">
+    <div class="q-card" id="q10">
+      <div class="q-num"><span class="q-num-badge">Câu 10</span> <span class="vinaid">VinaID 133378 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-text">So sánh:<br><br>
+        <code style="font-size:1.1em"><span style="text-decoration:overline">a8</span> + <span style="text-decoration:overline">5b</span> &nbsp;○&nbsp; <span style="text-decoration:overline">ab</span> + 68</code>
+      </div>
+      <div class="choices" id="q10choices">
+        <button class="choice-btn" onclick="selectChoice('q10','A',this)">A. &gt; (lớn hơn)</button>
+        <button class="choice-btn" onclick="selectChoice('q10','B',this)">B. &lt; (bé hơn)</button>
+        <button class="choice-btn" onclick="selectChoice('q10','C',this)">C. = (bằng nhau)</button>
+        <button class="choice-btn" onclick="selectChoice('q10','D',this)">D. Không xác định</button>
+      </div>
+      <button class="check-btn" disabled onclick="checkChoice('q10','B','✅ Đúng! a8+5b = ab+58 và ab+68. Vì 58 < 68 nên a8+5b < ab+68.','Gợi ý: a8+5b = (a0+8)+(50+b) = (a0+b)+58 = ab+58. Rồi so sánh ab+58 với ab+68.')">⚡ Bắn Tia Năng Lượng!</button>
+      <div class="feedback" id="fbq10"></div>
+    </div>
+  </div>
+
+  <!-- Hidden stubs so JS refs to slide11/slide12 don't error -->
+  <div style="display:none" id="slide11"><div class="q-card" id="q11"><div class="feedback" id="fbq11"></div></div></div>
+  <div style="display:none" id="slide12"><div class="q-card" id="q12"><div class="feedback" id="fbq12"></div></div></div>
+
+</div>
+
+<div class="game-over-overlay" id="gameOverOverlay">
+  <div class="game-over-title">GAME OVER</div>
+  <button class="game-over-btn" onclick="restartGame()">🔄 CHƠI LẠI TỪ ĐẦU</button>
+</div>
+
+<!-- Result overlay -->
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">Kết quả</div>
+    <div class="result-score" id="resultScore">0/12</div>
+    <div class="result-level" id="resultLevel"></div>
+    <div class="result-detail">
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div>
+        <div class="result-detail-label">✅ Đúng</div>
+      </div>
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdWrong" style="color:var(--red)">0</div>
+        <div class="result-detail-label">❌ Sai</div>
+      </div>
+      <div class="result-detail-item">
+        <div class="result-detail-num" id="rdSkip" style="color:#94a3b8">0</div>
+        <div class="result-detail-label">⬜ Bỏ qua</div>
+      </div>
+    </div>
+    <div>
+      <button class="result-btn btn-retry" onclick="location.reload()">🔄 Làm lại</button>
+      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">📖 Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<div class="combo-display" id="comboDisplay">
+  <span class="combo-text">COMBO</span>
+  <span class="combo-count" id="comboCount">x2</span>
+</div>
+
+<script>
+
+
+
+const TOTAL = 10;
+const _TOTAL = 10; window._TOTAL = 10; window._BUOI = 1;
+let answered = {}; window._answered = answered;
+let selected = {};
+
+/* ── Level System ── */
+var GAME_LEVEL = parseInt(localStorage.getItem('cbToan_gameLevel') || '1');
+if (GAME_LEVEL < 1 || GAME_LEVEL > 3 || isNaN(GAME_LEVEL)) GAME_LEVEL = 1;
+var LEVEL_MULT = GAME_LEVEL === 3 ? 2 : GAME_LEVEL === 2 ? 1.5 : 1;
+var LEVEL_NAMES = ['', 'Cấp 1', 'Cấp 2', 'Cấp 3'];
+var LEVEL_STARS = ['', '⭐', '⭐⭐', '⭐⭐⭐'];
+
+/* Apply level restrictions after DOM ready */
+document.addEventListener('DOMContentLoaded', function () {
+  /* Level 3: ẩn nút Trợ giúp */
+  if (GAME_LEVEL >= 3) {
+    var helpBtn = document.querySelector('.btn-help');
+    if (helpBtn) helpBtn.style.display = 'none';
+  }
+
+  /* Cấp 3: bắt đầu đồng hồ ngay từ câu 1 */
+  if (GAME_LEVEL >= 3) _startTimer();
+});
+
+// Gameplay variables
+let playerHpVal = 100;
+let bossHpVal = 100;
+let comboStreak = 0;
+
+function updateComboUI() {
+  const cd = document.getElementById('comboDisplay');
+  const cc = document.getElementById('comboCount');
+  if(!cd || !cc) return;
+  if (comboStreak >= 2) {
+    cc.textContent = 'x' + comboStreak;
+    cd.classList.add('show');
+    if (comboStreak >= 3) cd.classList.add('fire');
+    else cd.classList.remove('fire');
+  } else {
+    cd.classList.remove('show', 'fire');
+  }
+}
+
+function updateBattleHp() {
+  document.getElementById('bossHp').style.width = bossHpVal + '%';
+  document.getElementById('playerHp').style.width = playerHpVal + '%';
+}
+
+// Khai báo biến hỗ trợ Checkpoint
+window._checkpoints = [];
+window._attempts = {};
+window._lastInteractionTime = Date.now();
+
+function updateScore() {
+  const c = Object.values(answered).filter(v => v === true).length;
+  const w = Object.values(answered).filter(v => v === false).length;
+  const done = c + w;
+  document.getElementById('scoreCorrect').textContent = c;
+  document.getElementById('scoreWrong').textContent = w;
+  document.getElementById('scoreLeft').textContent = TOTAL - done;
+}
+
+// Gameplay logic
+let currentSlide = 1;
+function nextSlide() {
+  const current = document.getElementById('slide' + currentSlide);
+  if (current) current.classList.remove('active');
+  currentSlide++;
+  const next = document.getElementById('slide' + currentSlide);
+  if (next) {
+    next.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    _startTimer(); /* bắt đầu đồng hồ cho câu mới */
+  } else {
+    // End of questions
+    submitAll();
+  }
+}
+
+/* ── Countdown Timer (Cấp 3: 30s/câu) ── */
+var TIMER_SECS  = 60;
+var TIMER_CIRC  = 2 * Math.PI * 18; // ≈ 113.1
+var _timerInt   = null;
+var _timerLeft  = TIMER_SECS;
+
+function _startTimer() {
+  if (GAME_LEVEL < 3) return;
+  _stopTimer();
+  _timerLeft = TIMER_SECS;
+  /* Chuyển timerWrap vào đúng câu đang active, trước phần chọn đáp án */
+  var wrap = document.getElementById('timerWrap');
+  var slide = document.querySelector('.q-slide.active');
+  if (wrap && slide) {
+    var anchor = slide.querySelector('.choices, .decode-section, .check-btn');
+    if (anchor) anchor.parentNode.insertBefore(wrap, anchor);
+  }
+  _renderTimer();
+  if (wrap) wrap.style.display = 'flex';
+  _timerInt = setInterval(function () {
+    _timerLeft--;
+    _renderTimer();
+    if (_timerLeft <= 0) { _stopTimer(); _timerExpire(); }
+  }, 1000);
+}
+
+function _stopTimer() {
+  if (_timerInt) { clearInterval(_timerInt); _timerInt = null; }
+}
+
+function _hideTimer() {
+  _stopTimer();
+  var w = document.getElementById('timerWrap');
+  if (w) w.style.display = 'none';
+}
+
+function _renderTimer() {
+  var fill = document.getElementById('timerFill');
+  var num  = document.getElementById('timerNum');
+  var wrap = document.getElementById('timerWrap');
+  if (!fill || !num) return;
+  var pct = (_timerLeft / TIMER_SECS) * 100;
+  fill.style.width = pct + '%';
+  num.textContent  = _timerLeft;
+  var cls = _timerLeft <= 10 ? 'td' : _timerLeft <= 20 ? 'tw' : '';
+  num.className  = 'timer-num ' + cls;
+  fill.className = 'timer-fill ' + cls;
+  if (wrap) wrap.className = cls || '';
+}
+
+function _timerExpire() {
+  var slide = document.querySelector('.q-slide.active');
+  if (!slide) return;
+  var card  = slide.querySelector('.q-card');
+  if (!card) return;
+  var qId = card.id;
+  if (!qId || answered[qId] !== undefined) return;
+
+  /* Khoá toàn bộ input của câu hiện tại */
+  slide.querySelectorAll('.choice-btn,.check-btn,.ans-input,.decode-cta').forEach(function(el) {
+    el.disabled = true;
+  });
+  /* Đặc biệt q11 multi-step */
+  if (qId === 'q11') {
+    ['A','D','G'].forEach(function(l) {
+      var i = document.getElementById('q11inp' + l);
+      var b = document.getElementById('q11btn' + l);
+      if (i) i.disabled = true;
+      if (b) b.disabled = true;
+    });
+    q11Done = []; /* reset partial progress */
+  }
+
+  answered[qId] = false;
+  comboStreak = 0;
+  updateComboUI();
+  bossAttack();
+  updateScore();
+  showFeedback('fb' + qId, false, '⏰ Hết 30 giây! Câu này bị bỏ qua.');
+  _hideTimer();
+  handleAfterAttack(null, qId);
+  saveProgress();
+}
+/* ─────────────────────────────────────────────────────── */
+
+function handleAfterAttack(btn, qId) {
+    _hideTimer(); /* dừng đồng hồ khi đã trả lời */
+    var nb = document.getElementById('actionNextBtn');
+    var pb = document.getElementById('actionPauseBtn');
+    if (nb) nb.style.display = '';
+    if (pb) pb.style.display = 'none';
+}
+
+/* ── Câu 11: multi-step decode (A → D → G) ── */
+var Q11_MAP   = {A:1, D:4, G:7};
+var Q11_STEPS = ['A','D','G'];
+var q11Done   = [];
+
+function _q11UnlockSvg(letter) {
+  /* Open lock (shackle bật lên) + xanh lá + chữ cái bên trong */
+  return '<svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">'
+    + '<path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,-7" fill="none" stroke="#4eff9f" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 6px #4eff9f)"/>'
+    + '<rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(78,255,159,0.12)" stroke="#4eff9f" stroke-width="1.8" style="filter:drop-shadow(0 0 5px #4eff9f88)"/>'
+    + '<text x="0" y="14" text-anchor="middle" dominant-baseline="middle" fill="#4eff9f" font-size="15" font-weight="900" font-family="Roboto,sans-serif">' + letter + '</text>'
+    + '</svg>';
+}
+
+function submitDecode11(letter) {
+  if (answered['q11'] !== undefined) return;
+  var inp = document.getElementById('q11inp' + letter);
+  if (!inp || !inp.value.trim()) return;
+  var val     = parseInt(inp.value.trim(), 10);
+  var correct = Q11_MAP[letter];
+  var isCorrect = (!isNaN(val) && val === correct);
+
+  /* Checkpoint tracking */
+  var now = Date.now();
+  var timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
+  window._lastInteractionTime = now;
+  window._attempts['q11'] = (window._attempts['q11'] || 0) + 1;
+  window._checkpoints.push({
+    question_id: 11,
+    attempt_number: window._attempts['q11'],
+    submitted_answer: String(val),
+    is_correct: isCorrect,
+    time_spent_seconds: timeSpent
+  });
+
+  if (isCorrect) {
+    /* 1. Unlock icon → open shackle + green + chữ cái */
+    document.getElementById('q11lock' + letter).innerHTML = _q11UnlockSvg(letter);
+    /* 2. Style row as unlocked */
+    var row = document.getElementById('q11row' + letter);
+    row.classList.add('unlocked');
+    /* 3. Disable this step's input + button */
+    inp.disabled = true;
+    document.getElementById('q11btn' + letter).disabled = true;
+    /* 4. Combat animation */
+    comboStreak++;
+    updateComboUI();
+    playerAttack();
+
+    q11Done.push(letter);
+    var idx = Q11_STEPS.indexOf(letter);
+
+    if (q11Done.length < Q11_STEPS.length) {
+      /* Show next step with a fade-in after attack animation */
+      var nextLetter = Q11_STEPS[idx + 1];
+      setTimeout(function () {
+        var nextRow = document.getElementById('q11row' + nextLetter);
+        nextRow.style.cssText += 'display:flex;opacity:0;transform:translateY(8px);';
+        requestAnimationFrame(function () {
+          nextRow.style.transition = 'opacity 0.35s, transform 0.35s';
+          nextRow.style.opacity    = '1';
+          nextRow.style.transform  = 'translateY(0)';
+        });
+      }, 550);
+    } else {
+      /* All 3 done → complete q11 */
+      setTimeout(function () {
+        /* Cập nhật ổ khóa "?" trong sơ đồ SVG: tím → xanh lá + "GAG" */
+        var lockQ = document.getElementById('q11svgLockQ');
+        if (lockQ) {
+          lockQ.innerHTML =
+            '<path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,-7" fill="none" stroke="#4eff9f" stroke-width="3.5" stroke-linecap="round"/>'
+            + '<rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(78,255,159,0.15)" stroke="#4eff9f" stroke-width="2"/>'
+            + '<text x="0" y="15" text-anchor="middle" dominant-baseline="middle" fill="#4eff9f" font-size="9" font-weight="800" font-family="Roboto,sans-serif" letter-spacing="0.5">GAG</text>';
+        }
+        answered['q11'] = true;
+        updateScore();
+        showFeedback('fbq11', true,
+          'Giải mã hoàn tất! A=1, D=4, G=7 → chìa 717 → G,A,G → <strong>GAG</strong> ✓');
+        handleAfterAttack(null, 'q11');
+        saveProgress();
+      }, 500);
+    }
+
+  } else {
+    /* Wrong: boss attacks, clear input, re-disable button */
+    inp.value = '';
+    document.getElementById('q11btn' + letter).disabled = true;
+    comboStreak = 0;
+    updateComboUI();
+    bossAttack();
+    showFeedback('fbq11', false, 'Chưa đúng! Xem lại bảng mã hóa nhé.');
+    setTimeout(function () {
+      var fb = document.getElementById('fbq11');
+      if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+    }, 2500);
+  }
+}
+
+/* Enable decode button when numpad fills the input */
+(function () {
+  ['A','D','G'].forEach(function (l) {
+    var inp = document.getElementById('q11inp' + l);
+    if (!inp) return;
+    inp.addEventListener('input', function () {
+      var btn = document.getElementById('q11btn' + l);
+      if (btn) btn.disabled = !this.value.trim();
+    });
+  });
+}());
+
+function _showNextBtn() {
+    var nb = document.getElementById('actionNextBtn');
+    var pb = document.getElementById('actionPauseBtn');
+    if (nb) nb.style.display = '';
+    if (pb) pb.style.display = 'none';
+}
+
+
+
+// --- AUTO SAVE & RESUME LOGIC ---
+const lessonIdMatch = window.location.pathname.match(/bai(\d+)/);
+const LESSON_ID = lessonIdMatch ? parseInt(lessonIdMatch[1]) : 0;
+const SAVE_KEY = 'cbToan_progress_bai' + LESSON_ID;
+
+function saveProgress() {
+  if (currentSlide > TOTAL) return; // Đã submit
+  const data = {
+    slide: currentSlide,
+    answered: answered,
+    attempts: window._attempts || {},
+    playerHp: playerHpVal,
+    bossHp: bossHpVal,
+    combo: comboStreak,
+    total: TOTAL
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+}
+
+function restartGame() {
+  if (confirm("Bạn có chắc muốn chơi lại từ đầu không? Toàn bộ quá trình hiện tại sẽ bị xóa!")) {
+    localStorage.removeItem(SAVE_KEY);
+    window.location.reload();
+  }
+}
+
+function pauseGame() {
+  saveProgress();
+  if (window.parent && window.parent.close_) {
+     window.parent.close_();
+  } else if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.close();
+  } else {
+     window.history.back();
+  }
+}
+
+// ── Auto-save khi thoát / back ──────────────────────────────────────────
+// pagehide: đáng tin nhất trên iOS Safari khi đóng tab/WebApp
+window.addEventListener('pagehide', function () { saveProgress(); });
+// visibilitychange: bắt khi Telegram thu nhỏ WebApp hoặc chuyển sang app khác
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden') saveProgress();
+});
+// Telegram BackButton: nút ← trong header WebApp — lưu rồi đóng
+document.addEventListener('DOMContentLoaded', function () {
+  var tgWa = window.Telegram && window.Telegram.WebApp;
+  if (tgWa && tgWa.BackButton) {
+    tgWa.BackButton.show();
+    tgWa.BackButton.onClick(function () {
+      saveProgress();
+      tgWa.close();
+    });
+  }
+});
+// ────────────────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Always initialize checkpoint tracking variables
+  window._attempts = window._attempts || {};
+  window._checkpoints = window._checkpoints || [];
+  window._lastInteractionTime = window._lastInteractionTime || Date.now();
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (saved && saved.slide >= 1 && saved.slide <= TOTAL) {
+      // Restore states
+      answered = saved.answered || {};
+      window._answered = answered;
+      // Disable inputs for answered questions
+      for (const [qId, isCorrect] of Object.entries(answered)) {
+         const input = document.getElementById(qId + 'ans');
+         if (input) input.disabled = true;
+         const card = document.getElementById(qId);
+         if (card) card.classList.add(isCorrect ? 'correct' : 'wrong');
+      }
+      // Nếu slide hiện tại đã trả lời → hiện nút Câu tiếp theo
+      const curSlideEl = document.getElementById('slide' + saved.slide);
+      if (curSlideEl) {
+        const curCard = curSlideEl.querySelector('.q-card');
+        if (curCard && answered[curCard.id] !== undefined) {
+          const nb = document.getElementById('actionNextBtn');
+          const pb = document.getElementById('actionPauseBtn');
+          if (nb) nb.style.display = '';
+          if (pb) pb.style.display = 'none';
+        }
+      }
+      window._attempts = saved.attempts || {};
+      playerHpVal = saved.playerHp !== undefined ? saved.playerHp : 100;
+      bossHpVal = saved.bossHp !== undefined ? saved.bossHp : 100;
+      comboStreak = saved.combo || 0;
+      
+      updateComboUI();
+      // Update HP variables immediately if needed
+      if(typeof updateBattleHp === 'function') updateBattleHp();
+      if(typeof updateScore === 'function') updateScore();
+
+      // Jump to slide
+      const currentActive = document.querySelector('.q-slide.active');
+      if (currentActive) currentActive.classList.remove('active');
+      currentSlide = saved.slide;
+      const target = document.getElementById('slide' + currentSlide);
+      if(target) target.classList.add('active');
+      _startTimer(); /* resume → bắt đầu đồng hồ câu hiện tại */
+
+      // Hiện toast "Đã tới câu X/12"
+      const toast = document.getElementById('resumeToast');
+      if (toast) {
+        toast.textContent = '▶ Đã tới câu ' + saved.slide + '/' + TOTAL;
+        toast.style.display = '';
+        setTimeout(function () { toast.style.display = 'none'; }, 2800);
+      }
+    }
+  } catch(e) {}
+
+  document.getElementById('progressText').innerText = currentSlide + '/' + TOTAL;
+});
+
+// Hook into nextSlide
+if (typeof nextSlide === 'function') {
+  const _origNextSlide = nextSlide;
+  nextSlide = function() {
+    _origNextSlide();
+    document.getElementById('progressText').innerText = Math.min(currentSlide, TOTAL) + '/' + TOTAL;
+    saveProgress();
+  }
+}
+
+// Hook into submitAll
+if (typeof submitAll === 'function') {
+  const _origSubmitAllProgress = submitAll;
+  submitAll = function() {
+    localStorage.removeItem(SAVE_KEY); // Xóa progress khi đã làm xong
+    _origSubmitAllProgress();
+  }
+}
+
+// Hook vào handleAfterAttack để lưu tiến độ ngay sau khi có kết quả
+if (typeof handleAfterAttack === 'function') {
+  const _origHandle = handleAfterAttack;
+  handleAfterAttack = function(btn, qId) {
+    _origHandle(btn, qId);
+    saveProgress();
+  }
+}
+
+
+
+// --- VIDEO HELP LOGIC ---
+const VIDEO_ID = "Tkx5Tf3Omks";
+const Q_TIMESTAMPS = {
+  "q1": 470,  "q2": 480,  "q3": 470,
+  "q4": 590,  "q5": 600,
+  "q6": 670,  "q7": 670,  "q8": 670,
+  "q9": 0,    "q10": 0
+};
+let currentHelpQid = "";
+
+// currentHelpQid is set directly inside checkText when Mo-Mo overlay is shown
+
+function openVideoHelp() {
+  document.getElementById('momoOverlay').classList.remove('show'); // Ẩn Momo
+  const startTime = Q_TIMESTAMPS[currentHelpQid] || 0;
+  const watchUrl = "https://www.youtube.com/watch?v=" + VIDEO_ID + "&t=" + startTime + "s";
+  window.open(watchUrl, '_blank');
+}
+
+function closeVideo() {
+  document.getElementById('videoModal').classList.remove('show');
+  document.getElementById('videoWrapper').innerHTML = "";
+}
+
+// ── Trợ giúp — kiến thức + gợi ý theo từng câu ─────────────────────────
+const HELP_DATA = {
+  q1: {
+    kienthuc: '<strong>Cấu tạo số:</strong> Mỗi số tự nhiên được tạo thành từ tổng các hàng.<br><div class="tc-formula">Số 3 chữ số = Trăm + Chục + Đơn vị<br>Ví dụ: 237 = 200 + 30 + 7</div>',
+    goiy: 'Xác định từng hàng của số <strong>237</strong>:<br>Chữ số hàng trăm = <strong>2</strong> → 200<br>Chữ số hàng chục = <strong>3</strong> → 30<br>Chữ số hàng đơn vị = <strong>7</strong> → 7<br>Vậy 237 = 200 + 30 + 7'
+  },
+  q2: {
+    kienthuc: '<strong>Cấu tạo số 4 chữ số:</strong><br><div class="tc-formula">Số = Nghìn + Trăm + Chục + Đơn vị<br>Ví dụ: 2850 = 2000 + 800 + 50 + 0</div>',
+    goiy: 'Phân tích <strong>2850</strong>:<br>2850 = 2000 + 800 + 50 + 0<br>= 2800 + ___ + 0<br>Hàng chục là <strong>50</strong> → ô trống = <strong>50</strong>'
+  },
+  q3: {
+    kienthuc: '<strong>Cấu tạo số với hàng trống bằng 0:</strong><br>Khi hàng chục = 0, ta viết 0 vào vị trí đó.<br><div class="tc-formula">109 = 100 + 0 + 9<br>(hàng chục = 0, không bỏ qua)</div>',
+    goiy: 'Xác định từng hàng của <strong>109</strong>:<br>Hàng trăm = <strong>1</strong> → 100<br>Hàng chục = <strong>0</strong> → 0<br>Hàng đơn vị = <strong>9</strong> → 9<br>Vậy 109 = 100 + 0 + 9'
+  },
+  q4: {
+    kienthuc: '<strong>Cấu tạo số 3 chữ số dạng chữ:</strong><br>Nếu số là <code>1bc</code> (b, c là các chữ số bất kỳ):<br><div class="tc-formula">1bc = 100 + b0 + c<br>= 100 + (b×10) + c</div>',
+    goiy: 'Số <code>1bc</code> có hàng trăm = 1, hàng chục = b, đơn vị = c.<br>Viết dạng tổng: 100 + b chục + c đơn vị<br>= <strong>100 + b0 + c</strong> (b0 nghĩa là b×10)'
+  },
+  q5: {
+    kienthuc: '<strong>Cấu tạo số 3 chữ số có hàng chục = 0:</strong><br>Số <code>a0c</code> có hàng chục bằng 0.<br><div class="tc-formula">a0c = a00 + 0 + c<br>= (a×100) + 0 + c</div>',
+    goiy: 'Số <code>a0c</code> có hàng trăm = a, hàng chục = 0, đơn vị = c.<br>Viết dạng tổng: a×100 + 0 + c<br>= <strong>a00 + 0 + c</strong>'
+  },
+  q6: {
+    kienthuc: '<strong>Tách số thành tổng 2 phần:</strong><br><div class="tc-formula">315 = 310 + 5<br>= (phần trăm + chục) + đơn vị</div>',
+    goiy: 'Số <strong>315</strong>: đơn vị = 5, phần còn lại là 310.<br>315 = ___ + 5<br>→ ___ = 315 − 5 = <strong>310</strong>'
+  },
+  q7: {
+    kienthuc: '<strong>Tách số 4 chữ số thành tổng 2 phần:</strong><br><div class="tc-formula">7602 = 7600 + 2<br>= (phần nghìn + trăm + chục) + đơn vị</div>',
+    goiy: 'Số <strong>7602</strong>: đơn vị = 2, phần còn lại = 7600.<br>7602 = ___ + 2<br>→ ___ = 7602 − 2 = <strong>7600</strong>'
+  },
+  q8: {
+    kienthuc: '<strong>Tổng hàng chục và đơn vị trong số 3 chữ số:</strong><br>Số <code>8bc</code>: phần chục + đơn vị = b0 + c.<br><div class="tc-formula">8bc = 800 + (b0 + c) = 800 + bc<br>Tổng chục + đơn vị = 8b0 + c? Không!<br>= b0 + c (phần sau hàng trăm)</div>',
+    goiy: 'Số <code>8bc</code> = 800 + b chục + c đơn vị.<br>Tổng của phần chục và đơn vị = <strong>b0 + c</strong><br>(b0 = b×10, cộng thêm c đơn vị)'
+  },
+  q9: {
+    kienthuc: '<strong>So sánh hai số 4 chữ số:</strong><br>Đầu tiên so sánh hàng nghìn, rồi hàng trăm, rồi hàng chục, rồi đơn vị.<br><div class="tc-formula">Nếu hai số có cùng hàng nghìn,<br>so sánh tiếp hàng trăm.</div>',
+    goiy: 'So sánh <code>a6b8</code> với <code>a000+400+b0+7</code>:<br>Vế phải = <code>a4b7</code> (vì 400 = 4 hàng trăm).<br>Hàng nghìn bằng nhau (đều a).<br>Hàng trăm: 6 > 4 → <strong>a6b8 > a4b7</strong>'
+  },
+  q10: {
+    kienthuc: '<strong>So sánh tổng của các số:</strong><br>Tính giá trị mỗi tổng, rồi so sánh kết quả.<br><div class="tc-formula">Khai triển rồi so sánh từng hàng.</div>',
+    goiy: 'Khai triển <code>a8+5b</code>:<br>a8 = a×10+8, 5b = 50+b<br>→ tổng = a×10+8+50+b = a×10+b+58 = ab+58<br>So sánh ab+58 với ab+68: <strong>58 < 68</strong> → dấu <strong><</strong>'
+  }
+};
+
+let _helpQid = null;
+
+function showHelp() {
+  const activeSlide = document.querySelector('.q-slide.active');
+  if (!activeSlide) return;
+  const card = activeSlide.querySelector('.q-card');
+  _helpQid = card ? card.id : null;
+  const data = HELP_DATA[_helpQid] || {
+    kienthuc: 'Đọc kỹ đề bài và nháp từng bước cẩn thận nhé!',
+    goiy: 'Xem lại video bài giảng để hiểu phương pháp.'
+  };
+  document.getElementById('helpKienThuc').innerHTML = data.kienthuc;
+  document.getElementById('helpGoiY').innerHTML = data.goiy;
+  document.getElementById('helpOverlay').classList.add('show');
+}
+
+function closeHelp() {
+  document.getElementById('helpOverlay').classList.remove('show');
+}
+
+function openHelpVideo() {
+  /* Cấp 2+ không được xem video */
+  if (GAME_LEVEL >= 2) {
+    var btn = document.querySelector('.help-btn-video');
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = '🔒 Không khả dụng ở Cấp ' + GAME_LEVEL;
+      btn.style.opacity = '0.5';
+      setTimeout(function () { btn.textContent = orig; btn.style.opacity = ''; }, 2000);
+    }
+    return;
+  }
+  const ts = Q_TIMESTAMPS[_helpQid] || 0;
+  window.open('https://www.youtube.com/watch?v=' + VIDEO_ID + '&t=' + ts + 's', '_blank');
+  closeHelp();
+}
+// ─────────────────────────────────────────────────────────────────────────
+
+
+// Khởi tạo Mo-Mo
+const momoHinted = {};
+
+function closeMomo() {
+  document.getElementById('momoOverlay').classList.remove('show');
+  // Focus right into the active slide's input!
+  const input = document.querySelector('.q-slide.active .ans-input');
+  if(input && !input.disabled) { 
+    input.focus(); 
+    input.value = ''; 
+    // Trigger input event to disable button again
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+// Override playerAvatar logic with localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  const savedAvatar = localStorage.getItem('cbToan_avatar');
+  if (savedAvatar) {
+    document.getElementById('playerAvatar').textContent = savedAvatar;
+  }
+});
+
+
+
+function showDamage(targetId, dmgText, isCritical) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const dmg = document.createElement('div');
+  dmg.className = 'damage-number';
+  dmg.textContent = dmgText;
+  if (isCritical) {
+    dmg.style.color = '#fbbf24';
+    dmg.style.textShadow = '0 0 15px #fbbf24';
+    dmg.style.fontSize = '40px';
+  }
+  const offsetX = (Math.random() - 0.5) * 60;
+  dmg.style.marginLeft = offsetX + 'px';
+  target.parentElement.appendChild(dmg);
+  setTimeout(() => dmg.remove(), 1000);
+}
+
+function spawnExplosion(targetId) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const expl = document.createElement('div');
+  expl.className = 'explosion';
+  expl.textContent = '💥';
+  target.parentElement.appendChild(expl);
+  setTimeout(() => expl.remove(), 500);
+}
+
+function playerAttack() {
+  const pAvatar = document.getElementById('playerAvatar');
+  const bAvatar = document.getElementById('bossAvatar');
+  const zone = document.getElementById('combatZone');
+  
+  pAvatar.style.animation = 'none';
+  void pAvatar.offsetWidth;
+  pAvatar.style.animation = 'castMagic 0.5s ease';
+  
+  const beam = document.createElement('div');
+  beam.className = 'energy-beam';
+  beam.style.top = '50%';
+  beam.style.animation = 'fireBeam 0.4s ease-in forwards';
+  zone.appendChild(beam);
+  
+  setTimeout(() => {
+    beam.remove();
+    bAvatar.style.animation = 'none';
+    void bAvatar.offsetWidth;
+    bAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    
+    const baseDmg = 100 / TOTAL;
+    const comboMult = 1 + (Math.max(0, comboStreak - 1) * 0.1);
+    const dmg = Math.round(baseDmg * comboMult);
+    bossHpVal = Math.max(0, bossHpVal - dmg);
+    updateBattleHp();
+    if(dmg > 0) showDamage('bossAvatar', '-' + dmg, comboStreak >= 2);
+    spawnExplosion('bossAvatar');
+    
+    if (bossHpVal <= 0) {
+      bAvatar.style.transition = 'all 1s ease';
+      bAvatar.style.transform = 'scale(1.5)';
+      bAvatar.style.filter = 'brightness(2) drop-shadow(0 0 20px var(--primary))';
+      showDamage('bossAvatar', 'DEFEATED!', true);
+      setTimeout(() => { bAvatar.style.opacity = '0'; }, 1000);
+    } else {
+      setTimeout(() => {
+         pAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animationDelay = '1s';
+      }, 500);
+    }
+  }, 400);
+}
+
+function bossAttack() {
+  const pAvatar = document.getElementById('playerAvatar');
+  const bAvatar = document.getElementById('bossAvatar');
+  const zone = document.getElementById('combatZone');
+  
+  if (bossHpVal <= 0) return;
+  
+  playerHpVal = Math.max(0, playerHpVal - 10);
+  
+  bAvatar.style.animation = 'none';
+  void bAvatar.offsetWidth;
+  bAvatar.style.animation = 'castBossMagic 0.5s ease';
+  
+  const orb = document.createElement('div');
+  orb.className = 'projectile';
+  orb.textContent = '🌑';
+  orb.style.color = 'var(--secondary)';
+  orb.style.animation = 'flyLeft 0.6s ease-in forwards';
+  zone.appendChild(orb);
+  
+  setTimeout(() => {
+    orb.remove();
+    pAvatar.style.animation = 'none';
+    void pAvatar.offsetWidth;
+    pAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    updateBattleHp();
+    showDamage('playerAvatar', '-10');
+    
+    document.body.style.transition = 'background 0.2s';
+    const oldBg = document.body.style.background;
+    document.body.style.background = '#fef2f2';
+    setTimeout(() => { document.body.style.background = oldBg; }, 200);
+    
+    if (playerHpVal <= 0) {
+      setTimeout(() => {
+        document.getElementById('gameOverOverlay').classList.add('show');
+      }, 500);
+    } else {
+      setTimeout(() => {
+         pAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animation = 'idle 2s ease-in-out infinite';
+         bAvatar.style.animationDelay = '1s';
+      }, 500);
+    }
+  }, 500);
+}
+
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById(id);
+  fb.className = 'feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = (correct ? '✅ ' : '❌ ') + msg;
+  const card = fb.closest('.q-card');
+  card.classList.remove('correct', 'wrong');
+  card.classList.add(correct ? 'correct' : 'wrong');
+}
+
+function checkText(qId, inputId, correctList, explanation, hintMsg) {
+  const input = document.getElementById(inputId);
+  const val = input.value.trim().toLowerCase();
+  if (!val) {
+    input.style.borderColor = 'var(--amber)';
+    input.placeholder = 'Nhập đáp án!';
+    input.focus();
+    return;
+  }
+  input.style.borderColor = '';
+  const isCorrect = correctList.some(c => c.toLowerCase() === val);
+  
+  if (!isCorrect && !momoHinted[qId]) {
+    // Sai lần 1 -> Hiện Mo-Mo
+    momoHinted[qId] = true;
+    currentHelpQid = qId;
+    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
+    document.getElementById('momoOverlay').classList.add('show');
+    return; // Dừng lại, chưa trừ điểm
+  }
+
+  // Lưu Checkpoint
+  const now = Date.now();
+  const timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
+  window._lastInteractionTime = now;
+  window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+  
+  window._checkpoints.push({
+    question_id: parseInt(qId.replace('q', '')),
+    attempt_number: window._attempts[qId],
+    submitted_answer: val,
+    is_correct: isCorrect,
+    time_spent_seconds: timeSpent
+  });
+
+  answered[qId] = isCorrect;
+  updateScore();
+  if (isCorrect) {
+    comboStreak++;
+    updateComboUI();
+    playerAttack();
+  } else {
+    comboStreak = 0;
+    updateComboUI();
+    bossAttack();
+  }
+  
+  input.className = 'ans-input ' + (isCorrect ? 'correct-input' : 'wrong-input');
+  input.disabled = true;
+  showFeedback(`fb${qId}`, isCorrect,
+    isCorrect ? explanation : `Chưa đúng. ${explanation}`
+  );
+  handleAfterAttack(document.querySelector(`#${qId} .check-btn`), qId);
+}
+
+// Gán sự kiện input để enable/disable nút Kiểm tra theo trạng thái ô nhập
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.ans-input').forEach(input => {
+    const card = input.closest('.q-card');
+    const btn = card.querySelector('.check-btn');
+    // Disable nút ban đầu
+    btn.disabled = true;
+    // Enable khi có nội dung
+    input.addEventListener('input', () => {
+      btn.disabled = input.value.trim() === '';
+    });
+    // Cho phép nhấn Enter để kiểm tra
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !btn.disabled) btn.click();
+    });
+  });
+
+  // Tự động thêm class cyber-box
+  document.querySelectorAll('.method-box, .q-card, .result-card').forEach(el => {
+    el.classList.add('cyber-box');
+  });
+});
+
+function selectChoice(qId, val, btn) {
+  if (answered[qId] !== undefined) return;
+  selected[qId] = val;
+  const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
+  btns.forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Enable nút Kiểm tra rồi tự động submit sau 250ms
+  const checkBtn = document.querySelector(`#${qId} .check-btn`);
+  checkBtn.disabled = false;
+  setTimeout(function () { checkBtn.click(); }, 250);
+}
+
+function checkChoice(qId, correct, explanation, hintMsg) {
+  if (!selected[qId]) { alert('Em chưa chọn đáp án!'); return; }
+  if (answered[qId] !== undefined) return;
+  const isCorrect = selected[qId] === correct;
+  
+  if (!isCorrect && !momoHinted[qId]) {
+    momoHinted[qId] = true;
+    currentHelpQid = qId;
+    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
+    document.getElementById('momoOverlay').classList.add('show');
+    
+    // Reset selected
+    selected[qId] = null;
+    const btns = document.querySelectorAll('#' + qId + 'choices .choice-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+    document.querySelector('#' + qId + ' .check-btn').disabled = true;
+    return;
+  }
+
+  // Lưu Checkpoint
+  const now = Date.now();
+  const timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
+  window._lastInteractionTime = now;
+  window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+  
+  window._checkpoints.push({
+    question_id: parseInt(qId.replace('q', '')),
+    attempt_number: window._attempts[qId],
+    submitted_answer: selected[qId],
+    is_correct: isCorrect,
+    time_spent_seconds: timeSpent
+  });
+
+  answered[qId] = isCorrect;
+  updateScore();
+  if (isCorrect) {
+    comboStreak++;
+    updateComboUI();
+    playerAttack();
+  } else {
+    comboStreak = 0;
+    updateComboUI();
+    bossAttack();
+  }
+
+  const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
+  btns.forEach(b => {
+    b.disabled = true;
+    const onclick = b.getAttribute('onclick');
+    const match = onclick.match(/selectChoice\('[^']+','([^']+)'/);
+    if (match) {
+      if (match[1] === correct) b.classList.add('correct');
+      else if (match[1] === selected[qId] && !isCorrect) b.classList.add('wrong');
+    }
+  });
+  showFeedback(`fb${qId}`, isCorrect,
+    isCorrect ? explanation : `Chưa đúng. ${explanation}`
+  );
+  handleAfterAttack(document.querySelector(`#${qId} .check-btn`), qId);
+}
+
+function submitAll() {
+  const c = Object.values(answered).filter(v => v === true).length;
+  const w = Object.values(answered).filter(v => v === false).length;
+  const skip = TOTAL - c - w;
+  const pct = Math.round(c / TOTAL * 100);
+
+  let emoji, title, levelText, levelColor;
+  if (pct >= 90)      { emoji='🏆'; title='Xuất sắc!';      levelText='🏆 Mức 4 — Giỏi toán';  levelColor='#fef3c7'; }
+  else if (pct >= 70) { emoji='⭐'; title='Làm tốt!';        levelText='⭐ Mức 3 — Làm tốt';    levelColor='#dbeafe'; }
+  else if (pct >= 50) { emoji='📖'; title='Hiểu bài!';       levelText='📖 Mức 2 — Hiểu bài';   levelColor='#e0f2fe'; }
+  else                { emoji='🌱'; title='Cố gắng thêm!';   levelText='🌱 Mức 1 — Đang học';   levelColor='#f0fdf4'; }
+
+  /* Level-weighted score: 10 pts/câu đúng × multiplier */
+  const BASE_PT = 10;
+  const levelScore = Math.round(c * BASE_PT * LEVEL_MULT);
+  const maxScore   = Math.round(TOTAL * BASE_PT * LEVEL_MULT);
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = `${c}/${TOTAL} câu  •  ${levelScore} điểm`;
+  const rl = document.getElementById('resultLevel');
+  rl.textContent = levelText + '  ' + LEVEL_STARS[GAME_LEVEL];
+  rl.style.background = levelColor; rl.style.color = '#1e293b';
+  document.getElementById('rdCorrect').textContent = c;
+  document.getElementById('rdWrong').textContent = w;
+  document.getElementById('rdSkip').textContent = skip;
+
+  // LƯU HUY HIỆU NẾU ĐẠT TRÊN 50%
+  if (pct >= 50) {
+    const currentLesson = parseInt(window.location.pathname.match(/bai(\d+)/)?.[1] || 0);
+    if (currentLesson > 0) {
+      let badges = [];
+      try { badges = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
+      if (!badges.includes(currentLesson)) {
+        badges.push(currentLesson);
+        localStorage.setItem('cbToan_badges', JSON.stringify(badges));
+      }
+      /* Lưu cấp độ tốt nhất đạt được */
+      var prevBest = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + currentLesson) || '0');
+      if (GAME_LEVEL > prevBest) {
+        localStorage.setItem('cbToan_bestLevel_bai' + currentLesson, String(GAME_LEVEL));
+      }
+      /* Lưu điểm cao nhất */
+      var prevScore = parseInt(localStorage.getItem('cbToan_bestScore_bai' + currentLesson) || '0');
+      if (levelScore > prevScore) {
+        localStorage.setItem('cbToan_bestScore_bai' + currentLesson, String(levelScore));
+      }
+    }
+    // Đổi Title chúc mừng nhận huy hiệu
+    document.getElementById('resultTitle').innerHTML = '🏆 Bạn Đã Nhận Được Huy Hiệu!';
+  }
+  document.getElementById('resultOverlay').classList.add('show');
+
+}
+</script>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+// Khởi tạo Telegram Web App
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+// Ghi đè hàm submitAll để gửi kết quả về bot
+const _origSubmit = window.submitAll;
+window.submitAll = function() {
+  // Gọi hàm gốc để hiện result overlay
+  if (typeof _origSubmit === 'function') _origSubmit();
+
+  // Thu thập kết quả
+  const answered = window._answered || {};
+  const correct  = Object.values(answered).filter(v => v === true).length;
+  const total    = window._TOTAL || Object.keys(answered).length;
+  const buoi     = window._BUOI || 0;
+
+  const gameLevel = parseInt(localStorage.getItem('cbToan_gameLevel') || '1');
+  const levelMult = gameLevel === 3 ? 2 : gameLevel === 2 ? 1.5 : 1;
+  const payload = {
+    buoi:        buoi,
+    diem:        correct,
+    tong:        total,
+    level:       gameLevel,
+    level_diem:  Math.round(correct * 10 * levelMult),
+    chi_tiet:    answered,
+    checkpoints: window._checkpoints || [],
+  };
+
+  // Gửi về Telegram bot
+  if (tg && tg.sendData) {
+    tg.sendData(JSON.stringify(payload));
+  }
+};
+</script>
+
+
+<!-- Video Popup -->
+<div class="video-modal" id="videoModal">
+  <div class="video-container">
+    <div class="video-header">
+      <span class="video-title">🎬 BÀI GIẢNG: CẤU TẠO SỐ TỰ NHIÊN</span>
+      <button class="close-video-btn" onclick="closeVideo()">✖</button>
+    </div>
+    <div class="video-iframe-wrapper" id="videoWrapper">
+      <!-- Iframe will be injected here -->
+    </div>
+  </div>
+</div>
+
+
+<!-- Video Help: opens YouTube in new tab via openVideoHelp() -->
+
+<!-- ── Countdown Timer (Level 3) ── -->
+<div id="timerWrap">
+  <span class="timer-icon">⏱</span>
+  <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+  <span class="timer-num" id="timerNum">30</span>
+</div>
+
+<!-- ── Action bar ── -->
+<div class="action-bar">
+  <button class="btn-help" onclick="showHelp()">💡 Trợ giúp</button>
+  <button class="btn-pause" id="actionPauseBtn" onclick="pauseGame()">⏸ Dừng chơi</button>
+  <button class="btn-next-action" id="actionNextBtn" style="display:none;" onclick="(function(){var nb=document.getElementById('actionNextBtn'),pb=document.getElementById('actionPauseBtn');if(nb)nb.style.display='none';if(pb)pb.style.display='';nextSlide();}())">⏭ Câu tiếp theo</button>
+</div>
+
+<!-- ── Help Overlay ── -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-panel">
+    <div class="help-header">
+      <span class="help-header-icon">⚔️</span>
+      <span class="help-header-title">Tuyệt chiêu cần có</span>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-label">📚 OK, bây giờ muốn ra đòn đẹp chúng ta dùng Tuyệt chiêu sau:</div>
+      <div class="help-body" id="helpKienThuc"></div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-label">💡 Thầy gợi ý thêm:</div>
+      <div class="help-body" id="helpGoiY"></div>
+      <div class="help-encourage">✏️ Hãy lấy giấy bút ra, bắt đầu viết xuống để làm từng bước một.<br>Thầy tin rằng em sẽ làm được đó !</div>
+    </div>
+
+    <div class="help-video-note">🎬 Nếu vẫn chưa hiểu, em ấn nút <strong>TRUI RÈN</strong> để xem thầy giảng lại nhé!</div>
+
+    <div class="help-btns">
+      <button class="help-btn-ok"    onclick="closeHelp()">⚔️ Áp dụng</button>
+      <button class="help-btn-video" onclick="openHelpVideo()">🔥 Trui Rèn</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Custom Numpad HTML ── -->
+<div class="numpad-overlay" id="numpadOverlay">
+  <div class="numpad-bd" id="numpadBd"></div>
+  <div class="numpad-panel">
+    <div class="numpad-display">
+      <span class="np-cur-val" id="npVal">?</span>
+      <span class="np-cur-label" id="npLabel">Nhập đáp án</span>
+      <button class="np-close-btn" id="npCloseBtn">✕</button>
+    </div>
+    <div class="numpad-grid">
+      <button class="np-btn" data-d="1">1</button>
+      <button class="np-btn" data-d="2">2</button>
+      <button class="np-btn" data-d="3">3</button>
+      <button class="np-btn" data-d="4">4</button>
+      <button class="np-btn" data-d="5">5</button>
+      <button class="np-btn" data-d="6">6</button>
+      <button class="np-btn" data-d="7">7</button>
+      <button class="np-btn" data-d="8">8</button>
+      <button class="np-btn" data-d="9">9</button>
+      <button class="np-btn np-del" id="npDel">⌫</button>
+      <button class="np-btn" data-d="0">0</button>
+      <button class="np-btn np-ok" id="npOk">✓ OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Custom Numpad Logic ── */
+(function () {
+  'use strict';
+  var _inp = null, _checkBtn = null;
+
+  function npSync() {
+    var el = document.getElementById('npVal');
+    if (el) el.textContent = (_inp && _inp.value) ? _inp.value : '?';
+  }
+
+  window._showNumpad = function (inp) {
+    if (!inp || inp.disabled) return;
+    _inp = inp;
+    var cbId = inp.getAttribute('data-checkbtn');
+    if (cbId) {
+      _checkBtn = document.getElementById(cbId);
+    } else {
+      var card = inp.closest('.q-card');
+      _checkBtn = card ? card.querySelector('.check-btn') : null;
+    }
+    var badge = card ? card.querySelector('.q-num-badge') : null;
+    var labelEl = document.getElementById('npLabel');
+    if (labelEl) labelEl.textContent = badge ? badge.textContent : 'Nhập đáp án';
+    npSync();
+    document.getElementById('numpadOverlay').classList.add('show');
+  };
+
+  window._hideNumpad = function () {
+    document.getElementById('numpadOverlay').classList.remove('show');
+    _inp = null; _checkBtn = null;
+  };
+
+  /* Digit buttons */
+  document.querySelectorAll('.np-btn[data-d]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (!_inp || _inp.disabled) return;
+      if (_inp.value.length >= 6) return;
+      _inp.value += this.dataset.d;
+      _inp.dispatchEvent(new Event('input', { bubbles: true }));
+      npSync();
+    });
+  });
+
+  /* Delete */
+  document.getElementById('npDel').addEventListener('click', function () {
+    if (!_inp) return;
+    _inp.value = _inp.value.slice(0, -1);
+    _inp.dispatchEvent(new Event('input', { bubbles: true }));
+    npSync();
+  });
+
+  /* OK — submit answer */
+  function doNpOk() {
+    if (!_inp) return;
+    if (!_inp.value.trim()) {
+      /* Hiện cảnh báo ở label phụ */
+      var lbl = document.getElementById('npLabel');
+      if (lbl) {
+        var orig = lbl.textContent;
+        lbl.textContent = '⚠ Chưa nhập đáp án!';
+        lbl.style.color = '#ff6b6b';
+        setTimeout(function () { lbl.textContent = orig; lbl.style.color = ''; }, 1400);
+      }
+      return;
+    }
+    var btn = _checkBtn;
+    window._hideNumpad();
+    setTimeout(function () { if (btn && !btn.disabled) btn.click(); }, 80);
+  }
+  document.getElementById('npOk').addEventListener('click', doNpOk);
+
+  /* Enter key on PC/laptop = OK button */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var overlay = document.getElementById('numpadOverlay');
+    if (overlay && overlay.classList.contains('show')) {
+      e.preventDefault();
+      doNpOk();
+    } else {
+      /* Numpad chưa mở nhưng có câu đang chờ nhập → mở numpad rồi tự OK */
+      var activeInput = document.querySelector('.q-slide.active .ans-input:not([disabled])');
+      if (activeInput) { e.preventDefault(); window._showNumpad(activeInput); }
+    }
+  });
+
+  /* Backdrop + X */
+  document.getElementById('numpadBd').addEventListener('click', window._hideNumpad);
+  document.getElementById('npCloseBtn').addEventListener('click', window._hideNumpad);
+
+  /* Hook all .ans-input — replace keyboard with numpad */
+  function hookAll() {
+    document.querySelectorAll('.ans-input').forEach(function (inp) {
+      if (inp.dataset.npHooked) return;
+      inp.dataset.npHooked = '1';
+      inp.setAttribute('readonly', 'readonly');
+      inp.setAttribute('inputmode', 'none');
+      inp.style.cursor = 'pointer';
+      inp.style.caretColor = 'transparent';
+
+      inp.addEventListener('click', function (e) {
+        if (this.disabled) return;
+        e.preventDefault(); e.stopPropagation();
+        window._showNumpad(this);
+      });
+      inp.addEventListener('focus', function () { this.blur(); });
+      inp.addEventListener('touchstart', function (e) {
+        if (this.disabled) return;
+        e.preventDefault();
+        window._showNumpad(this);
+      }, { passive: false });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hookAll);
+  } else {
+    hookAll();
+  }
+
+  /* Override closeMomo: show numpad again after hint instead of keyboard */
+  function overrideMomo() {
+    window.closeMomo = function () {
+      document.getElementById('momoOverlay').classList.remove('show');
+      var inp = document.querySelector('.q-slide.active .ans-input');
+      if (inp && !inp.disabled) {
+        inp.value = '';
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+        setTimeout(function () { window._showNumpad(inp); }, 220);
+      }
+    };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', overrideMomo);
+  } else {
+    overrideMomo();
+  }
+
+  /* Chuyển .q-num ra ngoài .q-card → nằm giữa arena và box câu hỏi */
+  function moveQNums() {
+    document.querySelectorAll('.q-card > .q-num').forEach(function (qnum) {
+      var card = qnum.closest('.q-card');
+      card.parentNode.insertBefore(qnum, card);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', moveQNums);
+  } else {
+    moveQNums();
+  }
+})();
+</script>
+\n</body>
+</html>
