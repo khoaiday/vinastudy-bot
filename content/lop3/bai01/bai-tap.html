@@ -1918,8 +1918,7 @@ function checkText(qId, inputId, correctList, explanation, hintMsg) {
   updateScore();
   if (isCorrect) {
     comboStreak++;
-    const comboMult = 1 + (Math.max(0, comboStreak - 1) * 0.1);
-    showScoreToast(Math.round(10 * LEVEL_MULT * comboMult), comboStreak);
+    showScoreToast(Math.round(10 * LEVEL_MULT), comboStreak);
     playerAttack();
   } else {
     comboStreak = 0;
@@ -2006,8 +2005,7 @@ function checkChoice(qId, correct, explanation, hintMsg) {
   updateScore();
   if (isCorrect) {
     comboStreak++;
-    const comboMult = 1 + (Math.max(0, comboStreak - 1) * 0.1);
-    showScoreToast(Math.round(10 * LEVEL_MULT * comboMult), comboStreak);
+    showScoreToast(Math.round(10 * LEVEL_MULT), comboStreak);
     playerAttack();
   } else {
     comboStreak = 0;
