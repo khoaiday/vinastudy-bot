@@ -241,27 +241,39 @@
 
   /* ── Countdown Timer (Level 3) ── */
   #timerWrap {
-    display: none;
-    position: fixed; top: 10px; right: 12px;
-    width: 54px; height: 54px; z-index: 500;
+    display: none; /* flex khi active */
+    align-items: center; gap: 8px;
+    margin-bottom: 12px;
+    padding: 6px 10px;
+    background: rgba(10,224,254,0.05);
+    border: 1px solid rgba(10,224,254,0.2);
+    border-radius: 10px;
+    transition: border-color 0.3s, background 0.3s;
   }
-  .timer-svg { width: 54px; height: 54px; transform: rotate(-90deg); }
-  .timer-bg  { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
-  .timer-bar { fill: none; stroke: #0ae0fe; stroke-width: 4; stroke-linecap: round;
-    stroke-dasharray: 113.1; stroke-dashoffset: 0;
-    transition: stroke-dashoffset 0.95s linear, stroke 0.3s;
+  #timerWrap.tw { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.05); }
+  #timerWrap.td { border-color: rgba(255,0,85,0.45);   background: rgba(255,0,85,0.07); }
+  .timer-icon { font-size: 15px; flex-shrink: 0; }
+  .timer-track {
+    flex: 1; height: 7px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px; overflow: hidden;
   }
-  .timer-bar.tw { stroke: #fbbf24; }
-  .timer-bar.td { stroke: #ff0055; }
+  .timer-fill {
+    height: 100%; width: 100%;
+    background: #0ae0fe; border-radius: 4px;
+    transition: width 0.95s linear, background 0.3s;
+    box-shadow: 0 0 6px #0ae0fe88;
+  }
+  .timer-fill.tw { background: #fbbf24; box-shadow: 0 0 6px #fbbf2488; }
+  .timer-fill.td { background: #ff0055; box-shadow: 0 0 8px #ff005588; }
   .timer-num {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
     font-size: 16px; font-weight: 900; font-family: 'Rajdhani', sans-serif;
-    color: #0ae0fe; transition: color 0.3s;
+    color: #0ae0fe; min-width: 26px; text-align: right; flex-shrink: 0;
+    transition: color 0.3s;
   }
   .timer-num.tw { color: #fbbf24; }
-  .timer-num.td { color: #ff0055; animation: tpulse 0.5s ease-in-out infinite; }
-  @keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+  .timer-num.td { color: #ff0055; animation: tpulse 0.4s ease-in-out infinite; }
+  @keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
 
   /* ── Câu 11: decode rows ── */
   .decode-section { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
@@ -1397,8 +1409,15 @@ function _startTimer() {
   if (GAME_LEVEL < 3) return;
   _stopTimer();
   _timerLeft = TIMER_SECS;
+  /* Chuyển timerWrap vào đúng câu đang active, trước phần chọn đáp án */
+  var wrap = document.getElementById('timerWrap');
+  var slide = document.querySelector('.q-slide.active');
+  if (wrap && slide) {
+    var anchor = slide.querySelector('.choices, .decode-section, .check-btn');
+    if (anchor) anchor.parentNode.insertBefore(wrap, anchor);
+  }
   _renderTimer();
-  document.getElementById('timerWrap').style.display = '';
+  if (wrap) wrap.style.display = 'flex';
   _timerInt = setInterval(function () {
     _timerLeft--;
     _renderTimer();
@@ -1417,16 +1436,17 @@ function _hideTimer() {
 }
 
 function _renderTimer() {
-  var bar = document.getElementById('timerBar');
-  var num = document.getElementById('timerNum');
-  if (!bar || !num) return;
-  var pct    = _timerLeft / TIMER_SECS;
-  var offset = TIMER_CIRC * (1 - pct);
-  bar.style.strokeDashoffset = offset;
-  num.textContent = _timerLeft;
+  var fill = document.getElementById('timerFill');
+  var num  = document.getElementById('timerNum');
+  var wrap = document.getElementById('timerWrap');
+  if (!fill || !num) return;
+  var pct = (_timerLeft / TIMER_SECS) * 100;
+  fill.style.width = pct + '%';
+  num.textContent  = _timerLeft;
   var cls = _timerLeft <= 10 ? 'td' : _timerLeft <= 20 ? 'tw' : '';
-  num.className = 'timer-num ' + cls;
-  bar.className = 'timer-bar ' + cls;
+  num.className  = 'timer-num ' + cls;
+  fill.className = 'timer-fill ' + cls;
+  if (wrap) wrap.className = cls || '';
 }
 
 function _timerExpire() {
@@ -2271,11 +2291,9 @@ window.submitAll = function() {
 
 <!-- ── Countdown Timer (Level 3) ── -->
 <div id="timerWrap">
-  <svg class="timer-svg" viewBox="0 0 44 44">
-    <circle class="timer-bg" cx="22" cy="22" r="18"/>
-    <circle class="timer-bar" id="timerBar" cx="22" cy="22" r="18"/>
-  </svg>
-  <div class="timer-num" id="timerNum">30</div>
+  <span class="timer-icon">⏱</span>
+  <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+  <span class="timer-num" id="timerNum">30</span>
 </div>
 
 <!-- ── Action bar ── -->
