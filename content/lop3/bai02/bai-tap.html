@@ -1330,16 +1330,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var helpBtn = document.querySelector('.btn-help');
     if (helpBtn) helpBtn.style.display = 'none';
   }
-  /* Hiển thị badge cấp độ trong action bar */
-  var ab = document.querySelector('.action-bar');
-  if (ab) {
-    var badge = document.createElement('span');
-    badge.id = 'gameLvBadge';
-    badge.textContent = LEVEL_STARS[GAME_LEVEL];
-    badge.title = LEVEL_NAMES[GAME_LEVEL];
-    badge.style.cssText = 'font-size:14px;opacity:.8;pointer-events:none;margin-left:auto;flex-shrink:0;';
-    ab.insertBefore(badge, ab.firstChild);
-  }
+
   /* Cấp 3: bắt đầu đồng hồ ngay từ câu 1 */
   if (GAME_LEVEL >= 3) _startTimer();
 });
@@ -1400,7 +1391,7 @@ function nextSlide() {
 }
 
 /* ── Countdown Timer (Cấp 3: 30s/câu) ── */
-var TIMER_SECS  = 30;
+var TIMER_SECS  = 60;
 var TIMER_CIRC  = 2 * Math.PI * 18; // ≈ 113.1
 var _timerInt   = null;
 var _timerLeft  = TIMER_SECS;
