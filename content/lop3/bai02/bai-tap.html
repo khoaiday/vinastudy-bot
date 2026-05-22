@@ -38,7 +38,7 @@
   /* ── Battle Arena ── */
   .battle-arena {
     background: radial-gradient(circle at center, #0e173a, #050a1f);
-    padding: 30px 20px 20px;
+    padding: 10px 20px 14px;
     border-bottom: 2px solid var(--primary);
     box-shadow: 0 5px 30px rgba(10,224,254,0.2);
     position: relative; overflow: hidden;
@@ -115,17 +115,17 @@
     padding: 0 20px;
   }
   
-  .fighter { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 110px; }
-  
+  .fighter { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 130px; }
+
   .avatar {
-    font-size: 64px; line-height: 1;
+    font-size: 90px; line-height: 1;
     filter: drop-shadow(0 0 15px var(--primary-glow));
     animation: idle 2s ease-in-out infinite;
     position: relative;
     background: rgba(10,224,254,0.1);
     border: 2px solid var(--primary);
-    border-radius: 12px;
-    padding: 10px;
+    border-radius: 14px;
+    padding: 12px;
   }
   
   .player .avatar { 
@@ -149,7 +149,7 @@
   .player .hp-bar-fill { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
   .boss .hp-bar-fill { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); }
   
-  .fighter-name { font-size: 16px; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase;}
+  .fighter-name { font-size: 14px; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase;}
   
   /* Projectiles */
   .projectile {
@@ -933,7 +933,6 @@
 </div>
 
 <!-- Result overlay -->
-  <div style="margin-top:10px;padding:6px 16px;border-top:1px solid var(--border);font-size:11px;color:#3a5568;text-align:center;">© VINASTUDY VIETNAM ONLINE EDU CO.,LTD</div>
 
 <div class="result-overlay" id="resultOverlay">
   <div class="result-card">
