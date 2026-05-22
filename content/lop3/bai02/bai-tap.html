@@ -644,8 +644,7 @@
 
 <div class="progress-bar-container" style="position: absolute; top: 15px; right: 15px; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); z-index: 100;">
   <button onclick="restartGame()" style="background: rgba(255,165,0,0.2); border: 1px solid orange; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 15px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: bold; position: relative; z-index: 20;">🔄 CHƠI LẠI</button>
-  <button onclick="pauseGame()" style="background: rgba(255,0,85,0.2); border: 1px solid var(--danger); color: white; padding: 6px 12px; border-radius: 6px; margin-right: 15px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: bold;">⏸️ DỪNG LẠI</button>
-  <span style="font-family: 'Rajdhani', sans-serif; font-size: 18px; letter-spacing: 1px;">TIẾN ĐỘ: <span id="progressText">1/12</span></span>
+  <button onclick="pauseGame()" style="background: rgba(255,0,85,0.2); border: 1px solid var(--danger); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: bold;">⏸️ DỪNG LẠI</button>
 </div>
 
   <div class="arena-bg">
@@ -665,7 +664,6 @@
       <span class="p10">½</span>
     </div>
   </div>
-  <div class="battle-title">ẢI 2: QUÁI VẬT Ổ KHÓA SỐ HỌC</div>
   <div class="combat-zone" id="combatZone">
     <div class="fighter player">
       <div class="fighter-name">Chiến Binh</div>
@@ -684,10 +682,11 @@
 </div>
 
 <!-- Score bar -->
-<div class="score-bar">
+<div class="score-bar" style="position:relative;">
   <div class="score-item"><div class="score-dot" style="background:var(--success); box-shadow: 0 0 10px var(--success)"></div><span id="scoreCorrect">0</span> ĐÚNG</div>
   <div class="score-item"><div class="score-dot" style="background:var(--danger); box-shadow: 0 0 10px var(--danger)"></div><span id="scoreWrong">0</span> SAI</div>
   <div class="score-item"><div class="score-dot" style="background:var(--text-muted)"></div><span id="scoreLeft">12</span> CHƯA LÀM</div>
+  <div style="position:absolute;right:18px;top:50%;transform:translateY(-50%);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#7ab8d0;letter-spacing:1px;">Câu&nbsp;<span id="progressText" style="color:var(--primary);font-size:17px;font-weight:900;text-shadow:0 0 8px var(--primary-glow);">1/12</span></div>
 </div>
 
 
