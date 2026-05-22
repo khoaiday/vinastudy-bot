@@ -520,41 +520,43 @@
   /* ── Result overlay ── */
   .result-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(5,10,31,0.9); z-index: 200;
-    align-items: center; justify-content: center; padding: 20px;
+    background: rgba(5,10,31,0.92); z-index: 200;
+    align-items: flex-start; justify-content: center;
+    padding: 16px; overflow-y: auto;
     backdrop-filter: blur(8px);
   }
   .result-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   .result-card {
-    background: transparent !important; padding: 40px 32px;
-    max-width: 440px; width: 100%; text-align: center;
+    background: transparent !important; padding: 24px 20px;
+    max-width: 420px; width: 100%; text-align: center;
     box-shadow: 0 0 40px var(--primary-glow);
     animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+    margin: auto;
   }
   @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-  .result-emoji { font-size: 64px; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 20px var(--primary)); }
-  .result-title { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 900; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px var(--primary-glow); }
+  .result-emoji { font-size: 48px; margin-bottom: 6px; display: block; filter: drop-shadow(0 0 20px var(--primary)); }
+  .result-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 900; color: var(--primary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--primary-glow); }
   .result-score {
-    font-size: 56px; font-weight: 900; margin: 16px 0;
+    font-size: 38px; font-weight: 900; margin: 10px 0;
     color: #fff; text-shadow: 0 0 20px var(--primary);
   }
   .result-level {
-    display: inline-block; padding: 10px 24px; border-radius: 4px;
-    font-weight: 900; font-size: 16px; margin: 10px 0 24px;
-    border: 2px solid; background: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 2px;
+    display: inline-block; padding: 6px 18px; border-radius: 4px;
+    font-weight: 900; font-size: 14px; margin: 6px 0 16px;
+    border: 2px solid; background: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 1.5px;
   }
-  .result-detail { display: flex; justify-content: center; gap: 32px; margin-bottom: 32px; }
+  .result-detail { display: flex; justify-content: center; gap: 24px; margin-bottom: 20px; }
   .result-detail-item { text-align: center; }
-  .result-detail-num { font-size: 28px; font-weight: 900; }
-  .result-detail-label { font-size: 14px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;}
+  .result-detail-num { font-size: 22px; font-weight: 900; }
+  .result-detail-label { font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px;}
 
   .result-btn {
-    padding: 14px 32px; border-radius: 4px;
-    font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900;
-    cursor: pointer; transition: all 0.2s; margin: 0 8px; text-transform: uppercase; letter-spacing: 2px;
+    padding: 12px 24px; border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 900;
+    cursor: pointer; transition: all 0.2s; margin: 0 6px; text-transform: uppercase; letter-spacing: 1.5px;
   }
   .btn-retry { background: var(--primary); color: #000; border: none; box-shadow: 0 0 15px var(--primary-glow); }
   .btn-retry:hover { background: #fff; box-shadow: 0 0 25px var(--primary); }
@@ -1079,7 +1081,7 @@
 
 <div class="game-over-overlay" id="gameOverOverlay">
   <div class="game-over-title">GAME OVER</div>
-  <button class="game-over-btn" onclick="restartGame()">🔄 CHƠI LẠI TỪ ĐẦU</button>
+  <button class="game-over-btn" onclick="restartConfirm()">🔄 CHƠI LẠI TỪ ĐẦU</button>
 </div>
 
 <!-- Result overlay -->
@@ -1105,7 +1107,7 @@
       </div>
     </div>
     <div>
-      <button class="result-btn btn-retry" onclick="location.reload()">🔄 Làm lại</button>
+      <button class="result-btn btn-retry" onclick="restartGame()">🔄 Chơi lại</button>
       <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">📖 Xem lại</button>
     </div>
   </div>
@@ -1437,15 +1439,18 @@ function saveProgress() {
 }
 
 function restartGame() {
-  if (confirm("Bạn có chắc muốn chơi lại từ đầu không? Toàn bộ quá trình hiện tại sẽ bị xóa!")) {
-    localStorage.removeItem(SAVE_KEY);
-    /* Về map để chọn lại level ở lượt chơi mới */
-    if (window.parent && window.parent.close_) {
-      window.parent.close_();
-    } else {
-      window.history.back();
-    }
+  localStorage.removeItem(SAVE_KEY);
+  /* Về map để chọn lại level ở lượt chơi mới */
+  if (window.parent && window.parent.close_) {
+    window.parent.close_();
+  } else {
+    window.history.back();
   }
+}
+
+function restartConfirm() {
+  /* Dùng từ nút Game Over — cần confirm vì còn đang chơi */
+  if (confirm("Chơi lại từ đầu? Tiến trình hiện tại sẽ bị xóa!")) restartGame();
 }
 
 function pauseGame() {
@@ -1999,6 +2004,8 @@ function checkChoice(qId, correct, explanation, hintMsg) {
 }
 
 function submitAll() {
+  /* Xóa progress — bài đã hoàn thành, không phải "đang dở" */
+  localStorage.removeItem(SAVE_KEY);
   const c = Object.values(answered).filter(v => v === true).length;
   const w = Object.values(answered).filter(v => v === false).length;
   const skip = TOTAL - c - w;
