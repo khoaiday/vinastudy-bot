@@ -239,6 +239,30 @@
   }
   .btn-pause:hover { background: rgba(255,80,80,0.18); }
 
+  /* ── Countdown Timer (Level 3) ── */
+  #timerWrap {
+    display: none;
+    position: fixed; top: 10px; right: 12px;
+    width: 54px; height: 54px; z-index: 500;
+  }
+  .timer-svg { width: 54px; height: 54px; transform: rotate(-90deg); }
+  .timer-bg  { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+  .timer-bar { fill: none; stroke: #0ae0fe; stroke-width: 4; stroke-linecap: round;
+    stroke-dasharray: 113.1; stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.95s linear, stroke 0.3s;
+  }
+  .timer-bar.tw { stroke: #fbbf24; }
+  .timer-bar.td { stroke: #ff0055; }
+  .timer-num {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 900; font-family: 'Rajdhani', sans-serif;
+    color: #0ae0fe; transition: color 0.3s;
+  }
+  .timer-num.tw { color: #fbbf24; }
+  .timer-num.td { color: #ff0055; animation: tpulse 0.5s ease-in-out infinite; }
+  @keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
   /* ── Câu 11: decode rows ── */
   .decode-section { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
   .decode-row {
@@ -1304,6 +1328,8 @@ document.addEventListener('DOMContentLoaded', function () {
     badge.style.cssText = 'font-size:14px;opacity:.8;pointer-events:none;margin-left:auto;flex-shrink:0;';
     ab.insertBefore(badge, ab.firstChild);
   }
+  /* Cấp 3: bắt đầu đồng hồ ngay từ câu 1 */
+  if (GAME_LEVEL >= 3) _startTimer();
 });
 
 // Gameplay variables
@@ -1354,13 +1380,92 @@ function nextSlide() {
   if (next) {
     next.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    _startTimer(); /* bắt đầu đồng hồ cho câu mới */
   } else {
     // End of questions
     submitAll();
   }
 }
 
+/* ── Countdown Timer (Cấp 3: 30s/câu) ── */
+var TIMER_SECS  = 30;
+var TIMER_CIRC  = 2 * Math.PI * 18; // ≈ 113.1
+var _timerInt   = null;
+var _timerLeft  = TIMER_SECS;
+
+function _startTimer() {
+  if (GAME_LEVEL < 3) return;
+  _stopTimer();
+  _timerLeft = TIMER_SECS;
+  _renderTimer();
+  document.getElementById('timerWrap').style.display = '';
+  _timerInt = setInterval(function () {
+    _timerLeft--;
+    _renderTimer();
+    if (_timerLeft <= 0) { _stopTimer(); _timerExpire(); }
+  }, 1000);
+}
+
+function _stopTimer() {
+  if (_timerInt) { clearInterval(_timerInt); _timerInt = null; }
+}
+
+function _hideTimer() {
+  _stopTimer();
+  var w = document.getElementById('timerWrap');
+  if (w) w.style.display = 'none';
+}
+
+function _renderTimer() {
+  var bar = document.getElementById('timerBar');
+  var num = document.getElementById('timerNum');
+  if (!bar || !num) return;
+  var pct    = _timerLeft / TIMER_SECS;
+  var offset = TIMER_CIRC * (1 - pct);
+  bar.style.strokeDashoffset = offset;
+  num.textContent = _timerLeft;
+  var cls = _timerLeft <= 10 ? 'td' : _timerLeft <= 20 ? 'tw' : '';
+  num.className = 'timer-num ' + cls;
+  bar.className = 'timer-bar ' + cls;
+}
+
+function _timerExpire() {
+  var slide = document.querySelector('.q-slide.active');
+  if (!slide) return;
+  var card  = slide.querySelector('.q-card');
+  if (!card) return;
+  var qId = card.id;
+  if (!qId || answered[qId] !== undefined) return;
+
+  /* Khoá toàn bộ input của câu hiện tại */
+  slide.querySelectorAll('.choice-btn,.check-btn,.ans-input,.decode-cta').forEach(function(el) {
+    el.disabled = true;
+  });
+  /* Đặc biệt q11 multi-step */
+  if (qId === 'q11') {
+    ['A','D','G'].forEach(function(l) {
+      var i = document.getElementById('q11inp' + l);
+      var b = document.getElementById('q11btn' + l);
+      if (i) i.disabled = true;
+      if (b) b.disabled = true;
+    });
+    q11Done = []; /* reset partial progress */
+  }
+
+  answered[qId] = false;
+  comboStreak = 0;
+  updateComboUI();
+  bossAttack();
+  updateScore();
+  showFeedback('fb' + qId, false, '⏰ Hết 30 giây! Câu này bị bỏ qua.');
+  _hideTimer();
+  handleAfterAttack(null, qId);
+  saveProgress();
+}
+/* ─────────────────────────────────────────────────────── */
+
 function handleAfterAttack(btn, qId) {
+    _hideTimer(); /* dừng đồng hồ khi đã trả lời */
     var nb = document.getElementById('actionNextBtn');
     var pb = document.getElementById('actionPauseBtn');
     if (nb) nb.style.display = '';
@@ -1590,6 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentSlide = saved.slide;
       const target = document.getElementById('slide' + currentSlide);
       if(target) target.classList.add('active');
+      _startTimer(); /* resume → bắt đầu đồng hồ câu hiện tại */
 
       // Hiện toast "Đã tới câu X/12"
       const toast = document.getElementById('resumeToast');
@@ -2162,6 +2268,15 @@ window.submitAll = function() {
 
 
 <!-- Video Help: opens YouTube in new tab via openVideoHelp() -->
+
+<!-- ── Countdown Timer (Level 3) ── -->
+<div id="timerWrap">
+  <svg class="timer-svg" viewBox="0 0 44 44">
+    <circle class="timer-bg" cx="22" cy="22" r="18"/>
+    <circle class="timer-bar" id="timerBar" cx="22" cy="22" r="18"/>
+  </svg>
+  <div class="timer-num" id="timerNum">30</div>
+</div>
 
 <!-- ── Action bar ── -->
 <div class="action-bar">
