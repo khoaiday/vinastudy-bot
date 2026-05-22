@@ -239,6 +239,34 @@
   }
   .btn-pause:hover { background: rgba(255,80,80,0.18); }
 
+  /* ── Câu 11: decode rows ── */
+  .decode-section { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .decode-row {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 12px;
+    background:rgba(10,224,254,0.04);
+    border:1px solid rgba(10,224,254,0.15);
+    border-radius:10px;
+    transition:background 0.4s, border-color 0.4s;
+  }
+  .decode-row.unlocked {
+    background:rgba(78,255,159,0.07);
+    border-color:rgba(78,255,159,0.35);
+  }
+  .decode-lock-ico { flex-shrink:0; width:34px; height:42px; display:flex; align-items:center; justify-content:center; }
+  .decode-lbl { font-size:15px; font-weight:700; color:var(--primary); min-width:56px; }
+  .decode-row.unlocked .decode-lbl { color:var(--success); }
+  .decode-inp { width:54px !important; text-align:center; font-size:18px; font-weight:900; flex-shrink:0; }
+  .decode-cta {
+    margin-left:auto; flex-shrink:0;
+    padding:7px 14px; font-size:13px; font-weight:700;
+    border-radius:8px; cursor:pointer;
+    background:rgba(10,224,254,0.1); border:1px solid rgba(10,224,254,0.4); color:var(--primary);
+    transition:all 0.2s;
+  }
+  .decode-cta:disabled { opacity:0.3; cursor:not-allowed; }
+  .decode-cta:not(:disabled):hover { background:rgba(10,224,254,0.22); }
+
   /* ── Help overlay ── */
   .help-overlay {
     display: none; position: fixed; inset: 0; z-index: 5500;
@@ -997,7 +1025,7 @@
     <div class="q-card" id="q11">
       <div class="q-num"><span class="q-num-badge">Câu 11</span> <span class="vinaid">VinaID 133389</div>
       <div class="q-text">
-        Theo quy luật, hãy tìm tên của ổ khóa cuối cùng:
+        Theo quy luật mã hóa, hãy giải mã từng chữ cái rồi tìm tên ổ khóa <strong style="color:#ea0eed">?</strong>:
         <svg viewBox="0 0 320 166" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;margin:8px auto 2px;display:block;">
           <defs>
             <filter id="q11glow" x="-30%" y="-30%" width="160%" height="160%">
@@ -1081,13 +1109,48 @@
           <text x="280" y="158" text-anchor="middle" fill="#ea0eed" font-size="11" font-weight="700" font-family="Roboto,sans-serif">717</text>
         </svg>
       </div>
-      <div class="choices" id="q11choices">
-        <button class="choice-btn" onclick="selectChoice('q11','GAG',this)">GAG</button>
-        <button class="choice-btn" onclick="selectChoice('q11','GGA',this)">GGA</button>
-        <button class="choice-btn" onclick="selectChoice('q11','AGG',this)">AGG</button>
-        <button class="choice-btn" onclick="selectChoice('q11','GAD',this)">GAD</button>
+      <!-- Multi-step decode: A → D → G -->
+      <div class="decode-section" id="q11decode">
+        <!-- Bước 1: A = ? -->
+        <div class="decode-row" id="q11rowA">
+          <div class="decode-lock-ico" id="q11lockA">
+            <svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">
+              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#0ae0fe" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #0ae0fe88)"/>
+              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(10,224,254,0.08)" stroke="#0ae0fe" stroke-width="1.8"/>
+            </svg>
+          </div>
+          <span class="decode-lbl">Chữ <strong>A</strong> =</span>
+          <input type="text" class="ans-input decode-inp" id="q11inpA" readonly inputmode="none"
+                 placeholder="?" data-checkbtn="q11btnA" onclick="window._showNumpad(this)">
+          <button class="decode-cta" id="q11btnA" disabled onclick="submitDecode11('A')">⚡ Bắn</button>
+        </div>
+        <!-- Bước 2: D = ? (ẩn ban đầu) -->
+        <div class="decode-row" id="q11rowD" style="display:none">
+          <div class="decode-lock-ico" id="q11lockD">
+            <svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">
+              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#0ae0fe" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #0ae0fe88)"/>
+              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(10,224,254,0.08)" stroke="#0ae0fe" stroke-width="1.8"/>
+            </svg>
+          </div>
+          <span class="decode-lbl">Chữ <strong>D</strong> =</span>
+          <input type="text" class="ans-input decode-inp" id="q11inpD" readonly inputmode="none"
+                 placeholder="?" data-checkbtn="q11btnD" onclick="window._showNumpad(this)">
+          <button class="decode-cta" id="q11btnD" disabled onclick="submitDecode11('D')">⚡ Bắn</button>
+        </div>
+        <!-- Bước 3: G = ? (ẩn ban đầu) -->
+        <div class="decode-row" id="q11rowG" style="display:none">
+          <div class="decode-lock-ico" id="q11lockG">
+            <svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">
+              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#0ae0fe" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #0ae0fe88)"/>
+              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(10,224,254,0.08)" stroke="#0ae0fe" stroke-width="1.8"/>
+            </svg>
+          </div>
+          <span class="decode-lbl">Chữ <strong>G</strong> =</span>
+          <input type="text" class="ans-input decode-inp" id="q11inpG" readonly inputmode="none"
+                 placeholder="?" data-checkbtn="q11btnG" onclick="window._showNumpad(this)">
+          <button class="decode-cta" id="q11btnG" disabled onclick="submitDecode11('G')">⚡ Bắn</button>
+        </div>
       </div>
-      <button class="check-btn" disabled onclick="checkChoice('q11','GAG','✅ Đúng! A=1, D=4, G=7. Chìa 717 → 7,1,7 → G,A,G → GAG ✓')">⚡ Bắn Tia Năng Lượng!</button>
       <div class="feedback" id="fbq11"></div>
     </div>
   </div>
@@ -1277,6 +1340,108 @@ function handleAfterAttack(btn, qId) {
     if (nb) nb.style.display = '';
     if (pb) pb.style.display = 'none';
 }
+
+/* ── Câu 11: multi-step decode (A → D → G) ── */
+var Q11_MAP   = {A:1, D:4, G:7};
+var Q11_STEPS = ['A','D','G'];
+var q11Done   = [];
+
+function _q11UnlockSvg(val) {
+  return '<svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">'
+    + '<path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,-7" fill="none" stroke="#4eff9f" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 6px #4eff9f)"/>'
+    + '<rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(78,255,159,0.12)" stroke="#4eff9f" stroke-width="1.8" style="filter:drop-shadow(0 0 5px #4eff9f88)"/>'
+    + '<text x="0" y="14" text-anchor="middle" dominant-baseline="middle" fill="#4eff9f" font-size="15" font-weight="900" font-family="Roboto,sans-serif">' + val + '</text>'
+    + '</svg>';
+}
+
+function submitDecode11(letter) {
+  if (answered['q11'] !== undefined) return;
+  var inp = document.getElementById('q11inp' + letter);
+  if (!inp || !inp.value.trim()) return;
+  var val     = parseInt(inp.value.trim(), 10);
+  var correct = Q11_MAP[letter];
+  var isCorrect = (!isNaN(val) && val === correct);
+
+  /* Checkpoint tracking */
+  var now = Date.now();
+  var timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
+  window._lastInteractionTime = now;
+  window._attempts['q11'] = (window._attempts['q11'] || 0) + 1;
+  window._checkpoints.push({
+    question_id: 11,
+    attempt_number: window._attempts['q11'],
+    submitted_answer: String(val),
+    is_correct: isCorrect,
+    time_spent_seconds: timeSpent
+  });
+
+  if (isCorrect) {
+    /* 1. Unlock icon → open shackle + green + value */
+    document.getElementById('q11lock' + letter).innerHTML = _q11UnlockSvg(correct);
+    /* 2. Style row as unlocked */
+    var row = document.getElementById('q11row' + letter);
+    row.classList.add('unlocked');
+    /* 3. Disable this step's input + button */
+    inp.disabled = true;
+    document.getElementById('q11btn' + letter).disabled = true;
+    /* 4. Combat animation */
+    comboStreak++;
+    updateComboUI();
+    playerAttack();
+
+    q11Done.push(letter);
+    var idx = Q11_STEPS.indexOf(letter);
+
+    if (q11Done.length < Q11_STEPS.length) {
+      /* Show next step with a fade-in after attack animation */
+      var nextLetter = Q11_STEPS[idx + 1];
+      setTimeout(function () {
+        var nextRow = document.getElementById('q11row' + nextLetter);
+        nextRow.style.cssText += 'display:flex;opacity:0;transform:translateY(8px);';
+        requestAnimationFrame(function () {
+          nextRow.style.transition = 'opacity 0.35s, transform 0.35s';
+          nextRow.style.opacity    = '1';
+          nextRow.style.transform  = 'translateY(0)';
+        });
+      }, 550);
+    } else {
+      /* All 3 done → complete q11 */
+      setTimeout(function () {
+        answered['q11'] = true;
+        updateScore();
+        showFeedback('fbq11', true,
+          'Giải mã hoàn tất! A=1, D=4, G=7 → chìa 717 → G,A,G → <strong>GAG</strong> ✓');
+        handleAfterAttack(null, 'q11');
+        saveProgress();
+      }, 500);
+    }
+
+  } else {
+    /* Wrong: boss attacks, clear input, re-disable button */
+    inp.value = '';
+    document.getElementById('q11btn' + letter).disabled = true;
+    comboStreak = 0;
+    updateComboUI();
+    bossAttack();
+    showFeedback('fbq11', false, 'Chưa đúng! Xem lại bảng mã hóa nhé.');
+    setTimeout(function () {
+      var fb = document.getElementById('fbq11');
+      if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+    }, 2500);
+  }
+}
+
+/* Enable decode button when numpad fills the input */
+(function () {
+  ['A','D','G'].forEach(function (l) {
+    var inp = document.getElementById('q11inp' + l);
+    if (!inp) return;
+    inp.addEventListener('input', function () {
+      var btn = document.getElementById('q11btn' + l);
+      if (btn) btn.disabled = !this.value.trim();
+    });
+  });
+}());
 
 function _showNextBtn() {
     var nb = document.getElementById('actionNextBtn');
@@ -2007,8 +2172,13 @@ window.submitAll = function() {
   window._showNumpad = function (inp) {
     if (!inp || inp.disabled) return;
     _inp = inp;
-    var card = inp.closest('.q-card');
-    _checkBtn = card ? card.querySelector('.check-btn') : null;
+    var cbId = inp.getAttribute('data-checkbtn');
+    if (cbId) {
+      _checkBtn = document.getElementById(cbId);
+    } else {
+      var card = inp.closest('.q-card');
+      _checkBtn = card ? card.querySelector('.check-btn') : null;
+    }
     var badge = card ? card.querySelector('.q-num-badge') : null;
     var labelEl = document.getElementById('npLabel');
     if (labelEl) labelEl.textContent = badge ? badge.textContent : 'Nhập đáp án';
