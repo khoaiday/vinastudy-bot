@@ -1859,11 +1859,14 @@ window.submitAll = function() {
   function doNpOk() {
     if (!_inp) return;
     if (!_inp.value.trim()) {
-      var disp = document.getElementById('npDisplay');
-      var orig = disp.textContent;
-      disp.textContent = 'Chưa nhập đáp án!';
-      disp.style.color = '#ff6b6b';
-      setTimeout(function () { disp.textContent = orig; disp.style.color = ''; }, 1400);
+      /* Hiện cảnh báo ở label phụ */
+      var lbl = document.getElementById('npLabel');
+      if (lbl) {
+        var orig = lbl.textContent;
+        lbl.textContent = '⚠ Chưa nhập đáp án!';
+        lbl.style.color = '#ff6b6b';
+        setTimeout(function () { lbl.textContent = orig; lbl.style.color = ''; }, 1400);
+      }
       return;
     }
     var btn = _checkBtn;
