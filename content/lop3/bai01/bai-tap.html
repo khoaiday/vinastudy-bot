@@ -1188,13 +1188,17 @@ function nextSlide() {
   const current = document.getElementById('slide' + currentSlide);
   if (current) current.classList.remove('active');
   currentSlide++;
+  /* Dùng TOTAL làm điều kiện dừng — không phụ thuộc vào DOM tồn tại */
+  if (currentSlide > TOTAL) {
+    submitAll();
+    return;
+  }
   const next = document.getElementById('slide' + currentSlide);
   if (next) {
     next.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     _startTimer(); /* bắt đầu đồng hồ cho câu mới */
   } else {
-    // End of questions
     submitAll();
   }
 }
