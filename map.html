@@ -224,6 +224,61 @@
   .cyber-box.passed .card-level { color: gold; }
   .cyber-box.passed .card-arrow { color: gold; filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
 
+  /* ── Star badges on card ── */
+  .card-stars { font-size: 12px; letter-spacing: -1px; margin-top: 2px; }
+
+  /* ── Level Selection Modal ── */
+  .lv-modal {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(5,10,31,0.92); backdrop-filter: blur(6px);
+    align-items: flex-end; justify-content: center; padding-bottom: 0;
+  }
+  .lv-panel {
+    background: #0b132b;
+    border: 1px solid rgba(10,224,254,0.4);
+    border-bottom: none;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 18px 28px;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 -8px 40px rgba(10,224,254,0.2);
+    animation: slideUp 0.28s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .lv-header { text-align: center; margin-bottom: 16px; }
+  .lv-drag { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 14px; }
+  .lv-title { font-family:'Rajdhani',sans-serif; font-size: 20px; font-weight: 900; letter-spacing: 2px; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+  .lv-mission { font-size: 13px; color: var(--secondary); font-weight: 700; margin-top: 3px; }
+
+  /* Feature comparison table */
+  .lv-table { width: 100%; margin-bottom: 18px; }
+  .lv-tr { display: grid; grid-template-columns: 1fr 60px 60px 60px; align-items: center; padding: 5px 4px; border-radius: 7px; }
+  .lv-tr:not(:first-child):not(:last-child) { background: rgba(255,255,255,0.025); margin-bottom: 2px; }
+  .lv-tr:last-child { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2); border-radius: 7px; margin-top: 4px; }
+  .lv-td-feat { font-size: 12.5px; color: var(--text-muted); padding: 0 2px; }
+  .lv-tr:last-child .lv-td-feat { color: var(--text-main); }
+  .lv-td { font-size: 13px; font-weight: 700; text-align: center; padding: 3px 2px; }
+  .lv-thead .lv-td { display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 16px; }
+  .lv-thead .lv-td em { font-size: 9px; font-style: normal; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; }
+  .lv-td.tick { color: var(--success); }
+  .lv-td.cross { color: rgba(255,255,255,0.18); }
+  .lv-tr:last-child .lv-td { color: #fbbf24; }
+
+  /* Level buttons */
+  .lv-btns { display: flex; gap: 10px; margin-bottom: 14px; }
+  .lv-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 12px 6px; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+    background: rgba(10,224,254,0.06); border: 1px solid rgba(10,224,254,0.2);
+    color: var(--text-main); font-family: inherit;
+  }
+  .lv-btn:hover, .lv-btn:active { background: rgba(10,224,254,0.16); border-color: var(--primary); transform: translateY(-2px); }
+  .lv-btn.best-lv { border-color: #fbbf24; box-shadow: 0 0 14px rgba(251,191,36,0.3); background: rgba(251,191,36,0.07); }
+  .lv-btn .lv-stars { font-size: 16px; }
+  .lv-btn .lv-name  { font-size: 13px; font-weight: 800; color: var(--primary); font-family:'Rajdhani',sans-serif; letter-spacing: 1px; }
+  .lv-btn .lv-sub   { font-size: 10px; color: var(--text-muted); }
+  .lv-btn .lv-mult  { font-size: 11px; color: #fbbf24; font-weight: 700; }
+  .lv-cancel { width: 100%; background: transparent; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 6px; margin-top: 2px; }
+
 </style>
 </head>
 <body>
@@ -307,6 +362,74 @@
 </div>
 
 <!-- Trang bài tập slide in -->
+<!-- ── Level Selection Modal ── -->
+<div class="lv-modal" id="levelModal" onclick="if(event.target===this)closeLvModal()">
+  <div class="lv-panel">
+    <div class="lv-drag"></div>
+    <div class="lv-header">
+      <div class="lv-title">⚔️ CHỌN CẤP ĐỘ</div>
+      <div class="lv-mission" id="lvModalName"></div>
+    </div>
+
+    <div class="lv-table">
+      <!-- Header -->
+      <div class="lv-tr lv-thead">
+        <div class="lv-td-feat"></div>
+        <div class="lv-td"><span class="lv-stars">⭐</span><em>Cấp 1</em></div>
+        <div class="lv-td"><span class="lv-stars">⭐⭐</span><em>Cấp 2</em></div>
+        <div class="lv-td"><span class="lv-stars">⭐⭐⭐</span><em>Cấp 3</em></div>
+      </div>
+      <!-- Rows -->
+      <div class="lv-tr">
+        <div class="lv-td-feat">💡 Trợ giúp</div>
+        <div class="lv-td tick">✓</div>
+        <div class="lv-td tick">✓</div>
+        <div class="lv-td cross">✗</div>
+      </div>
+      <div class="lv-tr">
+        <div class="lv-td-feat">🎬 Xem video</div>
+        <div class="lv-td tick">✓</div>
+        <div class="lv-td cross">✗</div>
+        <div class="lv-td cross">✗</div>
+      </div>
+      <div class="lv-tr">
+        <div class="lv-td-feat">⏱ Tính giờ</div>
+        <div class="lv-td cross">✗</div>
+        <div class="lv-td cross">✗</div>
+        <div class="lv-td cross">✗</div>
+      </div>
+      <div class="lv-tr">
+        <div class="lv-td-feat">🏆 Điểm thưởng</div>
+        <div class="lv-td">×1</div>
+        <div class="lv-td">×1.5</div>
+        <div class="lv-td">×2</div>
+      </div>
+    </div>
+
+    <div class="lv-btns">
+      <button class="lv-btn" id="lvBtn1" onclick="enterLevel(1)">
+        <span class="lv-stars">⭐</span>
+        <span class="lv-name">CẤP 1</span>
+        <span class="lv-sub">Có trợ giúp</span>
+        <span class="lv-mult">×1 điểm</span>
+      </button>
+      <button class="lv-btn" id="lvBtn2" onclick="enterLevel(2)">
+        <span class="lv-stars">⭐⭐</span>
+        <span class="lv-name">CẤP 2</span>
+        <span class="lv-sub">Không video</span>
+        <span class="lv-mult">×1.5 điểm</span>
+      </button>
+      <button class="lv-btn" id="lvBtn3" onclick="enterLevel(3)">
+        <span class="lv-stars">⭐⭐⭐</span>
+        <span class="lv-name">CẤP 3</span>
+        <span class="lv-sub">Tự lực hoàn toàn</span>
+        <span class="lv-mult">×2 điểm</span>
+      </button>
+    </div>
+    <button class="lv-cancel" onclick="closeLvModal()">✕ Huỷ</button>
+  </div>
+</div>
+
 <div class="page" id="pg">
   <div class="page-header">
     <button class="back-btn" onclick="close_()">‹</button>
@@ -387,16 +510,36 @@ function openProfile() {
   history.pushState({ lesson: 'profile' }, '');
 }
 
+/* ── Level selection ── */
+var _pending = {};
+
 function open_(buoi, title, path, el) {
-  document.getElementById('pgTitle').textContent = title;
-  document.getElementById('pgSub').textContent   = `Boss Battle • Mission ${buoi}`;
+  _pending = { buoi, title, path, el };
+  document.getElementById('lvModalName').textContent = title;
+  /* Highlight best level achieved */
+  var best = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + buoi) || '0');
+  [1,2,3].forEach(function(n) {
+    var btn = document.getElementById('lvBtn' + n);
+    if (btn) btn.classList.toggle('best-lv', n === best);
+  });
+  document.getElementById('levelModal').style.display = 'flex';
+}
+
+function closeLvModal() {
+  document.getElementById('levelModal').style.display = 'none';
+}
+
+function enterLevel(level) {
+  closeLvModal();
+  localStorage.setItem('cbToan_gameLevel', String(level));
+  var p = _pending;
+  document.getElementById('pgTitle').textContent = p.title;
+  document.getElementById('pgSub').textContent   = `Boss Battle • Mission ${p.buoi} • Cấp ${level}`;
   document.getElementById('loading').style.display = 'flex';
-  document.getElementById('frame').src = `${BASE}/${path}`;
-
+  document.getElementById('frame').src = `${BASE}/${p.path}`;
   requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
-
   if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
-  history.pushState({ lesson: buoi }, '');
+  history.pushState({ lesson: p.buoi }, '');
 }
 
 function close_() {
@@ -430,7 +573,9 @@ document.querySelectorAll('.cyber-box').forEach(card => {
   if (badges.includes(parseInt(lesson))) {
     card.classList.add('passed');
     card.querySelector('.card-arrow').innerHTML = '🏆';
-    card.querySelector('.card-level').innerHTML = 'ĐÃ VƯỢT QUA';
+    var bestLv = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + lesson) || '0');
+    var starStr = bestLv > 0 ? '⭐'.repeat(bestLv) : '';
+    card.querySelector('.card-level').innerHTML = 'ĐÃ VƯỢT QUA' + (starStr ? ' <span class="card-stars">' + starStr + '</span>' : '');
   } else {
     card.querySelector('.card-arrow').innerHTML = '🔓';
 

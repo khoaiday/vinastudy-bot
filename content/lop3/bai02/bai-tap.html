@@ -1280,6 +1280,32 @@ const _TOTAL = 12; window._TOTAL = 12; window._BUOI = 2;
 let answered = {}; window._answered = answered;
 let selected = {};
 
+/* ── Level System ── */
+var GAME_LEVEL = parseInt(localStorage.getItem('cbToan_gameLevel') || '1');
+if (GAME_LEVEL < 1 || GAME_LEVEL > 3 || isNaN(GAME_LEVEL)) GAME_LEVEL = 1;
+var LEVEL_MULT = GAME_LEVEL === 3 ? 2 : GAME_LEVEL === 2 ? 1.5 : 1;
+var LEVEL_NAMES = ['', 'Cấp 1', 'Cấp 2', 'Cấp 3'];
+var LEVEL_STARS = ['', '⭐', '⭐⭐', '⭐⭐⭐'];
+
+/* Apply level restrictions after DOM ready */
+document.addEventListener('DOMContentLoaded', function () {
+  /* Level 3: ẩn nút Trợ giúp */
+  if (GAME_LEVEL >= 3) {
+    var helpBtn = document.querySelector('.btn-help');
+    if (helpBtn) helpBtn.style.display = 'none';
+  }
+  /* Hiển thị badge cấp độ trong action bar */
+  var ab = document.querySelector('.action-bar');
+  if (ab) {
+    var badge = document.createElement('span');
+    badge.id = 'gameLvBadge';
+    badge.textContent = LEVEL_STARS[GAME_LEVEL];
+    badge.title = LEVEL_NAMES[GAME_LEVEL];
+    badge.style.cssText = 'font-size:14px;opacity:.8;pointer-events:none;margin-left:auto;flex-shrink:0;';
+    ab.insertBefore(badge, ab.firstChild);
+  }
+});
+
 // Gameplay variables
 let playerHpVal = 100;
 let bossHpVal = 100;
@@ -1705,6 +1731,17 @@ function closeHelp() {
 }
 
 function openHelpVideo() {
+  /* Cấp 2+ không được xem video */
+  if (GAME_LEVEL >= 2) {
+    var btn = document.querySelector('.help-btn-video');
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = '🔒 Không khả dụng ở Cấp ' + GAME_LEVEL;
+      btn.style.opacity = '0.5';
+      setTimeout(function () { btn.textContent = orig; btn.style.opacity = ''; }, 2000);
+    }
+    return;
+  }
   const ts = Q_TIMESTAMPS[_helpQid] || 0;
   window.open('https://www.youtube.com/watch?v=' + VIDEO_ID + '&t=' + ts + 's', '_blank');
   closeHelp();
@@ -2028,15 +2065,21 @@ function submitAll() {
   else if (pct >= 50) { emoji='📖'; title='Hiểu bài!';       levelText='📖 Mức 2 — Hiểu bài';   levelColor='#e0f2fe'; }
   else                { emoji='🌱'; title='Cố gắng thêm!';   levelText='🌱 Mức 1 — Đang học';   levelColor='#f0fdf4'; }
 
+  /* Level-weighted score: 10 pts/câu đúng × multiplier */
+  const BASE_PT = 10;
+  const levelScore = Math.round(c * BASE_PT * LEVEL_MULT);
+  const maxScore   = Math.round(TOTAL * BASE_PT * LEVEL_MULT);
+
   document.getElementById('resultEmoji').textContent = emoji;
   document.getElementById('resultTitle').textContent = title;
-  document.getElementById('resultScore').textContent = `${c}/${TOTAL}`;
+  document.getElementById('resultScore').textContent = `${c}/${TOTAL} câu  •  ${levelScore} điểm`;
   const rl = document.getElementById('resultLevel');
-  rl.textContent = levelText; rl.style.background = levelColor; rl.style.color = '#1e293b';
+  rl.textContent = levelText + '  ' + LEVEL_STARS[GAME_LEVEL];
+  rl.style.background = levelColor; rl.style.color = '#1e293b';
   document.getElementById('rdCorrect').textContent = c;
   document.getElementById('rdWrong').textContent = w;
   document.getElementById('rdSkip').textContent = skip;
-  
+
   // LƯU HUY HIỆU NẾU ĐẠT TRÊN 50%
   if (pct >= 50) {
     const currentLesson = parseInt(window.location.pathname.match(/bai(\d+)/)?.[1] || 0);
@@ -2046,6 +2089,16 @@ function submitAll() {
       if (!badges.includes(currentLesson)) {
         badges.push(currentLesson);
         localStorage.setItem('cbToan_badges', JSON.stringify(badges));
+      }
+      /* Lưu cấp độ tốt nhất đạt được */
+      var prevBest = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + currentLesson) || '0');
+      if (GAME_LEVEL > prevBest) {
+        localStorage.setItem('cbToan_bestLevel_bai' + currentLesson, String(GAME_LEVEL));
+      }
+      /* Lưu điểm cao nhất */
+      var prevScore = parseInt(localStorage.getItem('cbToan_bestScore_bai' + currentLesson) || '0');
+      if (levelScore > prevScore) {
+        localStorage.setItem('cbToan_bestScore_bai' + currentLesson, String(levelScore));
       }
     }
     // Đổi Title chúc mừng nhận huy hiệu
@@ -2074,11 +2127,15 @@ window.submitAll = function() {
   const total    = window._TOTAL || Object.keys(answered).length;
   const buoi     = window._BUOI || 0;
 
+  const gameLevel = parseInt(localStorage.getItem('cbToan_gameLevel') || '1');
+  const levelMult = gameLevel === 3 ? 2 : gameLevel === 2 ? 1.5 : 1;
   const payload = {
-    buoi:      buoi,
-    diem:      correct,
-    tong:      total,
-    chi_tiet:  answered,
+    buoi:        buoi,
+    diem:        correct,
+    tong:        total,
+    level:       gameLevel,
+    level_diem:  Math.round(correct * 10 * levelMult),
+    chi_tiet:    answered,
     checkpoints: window._checkpoints || [],
   };
 
