@@ -192,28 +192,23 @@
 
   /* ── Arena Stats (thay score-bar) ── */
   .arena-stats {
-    display: flex; justify-content: center; gap: 0;
+    display: flex; justify-content: center; gap: 16px;
     position: relative; z-index: 2;
-    margin-top: 10px; width: 100%; max-width: 400px;
-    background: rgba(0,0,0,0.25);
-    border: 1px solid rgba(10,224,254,0.15);
-    border-radius: 10px; overflow: hidden;
+    margin-bottom: 8px; width: 100%;
   }
   .astat {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    padding: 6px 8px; gap: 1px;
+    display: flex; flex-direction: row; align-items: center; gap: 5px;
   }
-  .astat + .astat { border-left: 1px solid rgba(10,224,254,0.15); }
   .astat-num {
-    font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 900; line-height: 1;
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; line-height: 1;
   }
   .astat-lbl {
-    font-size: 10px; font-weight: 700; letter-spacing: 1px; opacity: 0.7;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
   }
-  .astat-ok  .astat-num { color: var(--success); text-shadow: 0 0 8px rgba(78,255,159,0.5); }
-  .astat-ok  .astat-lbl { color: var(--success); }
-  .astat-err .astat-num { color: var(--danger);  text-shadow: 0 0 8px rgba(255,0,85,0.5); }
-  .astat-err .astat-lbl { color: var(--danger); }
+  .astat-ok  .astat-num { color: var(--success); text-shadow: 0 0 6px rgba(78,255,159,0.5); }
+  .astat-ok  .astat-lbl { color: var(--success); opacity: 0.85; }
+  .astat-err .astat-num { color: var(--danger);  text-shadow: 0 0 6px rgba(255,0,85,0.5); }
+  .astat-err .astat-lbl { color: var(--danger); opacity: 0.85; }
   .astat-rem .astat-num { color: #7ab8d0; }
   .astat-rem .astat-lbl { color: #5d8fa0; }
 
@@ -699,23 +694,7 @@
       <span class="p10">½</span>
     </div>
   </div>
-  <div class="combat-zone" id="combatZone">
-    <div class="fighter player">
-      <div class="fighter-name">Chiến Binh</div>
-      <div class="hp-bar-container"><div class="hp-bar-fill" id="playerHp"></div></div>
-      <div class="avatar" id="playerAvatar">🧙‍♂️</div>
-    </div>
-    
-    <div style="font-size:36px; font-weight:900; color:var(--primary); text-shadow:0 0 15px var(--primary-glow); opacity:0.9; font-family:'Rajdhani', sans-serif">VS</div>
-    
-    <div class="fighter boss">
-      <div class="fighter-name">Quái Vật</div>
-      <div class="hp-bar-container"><div class="hp-bar-fill" id="bossHp"></div></div>
-      <div class="avatar" id="bossAvatar">🐲</div>
-    </div>
-  </div>
-
-  <!-- Stats inside arena -->
+  <!-- Stats inside arena — 1 hàng trên avatar -->
   <div class="arena-stats">
     <div class="astat astat-ok">
       <span class="astat-num" id="scoreCorrect">0</span>
@@ -728,6 +707,22 @@
     <div class="astat astat-rem">
       <span class="astat-num" id="scoreLeft">12</span>
       <span class="astat-lbl">▪ CHƯA LÀM</span>
+    </div>
+  </div>
+
+  <div class="combat-zone" id="combatZone">
+    <div class="fighter player">
+      <div class="fighter-name">Chiến Binh</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="playerHp"></div></div>
+      <div class="avatar" id="playerAvatar">🧙‍♂️</div>
+    </div>
+
+    <div style="font-size:36px; font-weight:900; color:var(--primary); text-shadow:0 0 15px var(--primary-glow); opacity:0.9; font-family:'Rajdhani', sans-serif">VS</div>
+
+    <div class="fighter boss">
+      <div class="fighter-name">Quái Vật</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="bossHp"></div></div>
+      <div class="avatar" id="bossAvatar">🐲</div>
     </div>
   </div>
 
