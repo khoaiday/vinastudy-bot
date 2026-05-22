@@ -526,8 +526,22 @@ var _pending = {};
 
 function open_(buoi, title, path, el) {
   _pending = { buoi, title, path, el };
+
+  /* Nếu đang chơi dở → vào thẳng với level đã lưu, không chọn lại */
+  try {
+    var savedRaw = localStorage.getItem('cbToan_progress_bai' + buoi);
+    if (savedRaw) {
+      var saved = JSON.parse(savedRaw);
+      if (saved && saved.slide > 1 && saved.level) {
+        localStorage.setItem('cbToan_gameLevel', String(saved.level));
+        enterLevel(saved.level);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  /* Chưa có progress → hiện modal chọn level */
   document.getElementById('lvModalName').textContent = title;
-  /* Highlight best level achieved */
   var best = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + buoi) || '0');
   [1,2,3].forEach(function(n) {
     var btn = document.getElementById('lvBtn' + n);
@@ -595,7 +609,8 @@ document.querySelectorAll('.cyber-box').forEach(card => {
     try {
       const p = JSON.parse(progressData);
       if (p && p.slide > 1) {
-         card.querySelector('.card-level').innerHTML = `⏳ ĐANG CHƠI (Câu ${p.slide}/${p.total}) - <b>TIẾP TỤC</b>`;
+         const lvStars = p.level ? '⭐'.repeat(p.level) : '';
+         card.querySelector('.card-level').innerHTML = `Câu ${p.slide}/${p.total} ${lvStars}`;
          card.querySelector('.card-level').style.color = 'var(--primary)';
          card.style.borderColor = 'var(--primary)';
          card.style.boxShadow = '0 0 15px rgba(10,224,254,0.3)';

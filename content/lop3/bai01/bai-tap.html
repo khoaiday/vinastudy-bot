@@ -1426,7 +1426,8 @@ function saveProgress() {
     playerHp: playerHpVal,
     bossHp: bossHpVal,
     combo: comboStreak,
-    total: TOTAL
+    total: TOTAL,
+    level: GAME_LEVEL
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(data));
 }
@@ -1434,7 +1435,12 @@ function saveProgress() {
 function restartGame() {
   if (confirm("Bạn có chắc muốn chơi lại từ đầu không? Toàn bộ quá trình hiện tại sẽ bị xóa!")) {
     localStorage.removeItem(SAVE_KEY);
-    window.location.reload();
+    /* Về map để chọn lại level ở lượt chơi mới */
+    if (window.parent && window.parent.close_) {
+      window.parent.close_();
+    } else {
+      window.history.back();
+    }
   }
 }
 
