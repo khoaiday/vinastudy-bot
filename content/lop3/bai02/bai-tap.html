@@ -213,7 +213,7 @@
   .astat-rem .astat-lbl { color: #5d8fa0; }
 
   /* ── Main ── */
-  .main { max-width: 720px; margin: 0 auto; padding: 6px 16px 60px; }
+  .main { max-width: 720px; margin: 0 auto; padding: 0 16px 60px; }
 
   /* ── Action bar (bottom fixed) ── */
   .action-bar {
@@ -362,6 +362,8 @@
     border-radius: 4px; padding: 2px 12px; font-size: 14px;
     box-shadow: 0 0 10px var(--primary-glow);
   }
+  .q-num-badge::after { content: "/12"; opacity: 0.6; }
+  .vinaid { color: rgba(100,180,220,0.4); font-size: 12px; font-weight: 500; letter-spacing: 0.3px; }
   .q-text {
     font-size: 19px; font-weight: 600; line-height: 1.6;
     margin-bottom: 10px; color: var(--text-main);
@@ -517,7 +519,11 @@
 
   /* ── Slides ── */
   .q-slide { display: none; animation: fadeInRight 0.4s ease forwards; }
-  .q-slide.active { display: block; }
+  .q-slide.active {
+    display: flex; flex-direction: column;
+    align-items: stretch; justify-content: center;
+    min-height: calc(100dvh - 310px);
+  }
   @keyframes fadeInRight {
     from { opacity: 0; transform: translateX(20px); }
     to { opacity: 1; transform: translateX(0); }
@@ -813,11 +819,9 @@
 
   <!-- Slide 1 -->
   <div class="q-slide active" id="slide1">
-    <!-- Dạng 1: 1 chữ số -->
-    <div class="section-title">1️⃣ Dạng 1 — Số có 1 chữ số</div>
     <!-- Câu 1 -->
     <div class="q-card" id="q1">
-      <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 133379</div>
+      <div class="q-num"><span class="q-num-badge">Câu 1</span> <span class="vinaid">VinaID 133379</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -832,7 +836,7 @@
   <div class="q-slide" id="slide2">
     <!-- Câu 2 -->
     <div class="q-card" id="q2">
-      <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 133380</div>
+      <div class="q-num"><span class="q-num-badge">Câu 2</span> <span class="vinaid">VinaID 133380</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -847,7 +851,7 @@
   <div class="q-slide" id="slide3">
     <!-- Câu 3 -->
     <div class="q-card" id="q3">
-      <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 133381</div>
+      <div class="q-num"><span class="q-num-badge">Câu 3</span> <span class="vinaid">VinaID 133381</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 11 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -862,7 +866,7 @@
   <div class="q-slide" id="slide4">
     <!-- Câu 4 -->
     <div class="q-card" id="q4">
-      <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 133382</div>
+      <div class="q-num"><span class="q-num-badge">Câu 4</span> <span class="vinaid">VinaID 133382</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>một chữ số</strong>, biết rằng khi viết thêm chữ số <strong>3</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -875,11 +879,9 @@
 
   <!-- Slide 5 -->
   <div class="q-slide" id="slide5">
-    <!-- Dạng 2: 2 chữ số -->
-    <div class="section-title">2️⃣ Dạng 2 — Số có 2 chữ số</div>
     <!-- Câu 5 -->
     <div class="q-card" id="q5">
-      <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 133383</div>
+      <div class="q-num"><span class="q-num-badge">Câu 5</span> <span class="vinaid">VinaID 133383</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -894,7 +896,7 @@
   <div class="q-slide" id="slide6">
     <!-- Câu 6 -->
     <div class="q-card" id="q6">
-      <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 133384</div>
+      <div class="q-num"><span class="q-num-badge">Câu 6</span> <span class="vinaid">VinaID 133384</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -909,7 +911,7 @@
   <div class="q-slide" id="slide7">
     <!-- Câu 7 (BTVN) -->
     <div class="q-card" id="q7">
-      <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 133385 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-num"><span class="q-num-badge">Câu 7</span> <span class="vinaid">VinaID 133385 &nbsp;🏠 Bài tập về nhà</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>hai chữ số</strong>, biết rằng khi viết thêm chữ số <strong>4</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -922,11 +924,9 @@
 
   <!-- Slide 8 -->
   <div class="q-slide" id="slide8">
-    <!-- Dạng 3: 3 chữ số -->
-    <div class="section-title">3️⃣ Dạng 3 — Số có 3 chữ số</div>
     <!-- Câu 8 -->
     <div class="q-card" id="q8">
-      <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 133386</div>
+      <div class="q-num"><span class="q-num-badge">Câu 8</span> <span class="vinaid">VinaID 133386</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>1</strong> vào bên trái số đó ta được số mới <strong>gấp 5 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -941,7 +941,7 @@
   <div class="q-slide" id="slide9">
     <!-- Câu 9 -->
     <div class="q-card" id="q9">
-      <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 133387</div>
+      <div class="q-num"><span class="q-num-badge">Câu 9</span> <span class="vinaid">VinaID 133387</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 9 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -956,7 +956,7 @@
   <div class="q-slide" id="slide10">
     <!-- Câu 10 (BTVN) -->
     <div class="q-card" id="q10">
-      <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 133388 &nbsp;🏠 Bài tập về nhà</div>
+      <div class="q-num"><span class="q-num-badge">Câu 10</span> <span class="vinaid">VinaID 133388 &nbsp;🏠 Bài tập về nhà</div>
       <div class="q-text">Quái Vật Ổ Khóa thách đố: Tìm số tự nhiên có <strong>ba chữ số</strong>, biết rằng khi viết thêm chữ số <strong>2</strong> vào bên trái số đó ta được số mới <strong>gấp 6 lần</strong> số cần tìm.</div>
       <div class="answer-row">
         <span>Số cần tìm là</span>
@@ -969,11 +969,9 @@
 
   <!-- Slide 11 -->
   <div class="q-slide" id="slide11">
-    <!-- Dạng 4: Tư duy -->
-    <div class="section-title">🧠 Dạng 4 — Bài toán tư duy</div>
     <!-- Câu 11 -->
     <div class="q-card" id="q11">
-      <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 133389</div>
+      <div class="q-num"><span class="q-num-badge">Câu 11</span> <span class="vinaid">VinaID 133389</div>
       <div class="q-text">
         Theo quy luật, hãy tìm tên của ổ khóa cuối cùng:<br><br>
         🔒 ADA → chìa <strong>141</strong><br>
@@ -996,7 +994,7 @@
   <div class="q-slide" id="slide12">
     <!-- Câu 12 -->
     <div class="q-card" id="q12">
-      <div class="q-num"><span class="q-num-badge">Câu 12</span> Mã VinaID 141531</div>
+      <div class="q-num"><span class="q-num-badge">Câu 12</span> <span class="vinaid">VinaID 141531</div>
       <div class="q-text">
         Các số tự nhiên 1, 2, 3, 4, 5 được điền vào các vòng tròn sao cho mỗi số điền 1 lần. <strong>Chiều mũi tên chỉ từ số bé đến số lớn.</strong><br><br>
         Sơ đồ: <strong>A → T</strong> &nbsp;|&nbsp; <strong>M → X ← H</strong> &nbsp;|&nbsp; <strong>A ← M</strong> &nbsp;|&nbsp; <strong>T → X</strong><br><br>
