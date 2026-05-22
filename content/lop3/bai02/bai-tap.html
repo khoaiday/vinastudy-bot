@@ -1856,11 +1856,34 @@ window.submitAll = function() {
   });
 
   /* OK — submit answer */
-  document.getElementById('npOk').addEventListener('click', function () {
-    if (!_inp || !_inp.value.trim()) return;
+  function doNpOk() {
+    if (!_inp) return;
+    if (!_inp.value.trim()) {
+      var disp = document.getElementById('npDisplay');
+      var orig = disp.textContent;
+      disp.textContent = 'Chưa nhập đáp án!';
+      disp.style.color = '#ff6b6b';
+      setTimeout(function () { disp.textContent = orig; disp.style.color = ''; }, 1400);
+      return;
+    }
     var btn = _checkBtn;
     window._hideNumpad();
     setTimeout(function () { if (btn && !btn.disabled) btn.click(); }, 80);
+  }
+  document.getElementById('npOk').addEventListener('click', doNpOk);
+
+  /* Enter key on PC/laptop = OK button */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var overlay = document.getElementById('numpadOverlay');
+    if (overlay && overlay.classList.contains('show')) {
+      e.preventDefault();
+      doNpOk();
+    } else {
+      /* Numpad chưa mở nhưng có câu đang chờ nhập → mở numpad rồi tự OK */
+      var activeInput = document.querySelector('.q-slide.active .ans-input:not([disabled])');
+      if (activeInput) { e.preventDefault(); window._showNumpad(activeInput); }
+    }
   });
 
   /* Backdrop + X */
