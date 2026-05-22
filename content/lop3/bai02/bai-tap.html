@@ -1644,8 +1644,10 @@ function selectChoice(qId, val, btn) {
   const btns = document.querySelectorAll(`#${qId}choices .choice-btn`);
   btns.forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
-  // Enable nút Kiểm tra khi đã chọn
-  document.querySelector(`#${qId} .check-btn`).disabled = false;
+  // Enable nút Kiểm tra rồi tự động submit sau 250ms
+  const checkBtn = document.querySelector(`#${qId} .check-btn`);
+  checkBtn.disabled = false;
+  setTimeout(function () { checkBtn.click(); }, 250);
 }
 
 function checkChoice(qId, correct, explanation, hintMsg) {
