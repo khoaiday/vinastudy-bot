@@ -38,7 +38,7 @@
   /* ── Battle Arena ── */
   .battle-arena {
     background: radial-gradient(circle at center, #0e173a, #050a1f);
-    padding: 10px 20px 14px;
+    padding: 12px 20px 16px;
     border-bottom: 2px solid var(--primary);
     box-shadow: 0 5px 30px rgba(10,224,254,0.2);
     position: relative; overflow: hidden;
@@ -115,17 +115,17 @@
     padding: 0 20px;
   }
   
-  .fighter { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 130px; }
+  .fighter { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 120px; }
 
   .avatar {
-    font-size: 90px; line-height: 1;
+    font-size: 64px; line-height: 1;
     filter: drop-shadow(0 0 15px var(--primary-glow));
     animation: idle 2s ease-in-out infinite;
     position: relative;
     background: rgba(10,224,254,0.1);
     border: 2px solid var(--primary);
-    border-radius: 14px;
-    padding: 12px;
+    border-radius: 12px;
+    padding: 10px;
   }
   
   .player .avatar { 
@@ -141,7 +141,7 @@
   
   .hp-bar-container {
     width: 100%; background: rgba(0,0,0,0.6);
-    border: 2px solid var(--border); border-radius: 4px; height: 16px;
+    border: 2px solid var(--border); border-radius: 4px; height: 20px;
     overflow: hidden; position: relative;
     box-shadow: inset 0 0 5px #000;
   }
@@ -190,16 +190,32 @@
     100% { right: calc(100% - 100px); opacity: 0; transform: translateY(-50%) scale(2); }
   }
 
-  /* ── Score bar ── */
-  .score-bar {
-    display: flex; justify-content: center; gap: 20px;
-    padding: 14px 20px; background: rgba(5,10,31,0.9);
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 50;
-    backdrop-filter: blur(5px);
+  /* ── Arena Stats (thay score-bar) ── */
+  .arena-stats {
+    display: flex; justify-content: center; gap: 0;
+    position: relative; z-index: 2;
+    margin-top: 10px; width: 100%; max-width: 400px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(10,224,254,0.15);
+    border-radius: 10px; overflow: hidden;
   }
-  .score-item { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; letter-spacing: 1px; }
-  .score-dot { width: 12px; height: 12px; border-radius: 2px; }
+  .astat {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 6px 8px; gap: 1px;
+  }
+  .astat + .astat { border-left: 1px solid rgba(10,224,254,0.15); }
+  .astat-num {
+    font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 900; line-height: 1;
+  }
+  .astat-lbl {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; opacity: 0.7;
+  }
+  .astat-ok  .astat-num { color: var(--success); text-shadow: 0 0 8px rgba(78,255,159,0.5); }
+  .astat-ok  .astat-lbl { color: var(--success); }
+  .astat-err .astat-num { color: var(--danger);  text-shadow: 0 0 8px rgba(255,0,85,0.5); }
+  .astat-err .astat-lbl { color: var(--danger); }
+  .astat-rem .astat-num { color: #7ab8d0; }
+  .astat-rem .astat-lbl { color: #5d8fa0; }
 
   /* ── Main ── */
   .main { max-width: 720px; margin: 0 auto; padding: 6px 16px 60px; }
@@ -698,13 +714,23 @@
       <div class="avatar" id="bossAvatar">🐲</div>
     </div>
   </div>
-</div>
 
-<!-- Score bar -->
-<div class="score-bar">
-  <div class="score-item"><div class="score-dot" style="background:var(--success); box-shadow: 0 0 10px var(--success)"></div><span id="scoreCorrect">0</span> ĐÚNG</div>
-  <div class="score-item"><div class="score-dot" style="background:var(--danger); box-shadow: 0 0 10px var(--danger)"></div><span id="scoreWrong">0</span> SAI</div>
-  <div class="score-item"><div class="score-dot" style="background:var(--text-muted)"></div><span id="scoreLeft">12</span> CHƯA LÀM</div>
+  <!-- Stats inside arena -->
+  <div class="arena-stats">
+    <div class="astat astat-ok">
+      <span class="astat-num" id="scoreCorrect">0</span>
+      <span class="astat-lbl">✅ ĐÚNG</span>
+    </div>
+    <div class="astat astat-err">
+      <span class="astat-num" id="scoreWrong">0</span>
+      <span class="astat-lbl">❌ SAI</span>
+    </div>
+    <div class="astat astat-rem">
+      <span class="astat-num" id="scoreLeft">12</span>
+      <span class="astat-lbl">▪ CHƯA LÀM</span>
+    </div>
+  </div>
+
 </div>
 <span id="progressText" style="display:none;">1/12</span>
 
