@@ -230,14 +230,63 @@
     font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
     letter-spacing: 0.5px; transition: all 0.18s; text-transform: uppercase;
   }
-  .btn-restart {
-    background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.4); color: #fbbf24;
+  .btn-help {
+    background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.45); color: #fbbf24;
   }
-  .btn-restart:hover { background: rgba(251,191,36,0.22); }
-  .btn-exit {
-    background: rgba(10,224,254,0.07); border: 1px solid rgba(10,224,254,0.35); color: var(--primary);
+  .btn-help:hover { background: rgba(251,191,36,0.22); }
+
+  /* ── Help overlay ── */
+  .help-overlay {
+    display: none; position: fixed; inset: 0; z-index: 5500;
+    background: #050a1f; flex-direction: column;
+    overflow-y: auto; padding: 20px 16px 110px;
   }
-  .btn-exit:hover { background: rgba(10,224,254,0.18); }
+  .help-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+  .help-panel { max-width: 560px; margin: 0 auto; width: 100%; }
+  .help-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px; padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .help-header-icon { font-size: 26px; }
+  .help-header-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900;
+    color: var(--primary); letter-spacing: 2px; text-transform: uppercase;
+    text-shadow: 0 0 10px var(--primary-glow);
+  }
+  .help-section {
+    background: rgba(10,224,254,0.04); border: 1px solid rgba(10,224,254,0.15);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;
+  }
+  .help-section-label {
+    font-size: 12px; font-weight: 700; color: var(--primary);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px;
+  }
+  .help-body {
+    font-size: 16px; line-height: 1.65; color: #e0f4ff;
+  }
+  .help-body code {
+    background: rgba(10,224,254,0.12); padding: 1px 6px; border-radius: 3px;
+    font-family: 'Rajdhani', monospace; color: var(--primary); font-size: 16px;
+    border: 1px solid rgba(10,224,254,0.3); font-weight: 700;
+  }
+  .help-video-note {
+    text-align: center; font-size: 13px; color: #5d8fa0; margin-bottom: 14px;
+  }
+  .help-btns { display: flex; gap: 9px; }
+  .help-btn-ok, .help-btn-video {
+    flex: 1; padding: 12px 8px; border-radius: 8px; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase; transition: all 0.18s;
+  }
+  .help-btn-ok {
+    background: rgba(78,255,159,0.1); border: 1px solid rgba(78,255,159,0.4); color: var(--success);
+  }
+  .help-btn-ok:hover { background: rgba(78,255,159,0.22); }
+  .help-btn-video {
+    background: rgba(234,14,237,0.08); border: 1px solid rgba(234,14,237,0.35); color: var(--secondary);
+  }
+  .help-btn-video:hover { background: rgba(234,14,237,0.2); }
 
   /* ── Method box ── */
   .method-box {
@@ -1218,8 +1267,87 @@ function openVideoHelp() {
 
 function closeVideo() {
   document.getElementById('videoModal').classList.remove('show');
-  document.getElementById('videoWrapper').innerHTML = ""; // Stop video
+  document.getElementById('videoWrapper').innerHTML = "";
 }
+
+// ── Trợ giúp — kiến thức + gợi ý theo từng câu ─────────────────────────
+const HELP_DATA = {
+  q1: {
+    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số có giá trị = <code>10 + a</code>.<br><br><strong>Công thức:</strong> số mới = hàng chục × 10 + số gốc.',
+    goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>1</strong> vào bên trái → số mới = <code>10 + a</code>.<br>Đề nói số mới gấp 6 lần a, nên: <code>10 + a = 6 × a</code><br>→ <code>10 = 5 × a</code> → <code>a = ?</code>'
+  },
+  q2: {
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số có giá trị = <code>20 + a</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 10 + số gốc.',
+    goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → số mới = <code>20 + a</code>.<br>Đề nói số mới gấp 5 lần a, nên: <code>20 + a = 5 × a</code><br>→ <code>20 = 4 × a</code> → <code>a = ?</code>'
+  },
+  q3: {
+    kienthuc: 'Khi viết thêm chữ số <code>4</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số = <code>40 + a</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 10 + số gốc.',
+    goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>4</strong> vào bên trái → số mới = <code>40 + a</code>.<br>Đề nói số mới gấp 11 lần a: <code>40 + a = 11 × a</code><br>→ <code>40 = 10 × a</code> → <code>a = ?</code>'
+  },
+  q4: {
+    kienthuc: 'Khi viết thêm chữ số <code>3</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số = <code>30 + a</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 10 + số gốc.',
+    goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>3</strong> vào bên trái → số mới = <code>30 + a</code>.<br>Đề nói số mới gấp 6 lần a: <code>30 + a = 6 × a</code><br>→ <code>30 = 5 × a</code> → <code>a = ?</code>'
+  },
+  q5: {
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>200 + ab</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 100 + số gốc.',
+    goiy: 'Gọi số 2 chữ số cần tìm là <strong>ab</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → <code>200 + ab</code>.<br>Đề nói số mới gấp 9 lần ab: <code>200 + ab = 9 × ab</code><br>→ <code>200 = 8 × ab</code> → <code>ab = ?</code>'
+  },
+  q6: {
+    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>100 + ab</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 100 + số gốc.',
+    goiy: 'Gọi số 2 chữ số cần tìm là <strong>ab</strong>.<br>Viết thêm <strong>1</strong> vào bên trái → <code>100 + ab</code>.<br>Đề nói số mới gấp 6 lần ab: <code>100 + ab = 6 × ab</code><br>→ <code>100 = 5 × ab</code> → <code>ab = ?</code>'
+  },
+  q7: {
+    kienthuc: 'Khi viết thêm chữ số <code>4</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>400 + ab</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 100 + số gốc.',
+    goiy: 'Gọi số 2 chữ số cần tìm là <strong>ab</strong>.<br>Viết thêm <strong>4</strong> vào bên trái → <code>400 + ab</code>.<br>Đề nói số mới gấp 9 lần ab: <code>400 + ab = 9 × ab</code><br>→ <code>400 = 8 × ab</code> → <code>ab = ?</code>'
+  },
+  q8: {
+    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>1000 + abc</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 1000 + số gốc.',
+    goiy: 'Gọi số 3 chữ số cần tìm là <strong>abc</strong>.<br>Viết thêm <strong>1</strong> vào bên trái → <code>1000 + abc</code>.<br>Đề nói số mới gấp 5 lần abc: <code>1000 + abc = 5 × abc</code><br>→ <code>1000 = 4 × abc</code> → <code>abc = ?</code>'
+  },
+  q9: {
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>2000 + abc</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 1000 + số gốc.',
+    goiy: 'Gọi số 3 chữ số cần tìm là <strong>abc</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → <code>2000 + abc</code>.<br>Đề nói số mới gấp 9 lần abc: <code>2000 + abc = 9 × abc</code><br>→ <code>2000 = 8 × abc</code> → <code>abc = ?</code>'
+  },
+  q10: {
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>2000 + abc</code>.<br><br><strong>Công thức:</strong> số mới = chữ số thêm × 1000 + số gốc.',
+    goiy: 'Gọi số 3 chữ số cần tìm là <strong>abc</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → <code>2000 + abc</code>.<br>Đề nói số mới gấp 6 lần abc: <code>2000 + abc = 6 × abc</code><br>→ <code>2000 = 5 × abc</code> → <code>abc = ?</code>'
+  },
+  q11: {
+    kienthuc: '<strong>Mã hóa chữ cái → số:</strong> mỗi chữ cái tương ứng 1 chữ số cố định.<br>Dựa vào các ví dụ đã cho để lập bảng giải mã, rồi áp dụng vào ổ khóa cuối.',
+    goiy: 'Từ <code>ADA → 141</code>: A = <strong>1</strong>, D = <strong>4</strong>.<br>Từ <code>DGA → 471</code>: G = <strong>7</strong>.<br>Vậy chìa <code>717</code> → 7, 1, 7 → G, A, G → đáp án là <code>GAG</code>.'
+  },
+  q12: {
+    kienthuc: '<strong>Mũi tên A → B</strong> có nghĩa là A nhỏ hơn B.<br>Liệt kê tất cả điều kiện, rồi sắp xếp 5 số 1–5 vào đúng vị trí.',
+    goiy: 'Từ sơ đồ: <code>M → X</code> (M<X), <code>H → X</code> (H<X), <code>A → T</code> (A<T), <code>A ← M</code> (M>A), <code>T → X</code> (T<X).<br>Suy ra thứ tự: H < A < M < T < X → gán 1,2,3,4,5 theo thứ tự → A = <strong>2</strong>.'
+  }
+};
+
+let _helpQid = null;
+
+function showHelp() {
+  const activeSlide = document.querySelector('.q-slide.active');
+  if (!activeSlide) return;
+  const card = activeSlide.querySelector('.q-card');
+  _helpQid = card ? card.id : null;
+  const data = HELP_DATA[_helpQid] || {
+    kienthuc: 'Đọc kỹ đề bài và nháp từng bước cẩn thận nhé!',
+    goiy: 'Xem lại video bài giảng để hiểu phương pháp.'
+  };
+  document.getElementById('helpKienThuc').innerHTML = data.kienthuc;
+  document.getElementById('helpGoiY').innerHTML = data.goiy;
+  document.getElementById('helpOverlay').classList.add('show');
+}
+
+function closeHelp() {
+  document.getElementById('helpOverlay').classList.remove('show');
+}
+
+function openHelpVideo() {
+  const ts = Q_TIMESTAMPS[_helpQid] || 0;
+  window.open('https://www.youtube.com/watch?v=' + VIDEO_ID + '&t=' + ts + 's', '_blank');
+  closeHelp();
+}
+// ─────────────────────────────────────────────────────────────────────────
 
 
 // Khởi tạo Mo-Mo
@@ -1616,8 +1744,35 @@ window.submitAll = function() {
 
 <!-- ── Action bar ── -->
 <div class="action-bar">
-  <button class="btn-exit" onclick="pauseGame()">🚪 Thoát</button>
+  <button class="btn-help" onclick="showHelp()">💡 Trợ giúp</button>
   <button class="btn-next-action" id="actionNextBtn" style="display:none;" onclick="(function(nb){nb.style.display='none';nextSlide();})(this)">⏭ Câu tiếp theo</button>
+</div>
+
+<!-- ── Help Overlay ── -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-panel">
+    <div class="help-header">
+      <span class="help-header-icon">⚔️</span>
+      <span class="help-header-title">Tuyệt chiêu cần nắm</span>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-label">📚 Để ra đòn em cần thông hiểu tuyệt chiêu sau:</div>
+      <div class="help-body" id="helpKienThuc"></div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-label">💡 Thầy có thể gợi ý nhanh:</div>
+      <div class="help-body" id="helpGoiY"></div>
+    </div>
+
+    <div class="help-video-note">🎬 Vẫn chưa hiểu thì em ấn xem video nhé!</div>
+
+    <div class="help-btns">
+      <button class="help-btn-ok"    onclick="closeHelp()">✅ Em hiểu rồi ạ!</button>
+      <button class="help-btn-video" onclick="openHelpVideo()">🎬 Xem video</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── Custom Numpad HTML ── -->
