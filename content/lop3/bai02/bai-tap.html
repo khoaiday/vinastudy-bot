@@ -270,6 +270,22 @@
     font-family: 'Rajdhani', monospace; color: var(--primary); font-size: 16px;
     border: 1px solid rgba(10,224,254,0.3); font-weight: 700;
   }
+  @keyframes magicColor {
+    0%   { color: #0ae0fe; text-shadow: 0 0 10px #0ae0fe88; }
+    25%  { color: #ea0eed; text-shadow: 0 0 10px #ea0eed88; }
+    50%  { color: #fbbf24; text-shadow: 0 0 10px #fbbf2488; }
+    75%  { color: #4eff9f; text-shadow: 0 0 10px #4eff9f88; }
+    100% { color: #0ae0fe; text-shadow: 0 0 10px #0ae0fe88; }
+  }
+  .tc-formula {
+    margin-top: 12px; text-align: center;
+    font-size: 15px; font-weight: 800; letter-spacing: 0.3px;
+    padding: 10px 14px; border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    animation: magicColor 3s linear infinite;
+  }
+  .tc-formula strong { animation: magicColor 3s linear infinite; }
   .help-encourage {
     margin-top: 12px; padding: 10px 12px;
     background: rgba(78,255,159,0.06); border-left: 3px solid var(--success);
@@ -1279,43 +1295,43 @@ function closeVideo() {
 // ── Trợ giúp — kiến thức + gợi ý theo từng câu ─────────────────────────
 const HELP_DATA = {
   q1: {
-    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số có giá trị = <code>10 + a</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = hàng chục × 10 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số có giá trị = <code>10 + a</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = hàng chục × 10 + số gốc.</div>',
     goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>1</strong> vào bên trái → số mới = <code>10 + a</code>.<br>Đề nói số mới gấp 6 lần a, nên: <code>10 + a = 6 × a</code><br>→ <code>10 = 5 × a</code> → <code>a = ?</code>'
   },
   q2: {
-    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số có giá trị = <code>20 + a</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 10 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số có giá trị = <code>20 + a</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 10 + số gốc.</div>',
     goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → số mới = <code>20 + a</code>.<br>Đề nói số mới gấp 5 lần a, nên: <code>20 + a = 5 × a</code><br>→ <code>20 = 4 × a</code> → <code>a = ?</code>'
   },
   q3: {
-    kienthuc: 'Khi viết thêm chữ số <code>4</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số = <code>40 + a</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 10 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>4</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số = <code>40 + a</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 10 + số gốc.</div>',
     goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>4</strong> vào bên trái → số mới = <code>40 + a</code>.<br>Đề nói số mới gấp 11 lần a: <code>40 + a = 11 × a</code><br>→ <code>40 = 10 × a</code> → <code>a = ?</code>'
   },
   q4: {
-    kienthuc: 'Khi viết thêm chữ số <code>3</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số = <code>30 + a</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 10 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>3</code> vào bên trái số <code>a</code> (1 chữ số), ta được số 2 chữ số = <code>30 + a</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 10 + số gốc.</div>',
     goiy: 'Gọi số cần tìm là <strong>a</strong>.<br>Viết thêm <strong>3</strong> vào bên trái → số mới = <code>30 + a</code>.<br>Đề nói số mới gấp 6 lần a: <code>30 + a = 6 × a</code><br>→ <code>30 = 5 × a</code> → <code>a = ?</code>'
   },
   q5: {
-    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>200 + ab</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 100 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>200 + ab</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 100 + số gốc.</div>',
     goiy: 'Gọi số 2 chữ số cần tìm là <strong>ab</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → <code>200 + ab</code>.<br>Đề nói số mới gấp 9 lần ab: <code>200 + ab = 9 × ab</code><br>→ <code>200 = 8 × ab</code> → <code>ab = ?</code>'
   },
   q6: {
-    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>100 + ab</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 100 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>100 + ab</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 100 + số gốc.</div>',
     goiy: 'Gọi số 2 chữ số cần tìm là <strong>ab</strong>.<br>Viết thêm <strong>1</strong> vào bên trái → <code>100 + ab</code>.<br>Đề nói số mới gấp 6 lần ab: <code>100 + ab = 6 × ab</code><br>→ <code>100 = 5 × ab</code> → <code>ab = ?</code>'
   },
   q7: {
-    kienthuc: 'Khi viết thêm chữ số <code>4</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>400 + ab</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 100 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>4</code> vào bên trái số <code>ab</code> (2 chữ số), ta được số 3 chữ số = <code>400 + ab</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 100 + số gốc.</div>',
     goiy: 'Gọi số 2 chữ số cần tìm là <strong>ab</strong>.<br>Viết thêm <strong>4</strong> vào bên trái → <code>400 + ab</code>.<br>Đề nói số mới gấp 9 lần ab: <code>400 + ab = 9 × ab</code><br>→ <code>400 = 8 × ab</code> → <code>ab = ?</code>'
   },
   q8: {
-    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>1000 + abc</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 1000 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>1</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>1000 + abc</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 1000 + số gốc.</div>',
     goiy: 'Gọi số 3 chữ số cần tìm là <strong>abc</strong>.<br>Viết thêm <strong>1</strong> vào bên trái → <code>1000 + abc</code>.<br>Đề nói số mới gấp 5 lần abc: <code>1000 + abc = 5 × abc</code><br>→ <code>1000 = 4 × abc</code> → <code>abc = ?</code>'
   },
   q9: {
-    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>2000 + abc</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 1000 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>2000 + abc</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 1000 + số gốc.</div>',
     goiy: 'Gọi số 3 chữ số cần tìm là <strong>abc</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → <code>2000 + abc</code>.<br>Đề nói số mới gấp 9 lần abc: <code>2000 + abc = 9 × abc</code><br>→ <code>2000 = 8 × abc</code> → <code>abc = ?</code>'
   },
   q10: {
-    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>2000 + abc</code>.<br><br><strong>Tuyệt chiêu:</strong> số mới = chữ số thêm × 1000 + số gốc.',
+    kienthuc: 'Khi viết thêm chữ số <code>2</code> vào bên trái số <code>abc</code> (3 chữ số), ta được số 4 chữ số = <code>2000 + abc</code>.<div class="tc-formula"><strong>Tuyệt chiêu:</strong><br>số mới = chữ số thêm × 1000 + số gốc.</div>',
     goiy: 'Gọi số 3 chữ số cần tìm là <strong>abc</strong>.<br>Viết thêm <strong>2</strong> vào bên trái → <code>2000 + abc</code>.<br>Đề nói số mới gấp 6 lần abc: <code>2000 + abc = 6 × abc</code><br>→ <code>2000 = 5 × abc</code> → <code>abc = ?</code>'
   },
   q11: {
