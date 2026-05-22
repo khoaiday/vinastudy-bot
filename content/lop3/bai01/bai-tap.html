@@ -706,18 +706,34 @@
   .game-over-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 25px var(--primary); }
 
   /* Combo System */
-  .combo-display {
-    position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
-    font-family: 'Rajdhani', sans-serif; font-weight: 900;
-    z-index: 150; pointer-events: none;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    text-align: center;
+  /* ── Score Toast (hiện sau đáp án đúng, tự tắt) ── */
+  .score-toast {
+    position: fixed; top: 10px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 160; pointer-events: none;
+    text-align: center; font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    opacity: 0;
   }
-  .combo-display.show { transform: translate(-50%, -50%) scale(1); }
-  .combo-text { display: block; font-size: 24px; letter-spacing: 4px; color: var(--primary); text-shadow: 0 0 20px var(--primary-glow); }
-  .combo-count { color: #fbbf24; text-shadow: 0 0 30px rgba(251, 191, 36, 0.8); font-size: 64px; display: block; line-height: 1; }
-  .combo-display.fire .combo-count { color: var(--danger); animation: comboFire 0.5s infinite alternate; text-shadow: 0 0 30px var(--danger); }
-  @keyframes comboFire { from { filter: brightness(1); transform: scale(1); } to { filter: brightness(1.2); transform: scale(1.1); } }
+  .score-toast.pop { animation: scoreToastPop 1.8s ease forwards; }
+  @keyframes scoreToastPop {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    70%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  }
+  .score-toast-pts {
+    display: inline-block;
+    background: rgba(78,255,159,0.13);
+    border: 2px solid var(--success);
+    border-radius: 20px; padding: 5px 18px;
+    font-size: 20px; color: var(--success);
+    text-shadow: 0 0 10px rgba(78,255,159,0.5);
+    white-space: nowrap;
+  }
+  .score-toast-combo {
+    font-size: 13px; color: #fbbf24; letter-spacing: 2px;
+    margin-top: 3px; text-shadow: 0 0 8px rgba(251,191,36,0.5);
+  }
 
   /* Energy Beam */
   .energy-beam {
@@ -1113,9 +1129,9 @@
   </div>
 </div>
 
-<div class="combo-display" id="comboDisplay">
-  <span class="combo-text">COMBO</span>
-  <span class="combo-count" id="comboCount">x2</span>
+<div class="score-toast" id="scoreToast">
+  <span class="score-toast-pts" id="scoreToastPts">+10 điểm</span>
+  <span class="score-toast-combo" id="scoreToastCombo"></span>
 </div>
 
 <script>
@@ -1151,18 +1167,29 @@ let playerHpVal = 100;
 let bossHpVal = 100;
 let comboStreak = 0;
 
-function updateComboUI() {
-  const cd = document.getElementById('comboDisplay');
-  const cc = document.getElementById('comboCount');
-  if(!cd || !cc) return;
-  if (comboStreak >= 2) {
-    cc.textContent = 'x' + comboStreak;
-    cd.classList.add('show');
-    if (comboStreak >= 3) cd.classList.add('fire');
-    else cd.classList.remove('fire');
-  } else {
-    cd.classList.remove('show', 'fire');
+/* Giữ lại để không break code nào còn gọi tới */
+function updateComboUI() {}
+
+let _scoreToastTimer = null;
+function showScoreToast(pts, combo) {
+  const el  = document.getElementById('scoreToast');
+  const pts_ = document.getElementById('scoreToastPts');
+  const cmb_ = document.getElementById('scoreToastCombo');
+  if (!el) return;
+  if (pts_) pts_.textContent = '+' + pts + ' điểm ✨';
+  if (cmb_) {
+    if (combo >= 2) {
+      cmb_.textContent = '🔥 COMBO ×' + combo;
+      cmb_.style.display = 'block';
+    } else {
+      cmb_.style.display = 'none';
+    }
   }
+  el.classList.remove('pop');
+  void el.offsetWidth; // reflow để restart animation
+  el.classList.add('pop');
+  if (_scoreToastTimer) clearTimeout(_scoreToastTimer);
+  _scoreToastTimer = setTimeout(() => el.classList.remove('pop'), 1900);
 }
 
 function updateBattleHp() {
@@ -1891,14 +1918,14 @@ function checkText(qId, inputId, correctList, explanation, hintMsg) {
   updateScore();
   if (isCorrect) {
     comboStreak++;
-    updateComboUI();
+    const comboMult = 1 + (Math.max(0, comboStreak - 1) * 0.1);
+    showScoreToast(Math.round(10 * LEVEL_MULT * comboMult), comboStreak);
     playerAttack();
   } else {
     comboStreak = 0;
-    updateComboUI();
     bossAttack();
   }
-  
+
   input.className = 'ans-input ' + (isCorrect ? 'correct-input' : 'wrong-input');
   input.disabled = true;
   showFeedback(`fb${qId}`, isCorrect,
@@ -1979,11 +2006,11 @@ function checkChoice(qId, correct, explanation, hintMsg) {
   updateScore();
   if (isCorrect) {
     comboStreak++;
-    updateComboUI();
+    const comboMult = 1 + (Math.max(0, comboStreak - 1) * 0.1);
+    showScoreToast(Math.round(10 * LEVEL_MULT * comboMult), comboStreak);
     playerAttack();
   } else {
     comboStreak = 0;
-    updateComboUI();
     bossAttack();
   }
 
