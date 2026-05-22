@@ -1061,8 +1061,8 @@
             <text x="0" y="15" text-anchor="middle" dominant-baseline="middle" fill="#0ae0fe" font-size="9" font-weight="800" font-family="Roboto,sans-serif" letter-spacing="0.5">DAG</text>
           </g>
 
-          <!-- Lock ? (280, 50) purple — unknown -->
-          <g transform="translate(280,50)" filter="url(#q11glow)">
+          <!-- Lock ? (280, 50) purple — unknown → updated to GAG when solved -->
+          <g id="q11svgLockQ" transform="translate(280,50)" filter="url(#q11glow)">
             <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#ea0eed" stroke-width="3.5" stroke-linecap="round"/>
             <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(234,14,237,0.12)" stroke="#ea0eed" stroke-width="2"/>
             <text x="0" y="15" text-anchor="middle" dominant-baseline="middle" fill="#ea0eed" font-size="17" font-weight="900" font-family="Roboto,sans-serif">?</text>
@@ -1115,8 +1115,8 @@
         <div class="decode-row" id="q11rowA">
           <div class="decode-lock-ico" id="q11lockA">
             <svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">
-              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#0ae0fe" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #0ae0fe88)"/>
-              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(10,224,254,0.08)" stroke="#0ae0fe" stroke-width="1.8"/>
+              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#ea0eed" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #ea0eed88)"/>
+              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(234,14,237,0.08)" stroke="#ea0eed" stroke-width="1.8"/>
             </svg>
           </div>
           <span class="decode-lbl">Chữ <strong>A</strong> =</span>
@@ -1128,8 +1128,8 @@
         <div class="decode-row" id="q11rowD" style="display:none">
           <div class="decode-lock-ico" id="q11lockD">
             <svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">
-              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#0ae0fe" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #0ae0fe88)"/>
-              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(10,224,254,0.08)" stroke="#0ae0fe" stroke-width="1.8"/>
+              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#ea0eed" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #ea0eed88)"/>
+              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(234,14,237,0.08)" stroke="#ea0eed" stroke-width="1.8"/>
             </svg>
           </div>
           <span class="decode-lbl">Chữ <strong>D</strong> =</span>
@@ -1141,8 +1141,8 @@
         <div class="decode-row" id="q11rowG" style="display:none">
           <div class="decode-lock-ico" id="q11lockG">
             <svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">
-              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#0ae0fe" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #0ae0fe88)"/>
-              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(10,224,254,0.08)" stroke="#0ae0fe" stroke-width="1.8"/>
+              <path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,0" fill="none" stroke="#ea0eed" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 4px #ea0eed88)"/>
+              <rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(234,14,237,0.08)" stroke="#ea0eed" stroke-width="1.8"/>
             </svg>
           </div>
           <span class="decode-lbl">Chữ <strong>G</strong> =</span>
@@ -1346,11 +1346,12 @@ var Q11_MAP   = {A:1, D:4, G:7};
 var Q11_STEPS = ['A','D','G'];
 var q11Done   = [];
 
-function _q11UnlockSvg(val) {
+function _q11UnlockSvg(letter) {
+  /* Open lock (shackle bật lên) + xanh lá + chữ cái bên trong */
   return '<svg viewBox="-20 -16 40 46" xmlns="http://www.w3.org/2000/svg" width="34" height="42">'
     + '<path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,-7" fill="none" stroke="#4eff9f" stroke-width="3" stroke-linecap="round" style="filter:drop-shadow(0 0 6px #4eff9f)"/>'
     + '<rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(78,255,159,0.12)" stroke="#4eff9f" stroke-width="1.8" style="filter:drop-shadow(0 0 5px #4eff9f88)"/>'
-    + '<text x="0" y="14" text-anchor="middle" dominant-baseline="middle" fill="#4eff9f" font-size="15" font-weight="900" font-family="Roboto,sans-serif">' + val + '</text>'
+    + '<text x="0" y="14" text-anchor="middle" dominant-baseline="middle" fill="#4eff9f" font-size="15" font-weight="900" font-family="Roboto,sans-serif">' + letter + '</text>'
     + '</svg>';
 }
 
@@ -1376,8 +1377,8 @@ function submitDecode11(letter) {
   });
 
   if (isCorrect) {
-    /* 1. Unlock icon → open shackle + green + value */
-    document.getElementById('q11lock' + letter).innerHTML = _q11UnlockSvg(correct);
+    /* 1. Unlock icon → open shackle + green + chữ cái */
+    document.getElementById('q11lock' + letter).innerHTML = _q11UnlockSvg(letter);
     /* 2. Style row as unlocked */
     var row = document.getElementById('q11row' + letter);
     row.classList.add('unlocked');
@@ -1407,6 +1408,14 @@ function submitDecode11(letter) {
     } else {
       /* All 3 done → complete q11 */
       setTimeout(function () {
+        /* Cập nhật ổ khóa "?" trong sơ đồ SVG: tím → xanh lá + "GAG" */
+        var lockQ = document.getElementById('q11svgLockQ');
+        if (lockQ) {
+          lockQ.innerHTML =
+            '<path d="M-11,0 L-11,-13 A11,11 0 0,1 11,-13 L11,-7" fill="none" stroke="#4eff9f" stroke-width="3.5" stroke-linecap="round"/>'
+            + '<rect x="-16" y="0" width="32" height="28" rx="5" fill="rgba(78,255,159,0.15)" stroke="#4eff9f" stroke-width="2"/>'
+            + '<text x="0" y="15" text-anchor="middle" dominant-baseline="middle" fill="#4eff9f" font-size="9" font-weight="800" font-family="Roboto,sans-serif" letter-spacing="0.5">GAG</text>';
+        }
         answered['q11'] = true;
         updateScore();
         showFeedback('fbq11', true,
