@@ -335,18 +335,15 @@
   .feedback.correct-fb { background: rgba(78,255,159,0.1); color: var(--success); border-color: var(--success); text-shadow: 0 0 5px rgba(78,255,159,0.5); }
   .feedback.wrong-fb   { background: rgba(255,0,85,0.1); color: var(--danger); border-color: var(--danger); text-shadow: 0 0 5px rgba(255,0,85,0.5); }
 
-  /* ── Check button ── */
-  .check-btn {
-    margin-top: 10px; padding: 10px 24px;
-    background: rgba(10,224,254,0.1); color: var(--primary); 
-    border: 2px solid var(--primary);
-    border-radius: 4px; font-family: 'Rajdhani', sans-serif;
-    font-size: 16px; font-weight: 900; cursor: pointer;
-    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
-    text-transform: uppercase; letter-spacing: 2px;
+  /* ── Check button — ẩn, chỉ dùng qua numpad OK ── */
+  .check-btn { display: none !important; }
+
+  /* ── Next action button (action bar) ── */
+  .btn-next-action {
+    background: rgba(10,224,254,0.12); border: 1px solid rgba(10,224,254,0.55); color: var(--primary);
+    animation: pulseNeon 1.5s infinite;
   }
-  .check-btn:hover:not(:disabled) { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary-glow); }
-  .check-btn:disabled { border-color: var(--border); color: var(--text-muted); background: transparent; cursor: not-allowed; opacity: 0.5; }
+  .btn-next-action:hover { background: rgba(10,224,254,0.28); }
 
   /* ── Submit ── */
   .submit-wrap { text-align: center; margin-top: 48px; }
@@ -1051,10 +1048,14 @@ function nextSlide() {
 }
 
 function handleAfterAttack(btn, qId) {
-    btn.disabled = false;
-    btn.innerHTML = '⏭ Câu tiếp theo';
-    btn.classList.add('btn-next-pulse');
-    btn.onclick = function() { nextSlide(); };
+    // Hiện nút Câu tiếp theo trong action bar
+    var nb = document.getElementById('actionNextBtn');
+    if (nb) nb.style.display = '';
+}
+
+function _showNextBtn() {
+    var nb = document.getElementById('actionNextBtn');
+    if (nb) nb.style.display = '';
 }
 
 
@@ -1133,16 +1134,16 @@ document.addEventListener('DOMContentLoaded', () => {
          const input = document.getElementById(qId + 'ans');
          if (input) input.disabled = true;
          const card = document.getElementById(qId);
-         if (card) {
-            card.classList.add(isCorrect ? 'correct' : 'wrong');
-            const btn = card.querySelector('.check-btn');
-            if (btn) {
-               btn.disabled = false;
-               btn.innerHTML = '⏭ Câu tiếp theo';
-               btn.classList.add('btn-next-pulse');
-               btn.onclick = function() { nextSlide(); };
-            }
-         }
+         if (card) card.classList.add(isCorrect ? 'correct' : 'wrong');
+      }
+      // Nếu slide hiện tại đã trả lời → hiện nút Câu tiếp theo
+      const curSlideEl = document.getElementById('slide' + saved.slide);
+      if (curSlideEl) {
+        const curCard = curSlideEl.querySelector('.q-card');
+        if (curCard && answered[curCard.id] !== undefined) {
+          const nb = document.getElementById('actionNextBtn');
+          if (nb) nb.style.display = '';
+        }
       }
       window._attempts = saved.attempts || {};
       playerHpVal = saved.playerHp !== undefined ? saved.playerHp : 100;
@@ -1615,8 +1616,8 @@ window.submitAll = function() {
 
 <!-- ── Action bar ── -->
 <div class="action-bar">
-  <button class="btn-restart" onclick="restartGame()">🔄 Chơi lại từ đầu</button>
-  <button class="btn-exit"    onclick="pauseGame()">🚪 Thoát</button>
+  <button class="btn-exit" onclick="pauseGame()">🚪 Thoát</button>
+  <button class="btn-next-action" id="actionNextBtn" style="display:none;" onclick="(function(nb){nb.style.display='none';nextSlide();})(this)">⏭ Câu tiếp theo</button>
 </div>
 
 <!-- ── Custom Numpad HTML ── -->
