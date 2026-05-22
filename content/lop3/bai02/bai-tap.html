@@ -642,10 +642,6 @@
 <!-- Battle Arena -->
 <div class="battle-arena">
 
-<div class="progress-bar-container" style="position: absolute; top: 15px; right: 15px; z-index: 100;">
-  <button onclick="restartGame()" style="background: rgba(255,165,0,0.2); border: 1px solid orange; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: bold; position: relative; z-index: 20;">🔄 CHƠI LẠI</button>
-</div>
-
   <div class="arena-bg">
     <div class="arena-grid-wrapper">
       <div class="arena-grid"></div>
@@ -681,10 +677,11 @@
 </div>
 
 <!-- Score bar -->
-<div class="score-bar">
+<div class="score-bar" style="position:relative;">
   <div class="score-item"><div class="score-dot" style="background:var(--success); box-shadow: 0 0 10px var(--success)"></div><span id="scoreCorrect">0</span> ĐÚNG</div>
   <div class="score-item"><div class="score-dot" style="background:var(--danger); box-shadow: 0 0 10px var(--danger)"></div><span id="scoreWrong">0</span> SAI</div>
   <div class="score-item"><div class="score-dot" style="background:var(--text-muted)"></div><span id="scoreLeft">12</span> CHƯA LÀM</div>
+  <button onclick="restartGame()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,165,0,0.15);border:1px solid rgba(255,165,0,0.6);color:#fbbf24;padding:5px 11px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;">🔄 LẠI</button>
 </div>
 <span id="progressText" style="display:none;">1/12</span>
 
