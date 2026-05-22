@@ -357,6 +357,15 @@
     letter-spacing: 2px; color: var(--primary); margin-bottom: 6px;
     display: flex; align-items: center; gap: 10px;
   }
+  /* Khi q-num ra ngoài card → dùng style giống section-title cũ */
+  .q-slide > .q-num {
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px var(--primary-glow);
+  }
+  .q-slide > .q-num::after {
+    content: ""; flex: 1; height: 2px;
+    background: linear-gradient(90deg, var(--primary), transparent);
+  }
   .q-num-badge {
     background: var(--primary); color: #000;
     border-radius: 4px; padding: 2px 12px; font-size: 14px;
@@ -1954,6 +1963,19 @@ window.submitAll = function() {
     document.addEventListener('DOMContentLoaded', overrideMomo);
   } else {
     overrideMomo();
+  }
+
+  /* Chuyển .q-num ra ngoài .q-card → nằm giữa arena và box câu hỏi */
+  function moveQNums() {
+    document.querySelectorAll('.q-card > .q-num').forEach(function (qnum) {
+      var card = qnum.closest('.q-card');
+      card.parentNode.insertBefore(qnum, card);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', moveQNums);
+  } else {
+    moveQNums();
   }
 })();
 </script>
