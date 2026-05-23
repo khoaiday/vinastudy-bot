@@ -28,23 +28,30 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
     """
     import replicate
     import httpx
-
-    # Đặt token cho Replicate client
     import os
-    os.environ.setdefault("REPLICATE_API_TOKEN", REPLICATE_API_TOKEN)
+
+    # Set token (luôn override để đảm bảo đúng giá trị runtime)
+    token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
+    if not token:
+        raise ValueError("REPLICATE_API_TOKEN chưa được cấu hình")
+    os.environ["REPLICATE_API_TOKEN"] = token
+
+    # Resize ảnh vào: AnimeGAN2 hoạt động tốt nhất ở 512×512
+    img_resized = img.convert("RGB").resize((512, 512), Image.LANCZOS)
 
     # Encode ảnh sang JPEG bytes
     buf = io.BytesIO()
-    img.convert("RGB").save(buf, format="JPEG", quality=92)
+    img_resized.save(buf, format="JPEG", quality=95)
     buf.seek(0)
 
-    # Chạy AnimeGAN2 — style Hayao: màu tự nhiên, phù hợp trẻ em
-    # SDK >= 0.25 tự tìm latest version, không cần hardcode hash
+    # AnimeGAN2 — style BarbieFace: đẹp nhất cho ảnh chân dung / trẻ em
+    # Styles: BarbieFace | Hayao | Shinkai | Paprika
     output = replicate.run(
         "ptran1203/pytorch-animegan",
         input={
-            "image": buf,
-            "style": "Hayao",   # Hayao | Paprika | Shinkai | BarbieFace
+            "image":       buf,
+            "style":       "BarbieFace",
+            "output_size": 512,
         }
     )
 
@@ -56,7 +63,9 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
     # Download ảnh kết quả
     resp = httpx.get(url, timeout=60)
     resp.raise_for_status()
-    return Image.open(io.BytesIO(resp.content)).convert("RGB")
+    result = Image.open(io.BytesIO(resp.content)).convert("RGB")
+    logger.info(f"AnimeGAN2 output size: {result.size}")
+    return result
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -65,43 +74,63 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
 
 def _cartoon_pil(img: Image.Image) -> Image.Image:
     """
-    Bộ lọc hoạt hình PIL: màu phẳng anime + viền đen đậm + da mịn.
-    Không cần internet — chạy hoàn toàn bằng Pillow.
+    Bộ lọc hoạt hình PIL nâng cao: mô phỏng anime style.
+    Pipeline:
+      1. Upscale → smooth da (mô phỏng bilateral filter)
+      2. Quantize màu mạnh (palette phẳng anime)
+      3. Boost màu sắc tươi sáng đặc trưng hoạt hình
+      4. Edge detection + làm dày viền
+      5. Composite viền đen lên màu phẳng
     """
-    rgb = img.convert("RGB")
+    # Chuẩn hóa kích thước: nhỏ nhất 512px để giảm nhiễu
+    W, H   = img.size
+    scale  = max(1.0, 512 / min(W, H))
+    W2, H2 = int(W * scale), int(H * scale)
+    rgb    = img.convert("RGB").resize((W2, H2), Image.LANCZOS)
 
-    # ── 1. Làm mịn da (3 lần GaussianBlur = mô phỏng bilateral) ──────────
+    # ── 1. Làm mịn da (bilateral filter giả: 5 lần GaussianBlur nhẹ) ─────
     smooth = rgb
-    for _ in range(3):
-        smooth = smooth.filter(ImageFilter.GaussianBlur(radius=2))
+    for _ in range(5):
+        smooth = smooth.filter(ImageFilter.GaussianBlur(radius=1.8))
 
-    # ── 2. Posterize màu → palette phẳng như anime (6 mức) ───────────────
-    step = 256 // 6
-    lut  = [min(255, (i // step) * step) for i in range(256)]
-    flat = smooth.point(lut * 3)
+    # ── 2. Posterize màu → palette phẳng như anime (8 mức / kênh) ────────
+    step = 256 // 8
+    lut  = [min(255, round((i / step)) * step) for i in range(256)]
+    flat = smooth.point(lut * 3)   # *3 vì RGB
 
-    # ── 3. Màu sắc tươi sáng đặc trưng hoạt hình ────────────────────────
-    flat = ImageEnhance.Color(flat).enhance(2.4)
-    flat = ImageEnhance.Contrast(flat).enhance(1.5)
-    flat = ImageEnhance.Brightness(flat).enhance(1.06)
+    # ── 3. Màu sắc tươi sáng đặc trưng hoạt hình ─────────────────────────
+    flat = ImageEnhance.Color(flat).enhance(2.8)       # bão hòa màu mạnh
+    flat = ImageEnhance.Contrast(flat).enhance(1.6)    # tương phản rõ
+    flat = ImageEnhance.Brightness(flat).enhance(1.08) # sáng nhẹ
+    flat = ImageEnhance.Sharpness(flat).enhance(1.5)   # nét hơn
 
-    # ── 4. Phát hiện viền từ ảnh gốc ─────────────────────────────────────
-    gray      = rgb.convert("L").filter(ImageFilter.GaussianBlur(radius=1.5))
-    edges_raw = gray.filter(ImageFilter.FIND_EDGES)
-    # Ngưỡng: pixel sáng (= viền) → 0 (đen); pixel tối (= nền) → 255 (trắng)
-    # Dùng list thay vì lambda — Pillow 10.x bỏ support lambda trong point()
-    edges_lut = [0 if p > 20 else 255 for p in range(256)]
+    # ── 4. Phát hiện viền từ ảnh gốc (dùng Laplacian-like) ───────────────
+    gray = rgb.convert("L")
+    # Blur nhẹ trước để giảm nhiễu
+    gray_blur = gray.filter(ImageFilter.GaussianBlur(radius=1.0))
+    edges_raw = gray_blur.filter(ImageFilter.FIND_EDGES)
+    # Tăng cường viền
+    edges_raw = ImageEnhance.Contrast(edges_raw.convert("RGB")).enhance(3.0).convert("L")
+
+    # Threshold: pixel sáng (> ngưỡng) = viền → đen; còn lại → trắng
+    # Pillow 10.x: dùng list LUT thay vì lambda
+    thr       = 15   # ngưỡng phát hiện viền; thấp hơn → nhiều viền hơn
+    edges_lut = [0 if p > thr else 255 for p in range(256)]
     edges_bin = edges_raw.point(edges_lut)
-    # Làm dày viền 1px (MinFilter mở rộng vùng tối)
-    edges_bin = edges_bin.filter(ImageFilter.MinFilter(size=3))
 
-    # ── 5. Overlay viền đen lên ảnh màu phẳng ────────────────────────────
-    # composite(im1, im2, mask): mask=0 → im1, mask=255 → im2
-    # Tại viền (mask=0) → dark_line; tại nền (mask=255) → flat cartoon
-    dark_lut  = [max(0, p - 120) for p in range(256)]
-    dark_line = flat.point(dark_lut * 3)   # *3 vì flat là RGB (256×3 entries)
+    # Làm dày viền (3px) để trông như hoạt hình
+    edges_bin = edges_bin.filter(ImageFilter.MinFilter(size=3))
+    edges_bin = edges_bin.filter(ImageFilter.GaussianBlur(radius=0.5))
+
+    # ── 5. Overlay viền đen lên màu phẳng ────────────────────────────────
+    # composite(A, B, mask): mask=0 → A, mask=255 → B
+    # viền (mask=0) → dark_line (rất tối); nền (mask=255) → flat anime
+    dark_lut  = [max(0, p - 150) for p in range(256)]
+    dark_line = flat.point(dark_lut * 3)
     result    = Image.composite(dark_line, flat, edges_bin)
 
+    # ── 6. Resize về kích thước gốc ──────────────────────────────────────
+    result = result.resize((W, H), Image.LANCZOS)
     return result
 
 
