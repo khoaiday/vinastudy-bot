@@ -38,14 +38,14 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
     img.convert("RGB").save(buf, format="JPEG", quality=92)
     buf.seek(0)
 
-    # Chạy AnimeGAN2 — model hayao: màu sắc tự nhiên, phù hợp trẻ em
+    # Chạy AnimeGAN2 — style Hayao: màu tự nhiên, phù hợp trẻ em
+    # SDK >= 0.25 tự tìm latest version, không cần hardcode hash
     output = replicate.run(
-        "cjwbw/animegan2-pytorch:6f0d58e0d49f33b8f19fb2ed22f3e3455c89e7f8c1a7a3cb21e5d2c9e75a4e1",
+        "ptran1203/pytorch-animegan",
         input={
-            "image":         buf,
-            "face_detector": True,   # tự phát hiện & xử lý mặt
-        },
-        timeout=60,
+            "image": buf,
+            "style": "Hayao",   # Hayao | Paprika | Shinkai | BarbieFace
+        }
     )
 
     # output là URL string hoặc list[URL]
