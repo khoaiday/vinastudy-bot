@@ -559,9 +559,16 @@ function resolveTgId() {
     const data = await res.json();
 
     if (data.status !== 'approved') {
-      showError(data.status === 'pending'
-        ? '⏳ Hồ sơ đang chờ thầy duyệt!'
-        : '❌ Chưa đăng ký. Hãy đăng ký trước!');
+      if (data.status === 'pending') {
+        showError(`⏳ Hồ sơ đang chờ thầy duyệt!<br><br>
+          <span style="color:rgba(200,230,255,.6);font-size:.85rem">Thầy sẽ thông báo qua Telegram khi được duyệt.</span><br><br>
+          <a href="https://t.me/chienbiantoanbot" target="_blank"
+             style="display:inline-block;margin-top:8px;padding:10px 22px;background:rgba(10,224,254,.12);border:1px solid #0ae0fe;color:#0ae0fe;border-radius:10px;font-weight:700;text-decoration:none;font-size:.85rem;font-family:'Rajdhani',sans-serif;letter-spacing:1px">
+            🤖 Mở Telegram Bot
+          </a>`);
+      } else {
+        showError('❌ Chưa đăng ký. Hãy đăng ký trước!');
+      }
       return;
     }
 
