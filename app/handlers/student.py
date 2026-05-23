@@ -2,7 +2,7 @@ import logging
 import json
 import base64
 from datetime import datetime
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from telegram.ext import ContextTypes, CallbackQueryHandler
 
 import app.database.crud as crud
@@ -35,37 +35,37 @@ async def check_web_status(telegram_id: int) -> str:
 
 
 async def send_login_required(update: Update):
-    """Gửi màn hình yêu cầu đăng ký web."""
+    """Gửi màn hình yêu cầu đăng ký — nút WebApp 'Bắt đầu game'."""
     uid = update.effective_user.id
     first_name = update.effective_user.first_name or "Chiến Binh"
     reg_url = f"{BASE_DOMAIN}/register?tg_id={uid}"
-
-    keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("⚔️ Đăng ký tài khoản", url=reg_url)
-    ]])
+    keyboard = ReplyKeyboardMarkup(
+        [[KeyboardButton("🎮 Bắt đầu game", web_app=WebAppInfo(url=reg_url))]],
+        resize_keyboard=True,
+    )
     await update.message.reply_text(
         f"👋 Chào *{first_name}*!\n\n"
-        "🔐 Em cần *đăng ký tài khoản* trước khi tham gia Chiến Binh Toán!\n\n"
-        "📋 *Các bước:*\n"
-        "1️⃣ Nhấn nút bên dưới → đăng nhập Gmail\n"
-        "2️⃣ Chọn nhân vật & chụp ảnh đại diện\n"
-        "3️⃣ Chờ thầy duyệt *(thường trong 24h)*\n"
-        "4️⃣ Bot tự thông báo khi được duyệt ✅\n\n"
-        "👇 Nhấn để bắt đầu hành trình!",
+        "Nhấn *Bắt đầu game* bên dưới để tạo tài khoản và tham gia Chiến Binh Toán! 🚀",
         parse_mode="Markdown",
         reply_markup=keyboard,
     )
 
 
 async def send_pending(update: Update):
-    """Gửi thông báo đang chờ duyệt."""
+    """Gửi thông báo đang chờ duyệt — nút 'Xem hồ sơ' mở lại register."""
+    uid = update.effective_user.id
     first_name = update.effective_user.first_name or "Chiến Binh"
+    reg_url = f"{BASE_DOMAIN}/register?tg_id={uid}"
+    keyboard = ReplyKeyboardMarkup(
+        [[KeyboardButton("📋 Xem hồ sơ", web_app=WebAppInfo(url=reg_url))]],
+        resize_keyboard=True,
+    )
     await update.message.reply_text(
         f"⏳ Chào *{first_name}*!\n\n"
-        "Hồ sơ của em đang *chờ thầy duyệt* ⚙️\n\n"
-        "Thầy sẽ thông báo qua đây ngay khi duyệt xong!\n"
-        "Thường trong vòng *24 giờ* 🚀",
+        "Hồ sơ đang *chờ thầy duyệt* ⚙️\n"
+        "Thầy sẽ thông báo ngay khi xong — thường trong *24 giờ* 🚀",
         parse_mode="Markdown",
+        reply_markup=keyboard,
     )
 
 
@@ -100,16 +100,15 @@ def lich_su_hs(user_id: int) -> list:
     return ket_qua_hs.get(user_id, [])
 
 def make_main_menu() -> ReplyKeyboardMarkup:
-    webapp_url = f"{BASE_DOMAIN}/game"
-    game_url   = f"{BASE_DOMAIN}/content/lop3/bai02/so-no.html"
+    webapp_url  = f"{BASE_DOMAIN}/game"
+    lb_url      = f"{BASE_DOMAIN}/leaderboard"
+    profile_url = f"{BASE_DOMAIN}/profile"
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton("🗺️ Bản đồ Chiến Dịch", web_app=WebAppInfo(url=webapp_url)),
-             KeyboardButton("💣 Số Nổ 💣",           web_app=WebAppInfo(url=game_url))],
-            [KeyboardButton("🔮 Đánh giá Năng lực"), KeyboardButton("📊 Bảng điểm")],
-            [KeyboardButton("💬 Hỏi Chỉ Huy"),       KeyboardButton("📚 Chọn Căn cứ (Buổi)")],
-            [KeyboardButton("🏅 Hồ sơ Chiến Binh"),  KeyboardButton("🏆 Xếp hạng Bang hội")],
-            [KeyboardButton("📅 Lịch học"),           KeyboardButton("🗑️ Xoá lịch sử")],
+            [KeyboardButton("🎮 Chơi game",  web_app=WebAppInfo(url=webapp_url))],
+            [KeyboardButton("🏆 Xếp hạng",   web_app=WebAppInfo(url=lb_url)),
+             KeyboardButton("🧑‍🎖️ Hồ sơ",    web_app=WebAppInfo(url=profile_url))],
+            [KeyboardButton("🚪 Thoát")],
         ],
         resize_keyboard=True,
     )
@@ -168,9 +167,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ten = update.effective_user.first_name
 
         await update.message.reply_text(
-            f"⚔️ Chào mừng *{ten}* trở lại!\n\n"
-            "🎓 Học viện Toán *VInaStudy* — Tổng Chỉ huy: Nguyễn Thành Long\n\n"
-            "Hãy chọn hành động bên dưới để bắt đầu! 👇",
+            f"⚔️ Chào *{ten}*! Sẵn sàng chiến đấu chưa? 💪\n\nChọn hành động bên dưới 👇",
             parse_mode="Markdown", reply_markup=MAIN_MENU,
         )
     elif status == "pending":
@@ -325,6 +322,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("🏠 Menu chính!", reply_markup=MAIN_MENU)
         return
 
+    if text == "🚪 Thoát":
+        state["mode"] = "menu"
+        await update.message.reply_text("Hẹn gặp lại! 👋", reply_markup=ReplyKeyboardRemove())
+        return
+
     if text == "🏅 Hồ sơ Chiến Binh":
         # Dùng web_app= (không phải url=) để Telegram inject initDataUnsafe → profile tự nhận diện tgId
         profile_url = f"{BASE_DOMAIN}/profile"
@@ -366,7 +368,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(reply, reply_markup=MAIN_MENU)
         return
 
-    await update.message.reply_text("Chọn chức năng trong menu nhé! Hoặc bấm *💬 Hỏi bài* để hỏi bài toán.", parse_mode="Markdown", reply_markup=MAIN_MENU)
+    await update.message.reply_text("Chọn chức năng trong menu nhé! 👇", parse_mode="Markdown", reply_markup=MAIN_MENU)
 
 
 async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -382,7 +384,10 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
         tong = data.get("tong", 0)
         chi_tiet = data.get("chi_tiet", {})
         checkpoints = data.get("checkpoints", [])
-        level = int(data.get("level", 1))
+        try:
+            level = int(data.get("level", 1))
+        except (ValueError, TypeError):
+            level = 1
     except Exception as e:
         logger.error(f"Web app data error: {e}")
         await update.message.reply_text("❌ Lỗi nhận kết quả, em thử lại nhé!", reply_markup=MAIN_MENU)
@@ -545,6 +550,11 @@ async def handle_challenge_callback(update: Update, context: ContextTypes.DEFAUL
                     reply_markup=keyboard_target)
             except Exception as e:
                 logger.warning(f"Notify challenge target error: {e}")
+                await context.bot.send_message(
+                    uid,
+                    f"⚠️ Rất tiếc, gửi thất bại! *{target_name}* hiện không thể nhận tin nhắn từ bot (có thể bạn ấy đã tắt bot).",
+                    parse_mode="Markdown"
+                )
         except Exception as e:
             logger.warning(f"Create challenge error: {e}")
             await query.edit_message_text("❌ Lỗi tạo thách đấu, thử lại nhé!")
