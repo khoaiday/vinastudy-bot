@@ -115,6 +115,67 @@ async def admin_page():
     return HTMLResponse("<h1>Admin dashboard chưa sẵn sàng</h1>", status_code=503)
 
 
+@app.get("/ping/avatar", response_class=HTMLResponse)
+async def ping_avatar(character: str = "chien_binh", gioi_tinh: str = "nam"):
+    """Public test endpoint — kiểm tra pipeline avatar (không cần auth)."""
+    import time, io, base64, os
+    from PIL import Image, ImageDraw
+    from app.auth.avatar import generate_avatar_pipeline
+
+    face = Image.new("RGB", (300, 300), (25, 18, 55))
+    d    = ImageDraw.Draw(face)
+    d.ellipse([30,  25, 270, 275], fill=(220, 170, 125))
+    d.ellipse([75,  90, 118, 125], fill=(45, 32, 18))
+    d.ellipse([182, 90, 225, 125], fill=(45, 32, 18))
+    d.ellipse([82,  96, 104, 116], fill=(255, 255, 255))
+    d.ellipse([196, 96, 218, 116], fill=(255, 255, 255))
+    d.ellipse([130, 148, 170, 175], fill=(195, 145, 105))
+    d.arc([90, 175, 210, 228], start=8, end=172, fill=(165, 75, 75), width=5)
+
+    buf = io.BytesIO()
+    face.save(buf, format="JPEG", quality=92)
+    face_b64 = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+    token   = os.getenv("REPLICATE_API_TOKEN", "")
+    t0      = time.time()
+    result  = generate_avatar_pipeline(face_b64, character, gioi_tinh)
+    elapsed = round(time.time() - t0, 2)
+
+    if not result["ok"]:
+        return HTMLResponse(f"""<!DOCTYPE html><html><body
+          style="font-family:monospace;background:#111;color:#f66;padding:32px">
+          <h2>❌ Avatar pipeline THẤT BẠI</h2>
+          <p><b>Lỗi:</b> {result['error']}</p>
+          <p><b>REPLICATE_API_TOKEN:</b> {"✅ đã set" if token else "❌ CHƯA SET"}</p>
+          <p><b>Elapsed:</b> {elapsed}s</p>
+          <p>Xem Railway Logs → tìm dòng <code>[avatar] step</code> để biết bước nào lỗi</p>
+          </body></html>""")
+
+    method = "🤖 AnimeGAN2 AI" if elapsed > 3 else "🎨 PIL enhance (fallback)"
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Avatar Test</title>
+<style>body{{font-family:sans-serif;background:#0a0a1a;color:#eee;text-align:center;padding:24px}}
+.row{{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin:20px 0}}
+.card{{background:#161630;border-radius:12px;padding:14px}}
+img{{max-width:280px;border-radius:8px;display:block;margin:8px auto}}
+.ok{{color:#4f8}}.warn{{color:#fa4}}</style></head>
+<body>
+<h2>🧪 Avatar Pipeline Test — {character}/{gioi_tinh}</h2>
+<div class="row">
+  <div class="card">REPLICATE_API_TOKEN<br>
+    <b class="{'ok' if token else 'warn'}">{"✅ đã set" if token else "❌ chưa set"}</b></div>
+  <div class="card">Method<br><b>{method}</b></div>
+  <div class="card">Thời gian<br><b>{elapsed}s</b></div>
+</div>
+<div class="row">
+  <div class="card"><p>Mặt sau filter</p>
+    <img src="{result['cartoon_b64']}"></div>
+  <div class="card"><p>Nhân vật hoàn chỉnh</p>
+    <img src="{result['final_b64']}"></div>
+</div>
+</body></html>""")
+
+
 @app.get("/leaderboard", response_class=HTMLResponse)
 async def leaderboard_page():
     """Bảng xếp hạng chiến binh."""
