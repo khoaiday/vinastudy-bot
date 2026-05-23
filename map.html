@@ -473,6 +473,9 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
     const data = await res.json();
 
     if (data.status === 'approved') {
+      // Lưu tgId vào localStorage → profile.html dùng làm fallback khi mở trong iframe
+      if (tgId) localStorage.setItem('vsTgId', String(tgId));
+
       // Cập nhật user badge với tên thật
       const CHARS = { chien_binh:'⚔️', phu_thuy:'🔮', xa_thu:'🏹', hiep_si:'🛡️' };
       const emoji = CHARS[data.character_type] || '⚔️';

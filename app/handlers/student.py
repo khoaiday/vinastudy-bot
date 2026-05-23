@@ -213,7 +213,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             cfg = BTVN_CONFIG[so_buoi]
             ten = BUOI_CONFIG[so_buoi]["ten"]
-            webapp_url = f"{BASE_DOMAIN}/content/lop3/{cfg.get('folder','')}/bai-tap.html" if cfg.get('folder') else f"{BASE_URL}/{cfg['html']}"
+            webapp_url = f"{BASE_DOMAIN}/content/lop3/{cfg.get('folder','')}/bai-tap.html" if cfg.get('folder') else f"{BASE_DOMAIN}/{cfg['html']}"
 
             keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(text=f"📝 Làm bài — Buổi {so_buoi}", web_app=WebAppInfo(url=webapp_url))]])
             await update.message.reply_text(f"🏠 *Bài tập về nhà — Buổi {so_buoi}*\n_{ten}_\n\n📋 {cfg['so_cau']} câu bài tập\n📹 Video: {BUOI_CONFIG[so_buoi]['video']}\n\n👇 Nhấn nút bên dưới để làm bài:", parse_mode="Markdown", reply_markup=keyboard)
@@ -326,7 +326,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if text == "🏅 Hồ sơ Chiến Binh":
-        profile_url = f"{BASE_DOMAIN}/profile?tg_id={uid}"
+        # Dùng web_app= (không phải url=) để Telegram inject initDataUnsafe → profile tự nhận diện tgId
+        profile_url = f"{BASE_DOMAIN}/profile"
         # Lấy thống kê game + thông tin nhân vật
         try:
             web_user = await crud.get_web_user_by_telegram_id(uid)
@@ -341,7 +342,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             msg = "🏅 *Hồ sơ Chiến Binh*\n\nNhấn nút bên dưới để xem và chỉnh sửa!"
         keyboard = InlineKeyboardMarkup([[
-            InlineKeyboardButton("✏️ Chỉnh sửa hồ sơ & Avatar", url=profile_url)
+            InlineKeyboardButton("✏️ Chỉnh sửa hồ sơ & Avatar", web_app=WebAppInfo(url=profile_url))
         ]])
         await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=keyboard)
         return
@@ -381,6 +382,7 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
         tong = data.get("tong", 0)
         chi_tiet = data.get("chi_tiet", {})
         checkpoints = data.get("checkpoints", [])
+        level = int(data.get("level", 1))
     except Exception as e:
         logger.error(f"Web app data error: {e}")
         await update.message.reply_text("❌ Lỗi nhận kết quả, em thử lại nhé!", reply_markup=MAIN_MENU)
@@ -389,7 +391,7 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
     phan_tram = round(diem / tong * 100) if tong else 0
     luu_ket_qua(uid, buoi, diem, tong, chi_tiet)
     try:
-        await crud.save_result(uid, buoi, diem, tong, chi_tiet)
+        await crud.save_result(uid, buoi, diem, tong, chi_tiet, level=level)
         if checkpoints:
             await crud.save_session_with_checkpoints(uid, buoi, checkpoints)
     except Exception as e:
@@ -407,7 +409,8 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
         logger.warning(f"Gamification error: {e}")
 
     await update.message.chat.send_action("typing")
-    danh_gia = await danh_gia_nang_luc(diem, tong, chi_tiet, buoi, lich_su[:-1])
+    danh_gia = await danh_gia_nang_luc(diem, tong, chi_tiet, buoi, lich_su[:-1],
+                                        checkpoints=checkpoints, level=level)
     await update.message.reply_text(f"🎓 *Đánh giá năng lực*\n\n{danh_gia}\n\n📹 Xem lại: {BUOI_CONFIG.get(buoi, {}).get('video', '')}", parse_mode="Markdown", reply_markup=MAIN_MENU)
 
     # ── Kiểm tra thách đấu đang chờ ────────────────────────────────────

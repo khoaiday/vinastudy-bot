@@ -1,33 +1,106 @@
-"""Avatar generation: cartoon filter + full-body character composite (gender-aware)."""
+"""Avatar generation: cartoon filter + full-body character composite (gender-aware).
+
+Cartoon pipeline:
+  1. Thử AnimeGAN2 qua Replicate API (nếu có REPLICATE_API_TOKEN)
+  2. Fallback về PIL filter cơ bản nếu Replicate lỗi / chưa cấu hình
+"""
 import io
 import base64
 import logging
 import math
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw, ImageFont
 
-from app.config import CHARACTERS
+from app.config import CHARACTERS, REPLICATE_API_TOKEN
 
 logger = logging.getLogger(__name__)
 
 HAIR_COLOR = (28, 14, 4)          # nâu đen — màu tóc mặc định
 
 
-# ── Cartoon filter ─────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════
+# Cartoon filter — AI (AnimeGAN2 via Replicate)
+# ══════════════════════════════════════════════════════════════════════
 
-def apply_cartoon_filter(img: Image.Image) -> Image.Image:
+def _cartoon_ai(img: Image.Image) -> Image.Image:
+    """
+    Chuyển ảnh mặt → hoạt hình anime bằng AnimeGAN2 (Replicate API).
+    Ném exception nếu thất bại để caller fallback về PIL.
+    """
+    import replicate
+    import httpx
+
+    # Đặt token cho Replicate client
+    import os
+    os.environ.setdefault("REPLICATE_API_TOKEN", REPLICATE_API_TOKEN)
+
+    # Encode ảnh sang JPEG bytes
+    buf = io.BytesIO()
+    img.convert("RGB").save(buf, format="JPEG", quality=92)
+    buf.seek(0)
+
+    # Chạy AnimeGAN2 — model hayao: màu sắc tự nhiên, phù hợp trẻ em
+    output = replicate.run(
+        "cjwbw/animegan2-pytorch:6f0d58e0d49f33b8f19fb2ed22f3e3455c89e7f8c1a7a3cb21e5d2c9e75a4e1",
+        input={
+            "image":         buf,
+            "face_detector": True,   # tự phát hiện & xử lý mặt
+        },
+        timeout=60,
+    )
+
+    # output là URL string hoặc list[URL]
+    url = str(output[0]) if isinstance(output, list) else str(output)
+    if not url.startswith("http"):
+        raise ValueError(f"Replicate output không phải URL: {url!r}")
+
+    # Download ảnh kết quả
+    resp = httpx.get(url, timeout=60)
+    resp.raise_for_status()
+    return Image.open(io.BytesIO(resp.content)).convert("RGB")
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Cartoon filter — PIL fallback (không cần internet)
+# ══════════════════════════════════════════════════════════════════════
+
+def _cartoon_pil(img: Image.Image) -> Image.Image:
+    """PIL-only cartoon filter — dùng khi Replicate không khả dụng."""
     img = img.convert("RGB")
     smooth = img.filter(ImageFilter.MedianFilter(size=5))
 
     def posterize(image, levels=5):
-        lut = [int(round(i / 255 * (levels-1))) * (255 // (levels-1)) for i in range(256)]
+        lut = [int(round(i / 255 * (levels - 1))) * (255 // (levels - 1))
+               for i in range(256)]
         return image.point(lut * 3)
 
     posterized = posterize(smooth, levels=5)
-    saturated  = ImageEnhance.Color(posterized).enhance(1.8)
-    contrasted = ImageEnhance.Contrast(saturated).enhance(1.3)
-    gray  = img.convert("L")
-    edges = gray.filter(ImageFilter.FIND_EDGES).point(lambda p: 0 if p > 30 else 255)
-    return Image.blend(contrasted, edges.convert("RGB"), alpha=0.12)
+    saturated  = ImageEnhance.Color(posterized).enhance(1.9)
+    contrasted = ImageEnhance.Contrast(saturated).enhance(1.35)
+    gray       = img.convert("L")
+    edges      = gray.filter(ImageFilter.FIND_EDGES).point(
+                     lambda p: 0 if p > 28 else 255)
+    return Image.blend(contrasted, edges.convert("RGB"), alpha=0.13)
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Public API — thử AI trước, fallback về PIL
+# ══════════════════════════════════════════════════════════════════════
+
+def apply_cartoon_filter(img: Image.Image) -> Image.Image:
+    """
+    Chuyển ảnh mặt thật → ảnh hoạt hình.
+    Ưu tiên AnimeGAN2 (Replicate); nếu lỗi thì dùng PIL filter.
+    """
+    if REPLICATE_API_TOKEN:
+        try:
+            result = _cartoon_ai(img)
+            logger.info("✅ Cartoon: AnimeGAN2 (Replicate) thành công")
+            return result
+        except Exception as e:
+            logger.warning(f"⚠️  AnimeGAN2 thất bại, dùng PIL: {e}")
+
+    logger.info("🎨 Cartoon: PIL filter (fallback)")
+    return _cartoon_pil(img)
 
 
 def crop_circle(img: Image.Image, size: int = 256) -> Image.Image:
