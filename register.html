@@ -706,7 +706,9 @@ async function _checkApproval() {
 function startPendingPoll() {
   stopPendingPoll();
   _pollTimer = setInterval(_checkApproval, 5000);
-  _tickCountdown(5); // đếm ngược 5s → tự đóng trang
+  // Hiện trạng thái polling — KHÔNG tự đóng
+  const el = document.getElementById('pollStatus');
+  if (el) el.textContent = '🔄 Tự kiểm tra trạng thái mỗi 5 giây...';
 }
 
 // ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
