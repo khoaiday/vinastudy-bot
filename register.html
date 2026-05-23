@@ -659,13 +659,8 @@ function startPendingPoll() {
 
 // ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
 function reRegister() {
-  faceB64 = '';                     // xoá ảnh cũ để chụp lại
-  document.getElementById('previewBox').style.display    = 'none';
-  document.getElementById('btnRetake').style.display     = 'none';
-  document.getElementById('btnSubmit').style.display     = 'none';
-  document.getElementById('btnCamera').style.display     = '';
-  document.getElementById('video').style.display         = 'none';
-  goStep(2);                        // về bước điền tên / chọn nhân vật
+  resetStep3UI(); // dọn sạch step3 (ảnh, camera, upload)
+  goStep(2);      // về bước điền tên / chọn nhân vật
 }
 
 // ── Step navigation ──────────────────────────────────────────────────────
@@ -686,7 +681,8 @@ function goStep(n) {
     }
   });
 
-  if (n !== 3) stopCamera();
+  if (n === 3) resetStep3UI(); // reset hoàn toàn khi vào step3
+  else stopCamera();           // chỉ dừng stream khi rời step3
 }
 
 // ── Character selection ──────────────────────────────────────────────────
@@ -776,13 +772,22 @@ function showPhotoPreview() {
   document.getElementById('btnSubmit').style.display = '';
 }
 
-function retakePhoto() {
+function resetStep3UI() {
+  /* Đặt lại toàn bộ giao diện step 3 về trạng thái ban đầu.
+     Gọi khi: vào step3, bấm Chụp lại, bấm Quay lại từ step3. */
+  stopCamera();
   faceB64 = '';
+  document.getElementById('video').style.display      = 'none';
+  document.getElementById('btnCamera').style.display  = '';
+  document.getElementById('btnSnap').style.display    = 'none';
+  document.getElementById('btnRetake').style.display  = 'none';
+  document.getElementById('uploadArea').style.display = '';   // ← khôi phục upload
   document.getElementById('previewBox').style.display = 'none';
-  document.getElementById('btnRetake').style.display = 'none';
-  document.getElementById('btnCamera').style.display = '';
-  document.getElementById('btnSubmit').style.display = 'none';
-  document.getElementById('video').style.display = '';
+  document.getElementById('btnSubmit').style.display  = 'none';
+}
+
+function retakePhoto() {
+  resetStep3UI();   // về trạng thái ban đầu để chụp lại hoặc upload
 }
 
 function stopCamera() {
