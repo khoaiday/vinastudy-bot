@@ -467,7 +467,7 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
 // ── Auth Gate ─────────────────────────────────────────────────────────────
 (async function authGate() {
   const tgId = tg?.initDataUnsafe?.user?.id;
-  if (!tgId) return; // Browser test → cho qua
+  if (!tgId) { window.location.replace('/register'); return; } // Không có Telegram context → chuyển về đăng ký
 
   try {
     const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);

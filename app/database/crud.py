@@ -593,15 +593,25 @@ async def update_web_user_admin(user_id: int, updates: dict):
 async def delete_web_user(user_id: int):
     pool = get_pool()
     async with pool.acquire() as conn:
-        # Lấy telegram_id trước khi xóa để deactivate bảng students
+        # Lấy telegram_id trước khi xóa
         row = await conn.fetchrow(
             "SELECT telegram_id FROM web_users WHERE id=$1", user_id)
-        await conn.execute("DELETE FROM web_users WHERE id=$1", user_id)
-        # Đồng bộ: deactivate student trong bảng bot nếu tồn tại
-        if row and row["telegram_id"]:
+        tg_id = row["telegram_id"] if row else None
+
+        if tg_id:
+            # Xóa TẤT CẢ web_users entries có cùng telegram_id
+            # (phòng trường hợp học sinh có nhiều entries do đăng ký nhiều lần)
             await conn.execute(
-                "UPDATE students SET active=FALSE WHERE telegram_id=$1",
-                row["telegram_id"])
+                "DELETE FROM web_users WHERE telegram_id=$1", tg_id)
+            # Deactivate student trong bảng bot
+            try:
+                await conn.execute(
+                    "UPDATE students SET active=FALSE WHERE telegram_id=$1", tg_id)
+            except Exception:
+                pass  # Bỏ qua nếu column active chưa tồn tại trong DB cũ
+        else:
+            # Không có telegram_id → chỉ xóa entry này
+            await conn.execute("DELETE FROM web_users WHERE id=$1", user_id)
 
 
 # ── Challenges ─────────────────────────────────────────────────────────

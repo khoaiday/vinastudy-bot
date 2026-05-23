@@ -215,9 +215,8 @@ let vsUser = null;
   const tgId = tg?.initDataUnsafe?.user?.id;
 
   if (!tgId) {
-    // Không mở từ Telegram (test trên browser) → cho qua
-    document.getElementById('authOverlay').style.display = 'none';
-    document.getElementById('mainApp').style.display = '';
+    // Không mở từ Telegram → chuyển về trang đăng ký
+    window.location.replace('/register');
     return;
   }
 
