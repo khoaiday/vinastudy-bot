@@ -69,12 +69,12 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
     buf.seek(0)
 
     # AnimeGAN2 — style BarbieFace: đẹp nhất cho ảnh chân dung / trẻ em
+    # Chỉ truyền image + style — output_size KHÔNG phải parameter hợp lệ của model này
     output = replicate.run(
-        "ptran1203/pytorch-animegan",
+        "ptran1203/pytorch-animegan:7d44f1878a07e7b5a32af9727c1f6120cac04203d48f3f7b0432e28fa8e5c6b6",
         input={
-            "image":       buf,
-            "style":       "BarbieFace",
-            "output_size": 512,
+            "image": buf,
+            "style": "BarbieFace",
         }
     )
 
@@ -97,46 +97,36 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
 
 def _cartoon_pil(img: Image.Image) -> Image.Image:
     """
-    Bộ lọc hoạt hình PIL: màu phẳng + viền đen nhẹ.
-    Boost màu vừa phải để không bị méo màu da.
+    Portrait enhance nhẹ — fallback khi không có Replicate token.
+    Không cố cartoon giả tạo (dễ méo màu da), chỉ làm ảnh đẹp hơn:
+    smooth da nhẹ → tăng sắc nét → boost màu/contrast vừa phải.
+    Kết quả: ảnh chân dung tự nhiên, sắc nét, phù hợp ghép vào frame.
     """
-    W, H   = img.size
-    scale  = max(1.0, 512 / min(W, H))
-    W2, H2 = int(W * scale), int(H * scale)
-    rgb    = img.convert("RGB").resize((W2, H2), Image.LANCZOS)
+    rgb = img.convert("RGB")
 
-    # 1. Làm mịn (bilateral giả)
-    smooth = rgb
-    for _ in range(4):
-        smooth = smooth.filter(ImageFilter.GaussianBlur(radius=1.6))
+    # 1. Upscale nếu quá nhỏ (xử lý tốt hơn ở kích thước lớn)
+    W, H = rgb.size
+    if min(W, H) < 256:
+        scale  = 256 / min(W, H)
+        rgb    = rgb.resize((int(W * scale), int(H * scale)), Image.LANCZOS)
 
-    # 2. Posterize (8 mức)
-    step = 256 // 8
-    lut  = [min(255, round(i / step) * step) for i in range(256)]
-    flat = smooth.point(lut * 3)
+    # 2. Làm mịn da nhẹ (chỉ 2 lần blur rất nhỏ)
+    smooth = rgb.filter(ImageFilter.GaussianBlur(radius=0.8))
+    smooth = smooth.filter(ImageFilter.GaussianBlur(radius=0.6))
 
-    # 3. Boost màu vừa phải (tránh méo màu da)
-    flat = ImageEnhance.Color(flat).enhance(1.7)
-    flat = ImageEnhance.Contrast(flat).enhance(1.3)
-    flat = ImageEnhance.Brightness(flat).enhance(1.04)
-    flat = ImageEnhance.Sharpness(flat).enhance(1.3)
+    # 3. Tăng sắc nét (unsharp mask effect)
+    sharp = ImageEnhance.Sharpness(smooth).enhance(2.0)
 
-    # 4. Phát hiện viền
-    gray      = rgb.convert("L").filter(ImageFilter.GaussianBlur(radius=1.0))
-    edges_raw = gray.filter(ImageFilter.FIND_EDGES)
-    edges_raw = ImageEnhance.Contrast(edges_raw.convert("RGB")).enhance(2.5).convert("L")
-    thr       = 18
-    edges_lut = [0 if p > thr else 255 for p in range(256)]
-    edges_bin = edges_raw.point(edges_lut)
-    edges_bin = edges_bin.filter(ImageFilter.MinFilter(size=3))
-    edges_bin = edges_bin.filter(ImageFilter.GaussianBlur(radius=0.4))
+    # 4. Boost màu & contrast nhẹ (không méo màu da)
+    out = ImageEnhance.Color(sharp).enhance(1.25)       # tươi nhẹ
+    out = ImageEnhance.Contrast(out).enhance(1.20)      # rõ hơn
+    out = ImageEnhance.Brightness(out).enhance(1.05)    # sáng nhẹ
 
-    # 5. Overlay viền đen
-    dark_lut  = [max(0, p - 130) for p in range(256)]
-    dark_line = flat.point(dark_lut * 3)
-    result    = Image.composite(dark_line, flat, edges_bin)
+    # 5. Resize về kích thước gốc nếu đã upscale
+    if out.size != (W, H):
+        out = out.resize((W, H), Image.LANCZOS)
 
-    return result.resize((W, H), Image.LANCZOS)
+    return out
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -144,14 +134,17 @@ def _cartoon_pil(img: Image.Image) -> Image.Image:
 # ══════════════════════════════════════════════════════════════════════
 
 def apply_cartoon_filter(img: Image.Image) -> Image.Image:
-    if REPLICATE_API_TOKEN:
+    # Đọc token tại runtime (không dùng giá trị import-time) để Railway inject kịp
+    import os
+    token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
+    if token:
         try:
             result = _cartoon_ai(img)
             logger.info("✅ Cartoon: AnimeGAN2 (Replicate) thành công")
             return result
         except Exception as e:
             logger.warning(f"⚠️  AnimeGAN2 thất bại, dùng PIL: {e}")
-    logger.info("🎨 Cartoon: PIL filter (fallback)")
+    logger.info("🎨 Cartoon: PIL portrait-enhance (fallback)")
     return _cartoon_pil(img)
 
 
