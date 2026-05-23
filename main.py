@@ -20,8 +20,6 @@ def build_student_app() -> Application:
     app.add_handler(CommandHandler("start",    student.start))
     app.add_handler(CommandHandler("dangky",   student.dangky))
     app.add_handler(CommandHandler("xoa",      student.xoa_cmd))
-    app.add_handler(CommandHandler("btvn",     student.btvn_cmd))
-    app.add_handler(CommandHandler("chonbuoi", student.chonbuoi_cmd))
     app.add_handler(CommandHandler("bangdiem", student.bangdiem_cmd))
     # WebApp data phải đứng trước TEXT để được ưu tiên
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, student.xu_ly_ket_qua_webapp))

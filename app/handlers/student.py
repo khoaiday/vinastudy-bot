@@ -115,19 +115,6 @@ def make_main_menu() -> ReplyKeyboardMarkup:
 
 MAIN_MENU = make_main_menu()
 
-def make_btvn_menu():
-    rows = [[KeyboardButton(f"📖 Buổi {b} — {BUOI_CONFIG[b]['ten']}")] for b in sorted(BTVN_CONFIG)]
-    rows.append([KeyboardButton("🔙 Về menu chính")])
-    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
-
-def make_buoi_menu():
-    rows = [[KeyboardButton(f"📘 Buổi {k}: {v['ten']}")] for k,v in sorted(BUOI_CONFIG.items())]
-    rows.append([KeyboardButton("🔙 Về menu chính")])
-    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
-
-BTVN_MENU = make_btvn_menu()
-BUOI_MENU = make_buoi_menu()
-
 async def dangky(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Redirect sang web registration thay vì đăng ký cũ."""
     uid = update.effective_user.id
@@ -192,131 +179,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     state = get_state(uid)
 
-    if text == "🗺️ Bản đồ Chiến Dịch":
-        state["mode"] = "btvn_menu"
-        await update.message.reply_text("🏠 *Bản đồ Chiến Dịch*\n\nChọn ải để tiêu diệt quái vật.\n_(Ải mới nhất ở dưới cùng)_ 👇", parse_mode="Markdown", reply_markup=BTVN_MENU)
-        return
-
-    if text.startswith("📖 Buổi "):
-        try:
-            so_buoi = int(text.split("Buổi ")[1].split(" —")[0])
-        except Exception:
-            so_buoi = None
-
-        if so_buoi and so_buoi in BTVN_CONFIG:
-            state["buoi"] = so_buoi
-            state["mode"] = "btvn_chat"
-            state["history"] = []
-
-            cfg = BTVN_CONFIG[so_buoi]
-            ten = BUOI_CONFIG[so_buoi]["ten"]
-            webapp_url = f"{BASE_DOMAIN}/content/lop3/{cfg.get('folder','')}/bai-tap.html" if cfg.get('folder') else f"{BASE_DOMAIN}/{cfg['html']}"
-
-            keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(text=f"📝 Làm bài — Buổi {so_buoi}", web_app=WebAppInfo(url=webapp_url))]])
-            await update.message.reply_text(f"🏠 *Bài tập về nhà — Buổi {so_buoi}*\n_{ten}_\n\n📋 {cfg['so_cau']} câu bài tập\n📹 Video: {BUOI_CONFIG[so_buoi]['video']}\n\n👇 Nhấn nút bên dưới để làm bài:", parse_mode="Markdown", reply_markup=keyboard)
-            await update.message.reply_text("💬 Hoặc nhập câu hỏi nếu cần thầy hướng dẫn!", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("📝 Làm bài tập")], [KeyboardButton("🔙 Về menu chính")]], resize_keyboard=True))
-        else:
-            await update.message.reply_text("Buổi này chưa có bài tập.", reply_markup=BTVN_MENU)
-        return
-
-    if text == "🔮 Đánh giá Năng lực":
-        try:
-            db_results = await crud.get_results_student(uid, limit=8)
-            if db_results:
-                lines = ["📊 *Tổng kết năng lực của em:*\n"]
-                for r in db_results:
-                    pct = r["phan_tram"]
-                    bar = "🟢" if pct >= 80 else ("🟡" if pct >= 60 else ("🟠" if pct >= 40 else "🔴"))
-                    ten_buoi = r.get("ten_buoi", f"Buổi {r.get('so_buoi', '?')}")
-                    tg = r["thoi_gian"]
-                    tg_str = tg.strftime("%d/%m") if hasattr(tg, "strftime") else str(tg)[:10]
-                    lines.append(f"{bar} {ten_buoi}: *{r['diem']}/{r['tong_cau']}* ({pct}%) — {tg_str}")
-                msg = "\n".join(lines)
-            else:
-                raise ValueError("no db data")
-        except Exception:
-            uid_ls = lich_su_hs(uid)
-            if not uid_ls:
-                msg = "📊 Em chưa làm bài tập nào. Hãy làm *🗺️ Bản đồ Chiến Dịch* trước nhé!"
-            else:
-                lines = ["📊 *Tổng kết năng lực của em:*\n"]
-                for ls in reversed(uid_ls[-8:]):
-                    bar = "🟢" if ls["phan_tram"] >= 80 else ("🟡" if ls["phan_tram"] >= 60 else ("🟠" if ls["phan_tram"] >= 40 else "🔴"))
-                    lines.append(f"{bar} Buổi {ls['buoi']}: *{ls['diem']}/{ls['tong']}* ({ls['phan_tram']}%) — {ls['thoi_gian']}")
-                msg = "\n".join(lines)
-        await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
-        return
-
-    if text == "📊 Bảng điểm":
-        try:
-            db_results = await crud.get_results_student(uid, limit=15)
-            if db_results:
-                lines = ["📋 *Lịch sử bài làm của em:*\n"]
-                for i, r in enumerate(db_results, 1):
-                    pct = r["phan_tram"]
-                    lvl = "🏆" if pct >= 80 else ("⭐" if pct >= 60 else ("📖" if pct >= 40 else "🌱"))
-                    ten_buoi = r.get("ten_buoi", f"Buổi {r.get('so_buoi', '?')}")
-                    tg = r["thoi_gian"]
-                    tg_str = tg.strftime("%d/%m/%Y %H:%M") if hasattr(tg, "strftime") else str(tg)[:16]
-                    lines.append(f"{i}. {lvl} {ten_buoi}: *{r['diem']}/{r['tong_cau']}* ({pct}%)\n   📅 {tg_str}")
-                msg = "\n".join(lines)
-            else:
-                raise ValueError("no db data")
-        except Exception:
-            uid_ls = lich_su_hs(uid)
-            if not uid_ls:
-                msg = "📋 Em chưa có kết quả nào. Hãy làm bài tập trước nhé!"
-            else:
-                lines = ["📋 *Lịch sử bài làm của em:*\n"]
-                for i, ls in enumerate(reversed(uid_ls), 1):
-                    pct = ls["phan_tram"]
-                    lvl = "🏆" if pct >= 80 else ("⭐" if pct >= 60 else ("📖" if pct >= 40 else "🌱"))
-                    lines.append(f"{i}. {lvl} Buổi {ls['buoi']} — {ls['diem']}/{ls['tong']} ({pct}%)\n   📅 {ls['thoi_gian']}")
-                msg = "\n".join(lines)
-        await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
-        return
-
-    if text == "📹 Xem bí kíp (Video)":
-        buoi = state.get("buoi", DEFAULT_BUOI)
-        cfg = BUOI_CONFIG[buoi]
-        await update.message.reply_text(f"📹 *Video — Buổi {buoi}*\n_{cfg['ten']}_\n\n🔗 {cfg['video']}", parse_mode="Markdown", reply_markup=MAIN_MENU)
-        return
-
-    if text == "💬 Hỏi Chỉ Huy":
-        state["mode"] = "chat"
-        buoi = state.get("buoi", DEFAULT_BUOI)
-        await update.message.reply_text(f"💬 *Hỏi bài — Buổi {buoi}: {BUOI_CONFIG[buoi]['ten']}*\n\nGõ bài toán cần giải, thầy Long AI sẽ hướng dẫn từng bước! 👇", parse_mode="Markdown", reply_markup=MAIN_MENU)
-        return
-
-    if text == "📚 Chọn Căn cứ (Buổi)":
-        state["mode"] = "chon_buoi"
-        await update.message.reply_text("📚 *Chọn buổi học*", parse_mode="Markdown", reply_markup=BUOI_MENU)
-        return
-
-    if text.startswith("📘 Buổi "):
-        try:
-            so_buoi = int(text.split("Buổi ")[1].split(":")[0])
-        except Exception:
-            so_buoi = None
-        if so_buoi and so_buoi in BUOI_CONFIG:
-            state["buoi"] = so_buoi
-            state["history"] = []
-            state["mode"] = "menu"
-            await update.message.reply_text(f"✅ Đã chuyển sang *Buổi {so_buoi}: {BUOI_CONFIG[so_buoi]['ten']}*", parse_mode="Markdown", reply_markup=MAIN_MENU)
-        return
-
-    if text == "📅 Lịch học":
-        lines = ["📅 *Lịch học VInaStudy — Lớp 3*\n"]
-        for so_buoi, cfg in sorted(BUOI_CONFIG.items()):
-            lines.append(f"📘 Buổi {so_buoi}: *{cfg['ten']}*\n   📹 {cfg['video']}")
-        await update.message.reply_text("\n".join(lines), parse_mode="Markdown", reply_markup=MAIN_MENU)
-        return
-
-    if text == "🗑️ Xoá lịch sử":
-        clear_history(uid)
-        await update.message.reply_text("🗑️ Đã xoá lịch sử hội thoại!", reply_markup=MAIN_MENU)
-        return
-
     if text == "🔙 Về menu chính":
         state["mode"] = "menu"
         await update.message.reply_text("🏠 Menu chính!", reply_markup=MAIN_MENU)
@@ -327,48 +189,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Hẹn gặp lại! 👋", reply_markup=ReplyKeyboardRemove())
         return
 
-    if text == "🏅 Hồ sơ Chiến Binh":
-        # Dùng web_app= (không phải url=) để Telegram inject initDataUnsafe → profile tự nhận diện tgId
-        profile_url = f"{BASE_DOMAIN}/profile"
-        # Lấy thống kê game + thông tin nhân vật
-        try:
-            web_user = await crud.get_web_user_by_telegram_id(uid)
-            hs = await crud.get_student(uid)
-            ho_ten = (web_user or {}).get("ho_ten") or (hs or {}).get("ho_ten") or update.effective_user.first_name
-            char = (web_user or {}).get("character_type", "chien_binh")
-            char_names = {"chien_binh":"⚔️ Chiến Binh","phu_thuy":"🔮 Phù Thủy","xa_thu":"🏹 Xạ Thủ","hiep_si":"🛡️ Hiệp Sĩ"}
-            has_avatar = bool((web_user or {}).get("avatar_final"))
-            avatar_hint = "" if has_avatar else "\n\n📷 _Em chưa có avatar — nhấn nút để tạo ngay!_"
-            profile_text = await hien_thi_profile(uid, ho_ten)
-            msg = f"{profile_text}\n\n🎭 Nhân vật: *{char_names.get(char, char)}*{avatar_hint}"
-        except Exception:
-            msg = "🏅 *Hồ sơ Chiến Binh*\n\nNhấn nút bên dưới để xem và chỉnh sửa!"
-        keyboard = InlineKeyboardMarkup([[
-            InlineKeyboardButton("✏️ Chỉnh sửa hồ sơ & Avatar", web_app=WebAppInfo(url=profile_url))
-        ]])
-        await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=keyboard)
-        return
-
-    if text == "🏆 Xếp hạng Bang hội":
-        lb_url = f"{BASE_DOMAIN}/leaderboard"
-        await update.message.reply_text(
-            f"🏆 *Bảng Xếp Hạng Chiến Binh*\n\n"
-            f"🌐 Xem bảng xếp hạng đẹp tại:\n{lb_url}",
-            parse_mode="Markdown",
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("🏆 Mở Bảng Xếp Hạng", url=lb_url)
-            ]]))
-        xh = await bang_xep_hang(top_n=10)
-        await update.message.reply_text(xh, parse_mode="Markdown", reply_markup=MAIN_MENU)
-        return
-
-    if state["mode"] in ("chat", "btvn_chat"):
-        await update.message.chat.send_action("typing")
-        reply = await ask_claude(state["history"], text, state.get("buoi", DEFAULT_BUOI))
-        await update.message.reply_text(reply, reply_markup=MAIN_MENU)
-        return
-
-    await update.message.reply_text("Chọn chức năng trong menu nhé! 👇", parse_mode="Markdown", reply_markup=MAIN_MENU)
+    # AI chat fallback — học sinh nhắn bất cứ gì đều được trả lời
+    await update.message.chat.send_action("typing")
+    reply = await ask_claude(state["history"], text, state.get("buoi", DEFAULT_BUOI))
+    await update.message.reply_text(reply, reply_markup=MAIN_MENU)
 
 
 async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -598,12 +422,18 @@ async def xoa_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🗑️ Đã xoá lịch sử!", reply_markup=MAIN_MENU)
 
 async def btvn_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    get_state(update.effective_user.id)["mode"] = "btvn_menu"
-    await update.message.reply_text("🏠 Chọn buổi học:", reply_markup=BTVN_MENU)
+    """Chuyển sang map.html để chọn bài tập."""
+    await update.message.reply_text(
+        "🗺️ Chọn bài tập trực tiếp trên *Bản đồ Chiến Dịch* nhé!\n\nNhấn *🎮 Chơi game* để vào map 👇",
+        parse_mode="Markdown", reply_markup=MAIN_MENU,
+    )
 
 async def chonbuoi_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    get_state(update.effective_user.id)["mode"] = "chon_buoi"
-    await update.message.reply_text("📚 Chọn buổi học:", reply_markup=BUOI_MENU)
+    """Chuyển sang map.html để chọn buổi."""
+    await update.message.reply_text(
+        "🗺️ Chọn buổi học trực tiếp trên *Bản đồ Chiến Dịch* nhé!\n\nNhấn *🎮 Chơi game* để vào map 👇",
+        parse_mode="Markdown", reply_markup=MAIN_MENU,
+    )
 
 async def bangdiem_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
