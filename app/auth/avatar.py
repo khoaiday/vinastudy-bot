@@ -89,14 +89,17 @@ def _cartoon_pil(img: Image.Image) -> Image.Image:
     gray      = rgb.convert("L").filter(ImageFilter.GaussianBlur(radius=1.5))
     edges_raw = gray.filter(ImageFilter.FIND_EDGES)
     # Ngưỡng: pixel sáng (= viền) → 0 (đen); pixel tối (= nền) → 255 (trắng)
-    edges_bin = edges_raw.point(lambda p: 0 if p > 20 else 255)
+    # Dùng list thay vì lambda — Pillow 10.x bỏ support lambda trong point()
+    edges_lut = [0 if p > 20 else 255 for p in range(256)]
+    edges_bin = edges_raw.point(edges_lut)
     # Làm dày viền 1px (MinFilter mở rộng vùng tối)
     edges_bin = edges_bin.filter(ImageFilter.MinFilter(size=3))
 
     # ── 5. Overlay viền đen lên ảnh màu phẳng ────────────────────────────
     # composite(im1, im2, mask): mask=0 → im1, mask=255 → im2
     # Tại viền (mask=0) → dark_line; tại nền (mask=255) → flat cartoon
-    dark_line = flat.point(lambda p: max(0, p - 120))
+    dark_lut  = [max(0, p - 120) for p in range(256)]
+    dark_line = flat.point(dark_lut * 3)   # *3 vì flat là RGB (256×3 entries)
     result    = Image.composite(dark_line, flat, edges_bin)
 
     return result
