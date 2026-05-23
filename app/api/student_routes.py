@@ -7,9 +7,32 @@ from pydantic import BaseModel
 from app.auth.google_oauth import decode_session_token
 from app.auth.avatar import generate_avatar_pipeline
 from app.database import crud
+from app.config import TELEGRAM_TOKEN
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+CHAR_LABEL = {
+    "chien_binh": "⚔️ Chiến Binh",
+    "phu_thuy":   "🔮 Phù Thủy",
+    "xa_thu":     "🏹 Xạ Thủ",
+    "hiep_si":    "🛡️ Hiệp Sĩ",
+}
+
+
+async def _send_tg(chat_id: int, text: str) -> None:
+    """Gửi tin nhắn Telegram không đồng bộ, nuốt lỗi."""
+    if not (chat_id and TELEGRAM_TOKEN):
+        return
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=8) as client:
+            await client.post(
+                f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"},
+            )
+    except Exception as e:
+        logger.warning(f"TG notify failed (chat_id={chat_id}): {e}")
 
 
 def get_current_user(request: Request) -> dict:
@@ -70,9 +93,28 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
         gioi_tinh       = body.gioi_tinh,
     )
 
+    # Nếu trước đó bị từ chối → reset lại pending để đăng ký lại
+    if user.get("status") == "rejected":
+        await crud.update_web_user_admin(
+            user["id"], {"status": "pending", "rejection_reason": None}
+        )
+
     # Lưu telegram_id nếu có (gửi từ link bot)
+    tg_id = body.telegram_id or user.get("telegram_id")
     if body.telegram_id:
         await crud.patch_web_user(google_id, {"telegram_id": body.telegram_id})
+
+    # ── Thông báo Telegram: Đã gửi hồ sơ ───────────────────────────────
+    char_label = CHAR_LABEL.get(body.character_type, body.character_type)
+    await _send_tg(
+        tg_id,
+        f"⏳ *Đã gửi hồ sơ thành công!*\n\n"
+        f"👤 *Tên:* {body.ho_ten}\n"
+        f"📚 *Lớp:* {body.lop}\n"
+        f"🎮 *Nhân vật:* {char_label}\n\n"
+        f"Thầy đang xem xét hồ sơ và sẽ thông báo khi được duyệt.\n"
+        f"Thường trong vòng *24 giờ* 🚀",
+    )
 
     return JSONResponse({"ok": True, "status": "pending",
                          "avatar_final": avatar_result["final_b64"]})

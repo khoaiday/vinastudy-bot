@@ -100,6 +100,28 @@ async def reject_user(user_id: int, body: RejectBody,
         raise HTTPException(404, "Không tìm thấy user")
 
     await crud.reject_web_user(user_id, body.reason)
+
+    # Thông báo qua Telegram nếu có telegram_id
+    if user.get("telegram_id") and TELEGRAM_TOKEN:
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=8) as client:
+                await client.post(
+                    f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                    json={
+                        "chat_id": user["telegram_id"],
+                        "text": (
+                            f"❌ *Hồ sơ bị từ chối*\n\n"
+                            f"Xin chào {user['ho_ten']}, hồ sơ đăng ký của em chưa được duyệt.\n\n"
+                            f"📋 *Lý do:* {body.reason}\n\n"
+                            f"👉 Em hãy mở lại trang đăng ký, đọc lý do và nộp lại hồ sơ nhé! 🔄"
+                        ),
+                        "parse_mode": "Markdown",
+                    }
+                )
+        except Exception as e:
+            logger.warning(f"Telegram reject notify failed: {e}")
+
     return JSONResponse({"ok": True, "message": f"Đã từ chối {user['ho_ten']}"})
 
 

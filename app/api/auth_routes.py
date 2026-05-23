@@ -74,10 +74,11 @@ async def get_me(request: Request):
     if not user:
         raise HTTPException(404, "Không tìm thấy tài khoản")
     return JSONResponse({
-        "google_id":      user["google_id"],
-        "email":          user["email"],
-        "ho_ten":         user["ho_ten"],
-        "character_type": user["character_type"],
-        "avatar_final":   user["avatar_final"],
-        "status":         user["status"],
+        "google_id":        user["google_id"],
+        "email":            user["email"],
+        "ho_ten":           user["ho_ten"],
+        "character_type":   user["character_type"],
+        "avatar_final":     user["avatar_final"],
+        "status":           user["status"],
+        "rejection_reason": user.get("rejection_reason") or "",
     })

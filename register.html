@@ -443,8 +443,27 @@ body {
       </div>
     </div>
 
+    <!-- ── STEP REJECTED ── -->
+    <div class="step" id="steprejected">
+      <div class="pending-box">
+        <div class="pending-icon">❌</div>
+        <div class="pending-title" style="color:var(--danger)">Hồ sơ bị từ chối</div>
+        <div class="pending-sub">
+          Hồ sơ của em chưa được duyệt lần này.<br>
+          Đọc lý do bên dưới và nộp lại nhé!
+        </div>
+        <div style="margin:18px 0;padding:14px 16px;background:rgba(255,0,85,.1);border:1px solid rgba(255,0,85,.35);border-radius:10px;text-align:left">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--danger);font-weight:700;margin-bottom:6px">📋 Lý do từ chối</div>
+          <div id="rejectedReason" style="font-size:.93rem;color:var(--text);line-height:1.6"></div>
+        </div>
+        <button class="btn btn-primary btn-full" style="margin-top:8px" onclick="reRegister()">
+          🔄 Đăng ký lại
+        </button>
+      </div>
+    </div>
+
     <!-- ── STEP DONE ── -->
-    <div class="step" id="stepDone">
+    <div class="step" id="stepdone">
       <div class="pending-box">
         <div class="pending-icon">🎉</div>
         <div class="pending-title" style="color:var(--success)">Tài khoản đã được duyệt!</div>
@@ -580,6 +599,15 @@ function showToast(msg, ok=false) {
       document.getElementById('doneName').textContent = user.ho_ten || user.email;
       goStep('done'); return;
     }
+
+    // Bị từ chối → hiện màn rejected với lý do
+    if (user.status === 'rejected') {
+      document.getElementById('rejectedReason').textContent =
+        user.rejection_reason || 'Không có lý do cụ thể. Hãy liên hệ thầy qua Telegram.';
+      if (user.ho_ten) document.getElementById('inputName').value = user.ho_ten;
+      goStep('rejected'); return;
+    }
+
     if (user.ho_ten && user.avatar_final) {
       // Already submitted, show pending + poll để phát hiện khi được duyệt
       document.getElementById('pendingAvatar').src = user.avatar_final;
@@ -629,13 +657,22 @@ function startPendingPoll() {
   if (el) el.textContent = '🔄 Tự kiểm tra trạng thái mỗi 5 giây...';
 }
 
+// ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
+function reRegister() {
+  faceB64 = '';                     // xoá ảnh cũ để chụp lại
+  document.getElementById('previewBox').style.display    = 'none';
+  document.getElementById('btnRetake').style.display     = 'none';
+  document.getElementById('btnSubmit').style.display     = 'none';
+  document.getElementById('btnCamera').style.display     = '';
+  document.getElementById('video').style.display         = 'none';
+  goStep(2);                        // về bước điền tên / chọn nhân vật
+}
+
 // ── Step navigation ──────────────────────────────────────────────────────
 function goStep(n) {
   if (n !== 4) stopPendingPoll(); // dừng poll khi rời step4
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  const el = typeof n === 'number'
-    ? document.getElementById('step' + n)
-    : document.getElementById('step' + n);
+  const el = document.getElementById('step' + n);
   if (el) el.classList.add('active');
 
   // Update dots
