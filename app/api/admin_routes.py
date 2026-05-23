@@ -241,6 +241,69 @@ async def delete_user(user_id: int,
     return JSONResponse({"ok": True, "message": f"Đã xóa {user['ho_ten']}"})
 
 
+# ── Test avatar pipeline ───────────────────────────────────────────────
+
+@router.get("/test-avatar")
+async def test_avatar(x_admin_token: str = Header(default=""),
+                      character: str = "chien_binh",
+                      gioi_tinh: str = "nam"):
+    """
+    Kiểm tra pipeline tạo avatar mà không cần ảnh thật.
+    Tạo ảnh mặt giả bằng PIL rồi chạy qua generate_avatar_pipeline.
+    Trả về: method đã dùng (AI/PIL), thời gian, và final_b64 để xem trực tiếp.
+    """
+    require_admin(x_admin_token)
+    import time, io, base64
+    from PIL import Image, ImageDraw
+
+    # Tạo ảnh mặt giả 256×256 (hình tròn da người + mắt + miệng đơn giản)
+    face = Image.new("RGB", (256, 256), (30, 20, 60))
+    d    = ImageDraw.Draw(face)
+    # Da mặt
+    d.ellipse([28, 20, 228, 236], fill=(220, 170, 125))
+    # Mắt
+    d.ellipse([72, 80, 108, 110],  fill=(40, 30, 20))
+    d.ellipse([148, 80, 184, 110], fill=(40, 30, 20))
+    d.ellipse([80, 84, 96, 100],   fill=(255, 255, 255))
+    d.ellipse([156, 84, 172, 100], fill=(255, 255, 255))
+    # Mũi
+    d.ellipse([118, 130, 138, 148], fill=(190, 140, 100))
+    # Miệng
+    d.arc([88, 155, 168, 195], start=10, end=170, fill=(160, 80, 80), width=4)
+
+    buf = io.BytesIO()
+    face.save(buf, format="JPEG", quality=90)
+    face_b64 = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+    # Chạy pipeline
+    import os
+    token = os.getenv("REPLICATE_API_TOKEN", "")
+    t0    = time.time()
+
+    from app.auth.avatar import generate_avatar_pipeline
+    result = generate_avatar_pipeline(face_b64, character, gioi_tinh)
+    elapsed = round(time.time() - t0, 2)
+
+    if not result["ok"]:
+        return JSONResponse({
+            "ok":      False,
+            "error":   result["error"],
+            "token":   "set" if token else "MISSING ← thêm REPLICATE_API_TOKEN vào Railway",
+            "elapsed": elapsed,
+        })
+
+    # Đoán method từ thời gian (AI thường > 5s, PIL < 1s)
+    method = "AnimeGAN2 (Replicate AI)" if elapsed > 3 else "PIL portrait-enhance (fallback)"
+    return JSONResponse({
+        "ok":          True,
+        "method":      method,
+        "elapsed_sec": elapsed,
+        "token_set":   bool(token),
+        "cartoon_b64": result["cartoon_b64"],   # ảnh mặt đã filter
+        "final_b64":   result["final_b64"],      # ảnh nhân vật hoàn chỉnh
+    })
+
+
 # ── Dashboard stats ────────────────────────────────────────────────────
 
 @router.get("/stats")
