@@ -97,36 +97,19 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
 
 def _cartoon_pil(img: Image.Image) -> Image.Image:
     """
-    Portrait enhance nhẹ — fallback khi không có Replicate token.
-    Không cố cartoon giả tạo (dễ méo màu da), chỉ làm ảnh đẹp hơn:
-    smooth da nhẹ → tăng sắc nét → boost màu/contrast vừa phải.
-    Kết quả: ảnh chân dung tự nhiên, sắc nét, phù hợp ghép vào frame.
+    Portrait enhance tối giản — guaranteed không crash.
+    Chỉ boost màu/contrast nhẹ, giữ màu da tự nhiên.
     """
-    rgb = img.convert("RGB")
-
-    # 1. Upscale nếu quá nhỏ (xử lý tốt hơn ở kích thước lớn)
-    W, H = rgb.size
-    if min(W, H) < 256:
-        scale  = 256 / min(W, H)
-        rgb    = rgb.resize((int(W * scale), int(H * scale)), Image.LANCZOS)
-
-    # 2. Làm mịn da nhẹ (chỉ 2 lần blur rất nhỏ)
-    smooth = rgb.filter(ImageFilter.GaussianBlur(radius=0.8))
-    smooth = smooth.filter(ImageFilter.GaussianBlur(radius=0.6))
-
-    # 3. Tăng sắc nét (unsharp mask effect)
-    sharp = ImageEnhance.Sharpness(smooth).enhance(2.0)
-
-    # 4. Boost màu & contrast nhẹ (không méo màu da)
-    out = ImageEnhance.Color(sharp).enhance(1.25)       # tươi nhẹ
-    out = ImageEnhance.Contrast(out).enhance(1.20)      # rõ hơn
-    out = ImageEnhance.Brightness(out).enhance(1.05)    # sáng nhẹ
-
-    # 5. Resize về kích thước gốc nếu đã upscale
-    if out.size != (W, H):
-        out = out.resize((W, H), Image.LANCZOS)
-
-    return out
+    try:
+        rgb = img.convert("RGB")
+        out = ImageEnhance.Color(rgb).enhance(1.25)
+        out = ImageEnhance.Contrast(out).enhance(1.20)
+        out = ImageEnhance.Brightness(out).enhance(1.05)
+        out = ImageEnhance.Sharpness(out).enhance(1.5)
+        return out
+    except Exception as e:
+        logger.error(f"_cartoon_pil error: {e}", exc_info=True)
+        return img.convert("RGB")   # last resort: trả về ảnh gốc
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -743,14 +726,48 @@ def image_to_b64(img: Image.Image, fmt="JPEG") -> str:
 
 def generate_avatar_pipeline(face_b64: str, character_type: str,
                              gioi_tinh: str = "nam") -> dict:
+    """Pipeline tạo avatar — mỗi bước được catch riêng để dễ debug."""
+
+    # ── Bước 1: Decode ảnh ────────────────────────────────────────────
     try:
-        face_img    = b64_to_image(face_b64)
-        cartoon     = apply_cartoon_filter(face_img)
-        cartoon_b64 = image_to_b64(cartoon)
-        final_img   = make_character_frame(character_type, cartoon,
-                                           gioi_tinh=gioi_tinh, size=400)
-        final_b64   = image_to_b64(final_img)
-        return {"ok": True, "cartoon_b64": cartoon_b64, "final_b64": final_b64}
+        face_img = b64_to_image(face_b64)
+        logger.info(f"[avatar] step1 decode OK  size={face_img.size}")
     except Exception as e:
-        logger.error(f"Avatar generation error: {e}", exc_info=True)
-        return {"ok": False, "error": str(e)}
+        logger.error(f"[avatar] step1 decode FAIL: {e}", exc_info=True)
+        return {"ok": False, "error": f"Lỗi đọc ảnh gốc: {e}"}
+
+    # ── Bước 2: Cartoon filter ────────────────────────────────────────
+    try:
+        cartoon = apply_cartoon_filter(face_img)
+        logger.info(f"[avatar] step2 cartoon OK  size={cartoon.size}")
+    except Exception as e:
+        logger.error(f"[avatar] step2 cartoon FAIL: {e}", exc_info=True)
+        cartoon = face_img.convert("RGB")   # fallback cuối: dùng ảnh gốc
+        logger.warning("[avatar] step2 using raw face as cartoon fallback")
+
+    # ── Bước 3: Encode cartoon ────────────────────────────────────────
+    try:
+        cartoon_b64 = image_to_b64(cartoon)
+        logger.info("[avatar] step3 encode cartoon OK")
+    except Exception as e:
+        logger.error(f"[avatar] step3 encode cartoon FAIL: {e}", exc_info=True)
+        return {"ok": False, "error": f"Lỗi encode cartoon: {e}"}
+
+    # ── Bước 4: Tạo character frame ───────────────────────────────────
+    try:
+        final_img = make_character_frame(character_type, cartoon,
+                                         gioi_tinh=gioi_tinh, size=400)
+        logger.info(f"[avatar] step4 frame OK  size={final_img.size}")
+    except Exception as e:
+        logger.error(f"[avatar] step4 frame FAIL: {e}", exc_info=True)
+        return {"ok": False, "error": f"Lỗi tạo character frame: {e}"}
+
+    # ── Bước 5: Encode final ──────────────────────────────────────────
+    try:
+        final_b64 = image_to_b64(final_img)
+        logger.info("[avatar] step5 encode final OK  → pipeline complete")
+    except Exception as e:
+        logger.error(f"[avatar] step5 encode final FAIL: {e}", exc_info=True)
+        return {"ok": False, "error": f"Lỗi encode ảnh cuối: {e}"}
+
+    return {"ok": True, "cartoon_b64": cartoon_b64, "final_b64": final_b64}

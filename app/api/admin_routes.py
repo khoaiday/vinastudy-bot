@@ -248,60 +248,88 @@ async def test_avatar(x_admin_token: str = Header(default=""),
                       character: str = "chien_binh",
                       gioi_tinh: str = "nam"):
     """
-    Kiểm tra pipeline tạo avatar mà không cần ảnh thật.
-    Tạo ảnh mặt giả bằng PIL rồi chạy qua generate_avatar_pipeline.
-    Trả về: method đã dùng (AI/PIL), thời gian, và final_b64 để xem trực tiếp.
+    Kiểm tra pipeline tạo avatar — trả về HTML để xem ảnh thẳng trên browser.
+    Không cần ảnh thật: tạo khuôn mặt giả bằng PIL rồi chạy qua pipeline.
+    URL: /api/admin/test-avatar?character=chien_binh&gioi_tinh=nam
+    Header: x-admin-token: <ADMIN_SECRET>
     """
     require_admin(x_admin_token)
-    import time, io, base64
+    import time, io, base64, os
     from PIL import Image, ImageDraw
+    from fastapi.responses import HTMLResponse
 
-    # Tạo ảnh mặt giả 256×256 (hình tròn da người + mắt + miệng đơn giản)
-    face = Image.new("RGB", (256, 256), (30, 20, 60))
+    # ── Tạo khuôn mặt giả 300×300 ────────────────────────────────────
+    face = Image.new("RGB", (300, 300), (25, 18, 55))
     d    = ImageDraw.Draw(face)
-    # Da mặt
-    d.ellipse([28, 20, 228, 236], fill=(220, 170, 125))
-    # Mắt
-    d.ellipse([72, 80, 108, 110],  fill=(40, 30, 20))
-    d.ellipse([148, 80, 184, 110], fill=(40, 30, 20))
-    d.ellipse([80, 84, 96, 100],   fill=(255, 255, 255))
-    d.ellipse([156, 84, 172, 100], fill=(255, 255, 255))
-    # Mũi
-    d.ellipse([118, 130, 138, 148], fill=(190, 140, 100))
-    # Miệng
-    d.arc([88, 155, 168, 195], start=10, end=170, fill=(160, 80, 80), width=4)
+    d.ellipse([30, 25, 270, 275], fill=(220, 170, 125))   # da mặt
+    d.ellipse([75,  90, 118, 125], fill=(45, 32, 18))     # mắt trái
+    d.ellipse([182, 90, 225, 125], fill=(45, 32, 18))     # mắt phải
+    d.ellipse([82,  96, 104, 116], fill=(255, 255, 255))  # highlight mắt trái
+    d.ellipse([196, 96, 218, 116], fill=(255, 255, 255))
+    d.ellipse([130, 148, 170, 175], fill=(195, 145, 105)) # mũi
+    d.arc([90, 175, 210, 228], start=8, end=172, fill=(165, 75, 75), width=5)  # miệng
 
     buf = io.BytesIO()
-    face.save(buf, format="JPEG", quality=90)
+    face.save(buf, format="JPEG", quality=92)
     face_b64 = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
-    # Chạy pipeline
-    import os
-    token = os.getenv("REPLICATE_API_TOKEN", "")
-    t0    = time.time()
-
+    # ── Chạy pipeline ─────────────────────────────────────────────────
+    token   = os.getenv("REPLICATE_API_TOKEN", "")
+    t0      = time.time()
     from app.auth.avatar import generate_avatar_pipeline
-    result = generate_avatar_pipeline(face_b64, character, gioi_tinh)
+    result  = generate_avatar_pipeline(face_b64, character, gioi_tinh)
     elapsed = round(time.time() - t0, 2)
 
-    if not result["ok"]:
-        return JSONResponse({
-            "ok":      False,
-            "error":   result["error"],
-            "token":   "set" if token else "MISSING ← thêm REPLICATE_API_TOKEN vào Railway",
-            "elapsed": elapsed,
-        })
+    token_status = "✅ Đã set" if token else "❌ CHƯA SET — thêm REPLICATE_API_TOKEN vào Railway"
+    method = "🤖 AnimeGAN2 (Replicate AI)" if elapsed > 3 else "🎨 PIL enhance (fallback)"
 
-    # Đoán method từ thời gian (AI thường > 5s, PIL < 1s)
-    method = "AnimeGAN2 (Replicate AI)" if elapsed > 3 else "PIL portrait-enhance (fallback)"
-    return JSONResponse({
-        "ok":          True,
-        "method":      method,
-        "elapsed_sec": elapsed,
-        "token_set":   bool(token),
-        "cartoon_b64": result["cartoon_b64"],   # ảnh mặt đã filter
-        "final_b64":   result["final_b64"],      # ảnh nhân vật hoàn chỉnh
-    })
+    if not result["ok"]:
+        html = f"""<!DOCTYPE html><html><body style="font-family:monospace;background:#111;color:#f55;padding:24px">
+<h2>❌ Pipeline thất bại</h2>
+<p><b>Lỗi:</b> {result['error']}</p>
+<p><b>REPLICATE_API_TOKEN:</b> {token_status}</p>
+<p><b>Thời gian:</b> {elapsed}s</p>
+<p>Xem Railway Logs để biết chi tiết (tìm dòng <code>[avatar]</code>)</p>
+</body></html>"""
+        from fastapi.responses import HTMLResponse
+        return HTMLResponse(html, status_code=200)
+
+    cartoon_src = result["cartoon_b64"]
+    final_src   = result["final_b64"]
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>Avatar Test</title>
+<style>
+  body{{font-family:sans-serif;background:#0a0a1a;color:#eee;text-align:center;padding:24px}}
+  .row{{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin:24px 0}}
+  .card{{background:#161630;border-radius:12px;padding:16px;min-width:200px}}
+  img{{max-width:300px;border-radius:8px}}
+  .ok{{color:#4f8}}  .warn{{color:#fa4}}
+  pre{{text-align:left;background:#111;padding:12px;border-radius:8px;font-size:13px}}
+</style></head>
+<body>
+<h2>🧪 Avatar Pipeline Test</h2>
+<div class="row">
+  <div class="card"><p>REPLICATE_API_TOKEN</p>
+    <b class="{'ok' if token else 'warn'}">{token_status}</b></div>
+  <div class="card"><p>Method</p><b>{method}</b></div>
+  <div class="card"><p>Thời gian</p><b>{elapsed}s</b></div>
+  <div class="card"><p>Character</p><b>{character} / {gioi_tinh}</b></div>
+</div>
+<div class="row">
+  <div class="card">
+    <p>Mặt sau filter (cartoon_b64)</p>
+    <img src="{cartoon_src}">
+  </div>
+  <div class="card">
+    <p>Nhân vật hoàn chỉnh (final_b64)</p>
+    <img src="{final_src}">
+  </div>
+</div>
+<p style="color:#888">Nếu ảnh vẫn xấu + token chưa set → thêm REPLICATE_API_TOKEN vào Railway web service</p>
+</body></html>"""
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(html)
 
 
 # ── Dashboard stats ────────────────────────────────────────────────────
