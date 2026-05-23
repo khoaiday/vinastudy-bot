@@ -21,18 +21,24 @@ CHAR_LABEL = {
 
 
 async def _send_tg(chat_id: int, text: str) -> None:
-    """Gửi tin nhắn Telegram không đồng bộ, nuốt lỗi."""
+    """Gửi tin nhắn Telegram plain-text, log lỗi rõ ràng."""
     if not (chat_id and TELEGRAM_TOKEN):
+        logger.warning(f"_send_tg skipped: chat_id={chat_id!r}, token={'set' if TELEGRAM_TOKEN else 'MISSING'}")
         return
     try:
         import httpx
         async with httpx.AsyncClient(timeout=8) as client:
-            await client.post(
+            resp = await client.post(
                 f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
-                json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"},
+                json={"chat_id": chat_id, "text": text},  # plain text
             )
+        result = resp.json()
+        if result.get("ok"):
+            logger.info(f"TG notify sent → chat_id={chat_id}")
+        else:
+            logger.warning(f"TG notify API error → {result}")
     except Exception as e:
-        logger.warning(f"TG notify failed (chat_id={chat_id}): {e}")
+        logger.warning(f"TG notify exception (chat_id={chat_id}): {e}")
 
 
 def get_current_user(request: Request) -> dict:
