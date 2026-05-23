@@ -53,7 +53,8 @@ async def ask_claude_with_image(history: list, user_text: str, img_b64: str, buo
         logger.error(f"Claude error image: {e}")
         return "❌ Có lỗi xử lý ảnh, em thử lại sau nhé!"
 
-async def danh_gia_nang_luc(diem: int, tong: int, chi_tiet: dict, buoi: int, lich_su: list) -> str:
+async def danh_gia_nang_luc(diem: int, tong: int, chi_tiet: dict, buoi: int, lich_su: list,
+                            checkpoints: list = None, level: int = 1) -> str:
     phan_tram = round(diem / tong * 100) if tong else 0
     dang_sai = [k for k, v in chi_tiet.items() if not v]
 
@@ -79,13 +80,30 @@ async def danh_gia_nang_luc(diem: int, tong: int, chi_tiet: dict, buoi: int, lic
     ten_buoi = BUOI_CONFIG.get(buoi, {}).get("ten", "")
     dang_bai = ", ".join(DANG_BAI.get(buoi, []))
 
+    # Phân tích checkpoint (thời gian, số lần thử, câu cần gợi ý)
+    checkpoint_text = ""
+    if checkpoints:
+        need_hint = [cp for cp in checkpoints if cp.get("attempt_number", 1) > 1]
+        first_correct = [cp for cp in checkpoints if cp.get("is_correct") and cp.get("attempt_number", 1) == 1]
+        avg_time = round(sum(cp.get("time_spent_seconds", 0) for cp in checkpoints) / len(checkpoints)) if checkpoints else 0
+        slow_qs = [cp for cp in checkpoints if cp.get("time_spent_seconds", 0) > 60]
+
+        level_label = {1: "Level 1 (×1 — Bình thường)", 2: "Level 2 (×1.5 — Khó)", 3: "Level 3 (×2 — Siêu khó)"}.get(level, f"Level {level}")
+        checkpoint_text = f"""
+PHÂN TÍCH CHI TIẾT:
+- Cấp độ chơi: {level_label}
+- Số câu làm đúng ngay lần đầu: {len(first_correct)}/{tong}
+- Số câu cần gợi ý (Mo-Mo): {len(need_hint)}
+- Thời gian TB mỗi câu: {avg_time}s
+- Câu mất nhiều thời gian (>60s): {len(slow_qs)} câu"""
+
     prompt = f"""Em học sinh vừa hoàn thành bài tập Buổi {buoi} — {ten_buoi}.
 
 KẾT QUẢ:
 - Điểm: {diem}/{tong} câu ({phan_tram}%)
 - Câu sai: {", ".join(dang_sai) if dang_sai else "Không có (làm đúng hết!)"}
 - Dạng bài buổi này: {dang_bai}
-
+{checkpoint_text}
 SO SÁNH:
 - {trend_text}
 {("- " + overall_text) if overall_text else ""}
@@ -94,12 +112,12 @@ LỊCH SỬ GẦN ĐÂY:
 {lich_su_text if lich_su_text else "  (Chưa có lịch sử)"}
 
 Hãy viết đánh giá ngắn gọn gồm 4 phần:
-1. Nhận xét kết quả (1-2 câu, thân thiện với học sinh lớp 3, có khen ngợi)
+1. Nhận xét kết quả (1-2 câu, thân thiện với học sinh lớp 3, có khen ngợi; nêu cấp độ nếu chơi level 2/3)
 2. Mức năng lực: 🌱 Mức 1 (<40%) / 📖 Mức 2 (40-60%) / ⭐ Mức 3 (60-80%) / 🏆 Mức 4 (≥80%)
-3. Kiến thức cần cải thiện (nêu cụ thể dựa vào câu sai và dạng bài, bỏ qua nếu không có câu sai)
+3. Kiến thức cần cải thiện (nêu cụ thể dựa vào câu sai, số lần cần gợi ý, và dạng bài; bỏ qua nếu hoàn hảo)
 4. 2-3 lời khuyên ôn tập cụ thể
 
-Viết bằng tiếng Việt, thân thiện, dùng emoji, không quá 200 chữ."""
+Viết bằng tiếng Việt, thân thiện, dùng emoji, không quá 220 chữ."""
 
     try:
         resp = await client.messages.create(

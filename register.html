@@ -196,8 +196,9 @@ body {
   border: 2px solid var(--border); object-fit: cover;
 }
 .preview-item.final img {
-  width: 140px; height: 140px; border-radius: 16px;
+  width: 105px; height: 140px; border-radius: 14px;
   border-color: var(--primary); box-shadow: 0 0 20px rgba(10,224,254,.4);
+  object-fit: cover; object-position: top center;
 }
 .preview-item p { font-size: .72rem; color: rgba(200,230,255,.5); margin-top: 6px; }
 
@@ -219,6 +220,16 @@ body {
   border-radius: 50%; animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Avatar state rings (idle / loading / done) ── */
+.av-spin {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(10,224,254,.15);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+.av-spin.mg { border-color: rgba(234,14,237,.15); border-top-color: var(--secondary); }
 
 /* ── Pending screen ── */
 .pending-box { text-align: center; padding: 12px 0; }
@@ -380,35 +391,53 @@ body {
         <p>Hoặc tải ảnh từ thư viện<br><small>(chụp ảnh mặt rõ, nền sáng)</small></p>
       </div>
 
-      <!-- Preview -->
+      <!-- Preview — 3 panels: face / cartoon / character avatar -->
       <div class="avatar-preview" id="previewBox" style="display:none">
+
+        <!-- Ảnh gốc -->
         <div class="preview-item">
           <img id="previewFace" src="" alt="Ảnh gốc">
           <p>Ảnh gốc</p>
         </div>
-        <div class="preview-item">
-          <img id="previewCartoon" src="" alt="Hoạt hình">
+
+        <!-- Hoạt hình (idle → loading → done) -->
+        <div class="preview-item" id="cartoonBox">
+          <div id="cartoonState"
+               style="width:100px;height:100px;border-radius:50%;
+                      border:2px dashed rgba(234,14,237,.4);
+                      background:rgba(234,14,237,.05);
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:2.2rem;color:rgba(200,230,255,.6)">🎨</div>
+          <img id="cartoonImg" alt="Hoạt hình"
+               style="width:100px;height:100px;border-radius:50%;
+                      border:2px solid var(--secondary);
+                      object-fit:cover;object-position:top center;display:none;
+                      box-shadow:0 0 14px rgba(234,14,237,.4)">
           <p>Hoạt hình</p>
         </div>
+
+        <!-- Avatar nhân vật (idle → loading → done) -->
         <div class="preview-item final">
-          <img id="previewFinal" src="" alt="Avatar">
+          <div id="finalState"
+               style="width:105px;height:140px;border-radius:14px;
+                      border:2px dashed rgba(10,224,254,.3);
+                      background:rgba(10,224,254,.05);
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:2.5rem;color:rgba(200,230,255,.6)">⚔️</div>
+          <img id="previewFinal" alt="Avatar nhân vật" style="display:none">
           <p>Avatar nhân vật</p>
         </div>
+
       </div>
 
-      <div id="spinBox" style="display:none">
-        <div class="spinner"></div>
-        <p style="text-align:center; font-size:.85rem; color:rgba(200,230,255,.6)">
-          🎨 Đang tạo avatar hoạt hình...
-        </p>
-      </div>
+      <!-- Thông báo tiến trình tạo avatar -->
+      <div id="genStatus"
+           style="display:none;text-align:center;font-size:.85rem;
+                  color:var(--primary);margin:10px 0 4px;
+                  min-height:1.5em;padding:4px 0;letter-spacing:.3px;font-weight:600"></div>
 
-      <button class="btn btn-primary btn-full" id="btnSubmit" onclick="submitProfile()" style="display:none; margin-top:8px">
-        🚀 Hoàn tất đăng ký!
-      </button>
-
-      <button class="btn btn-full" onclick="goStep(2)"
-        style="margin-top:10px; background:transparent; border:1px solid var(--border); color:rgba(200,230,255,.5); font-size:.85rem">
+      <button class="btn btn-full" id="btnBack" onclick="goStep(2)"
+        style="margin-top:12px; background:transparent; border:1px solid var(--border); color:rgba(200,230,255,.5); font-size:.85rem">
         ← Quay lại
       </button>
     </div>
@@ -423,10 +452,19 @@ body {
           Thầy sẽ thông báo qua Telegram khi được duyệt.<br><br>
           Thường trong vòng <strong style="color:var(--primary)">24 giờ</strong> 🚀
         </div>
-        <div style="margin-top:24px">
+        <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;align-items:flex-end">
+          <!-- Mặt hoạt hình -->
+          <div style="text-align:center">
+            <img id="pendingCartoon" src="" alt="Hoạt hình"
+                 style="width:70px;height:70px;border-radius:50%;object-fit:cover;object-position:top center;
+                        border:2px solid var(--secondary);display:none;
+                        box-shadow:0 0 14px rgba(234,14,237,.4)">
+            <p style="font-size:10px;color:rgba(200,230,255,.45);margin-top:5px">🎨 Hoạt hình</p>
+          </div>
+          <!-- Avatar nhân vật (portrait) -->
           <div class="preview-item final" style="display:inline-block">
             <img id="pendingAvatar" src="" alt="Avatar" style="border-color:var(--secondary)">
-            <p id="pendingName" style="color:var(--primary); font-weight:700; font-size:.9rem; margin-top:8px"></p>
+            <p id="pendingName" style="color:var(--primary);font-weight:700;font-size:.9rem;margin-top:8px"></p>
           </div>
         </div>
         <!-- Poll status indicator -->
@@ -495,6 +533,66 @@ let currentGender = 'nam';
 let faceB64 = '';
 let stream = null;
 
+// ── Character emoji map ────────────────────────────────────────────────
+const CHAR_EMOJI = { chien_binh: '⚔️', phu_thuy: '🔮', xa_thu: '🏹', hiep_si: '🛡️' };
+function charEmoji(c) { return CHAR_EMOJI[c] || '⚔️'; }
+
+// ── Avatar state (idle | loading | done) ───────────────────────────────
+function _setAvState(which, state, src) {
+  const stateId   = which === 'cartoon' ? 'cartoonState' : 'finalState';
+  const imgId     = which === 'cartoon' ? 'cartoonImg'   : 'previewFinal';
+  const isCartoon = which === 'cartoon';
+  const ph  = document.getElementById(stateId);
+  const img = document.getElementById(imgId);
+  if (!ph || !img) return;
+
+  if (state === 'idle') {
+    ph.innerHTML = isCartoon ? '🎨' : charEmoji(currentChar);
+    ph.style.display = 'flex';
+    img.style.display = 'none';
+    img.removeAttribute('src');          // tránh iOS Safari hiện alt text
+  } else if (state === 'loading') {
+    const cls = isCartoon ? 'av-spin mg' : 'av-spin';
+    ph.innerHTML = `<div class="${cls}"></div>`;
+    ph.style.display = 'flex';
+    img.style.display = 'none';
+    img.removeAttribute('src');
+  } else if (state === 'done') {
+    ph.style.display = 'none';
+    if (src) { img.src = src; img.style.display = 'block'; }
+    else      { img.style.display = 'none'; }
+  }
+}
+
+// ── Cycling generation-status messages ────────────────────────────────
+let _genMsgTimer = null;
+const GEN_MSGS = [
+  '⚙️ Đang xử lý ảnh...',
+  '🎨 Đang vẽ hoạt hình...',
+  '⚔️ Đang ghép nhân vật...',
+  '✨ Sắp xong rồi...',
+];
+
+function startGenMsg() {
+  let i = 0;
+  const el = document.getElementById('genStatus');
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent = GEN_MSGS[0];
+  _genMsgTimer = setInterval(() => {
+    i = (i + 1) % GEN_MSGS.length;
+    el.textContent = GEN_MSGS[i];
+  }, 900);
+}
+
+function stopGenMsg(finalMsg) {
+  if (_genMsgTimer) { clearInterval(_genMsgTimer); _genMsgTimer = null; }
+  const el = document.getElementById('genStatus');
+  if (!el) return;
+  if (finalMsg) { el.textContent = finalMsg; el.style.display = 'block'; }
+  else { el.style.display = 'none'; el.textContent = ''; }
+}
+
 function selectGender(gt) {
   currentGender = gt;
   const activeStyle = 'border:2px solid var(--secondary);background:rgba(234,14,237,0.25);color:var(--secondary)';
@@ -511,12 +609,12 @@ function doGoogleLogin(e) {
   if (tgId) localStorage.setItem('vsTgId', String(tgId));
   const path = tgId ? `/auth/google/login?tg_id=${tgId}` : '/auth/google/login';
   const fullUrl = window.location.origin + path;
-  // Google OAuth không cho phép login trong WebView/in-app browser
-  // → Buộc mở bằng trình duyệt hệ thống (Chrome/Safari)
+  // Luôn redirect cùng tab để localStorage (vsTgId) không bị mất khi popup bị chặn.
+  // Telegram in-app browser (Chrome Custom Tab / SFSafariViewController) cho phép Google OAuth.
   if (window.Telegram?.WebApp?.openLink) {
     window.Telegram.WebApp.openLink(fullUrl);
   } else {
-    window.open(fullUrl, '_blank') || (window.location.href = fullUrl);
+    window.location.href = fullUrl;
   }
 }
 
@@ -624,13 +722,36 @@ function showToast(msg, ok=false) {
   }
 })();
 
-// ── Polling: tự kiểm tra trạng thái duyệt ──────────────────────────────
-let _pollTimer = null;
+// ── Countdown + Poll ────────────────────────────────────────────────────
+let _pollTimer      = null;
+let _countdownTimer = null;
+
+function tryClose() {
+  // 1. Telegram WebApp (nếu mở qua web_app=)
+  if (window.Telegram?.WebApp?.close) { window.Telegram.WebApp.close(); return; }
+  // 2. In-app browser (Telegram url= button → Chrome Custom Tab / Safari View)
+  window.close();
+  // 3. Fallback: navigate về bot
+  setTimeout(() => { window.location.href = 'https://t.me/chienbiantoanbot'; }, 500);
+}
 
 function stopPendingPoll() {
-  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+  if (_pollTimer)      { clearInterval(_pollTimer);  _pollTimer      = null; }
+  if (_countdownTimer) { clearTimeout(_countdownTimer); _countdownTimer = null; }
   const el = document.getElementById('pollStatus');
   if (el) el.textContent = '';
+}
+
+function _tickCountdown(n) {
+  const el = document.getElementById('pollStatus');
+  if (n <= 0) {
+    if (el) el.textContent = '⏱ Đang đóng...';
+    tryClose();
+    return;
+  }
+  if (el) el.innerHTML =
+    `⏱ Tự đóng sau <strong style="color:var(--primary)">${n}s</strong>`;
+  _countdownTimer = setTimeout(() => _tickCountdown(n - 1), 1000);
 }
 
 async function _checkApproval() {
@@ -653,8 +774,7 @@ async function _checkApproval() {
 function startPendingPoll() {
   stopPendingPoll();
   _pollTimer = setInterval(_checkApproval, 5000);
-  const el = document.getElementById('pollStatus');
-  if (el) el.textContent = '🔄 Tự kiểm tra trạng thái mỗi 5 giây...';
+  _tickCountdown(5); // đếm ngược 5s → tự đóng trang
 }
 
 // ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
@@ -712,7 +832,6 @@ async function startCamera() {
     document.getElementById('btnSnap').style.display = '';
     document.getElementById('uploadArea').style.display = 'none';
     document.getElementById('previewBox').style.display = 'none';
-    document.getElementById('btnSubmit').style.display = 'none';
   } catch(e) {
     showToast('Không mở được camera, hãy tải ảnh từ thư viện!');
   }
@@ -760,30 +879,32 @@ function uploadFile(e) {
 
 function showPhotoPreview() {
   stopCamera();
-  document.getElementById('video').style.display = 'none';
-  document.getElementById('previewFace').src = faceB64;
+  document.getElementById('video').style.display    = 'none';
+  document.getElementById('previewFace').src        = faceB64;
+  document.getElementById('btnCamera').style.display = 'none'; // ẩn trong lúc tạo
+  document.getElementById('btnSnap').style.display   = 'none';
+  document.getElementById('btnRetake').style.display = '';     // vẫn cho Chụp lại
+  document.getElementById('uploadArea').style.display = 'none';
   document.getElementById('previewBox').style.display = 'flex';
-  document.getElementById('previewCartoon').src = '';
-  document.getElementById('previewFinal').src = '';
-  document.getElementById('btnCamera').style.display = '';
-  document.getElementById('btnSnap').style.display = 'none';
-  document.getElementById('btnRetake').style.display = '';
-  document.getElementById('uploadArea').style.display = '';
-  document.getElementById('btnSubmit').style.display = '';
+  // Tự động bắt đầu tạo avatar ngay
+  _generateAvatar();
 }
 
 function resetStep3UI() {
   /* Đặt lại toàn bộ giao diện step 3 về trạng thái ban đầu.
      Gọi khi: vào step3, bấm Chụp lại, bấm Quay lại từ step3. */
+  if (_abortCtrl) { _abortCtrl.abort(); _abortCtrl = null; }
   stopCamera();
+  stopGenMsg();
   faceB64 = '';
+  _setAvState('cartoon', 'idle');
+  _setAvState('final', 'idle');
   document.getElementById('video').style.display      = 'none';
   document.getElementById('btnCamera').style.display  = '';
   document.getElementById('btnSnap').style.display    = 'none';
   document.getElementById('btnRetake').style.display  = 'none';
-  document.getElementById('uploadArea').style.display = '';   // ← khôi phục upload
+  document.getElementById('uploadArea').style.display = '';
   document.getElementById('previewBox').style.display = 'none';
-  document.getElementById('btnSubmit').style.display  = 'none';
 }
 
 function retakePhoto() {
@@ -794,21 +915,31 @@ function stopCamera() {
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
 }
 
-// ── Submit profile ───────────────────────────────────────────────────────
-async function submitProfile() {
-  if (!faceB64) { showToast('Em chưa chụp ảnh!'); return; }
+// ── Auto-generate avatar (gọi tự động khi ảnh được chọn) ─────────────────
+let _abortCtrl = null;
+
+async function _generateAvatar() {
   const name = document.getElementById('inputName').value.trim();
   const lop  = document.getElementById('inputLop').value;
   if (!name) { showToast('Em chưa nhập tên!'); goStep(2); return; }
+  if (!faceB64) return;
 
-  document.getElementById('spinBox').style.display = 'block';
-  document.getElementById('btnSubmit').disabled = true;
+  // Huỷ request cũ nếu có (ví dụ: chụp lại ngay)
+  if (_abortCtrl) _abortCtrl.abort();
+  _abortCtrl = new AbortController();
+
+  // Spinner + cycling messages
+  _setAvState('cartoon', 'loading');
+  _setAvState('final', 'loading');
+  startGenMsg();
+
+  // Ẩn nút Chụp lại trong lúc đang tạo để tránh nhầm lẫn
+  document.getElementById('btnRetake').style.display = 'none';
 
   try {
     const tgId = localStorage.getItem('vsTgId');
     const body = {
-      ho_ten: name,
-      lop: lop,
+      ho_ten: name, lop,
       gioi_tinh: currentGender,
       character_type: currentChar,
       avatar_face_b64: faceB64,
@@ -817,6 +948,7 @@ async function submitProfile() {
 
     const res = await fetch('/api/student/complete-profile', {
       method: 'POST',
+      signal: _abortCtrl.signal,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
@@ -825,30 +957,44 @@ async function submitProfile() {
     });
 
     const data = await res.json();
-    document.getElementById('spinBox').style.display = 'none';
 
     if (!res.ok) {
-      showToast(data.detail || 'Lỗi, thử lại!');
-      document.getElementById('btnSubmit').disabled = false;
+      _onGenError(data.detail || 'Lỗi máy chủ, thử lại!');
       return;
     }
 
-    // Show preview
-    if (data.avatar_final) {
-      document.getElementById('previewFinal').src = data.avatar_final;
-    }
+    // ── Hiển thị kết quả ──────────────────────────────────────────────
+    _setAvState('cartoon', 'done', data.cartoon_b64 || '');
+    _setAvState('final',   'done', data.avatar_final || faceB64);
+    stopGenMsg('✅ Avatar đã tạo xong!');
 
-    // Go to pending screen + bắt đầu polling kiểm tra duyệt
+    // Chuẩn bị dữ liệu step 4
+    if (data.cartoon_b64) {
+      const ct = document.getElementById('pendingCartoon');
+      ct.src = data.cartoon_b64;
+      ct.style.display = '';
+    }
     document.getElementById('pendingAvatar').src = data.avatar_final || faceB64;
     document.getElementById('pendingName').textContent = name;
-    goStep(4);
-    startPendingPoll();
+
+    // Hiện kết quả 1.8s rồi sang step 4
+    setTimeout(() => { goStep(4); startPendingPoll(); }, 1800);
 
   } catch(e) {
-    document.getElementById('spinBox').style.display = 'none';
-    document.getElementById('btnSubmit').disabled = false;
-    showToast('Lỗi kết nối, thử lại!');
+    if (e.name === 'AbortError') return; // người dùng chụp lại → bỏ qua
+    _onGenError('Lỗi kết nối, thử lại!');
   }
+}
+
+function _onGenError(msg) {
+  stopGenMsg();
+  _setAvState('cartoon', 'idle');
+  _setAvState('final', 'idle');
+  // Cho chụp lại / upload lại
+  document.getElementById('btnCamera').style.display  = '';
+  document.getElementById('uploadArea').style.display = '';
+  document.getElementById('btnRetake').style.display  = '';
+  showToast(msg);
 }
 </script>
 </body>

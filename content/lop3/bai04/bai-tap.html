@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ải 4 — Kiến Trúc Sư Vũ Trụ 🚀</title>
+<title>Ải 4 — Dãy Số Cách Đều 🏗️</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -19,6 +19,7 @@
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: rgba(10, 224, 254, 0.4);
+  --radius: 0px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -30,76 +31,198 @@ body {
     linear-gradient(rgba(10,224,254,0.07) 1px, transparent 1px),
     linear-gradient(90deg, rgba(10,224,254,0.07) 1px, transparent 1px);
   background-size: 40px 40px;
+  background-position: center top;
 }
 
-/* ── Mars City Header ── */
-.mars-header {
-  background: radial-gradient(ellipse at bottom, #1a0a2e 0%, #050a1f 70%);
-  padding: 20px 16px 16px;
+/* ── Level Modal ── */
+.level-modal {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(5,10,31,0.97);
+  display: none; align-items: center; justify-content: center;
+  flex-direction: column; padding: 24px;
+  backdrop-filter: blur(8px);
+}
+.level-modal.show { display: flex; animation: fadeIn 0.3s ease; }
+.level-modal-box {
+  background: rgba(11,19,43,0.98); border: 2px solid var(--primary);
+  border-radius: 20px; padding: 36px 28px; max-width: 380px; width: 100%;
+  text-align: center; box-shadow: 0 0 40px var(--primary-glow);
+  animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+}
+.level-modal-title {
+  font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 900;
+  color: var(--primary); text-transform: uppercase; letter-spacing: 3px;
+  margin-bottom: 6px; text-shadow: 0 0 15px var(--primary-glow);
+}
+.level-modal-sub {
+  font-size: 13px; color: var(--text-muted); margin-bottom: 28px;
+}
+.level-btn {
+  display: block; width: 100%; padding: 14px 20px;
+  border-radius: 10px; margin-bottom: 12px; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s;
+  border: 2px solid;
+}
+.level-btn-1 { background: rgba(78,255,159,0.1); border-color: var(--success); color: var(--success); }
+.level-btn-1:hover { background: var(--success); color: #000; }
+.level-btn-2 { background: rgba(251,191,36,0.1); border-color: var(--amber); color: var(--amber); }
+.level-btn-2:hover { background: var(--amber); color: #000; }
+.level-btn-3 { background: rgba(255,0,85,0.1); border-color: var(--danger); color: var(--danger); }
+.level-btn-3:hover { background: var(--danger); color: #fff; }
+
+/* ── Battle Arena ── */
+.battle-arena {
+  background: radial-gradient(circle at center, #0e173a, #050a1f);
+  padding: 12px 20px 16px;
   border-bottom: 2px solid var(--primary);
   box-shadow: 0 5px 30px rgba(10,224,254,0.2);
   position: relative; overflow: hidden;
-  text-align: center;
+  display: flex; flex-direction: column; align-items: center;
 }
-.mars-stars {
-  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+.arena-bg {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+  perspective: 800px;
 }
-.mars-stars span {
-  position: absolute; width: 2px; height: 2px; background: #fff;
-  border-radius: 50%; animation: twinkle 3s infinite alternate;
+.arena-grid-wrapper {
+  position: absolute;
+  bottom: 0; left: -50%; width: 200%; height: 200%;
+  transform: rotateX(75deg);
+  transform-origin: center bottom;
+  -webkit-mask-image: linear-gradient(transparent 50%, black 100%);
 }
-@keyframes twinkle { 0%{opacity:0.3} 100%{opacity:1} }
+.arena-grid {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0 L0 0 0 60' fill='none' stroke='%230ae0fe' stroke-width='3' stroke-opacity='0.3'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+  animation: gridMove 2s linear infinite;
+}
+@keyframes gridMove { from{background-position:0 0} to{background-position:0 60px} }
 
-.mars-title {
-  font-family: 'Rajdhani', sans-serif; font-size: clamp(18px,5vw,26px);
-  font-weight: 900; color: var(--primary); text-transform: uppercase;
-  text-shadow: 0 0 15px var(--primary-glow); letter-spacing: 2px;
-  margin-bottom: 4px; position: relative; z-index: 2;
+.math-particles { position: absolute; inset: 0; perspective: 600px; }
+.math-particles span {
+  position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900;
+  left: var(--startX); top: var(--startY);
+  opacity: 0; animation: flyForward linear infinite;
 }
-.mars-subtitle {
-  font-size: 13px; color: var(--text-muted); margin-bottom: 14px;
+@keyframes flyForward {
+  0% { transform: translateZ(-600px) scale(0.5); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateZ(300px) scale(1.5); opacity: 0; }
+}
+.p1{--startX:10%;--startY:20%;color:var(--primary);font-size:30px;animation-duration:4s;animation-delay:0s;text-shadow:0 0 10px var(--primary-glow)}
+.p2{--startX:80%;--startY:10%;color:var(--amber);font-size:40px;animation-duration:5s;animation-delay:1s}
+.p3{--startX:20%;--startY:60%;color:var(--primary);font-size:35px;animation-duration:6s;animation-delay:2s}
+.p4{--startX:70%;--startY:50%;color:var(--secondary);font-size:28px;animation-duration:4.5s;animation-delay:0.5s}
+.p5{--startX:40%;--startY:30%;color:#4eff9f;font-size:32px;animation-duration:5.5s;animation-delay:1.5s}
+.p6{--startX:60%;--startY:20%;color:var(--primary);font-size:25px;animation-duration:4.2s;animation-delay:2.5s}
+.p7{--startX:90%;--startY:60%;color:var(--secondary);font-size:45px;animation-duration:6.5s;animation-delay:3s}
+.p8{--startX:15%;--startY:40%;color:var(--amber);font-size:26px;animation-duration:5s;animation-delay:3.5s}
+.p9{--startX:50%;--startY:70%;color:var(--primary);font-size:38px;animation-duration:4.8s;animation-delay:4s}
+.p10{--startX:30%;--startY:10%;color:var(--secondary);font-size:30px;animation-duration:5.2s;animation-delay:0.8s}
+
+.arena-stats {
+  display: flex; justify-content: center; gap: 16px;
   position: relative; z-index: 2;
+  margin-bottom: 8px; width: 100%;
 }
+.astat { display: flex; flex-direction: row; align-items: center; gap: 5px; }
+.astat-num { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; line-height: 1; }
+.astat-lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
+.astat-ok .astat-num { color: var(--success); text-shadow: 0 0 6px rgba(78,255,159,0.5); }
+.astat-ok .astat-lbl { color: var(--success); opacity: 0.85; }
+.astat-err .astat-num { color: var(--danger); text-shadow: 0 0 6px rgba(255,0,85,0.5); }
+.astat-err .astat-lbl { color: var(--danger); opacity: 0.85; }
+.astat-rem .astat-num { color: #7ab8d0; }
+.astat-rem .astat-lbl { color: #5d8fa0; }
 
-/* Skyline */
-.city-skyline {
-  display: flex; align-items: flex-end; justify-content: center;
-  gap: 6px; height: 90px; margin-bottom: 12px;
-  position: relative; z-index: 2;
+.combat-zone {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  width: 100%; max-width: 500px; position: relative; z-index: 2;
+  padding: 0 20px;
 }
-.building {
-  width: 28px; border-radius: 4px 4px 0 0;
-  background: rgba(10,224,254,0.08); border: 1px solid rgba(10,224,254,0.15);
-  position: relative; transition: all 0.6s ease; cursor: default;
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+.fighter { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 120px; }
+.avatar {
+  font-size: 64px; line-height: 1;
+  filter: drop-shadow(0 0 15px var(--primary-glow));
+  animation: idle 2s ease-in-out infinite;
+  position: relative;
+  background: rgba(10,224,254,0.1);
+  border: 2px solid var(--primary);
+  border-radius: 12px; padding: 10px;
 }
-.building .b-num {
-  font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 700;
-  color: var(--text-muted); padding-bottom: 3px;
-}
-.building.lit {
-  background: linear-gradient(180deg, var(--primary), rgba(10,224,254,0.2));
-  border-color: var(--primary);
-  box-shadow: 0 0 15px var(--primary-glow), 0 -10px 20px var(--primary-glow);
-}
-.building.lit .b-num { color: #fff; text-shadow: 0 0 5px var(--primary); }
+.player .avatar { animation-delay: 0s; transform-origin: bottom center; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+.boss .avatar { animation-delay: 1s; transform-origin: bottom center; border-color: var(--secondary); box-shadow: 0 0 15px var(--secondary-glow); background: rgba(234,14,237,0.1); filter: drop-shadow(0 0 15px var(--secondary-glow)); }
+.hp-bar-container { width: 100%; background: rgba(0,0,0,0.6); border: 2px solid var(--border); border-radius: 4px; height: 20px; overflow: hidden; position: relative; box-shadow: inset 0 0 5px #000; }
+.hp-bar-fill { height: 100%; width: 100%; transition: width 0.3s ease; }
+.player .hp-bar-fill { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+.boss .hp-bar-fill { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); }
+.fighter-name { font-size: 14px; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase; }
 
-.city-ground {
-  height: 3px; background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  position: relative; z-index: 2; margin-bottom: 10px;
-}
+.projectile { position: absolute; font-size: 38px; top: 50%; transform: translateY(-50%); z-index: 3; pointer-events: none; filter: drop-shadow(0 0 20px currentColor); }
 
-/* Progress */
-.mars-progress {
-  display: flex; justify-content: center; gap: 20px;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
-  position: relative; z-index: 2;
-}
-.mars-progress .mp-item { display: flex; align-items: center; gap: 5px; }
-.mp-dot { width: 8px; height: 8px; border-radius: 50%; }
+@keyframes idle { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05) translateY(-2px)} }
+@keyframes shake { 0%,100%{transform:translateX(0);filter:brightness(1)} 20%{transform:translateX(-10px);filter:brightness(1.5) saturate(3)} 40%{transform:translateX(10px)} 60%{transform:translateX(-10px)} 80%{transform:translateX(10px)} }
+@keyframes castMagic { 0%{transform:scale(1) translateX(0)} 50%{transform:scale(1.1) translateX(20px) rotate(5deg)} 100%{transform:scale(1) translateX(0)} }
+@keyframes castBossMagic { 0%{transform:scale(1) translateX(0)} 50%{transform:scale(1.1) translateX(-20px) rotate(-5deg)} 100%{transform:scale(1) translateX(0)} }
+@keyframes flyRight { 0%{left:80px;opacity:1;transform:translateY(-50%) scale(0.5)} 100%{left:calc(100% - 100px);opacity:0;transform:translateY(-50%) scale(2)} }
+@keyframes flyLeft { 0%{right:80px;opacity:1;transform:translateY(-50%) scale(0.5)} 100%{right:calc(100% - 100px);opacity:0;transform:translateY(-50%) scale(2)} }
+
+.energy-beam { position: absolute; height: 6px; background: var(--primary); box-shadow: 0 0 15px var(--primary), 0 0 30px var(--secondary); border-radius: 3px; z-index: 10; }
+@keyframes fireBeam { 0%{width:0;left:60px;opacity:1} 50%{width:150px;left:60px;opacity:1} 100%{width:0;left:calc(100% - 60px);opacity:0} }
+
+.damage-number { position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900; font-size: 28px; color: var(--danger); z-index: 100; animation: floatDamage 1s ease-out forwards; text-shadow: 0 0 10px rgba(255,0,85,0.8); pointer-events: none; left: 50%; top: 0; transform: translateX(-50%); }
+@keyframes floatDamage { 0%{opacity:1;transform:translate(-50%,0) scale(1)} 100%{opacity:0;transform:translate(-50%,-60px) scale(1.5)} }
+.explosion { position: absolute; font-size: 60px; pointer-events: none; animation: explodeAnim 0.5s ease-out forwards; z-index: 100; left: 50%; top: 50%; transform: translate(-50%,-50%); }
+@keyframes explodeAnim { 0%{transform:translate(-50%,-50%) scale(0.5);opacity:1} 50%{transform:translate(-50%,-50%) scale(1.5);opacity:1} 100%{transform:translate(-50%,-50%) scale(2);opacity:0} }
+
+.game-over-overlay { position: fixed; inset: 0; background: rgba(5,10,31,0.95); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+.game-over-overlay.show { opacity: 1; pointer-events: auto; }
+.game-over-title { font-family: 'Rajdhani', sans-serif; font-size: 64px; font-weight: 900; color: var(--danger); text-shadow: 0 0 20px var(--danger); margin-bottom: 20px; letter-spacing: 5px; }
+.game-over-btn { background: transparent; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 8px; font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 15px rgba(10,224,254,0.3); }
+.game-over-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 25px var(--primary); }
+
+/* ── Score Toast ── */
+.score-toast { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 160; pointer-events: none; text-align: center; font-family: 'Rajdhani', sans-serif; font-weight: 900; opacity: 0; }
+.score-toast.pop { animation: scoreToastPop 1.8s ease forwards; }
+@keyframes scoreToastPop { 0%{opacity:0;transform:translateX(-50%) translateY(-10px)} 12%{opacity:1;transform:translateX(-50%) translateY(0)} 70%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(-10px)} }
+.score-toast-pts { display: inline-block; background: rgba(78,255,159,0.13); border: 2px solid var(--success); border-radius: 20px; padding: 5px 18px; font-size: 20px; color: var(--success); text-shadow: 0 0 10px rgba(78,255,159,0.5); white-space: nowrap; }
+.score-toast-combo { font-size: 13px; color: var(--amber); letter-spacing: 2px; margin-top: 3px; text-shadow: 0 0 8px rgba(251,191,36,0.5); }
+
+/* ── Timer ── */
+#timerWrap { display: none; align-items: center; gap: 8px; margin-bottom: 12px; padding: 6px 10px; background: rgba(10,224,254,0.05); border: 1px solid rgba(10,224,254,0.2); border-radius: 10px; transition: border-color 0.3s, background 0.3s; }
+#timerWrap.tw { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.05); }
+#timerWrap.td { border-color: rgba(255,0,85,0.45); background: rgba(255,0,85,0.07); }
+.timer-icon { font-size: 15px; flex-shrink: 0; }
+.timer-track { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+.timer-fill { height: 100%; width: 100%; background: #0ae0fe; border-radius: 4px; transition: width 0.95s linear, background 0.3s; box-shadow: 0 0 6px #0ae0fe88; }
+.timer-fill.tw { background: #fbbf24; box-shadow: 0 0 6px #fbbf2488; }
+.timer-fill.td { background: #ff0055; box-shadow: 0 0 8px #ff005588; }
+.timer-num { font-size: 16px; font-weight: 900; font-family: 'Rajdhani', sans-serif; color: #0ae0fe; min-width: 26px; text-align: right; flex-shrink: 0; transition: color 0.3s; }
+.timer-num.tw { color: #fbbf24; }
+.timer-num.td { color: #ff0055; animation: tpulse 0.4s ease-in-out infinite; }
+@keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+
+/* ── Video Modal ── */
+.video-modal { position: fixed; inset: 0; z-index: 10000; background: rgba(5,10,31,0.95); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; flex-direction: column; }
+.video-modal.show { display: flex; }
+.video-container { width: 90%; max-width: 800px; background: var(--bg-card); border: 2px solid var(--primary); border-radius: 12px; box-shadow: 0 0 30px var(--primary-glow); overflow: hidden; position: relative; }
+.video-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(10,224,254,0.1); border-bottom: 1px solid var(--primary); }
+.video-title { font-family: 'Rajdhani', sans-serif; font-weight: bold; color: var(--primary); font-size: 18px; }
+.close-video-btn { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
+.video-iframe-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+.video-iframe-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
 /* ── Main ── */
-.main { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; }
+.main { max-width: 720px; margin: 0 auto; padding: 16px 16px 120px; }
+
+/* Nav bar */
+.nav-bar { position: sticky; top: 0; z-index: 50; display: flex; justify-content: center; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(5,10,31,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(5px); }
+.nav-btn { background: rgba(10,224,254,0.08); border: 1px solid var(--border); color: var(--primary); padding: 6px 14px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.nav-btn:hover { background: rgba(10,224,254,0.2); }
+.nav-info { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
 
 /* Formula Box */
 .formula-box {
@@ -107,90 +230,38 @@ body {
   border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;
   font-size: 13px; line-height: 1.9; position: relative;
 }
-.formula-box::before {
-  content: ""; position: absolute; inset: -1px; border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  z-index: -2; opacity: 0.3;
-}
+.formula-box::before { content:""; position:absolute; inset:-1px; border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--secondary)); z-index:-2; opacity:0.3; }
 .formula-box strong { color: var(--primary); font-weight: 800; }
-.formula-box code {
-  background: rgba(10,224,254,0.1); padding: 2px 8px; border-radius: 4px;
-  font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700;
-  color: var(--amber);
-}
+.formula-box code { background: rgba(10,224,254,0.1); padding: 2px 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; color: var(--amber); }
 
 /* Section titles */
-.section-title {
-  font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 1.5px;
-  color: var(--primary); text-shadow: 0 0 10px var(--primary-glow);
-  margin: 8px 0 14px; display: flex; align-items: center; gap: 8px;
-}
+.section-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); margin: 8px 0 14px; display: flex; align-items: center; gap: 8px; }
 .section-title::after { content:""; flex:1; height:2px; background:linear-gradient(90deg,var(--primary),transparent); }
 
-/* ── Slides ── */
+/* Slides */
 .q-slide { display: none; animation: fadeSlide 0.4s ease forwards; }
 .q-slide.active { display: block; }
-@keyframes fadeSlide {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeSlide { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
 /* Q-card */
-.q-card {
-  position: relative; border-radius: 16px;
-  background: transparent !important;
-  padding: 22px 20px 18px; margin-bottom: 14px;
-}
-.q-card::before {
-  content: ""; position: absolute;
-  top: -2px; left: -2px; right: -2px; bottom: -2px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  z-index: -2; box-shadow: 0 0 15px var(--primary-glow);
-}
-.q-card::after {
-  content: ""; position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: 16px; z-index: -1; background: #080e22;
-}
-.q-card.correct::before { background: linear-gradient(135deg, var(--success), #0ae0fe); box-shadow: 0 0 15px rgba(78,255,159,0.4); }
-.q-card.wrong::before { background: linear-gradient(135deg, var(--danger), #ea0eed); box-shadow: 0 0 15px rgba(255,0,85,0.4); }
+.q-card { position: relative; border-radius: 16px; background: transparent !important; padding: 22px 20px 18px; margin-bottom: 14px; }
+.q-card::before { content:""; position:absolute; top:-2px;left:-2px;right:-2px;bottom:-2px; border-radius:18px; background:linear-gradient(135deg,var(--primary),var(--secondary)); z-index:-2; box-shadow:0 0 15px var(--primary-glow); }
+.q-card::after { content:""; position:absolute; top:0;left:0;right:0;bottom:0; border-radius:16px; z-index:-1; background:#080e22; }
+.q-card.correct::before { background:linear-gradient(135deg,var(--success),#0ae0fe); box-shadow:0 0 15px rgba(78,255,159,0.4); }
+.q-card.wrong::before { background:linear-gradient(135deg,var(--danger),#ea0eed); box-shadow:0 0 15px rgba(255,0,85,0.4); }
 
-.q-num {
-  font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 1px; color: var(--primary);
-  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-}
-.q-num-badge {
-  background: var(--primary); color: #000; border-radius: 6px;
-  padding: 2px 8px; font-size: 11px;
-}
+.q-num { font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.q-num-badge { background: var(--primary); color: #000; border-radius: 6px; padding: 2px 8px; font-size: 11px; }
 
-/* Context story */
-.q-context {
-  background: rgba(234,14,237,0.05); border: 1px solid rgba(234,14,237,0.2);
-  border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;
-  font-size: 14px; line-height: 1.7; color: #e2e8f0;
-}
+.q-context { background: rgba(234,14,237,0.05); border: 1px solid rgba(234,14,237,0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: 14px; line-height: 1.7; color: #e2e8f0; }
 .q-context .ctx-icon { font-size: 20px; margin-right: 6px; }
 .q-context strong { color: var(--amber); }
 
-.q-text {
-  font-size: 16px; font-weight: 600; line-height: 1.6;
-  margin-bottom: 14px; color: var(--text-main);
-}
+.q-text { font-size: 16px; font-weight: 600; line-height: 1.6; margin-bottom: 14px; color: var(--text-main); }
 .q-text strong { color: var(--primary); }
 
 /* Inputs */
-.ans-input {
-  border: 2px solid var(--primary); border-radius: 8px;
-  padding: 10px 14px; font-size: 16px;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700;
-  outline: none; transition: all 0.2s;
-  background: rgba(10,224,254,0.05); color: var(--primary);
-  text-shadow: 0 0 5px var(--primary-glow);
-}
+.ans-input { border: 2px solid var(--primary); border-radius: 8px; padding: 10px 14px; font-size: 16px; font-family: 'Rajdhani', sans-serif; font-weight: 700; outline: none; transition: all 0.2s; background: rgba(10,224,254,0.05); color: var(--primary); text-shadow: 0 0 5px var(--primary-glow); user-select: auto !important; -webkit-user-select: auto !important; pointer-events: auto !important; }
 .ans-input:focus { background: rgba(10,224,254,0.12); box-shadow: 0 0 15px var(--primary-glow); }
 .ans-input.correct-input { border-color: var(--success); color: var(--success); }
 .ans-input.wrong-input { border-color: var(--danger); color: var(--danger); }
@@ -199,15 +270,7 @@ body {
 .row2 .lbl { font-weight: 700; font-size: 14px; min-width: 90px; color: var(--text-muted); }
 
 /* Buttons */
-.check-btn {
-  margin-top: 14px; padding: 12px 28px;
-  background: rgba(10,224,254,0.1); border: 2px solid var(--primary);
-  color: var(--primary); border-radius: 10px;
-  font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900;
-  cursor: pointer; transition: all 0.2s;
-  text-transform: uppercase; letter-spacing: 1px;
-  box-shadow: 0 0 15px var(--primary-glow);
-}
+.check-btn { margin-top: 14px; padding: 12px 28px; background: rgba(10,224,254,0.1); border: 2px solid var(--primary); color: var(--primary); border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 15px var(--primary-glow); }
 .check-btn:hover:not(:disabled) { background: var(--primary); color: #000; }
 .check-btn:disabled { border-color: rgba(10,224,254,0.2); color: var(--text-muted); background: transparent; box-shadow: none; cursor: not-allowed; }
 .btn-next-pulse { animation: pulseNext 1.5s infinite; }
@@ -219,285 +282,155 @@ body {
 .feedback.correct-fb { background: rgba(78,255,159,0.1); color: var(--success); border: 1px solid rgba(78,255,159,0.3); }
 .feedback.wrong-fb { background: rgba(255,0,85,0.1); color: var(--danger); border: 1px solid rgba(255,0,85,0.3); }
 
-/* ══════════════════════════════════════════
-   VISUALIZATION PANEL
-   ══════════════════════════════════════════ */
-.viz-panel {
-  display: none; margin-top: 14px; padding: 16px;
-  background: rgba(10,224,254,0.03); border: 1px dashed var(--border);
-  border-radius: 12px; overflow-x: auto;
-  animation: fadeSlide 0.5s ease;
-}
+/* Visualization */
+.viz-panel { display: none; margin-top: 14px; padding: 16px; background: rgba(10,224,254,0.03); border: 1px dashed var(--border); border-radius: 12px; overflow-x: auto; animation: fadeSlide 0.5s ease; }
 .viz-panel.show { display: block; }
-.viz-title {
-  font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 800;
-  color: var(--amber); text-transform: uppercase; letter-spacing: 1px;
-  margin-bottom: 12px;
-}
-
-/* Number line items */
-.viz-items {
-  display: flex; align-items: flex-end; gap: 4px; flex-wrap: wrap;
-  justify-content: center; margin-bottom: 12px; min-height: 50px;
-}
-.viz-item {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  font-size: 18px; animation: vizPop 0.3s ease both;
-  animation-delay: var(--d);
-}
+.viz-title { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.viz-items { display: flex; align-items: flex-end; gap: 4px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; min-height: 50px; }
+.viz-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 18px; animation: vizPop 0.3s ease both; animation-delay: var(--d); }
 @keyframes vizPop { from{opacity:0;transform:scale(0.5) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
-.viz-item .viz-num {
-  font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
-  color: var(--primary); background: rgba(10,224,254,0.1);
-  padding: 1px 6px; border-radius: 4px;
-}
-.viz-dots {
-  font-size: 20px; color: var(--text-muted); display: flex; align-items: center;
-  padding: 0 6px; animation: vizPop 0.3s ease both; animation-delay: var(--d);
-}
-
-/* Gap arrows */
-.viz-gap {
-  text-align: center; font-family: 'Rajdhani', sans-serif;
-  font-size: 13px; font-weight: 700; color: var(--secondary);
-  margin: 6px 0; animation: fadeSlide 0.5s ease 0.5s both;
-}
-
-/* Formula steps */
-.viz-formula {
-  margin-top: 10px; padding: 10px 14px;
-  background: rgba(234,14,237,0.06); border-radius: 8px;
-  border-left: 3px solid var(--secondary);
-}
-.viz-step {
-  font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600;
-  color: #e2e8f0; margin: 4px 0; line-height: 1.6;
-  animation: fadeSlide 0.4s ease both; animation-delay: var(--d);
-}
+.viz-item .viz-num { font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; color: var(--primary); background: rgba(10,224,254,0.1); padding: 1px 6px; border-radius: 4px; }
+.viz-dots { font-size: 20px; color: var(--text-muted); display: flex; align-items: center; padding: 0 6px; animation: vizPop 0.3s ease both; animation-delay: var(--d); }
+.viz-gap { text-align: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--secondary); margin: 6px 0; animation: fadeSlide 0.5s ease 0.5s both; }
+.viz-formula { margin-top: 10px; padding: 10px 14px; background: rgba(234,14,237,0.06); border-radius: 8px; border-left: 3px solid var(--secondary); }
+.viz-step { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; color: #e2e8f0; margin: 4px 0; line-height: 1.6; animation: fadeSlide 0.4s ease both; animation-delay: var(--d); }
 .viz-step strong { color: var(--amber); font-size: 18px; }
 .viz-step .viz-hl { color: var(--primary); font-weight: 800; }
-
-/* Gauss Pairing */
 .viz-pair-container { margin: 10px 0; text-align: center; }
-.viz-pair-row {
-  display: flex; justify-content: center; gap: 8px; margin: 3px 0;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px;
-}
-.viz-pair-row span {
-  min-width: 32px; text-align: center; padding: 3px 6px; border-radius: 4px;
-  animation: vizPop 0.3s ease both; animation-delay: var(--d);
-}
+.viz-pair-row { display: flex; justify-content: center; gap: 8px; margin: 3px 0; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; }
+.viz-pair-row span { min-width: 32px; text-align: center; padding: 3px 6px; border-radius: 4px; animation: vizPop 0.3s ease both; animation-delay: var(--d); }
 .viz-pair-row.forward span { background: rgba(10,224,254,0.15); color: var(--primary); }
 .viz-pair-row.reverse span { background: rgba(234,14,237,0.15); color: var(--secondary); }
-.viz-pair-sums {
-  display: flex; justify-content: center; gap: 8px; margin: 6px 0;
-  font-family: 'Rajdhani', sans-serif; font-weight: 900; font-size: 16px;
-}
-.viz-pair-sums span {
-  min-width: 32px; text-align: center; color: var(--amber);
-  animation: vizPop 0.3s ease both; animation-delay: var(--d);
-}
-.viz-pair-line {
-  height: 2px; background: linear-gradient(90deg, transparent, var(--amber), transparent);
-  margin: 4px 20%; animation: fadeSlide 0.5s ease 0.6s both;
-}
+.viz-pair-sums { display: flex; justify-content: center; gap: 8px; margin: 6px 0; font-family: 'Rajdhani', sans-serif; font-weight: 900; font-size: 16px; }
+.viz-pair-sums span { min-width: 32px; text-align: center; color: var(--amber); animation: vizPop 0.3s ease both; animation-delay: var(--d); }
+.viz-pair-line { height: 2px; background: linear-gradient(90deg,transparent,var(--amber),transparent); margin: 4px 20%; animation: fadeSlide 0.5s ease 0.6s both; }
 
-/* ── Mo-Mo Overlay ── */
-.momo-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(5,10,31,0.88); z-index: 300;
-  align-items: center; justify-content: center; padding: 20px;
-  backdrop-filter: blur(5px);
-}
+/* Mo-Mo Overlay */
+.momo-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,31,0.88); z-index: 300; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
 .momo-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-.momo-box {
-  background: rgba(11,19,43,0.95); padding: 30px;
-  max-width: 400px; width: 100%; border-radius: 16px;
-  border: 2px solid var(--primary); box-shadow: 0 0 30px var(--primary-glow);
-  text-align: center; position: relative;
-}
-.momo-header {
-  position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
-  background: var(--primary); color: #000;
-  font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900;
-  padding: 6px 22px; border-radius: 20px; text-transform: uppercase;
-  box-shadow: 0 0 15px var(--primary-glow); white-space: nowrap;
-}
-.momo-text {
-  font-size: 16px; line-height: 1.7; color: #fff;
-  margin-top: 16px; margin-bottom: 20px;
-}
-.momo-btn {
-  padding: 10px 28px; background: transparent; border: 2px solid var(--success);
-  color: var(--success); border-radius: 8px;
-  font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900;
-  cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-}
+.momo-box { background: rgba(11,19,43,0.95); padding: 30px; max-width: 400px; width: 100%; border-radius: 16px; border: 2px solid var(--primary); box-shadow: 0 0 30px var(--primary-glow); text-align: center; position: relative; }
+.momo-header { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; padding: 6px 22px; border-radius: 20px; text-transform: uppercase; box-shadow: 0 0 15px var(--primary-glow); white-space: nowrap; }
+.momo-text { font-size: 16px; line-height: 1.7; color: #fff; margin-top: 16px; margin-bottom: 20px; }
+.momo-btn { padding: 10px 28px; background: transparent; border: 2px solid var(--success); color: var(--success); border-radius: 8px; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
 .momo-btn:hover { background: var(--success); color: #000; }
-.momo-btn-video {
-  padding: 10px 28px; background: transparent; border: 2px solid var(--primary);
-  color: var(--primary); border-radius: 8px;
-  font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900;
-  cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-  margin-left: 8px;
-}
+.momo-btn-video { padding: 10px 28px; background: transparent; border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 900; cursor: pointer; transition: all 0.2s; text-transform: uppercase; margin-left: 8px; }
 .momo-btn-video:hover { background: var(--primary); color: #000; }
 
-/* ── Result Overlay ── */
-.result-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(5,10,31,0.9); z-index: 400;
-  align-items: center; justify-content: center; padding: 20px;
-  backdrop-filter: blur(8px);
-}
+/* Result Overlay */
+.result-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,31,0.9); z-index: 400; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
 .result-overlay.show { display: flex; }
-.result-card {
-  background: #0b132b; border: 2px solid var(--primary);
-  border-radius: 20px; padding: 32px 28px; max-width: 420px; width: 100%;
-  text-align: center; box-shadow: 0 0 40px var(--primary-glow);
-  animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
-}
+.result-card { background: #0b132b; border: 2px solid var(--primary); border-radius: 20px; padding: 32px 28px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 0 40px var(--primary-glow); animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1); }
 @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
 .result-emoji { font-size: 56px; display: block; margin-bottom: 8px; }
 .result-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 900; color: var(--primary); margin-bottom: 6px; }
-.result-score {
-  font-family: 'Rajdhani', sans-serif; font-size: 48px; font-weight: 900;
-  margin: 10px 0; background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
+.result-score { font-family: 'Rajdhani', sans-serif; font-size: 42px; font-weight: 900; margin: 10px 0; background: linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.result-level { display: inline-block; padding: 6px 18px; border-radius: 4px; font-weight: 900; font-size: 14px; margin: 6px 0 16px; border: 2px solid; background: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 1.5px; }
 .result-detail { display: flex; justify-content: center; gap: 24px; margin-bottom: 20px; }
 .result-detail-item { text-align: center; }
 .result-detail-num { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 900; }
 .result-detail-label { font-size: 12px; color: var(--text-muted); }
-.result-btn {
-  padding: 12px 28px; border-radius: 10px;
-  font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 800;
-  cursor: pointer; border: 2px solid var(--primary); transition: all 0.2s;
-  margin: 0 6px; text-transform: uppercase;
-}
+.result-btn { padding: 12px 28px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; border: 2px solid var(--primary); transition: all 0.2s; margin: 0 6px; text-transform: uppercase; }
 .btn-retry { background: var(--primary); color: #000; }
 .btn-review { background: transparent; color: var(--primary); }
 
-/* Nav buttons */
-.nav-bar {
-  position: sticky; top: 0; z-index: 50;
-  display: flex; justify-content: center; align-items: center; gap: 12px;
-  padding: 10px 16px; background: rgba(5,10,31,0.95);
-  border-bottom: 1px solid var(--border); backdrop-filter: blur(5px);
-}
-.nav-btn {
-  background: rgba(10,224,254,0.08); border: 1px solid var(--border);
-  color: var(--primary); padding: 6px 14px; border-radius: 6px;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
-  cursor: pointer; transition: all 0.2s;
-}
-.nav-btn:hover { background: rgba(10,224,254,0.2); }
-.nav-info {
-  font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700;
-  color: var(--primary); letter-spacing: 1px;
-}
-
-@media(max-width:480px) {
-  .q-card { padding: 16px 14px 14px; }
-  .building { width: 22px; }
-  .city-skyline { gap: 4px; height: 70px; }
-}
-
-/* ── Illustrations ── */
-.q-illustration {
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(10,224,254,0.15);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow-x: auto;
-}
-.ill-road {
-  display: flex; align-items: flex-end; gap: 12px; position: relative;
-  padding-bottom: 12px; border-bottom: 2px dashed rgba(10,224,254,0.3);
-}
+/* Illustrations */
+.q-illustration { background: rgba(0,0,0,0.4); border: 1px solid rgba(10,224,254,0.15); border-radius: 8px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: center; align-items: center; overflow-x: auto; }
+.ill-road { display: flex; align-items: flex-end; gap: 12px; position: relative; padding-bottom: 12px; border-bottom: 2px dashed rgba(10,224,254,0.3); }
 .ill-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 24px; position: relative; }
-.ill-item::after {
-  content: ""; position: absolute; bottom: -16px; width: 6px; height: 6px;
-  background: var(--primary); border-radius: 50%; box-shadow: 0 0 8px var(--primary);
-}
-.ill-lbl {
-  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
-  color: var(--amber); background: rgba(251,191,36,0.1); padding: 2px 6px; border-radius: 4px;
-  white-space: nowrap;
-}
+.ill-item::after { content:""; position:absolute; bottom:-16px; width:6px; height:6px; background:var(--primary); border-radius:50%; box-shadow:0 0 8px var(--primary); }
+.ill-lbl { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--amber); background: rgba(251,191,36,0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
 .ill-dots { font-size: 20px; color: var(--text-muted); padding: 0 8px; align-self: center; }
-
-.ill-tower {
-  display: flex; flex-direction: column-reverse; gap: 4px;
-  background: rgba(10,224,254,0.05); border: 1px solid rgba(10,224,254,0.2);
-  padding: 8px 12px; border-radius: 6px 6px 0 0;
-}
-.ill-floor {
-  width: 80px; height: 20px; background: rgba(10,224,254,0.15);
-  border: 1px solid rgba(10,224,254,0.3); display: flex; justify-content: center;
-  align-items: center; font-family: 'Rajdhani', sans-serif; font-size: 11px;
-  font-weight: 700; color: var(--primary);
-}
-.ill-staircase {
-  display: flex; align-items: flex-end; position: relative;
-}
-.ill-step {
-  width: 40px; background: rgba(10,224,254,0.15); border-top: 2px solid var(--primary); border-right: 2px solid var(--primary);
-  display: flex; justify-content: center; padding-top: 4px;
-}
-.ill-step-lbl { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; color: var(--amber); transform: rotate(-45deg); margin-top: 10px;}
+.ill-staircase { display: flex; align-items: flex-end; position: relative; }
+.ill-step { width: 40px; background: rgba(10,224,254,0.15); border-top: 2px solid var(--primary); border-right: 2px solid var(--primary); display: flex; justify-content: center; padding-top: 4px; }
+.ill-step-lbl { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; color: var(--amber); transform: rotate(-45deg); margin-top: 10px; }
 .ill-brick-row { display: flex; justify-content: center; gap: 4px; margin-top: 4px; }
 .ill-brick { width: 24px; height: 12px; background: #fbbf24; border: 1px solid #d97706; border-radius: 2px; }
 
+/* Resume toast */
+#resumeToast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(10,224,254,0.12); border: 1px solid rgba(10,224,254,0.4); color: var(--primary); font-size: 13px; font-weight: 700; padding: 7px 18px; border-radius: 20px; z-index: 9000; white-space: nowrap; letter-spacing: 0.5px; text-shadow: 0 0 8px var(--primary-glow); pointer-events: none; }
+
+/* Numpad */
+.numpad-overlay { position: fixed; inset: 0; z-index: 6000; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.18s; }
+.numpad-overlay.show { pointer-events: auto; opacity: 1; }
+.numpad-bd { position: absolute; inset: 0; background: rgba(5,10,31,0.6); }
+.numpad-panel { position: relative; background: #080f21; border-top: 2px solid var(--primary); box-shadow: 0 -8px 40px rgba(10,224,254,0.35); padding: 10px 10px calc(env(safe-area-inset-bottom,0px) + 14px); transform: translateY(100%); transition: transform 0.24s cubic-bezier(0.34,1.1,0.64,1); }
+.numpad-overlay.show .numpad-panel { transform: translateY(0); }
+.numpad-display { display: flex; align-items: center; gap: 10px; background: rgba(10,224,254,0.06); border: 1.5px solid var(--primary); border-radius: 8px; padding: 8px 14px; margin-bottom: 10px; }
+.np-cur-val { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 900; color: var(--primary); text-shadow: 0 0 8px var(--primary-glow); min-width: 64px; letter-spacing: 3px; }
+.np-cur-label { flex: 1; font-size: 12px; color: #5d8fa0; text-align: right; }
+.np-close-btn { background: transparent; border: none; color: #5d8fa0; font-size: 20px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+.numpad-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+.np-btn { height: 72px; border-radius: 10px; border: 1.5px solid rgba(10,224,254,0.2); background: rgba(10,224,254,0.06); color: #e0f4ff; font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.08s, transform 0.08s; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
+.np-btn:active { background: rgba(10,224,254,0.28); border-color: var(--primary); transform: scale(0.9); }
+.np-btn.np-del { color: #ff6688; border-color: rgba(255,0,85,0.25); background: rgba(255,0,85,0.07); font-size: 26px; }
+.np-btn.np-del:active { background: rgba(255,0,85,0.25); border-color: var(--danger); }
+.np-btn.np-ok { background: linear-gradient(135deg,var(--primary),#00c8e0); color: #000; border-color: var(--primary); font-size: 20px; font-weight: 900; box-shadow: 0 0 16px var(--primary-glow); }
+.np-btn.np-ok:active { background: #fff; transform: scale(0.9); }
+
+@media(max-width:480px) { .q-card{padding:16px 14px 14px} }
 </style>
 </head>
 <body>
 
-<!-- ══════ MARS CITY HEADER ══════ -->
-<div class="mars-header">
-  <div class="mars-stars" id="marsStars"></div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;position:relative;z-index:2">
-    <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VinaStudy" style="height:36px;object-fit:contain;filter:brightness(0) invert(1)">
-    <span style="font-size:13px;font-weight:700;opacity:0.8">Toán Lớp 3 HSG</span>
+<!-- Level Modal -->
+<div class="level-modal" id="levelModal">
+  <div class="level-modal-box">
+    <div class="level-modal-title">⚡ Chọn Cấp Độ</div>
+    <div class="level-modal-sub">Ải 4 — Dãy Số Cách Đều • 9 nhiệm vụ</div>
+    <button class="level-btn level-btn-1" onclick="enterLevel(1)">⚡ LEVEL 1 — Bình Thường (×1)</button>
+    <button class="level-btn level-btn-2" onclick="enterLevel(2)">🔥 LEVEL 2 — Khó (×1.5)</button>
+    <button class="level-btn level-btn-3" onclick="enterLevel(3)">💀 LEVEL 3 — Siêu Khó (×2)</button>
   </div>
-  <div class="mars-title">🏗️ Kiến Trúc Sư Vũ Trụ</div>
-  <div class="mars-subtitle">Ải 4 — Dãy Số Cách Đều • 9 nhiệm vụ xây dựng</div>
+</div>
 
-  <div class="city-skyline" id="citySkyline">
-    <div class="building" id="b1" style="height:35px"><span class="b-num">1</span></div>
-    <div class="building" id="b2" style="height:42px"><span class="b-num">2</span></div>
-    <div class="building" id="b3" style="height:50px"><span class="b-num">3</span></div>
-    <div class="building" id="b4" style="height:58px"><span class="b-num">4</span></div>
-    <div class="building" id="b5" style="height:65px"><span class="b-num">5</span></div>
-    <div class="building" id="b6" style="height:72px"><span class="b-num">6</span></div>
-    <div class="building" id="b7" style="height:78px"><span class="b-num">7</span></div>
-    <div class="building" id="b8" style="height:84px"><span class="b-num">8</span></div>
-    <div class="building" id="b9" style="height:90px"><span class="b-num">9</span></div>
+<!-- Battle Arena -->
+<div class="battle-arena">
+  <div class="arena-bg">
+    <div class="arena-grid-wrapper"><div class="arena-grid"></div></div>
+    <div class="math-particles">
+      <span class="p1">∑</span><span class="p2">÷</span><span class="p3">+</span>
+      <span class="p4">×</span><span class="p5">∞</span><span class="p6">N</span>
+      <span class="p7">KC</span><span class="p8">½</span><span class="p9">√</span><span class="p10">π</span>
+    </div>
   </div>
-  <div class="city-ground"></div>
+  <div class="arena-stats">
+    <div class="astat astat-ok"><span class="astat-num" id="scoreCorrect">0</span><span class="astat-lbl">✅ ĐÚNG</span></div>
+    <div class="astat astat-err"><span class="astat-num" id="scoreWrong">0</span><span class="astat-lbl">❌ SAI</span></div>
+    <div class="astat astat-rem"><span class="astat-num" id="scoreLeft">9</span><span class="astat-lbl">▪ CHƯA LÀM</span></div>
+  </div>
+  <div class="combat-zone" id="combatZone">
+    <div class="fighter player">
+      <div class="fighter-name">Chiến Binh</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="playerHp"></div></div>
+      <div class="avatar" id="playerAvatar">⚔️</div>
+    </div>
+    <div style="font-size:36px;font-weight:900;color:var(--primary);text-shadow:0 0 15px var(--primary-glow);opacity:0.9;font-family:'Rajdhani',sans-serif">VS</div>
+    <div class="fighter boss">
+      <div class="fighter-name">Robo Builder</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="bossHp"></div></div>
+      <div class="avatar" id="bossAvatar">🏗️</div>
+    </div>
+  </div>
+</div>
 
-  <div class="mars-progress">
-    <div class="mp-item"><div class="mp-dot" style="background:var(--success)"></div><span id="scoreCorrect">0</span> Đúng</div>
-    <div class="mp-item"><div class="mp-dot" style="background:var(--danger)"></div><span id="scoreWrong">0</span> Sai</div>
-    <div class="mp-item"><div class="mp-dot" style="background:var(--text-muted)"></div><span id="scoreLeft">9</span> Còn lại</div>
-  </div>
+<div id="resumeToast" style="display:none;"></div>
+
+<!-- Timer -->
+<div id="timerWrap">
+  <span class="timer-icon">⏱</span>
+  <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+  <span class="timer-num" id="timerNum">90</span>
 </div>
 
 <!-- Nav bar -->
 <div class="nav-bar">
   <button class="nav-btn" onclick="restartGame()">🔄 Chơi lại</button>
   <span class="nav-info">Nhiệm vụ <span id="progressText">1</span>/9</span>
-  <button class="nav-btn" onclick="pauseGame()">⏸️ Dừng</button>
+  <button class="nav-btn" onclick="openHelpVideo()">📹 Video</button>
 </div>
 
 <div class="main">
-
-  <!-- Formula Box -->
   <div class="formula-box">
     📐 <strong>3 công thức vàng cần nhớ:</strong><br>
     <code>Số số hạng = (Cuối − Đầu) ÷ KC + 1</code><br>
@@ -507,16 +440,13 @@ body {
 
   <div id="slidesContainer">
 
-  <!-- ══════ SLIDE 1 ══════ -->
+  <!-- SLIDE 1 -->
   <div class="q-slide active" id="slide1">
     <div class="section-title">🔋 Dạng 1 — Đếm Số Trong Khoảng</div>
     <div class="q-card" id="q1">
       <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 133411</div>
       <div class="q-context"><span class="ctx-icon">🔋</span> Thành phố Mars cần lắp trạm sạc năng lượng dọc theo đại lộ. Trạm đầu ở vị trí số <strong>1</strong>, trạm cuối ở vị trí số <strong>9</strong>, mỗi vị trí đặt 1 trạm.</div>
       <div class="q-text">Hỏi cần lắp bao nhiêu <strong>trạm sạc</strong>?</div>
-      <div class="q-illustration" style="padding: 0; overflow: hidden; border: none; background: transparent;">
-        <img src="../../../assets/mars_city_topdown.png" alt="Bản đồ trạm sạc" style="width: 100%; border-radius: 8px; box-shadow: 0 0 15px rgba(10,224,254,0.3);">
-      </div>
       <div class="answer-row">
         <input class="ans-input" id="q1ans" placeholder="? trạm" style="width:120px;text-align:center">
       </div>
@@ -526,15 +456,12 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 2 ══════ -->
+  <!-- SLIDE 2 -->
   <div class="q-slide" id="slide2">
     <div class="q-card" id="q2">
       <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 133412</div>
-      <div class="q-context"><span class="ctx-icon">🏢</span> Tháp <strong>Olympus Mons</strong> có <strong>100</strong> tầng, đánh số liên tiếp từ tầng 1 đến tầng 100. Thang máy dừng ở mỗi tầng.</div>
+      <div class="q-context"><span class="ctx-icon">🏢</span> Tháp <strong>Olympus Mons</strong> có <strong>100</strong> tầng, đánh số liên tiếp từ tầng 1 đến tầng 100.</div>
       <div class="q-text">Hỏi tháp có bao nhiêu <strong>tầng</strong>?</div>
-      <div class="q-illustration" style="padding: 0; overflow: hidden; border: none; background: transparent;">
-        <img src="../../../assets/olympus_mons_panorama.png" alt="Tháp Olympus Mons" style="width: 100%; border-radius: 8px; box-shadow: 0 0 15px rgba(10,224,254,0.3);">
-      </div>
       <div class="answer-row">
         <input class="ans-input" id="q2ans" placeholder="? tầng" style="width:120px;text-align:center">
       </div>
@@ -544,15 +471,12 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 3 ══════ -->
+  <!-- SLIDE 3 -->
   <div class="q-slide" id="slide3">
     <div class="q-card" id="q3">
       <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 133413</div>
-      <div class="q-context"><span class="ctx-icon">🏠</span> Khu dân cư Mars Colony đánh <strong>số nhà chẵn hai chữ số</strong>: 10, 12, 14, …, 96, 98. Đội vận chuyển cần giao hàng đến từng nhà.</div>
+      <div class="q-context"><span class="ctx-icon">🏠</span> Khu dân cư Mars Colony đánh <strong>số nhà chẵn hai chữ số</strong>: 10, 12, 14, …, 96, 98.</div>
       <div class="q-text">Hỏi phải giao đến bao nhiêu <strong>nhà</strong>?</div>
-      <div class="q-illustration" style="padding: 0; overflow: hidden; border: none; background: transparent;">
-        <img src="../../../assets/mars_colony_confused.png" alt="Mars Colony" style="width: 100%; border-radius: 8px; box-shadow: 0 0 15px rgba(10,224,254,0.3);">
-      </div>
       <div class="answer-row">
         <input class="ans-input" id="q3ans" placeholder="? nhà" style="width:120px;text-align:center">
       </div>
@@ -562,21 +486,22 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 4 ══════ -->
+  <!-- SLIDE 4 -->
   <div class="q-slide" id="slide4">
     <div class="section-title">🌳 Dạng 2 — Số Hạng & Vị Trí Thứ N</div>
     <div class="q-card" id="q4">
       <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 133414</div>
       <div class="q-context"><span class="ctx-icon">🌳</span> Đại lộ Valles trồng cây xanh <strong>cách đều 2m</strong>, bắt đầu từ vị trí 2m đến 40m: <strong>2, 4, 6, …, 38, 40</strong>.</div>
-      <div class="q-text">a) Có bao nhiêu <strong>cây</strong>?<br>b) Nếu tiếp tục trồng, cây thứ <strong>100</strong> ở vị trí nào (mét)?</div>\n      <div class="q-illustration"><div class="ill-road">
-    <div class="ill-item">🌳<div class="ill-lbl">2m</div></div>
-    <div class="ill-item">🌳<div class="ill-lbl">4m</div></div>
-    <div class="ill-item">🌳<div class="ill-lbl">6m</div></div>
-    <div class="ill-dots">⋯</div>
-    <div class="ill-item">🌳<div class="ill-lbl">40m</div></div>
-    <div class="ill-dots">⋯</div>
-    <div class="ill-item" style="opacity:0.5">🌳<div class="ill-lbl">Cây 100?</div></div>
-  </div></div>
+      <div class="q-text">a) Có bao nhiêu <strong>cây</strong>?<br>b) Nếu tiếp tục trồng, cây thứ <strong>100</strong> ở vị trí nào (mét)?</div>
+      <div class="q-illustration"><div class="ill-road">
+        <div class="ill-item">🌳<div class="ill-lbl">2m</div></div>
+        <div class="ill-item">🌳<div class="ill-lbl">4m</div></div>
+        <div class="ill-item">🌳<div class="ill-lbl">6m</div></div>
+        <div class="ill-dots">⋯</div>
+        <div class="ill-item">🌳<div class="ill-lbl">40m</div></div>
+        <div class="ill-dots">⋯</div>
+        <div class="ill-item" style="opacity:0.5">🌳<div class="ill-lbl">Cây 100?</div></div>
+      </div></div>
       <div class="row2"><span class="lbl">a) Số cây:</span><input class="ans-input" id="q4a" placeholder="?" style="width:100px;text-align:center"></div>
       <div class="row2"><span class="lbl">b) Vị trí m:</span><input class="ans-input" id="q4b" placeholder="?" style="width:100px;text-align:center"></div>
       <button class="check-btn" disabled onclick="checkQ(4)">🔧 Xây Dựng!</button>
@@ -585,20 +510,19 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 5 ══════ -->
+  <!-- SLIDE 5 -->
   <div class="q-slide" id="slide5">
     <div class="q-card" id="q5">
       <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 133415</div>
-      <div class="q-context"><span class="ctx-icon">💡</span> Đường hầm ngầm lắp đèn LED <strong>cách đều 4m</strong>: vị trí 3m, 7m, 11m, 15m, …, đến 79m. Dãy: <strong>3, 7, 11, 15, …, 79</strong>.</div>
-      <div class="q-text">a) Cần bao nhiêu <strong>đèn</strong>?<br>b) Đèn thứ <strong>50</strong> ở vị trí nào?<br>c) Đèn thứ <strong>100</strong> ở vị trí nào?</div>\n      <div class="q-illustration"><div class="ill-road">
-    <div class="ill-item">💡<div class="ill-lbl">3m</div></div>
-    <div class="ill-item">💡<div class="ill-lbl">7m</div></div>
-    <div class="ill-item">💡<div class="ill-lbl">11m</div></div>
-    <div class="ill-dots">⋯</div>
-    <div class="ill-item">💡<div class="ill-lbl">79m</div></div>
-    <div class="ill-dots">⋯</div>
-    <div class="ill-item" style="opacity:0.5">💡<div class="ill-lbl">Đèn 100?</div></div>
-  </div></div>
+      <div class="q-context"><span class="ctx-icon">💡</span> Đường hầm ngầm lắp đèn LED <strong>cách đều 4m</strong>: vị trí 3m, 7m, 11m, …, 79m. Dãy: <strong>3, 7, 11, …, 79</strong>.</div>
+      <div class="q-text">a) Cần bao nhiêu <strong>đèn</strong>?<br>b) Đèn thứ <strong>50</strong> ở vị trí nào?<br>c) Đèn thứ <strong>100</strong> ở vị trí nào?</div>
+      <div class="q-illustration"><div class="ill-road">
+        <div class="ill-item">💡<div class="ill-lbl">3m</div></div>
+        <div class="ill-item">💡<div class="ill-lbl">7m</div></div>
+        <div class="ill-item">💡<div class="ill-lbl">11m</div></div>
+        <div class="ill-dots">⋯</div>
+        <div class="ill-item">💡<div class="ill-lbl">79m</div></div>
+      </div></div>
       <div class="row2"><span class="lbl">a) Số đèn:</span><input class="ans-input" id="q5a" placeholder="?" style="width:100px;text-align:center"></div>
       <div class="row2"><span class="lbl">b) Đèn 50:</span><input class="ans-input" id="q5b" placeholder="?" style="width:100px;text-align:center"></div>
       <div class="row2"><span class="lbl">c) Đèn 100:</span><input class="ans-input" id="q5c" placeholder="?" style="width:100px;text-align:center"></div>
@@ -608,18 +532,19 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 6 ══════ -->
+  <!-- SLIDE 6 -->
   <div class="q-slide" id="slide6">
     <div class="q-card" id="q6">
       <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 133419</div>
       <div class="q-context"><span class="ctx-icon">🪜</span> Tháp quan sát có cầu thang xoắn ốc. Các bậc ở độ cao <strong>cách đều 5cm</strong>: <strong>2, 7, 12, 17, …, 57, 62</strong> (cm).</div>
-      <div class="q-text">a) Có bao nhiêu <strong>bậc thang</strong>?<br>b) Nếu xây tiếp, bậc thứ <strong>1000</strong> ở độ cao bao nhiêu cm?</div>\n      <div class="q-illustration"><div class="ill-staircase">
-    <div class="ill-step" style="height:20px"><div class="ill-step-lbl">2cm</div></div>
-    <div class="ill-step" style="height:40px"><div class="ill-step-lbl">7cm</div></div>
-    <div class="ill-step" style="height:60px"><div class="ill-step-lbl">12cm</div></div>
-    <div class="ill-step" style="height:80px;border:none;background:transparent"><div class="ill-dots" style="transform:rotate(-45deg)">⋯</div></div>
-    <div class="ill-step" style="height:100px"><div class="ill-step-lbl">62cm</div></div>
-  </div></div>
+      <div class="q-text">a) Có bao nhiêu <strong>bậc thang</strong>?<br>b) Nếu xây tiếp, bậc thứ <strong>1000</strong> ở độ cao bao nhiêu cm?</div>
+      <div class="q-illustration"><div class="ill-staircase">
+        <div class="ill-step" style="height:20px"><div class="ill-step-lbl">2cm</div></div>
+        <div class="ill-step" style="height:40px"><div class="ill-step-lbl">7cm</div></div>
+        <div class="ill-step" style="height:60px"><div class="ill-step-lbl">12cm</div></div>
+        <div class="ill-step" style="height:80px;border:none;background:transparent"><div class="ill-dots" style="transform:rotate(-45deg)">⋯</div></div>
+        <div class="ill-step" style="height:100px"><div class="ill-step-lbl">62cm</div></div>
+      </div></div>
       <div class="row2"><span class="lbl">a) Số bậc:</span><input class="ans-input" id="q6a" placeholder="?" style="width:100px;text-align:center"></div>
       <div class="row2"><span class="lbl">b) Độ cao:</span><input class="ans-input" id="q6b" placeholder="?" style="width:120px;text-align:center"></div>
       <button class="check-btn" disabled onclick="checkQ(6)">🔧 Xây Dựng!</button>
@@ -628,18 +553,19 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 7 ══════ -->
+  <!-- SLIDE 7 -->
   <div class="q-slide" id="slide7">
     <div class="section-title">➕ Dạng 3 — Tổng Dãy Số (Ghép Cặp Gauss)</div>
     <div class="q-card" id="q7">
       <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 133420</div>
-      <div class="q-context"><span class="ctx-icon">🧱</span> Robot xây tường cho nhà máy. Hàng 1 xếp <strong>2</strong> viên gạch, hàng 2 xếp <strong>4</strong> viên, hàng 3 xếp <strong>6</strong> viên, …, hàng cuối xếp <strong>40</strong> viên.</div>
-      <div class="q-text">Tổng cộng cần bao nhiêu <strong>viên gạch</strong>?</div>\n      <div class="q-illustration"><div style="display:flex;flex-direction:column;align-items:center">
-    <div class="ill-brick-row"><div class="ill-brick"></div><div class="ill-brick"></div> <span style="font-size:12px;color:var(--amber);margin-left:8px;align-self:center">Hàng 1 (2 viên)</span></div>
-    <div class="ill-brick-row"><div class="ill-brick"></div><div class="ill-brick"></div><div class="ill-brick"></div><div class="ill-brick"></div> <span style="font-size:12px;color:var(--amber);margin-left:8px;align-self:center">Hàng 2 (4 viên)</span></div>
-    <div style="color:var(--text-muted);font-size:16px;margin:4px 0">⋮</div>
-    <div class="ill-brick-row"><div class="ill-brick"></div><div class="ill-brick"></div><div style="color:var(--text-muted);align-self:center;font-size:12px;margin:0 4px">⋯ 40 viên ⋯</div><div class="ill-brick"></div><div class="ill-brick"></div></div>
-  </div></div>
+      <div class="q-context"><span class="ctx-icon">🧱</span> Robot xây tường cho nhà máy. Hàng 1 xếp <strong>2</strong> viên gạch, hàng 2 xếp <strong>4</strong> viên, …, hàng cuối xếp <strong>40</strong> viên.</div>
+      <div class="q-text">Tổng cộng cần bao nhiêu <strong>viên gạch</strong>?</div>
+      <div class="q-illustration"><div style="display:flex;flex-direction:column;align-items:center">
+        <div class="ill-brick-row"><div class="ill-brick"></div><div class="ill-brick"></div><span style="font-size:12px;color:var(--amber);margin-left:8px;align-self:center">Hàng 1 (2 viên)</span></div>
+        <div class="ill-brick-row"><div class="ill-brick"></div><div class="ill-brick"></div><div class="ill-brick"></div><div class="ill-brick"></div><span style="font-size:12px;color:var(--amber);margin-left:8px;align-self:center">Hàng 2 (4 viên)</span></div>
+        <div style="color:var(--text-muted);font-size:16px;margin:4px 0">⋮</div>
+        <div class="ill-brick-row"><div class="ill-brick"></div><div class="ill-brick"></div><div style="color:var(--text-muted);align-self:center;font-size:12px;margin:0 4px">⋯ 40 viên ⋯</div><div class="ill-brick"></div><div class="ill-brick"></div></div>
+      </div></div>
       <div class="answer-row">
         <input class="ans-input" id="q7ans" placeholder="Tổng = ?" style="width:150px;text-align:center">
       </div>
@@ -649,18 +575,12 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 8 ══════ -->
+  <!-- SLIDE 8 -->
   <div class="q-slide" id="slide8">
     <div class="q-card" id="q8">
       <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 133421</div>
-      <div class="q-context"><span class="ctx-icon">🌡️</span> Lò nung vật liệu tăng nhiệt mỗi giờ: giờ 1 tăng <strong>3°C</strong>, giờ 2 tăng <strong>7°C</strong>, giờ 3 tăng <strong>11°C</strong>, …, giờ cuối tăng <strong>79°C</strong>. Dãy: <strong>3, 7, 11, …, 79</strong>.</div>
-      <div class="q-text">Tổng nhiệt độ tăng lên là bao nhiêu <strong>°C</strong>?</div>\n      <div class="q-illustration"><div class="ill-road" style="border-bottom:none;align-items:center">
-    <div class="ill-item">🌡️<div class="ill-lbl">3°C</div></div><span style="color:var(--secondary);font-weight:900;margin:0 4px">+</span>
-    <div class="ill-item">🌡️<div class="ill-lbl">7°C</div></div><span style="color:var(--secondary);font-weight:900;margin:0 4px">+</span>
-    <div class="ill-item">🌡️<div class="ill-lbl">11°C</div></div><span style="color:var(--secondary);font-weight:900;margin:0 4px">+</span>
-    <div class="ill-dots">⋯</div><span style="color:var(--secondary);font-weight:900;margin:0 4px">+</span>
-    <div class="ill-item">🌡️<div class="ill-lbl">79°C</div></div>
-  </div></div>
+      <div class="q-context"><span class="ctx-icon">🌡️</span> Lò nung vật liệu tăng nhiệt mỗi giờ: giờ 1 tăng <strong>3°C</strong>, giờ 2 tăng <strong>7°C</strong>, …, giờ cuối tăng <strong>79°C</strong>. Dãy: <strong>3, 7, 11, …, 79</strong>.</div>
+      <div class="q-text">Tổng nhiệt độ tăng lên là bao nhiêu <strong>°C</strong>?</div>
       <div class="answer-row">
         <input class="ans-input" id="q8ans" placeholder="Tổng = ?" style="width:150px;text-align:center">
       </div>
@@ -670,18 +590,19 @@ body {
     </div>
   </div>
 
-  <!-- ══════ SLIDE 9 ══════ -->
+  <!-- SLIDE 9 -->
   <div class="q-slide" id="slide9">
     <div class="q-card" id="q9">
       <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 133426</div>
       <div class="q-context"><span class="ctx-icon">⛽</span> Các trạm tiếp tế trên Mars Highway đặt ở các vị trí km: <strong>1, 5, 9, 13, …, 57, 61</strong> (cách đều 4km).</div>
-      <div class="q-text">a) Có bao nhiêu <strong>trạm tiếp tế</strong>?<br>b) Tổng các vị trí km (1 + 5 + 9 + … + 61) = ?</div>\n      <div class="q-illustration"><div class="ill-road">
-    <div class="ill-item">⛽<div class="ill-lbl">1km</div></div><span style="color:var(--secondary);font-weight:900;align-self:center;margin-bottom:12px">+</span>
-    <div class="ill-item">⛽<div class="ill-lbl">5km</div></div><span style="color:var(--secondary);font-weight:900;align-self:center;margin-bottom:12px">+</span>
-    <div class="ill-item">⛽<div class="ill-lbl">9km</div></div><span style="color:var(--secondary);font-weight:900;align-self:center;margin-bottom:12px">+</span>
-    <div class="ill-dots" style="margin-bottom:12px">⋯</div><span style="color:var(--secondary);font-weight:900;align-self:center;margin-bottom:12px">+</span>
-    <div class="ill-item">⛽<div class="ill-lbl">61km</div></div>
-  </div></div>
+      <div class="q-text">a) Có bao nhiêu <strong>trạm tiếp tế</strong>?<br>b) Tổng các vị trí km (1 + 5 + 9 + … + 61) = ?</div>
+      <div class="q-illustration"><div class="ill-road">
+        <div class="ill-item">⛽<div class="ill-lbl">1km</div></div>
+        <div class="ill-item">⛽<div class="ill-lbl">5km</div></div>
+        <div class="ill-item">⛽<div class="ill-lbl">9km</div></div>
+        <div class="ill-dots">⋯</div>
+        <div class="ill-item">⛽<div class="ill-lbl">61km</div></div>
+      </div></div>
       <div class="row2"><span class="lbl">a) Số trạm:</span><input class="ans-input" id="q9a" placeholder="?" style="width:100px;text-align:center"></div>
       <div class="row2"><span class="lbl">b) Tổng km:</span><input class="ans-input" id="q9b" placeholder="?" style="width:120px;text-align:center"></div>
       <button class="check-btn" disabled onclick="checkQ(9)">🔧 Xây Dựng!</button>
@@ -699,12 +620,19 @@ body {
   <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56</div>
 </div>
 
+<!-- Game Over -->
+<div class="game-over-overlay" id="gameOverOverlay">
+  <div class="game-over-title">GAME OVER</div>
+  <button class="game-over-btn" onclick="restartConfirm()">🔄 CHƠI LẠI TỪ ĐẦU</button>
+</div>
+
 <!-- Mo-Mo Overlay -->
 <div class="momo-overlay" id="momoOverlay">
   <div class="momo-box">
     <div class="momo-header">🤖 Mo-Mo Gợi Ý</div>
     <div id="momoText" class="momo-text"></div>
     <button class="momo-btn" onclick="closeMomo()">Thử Lại Nhé!</button>
+    <button class="momo-btn-video" onclick="openHelpVideo()">📹 Xem video</button>
   </div>
 </div>
 
@@ -714,24 +642,92 @@ body {
     <span class="result-emoji" id="resultEmoji">🏆</span>
     <div class="result-title" id="resultTitle">Kết quả</div>
     <div class="result-score" id="resultScore">0/9</div>
+    <div class="result-level" id="resultLevel"></div>
     <div class="result-detail">
-      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--success)">0</div><div class="result-detail-label">Đúng</div></div>
-      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong" style="color:var(--danger)">0</div><div class="result-detail-label">Sai</div></div>
-      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip" style="color:var(--text-muted)">0</div><div class="result-detail-label">Bỏ qua</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--success)">0</div><div class="result-detail-label">✅ Đúng</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong" style="color:var(--danger)">0</div><div class="result-detail-label">❌ Sai</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip" style="color:var(--text-muted)">0</div><div class="result-detail-label">⬜ Bỏ qua</div></div>
     </div>
     <div>
-      <button class="result-btn btn-retry" onclick="location.reload()">🔄 Làm lại</button>
+      <button class="result-btn btn-retry" onclick="restartConfirm()">🔄 Làm lại</button>
       <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">📖 Xem lại</button>
+      <button class="result-btn" style="background:transparent;color:var(--text-muted);border-color:var(--text-muted)" onclick="window.location.href='../../map.html'">🗺️ Bản đồ</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     GAME LOGIC
-     ══════════════════════════════════════════ -->
+<!-- Score Toast -->
+<div class="score-toast" id="scoreToast">
+  <span class="score-toast-pts" id="scoreToastPts">+10 điểm ✨</span>
+  <div class="score-toast-combo" id="scoreToastCombo"></div>
+</div>
+
+<!-- Video Modal -->
+<div class="video-modal" id="videoModal">
+  <div class="video-container">
+    <div class="video-header">
+      <span class="video-title">🎬 BÀI GIẢNG: DÃY SỐ CÁCH ĐỀU</span>
+      <button class="close-video-btn" onclick="closeVideo()">✖</button>
+    </div>
+    <div class="video-iframe-wrapper" id="videoWrapper"></div>
+  </div>
+</div>
+
+<!-- Numpad -->
+<div class="numpad-overlay" id="numpadOverlay">
+  <div class="numpad-bd" id="numpadBd"></div>
+  <div class="numpad-panel">
+    <div class="numpad-display">
+      <span class="np-cur-val" id="npVal">?</span>
+      <span class="np-cur-label" id="npLabel">Nhập đáp án</span>
+      <button class="np-close-btn" id="npCloseBtn">✕</button>
+    </div>
+    <div class="numpad-grid">
+      <button class="np-btn" data-d="1">1</button>
+      <button class="np-btn" data-d="2">2</button>
+      <button class="np-btn" data-d="3">3</button>
+      <button class="np-btn" data-d="4">4</button>
+      <button class="np-btn" data-d="5">5</button>
+      <button class="np-btn" data-d="6">6</button>
+      <button class="np-btn" data-d="7">7</button>
+      <button class="np-btn" data-d="8">8</button>
+      <button class="np-btn" data-d="9">9</button>
+      <button class="np-btn np-del" id="npDel">⌫</button>
+      <button class="np-btn" data-d="0">0</button>
+      <button class="np-btn np-ok" id="npOk">✓ OK</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const VIDEO_ID = "TcJ50kKlyg0";
 const TOTAL = 9;
 const _TOTAL = 9; window._TOTAL = 9; window._BUOI = 4;
+const SAVE_KEY = 'cbToan_progress_bai4';
+
+// ── Level System ──
+var GAME_LEVEL = parseInt(localStorage.getItem('cbToan_gameLevel') || '1');
+if (GAME_LEVEL < 1 || GAME_LEVEL > 3 || isNaN(GAME_LEVEL)) GAME_LEVEL = 1;
+var LEVEL_MULT = GAME_LEVEL === 3 ? 2 : GAME_LEVEL === 2 ? 1.5 : 1;
+var LEVEL_NAMES = ['','Cấp 1','Cấp 2','Cấp 3'];
+var LEVEL_STARS = ['','⭐','⭐⭐','⭐⭐⭐'];
+
+function enterLevel(lvl) {
+  GAME_LEVEL = lvl;
+  LEVEL_MULT = lvl === 3 ? 2 : lvl === 2 ? 1.5 : 1;
+  localStorage.setItem('cbToan_gameLevel', String(lvl));
+  document.getElementById('levelModal').classList.remove('show');
+  if (GAME_LEVEL >= 3) _startTimer();
+}
+
+function showLevelModal() {
+  document.getElementById('levelModal').classList.add('show');
+}
+
+// ── Gameplay variables ──
 let answered = {}; window._answered = answered;
 let currentSlide = 1;
 const momoHinted = {};
@@ -739,237 +735,351 @@ window._checkpoints = [];
 window._attempts = {};
 window._lastInteractionTime = Date.now();
 
-// ── Stars ──
-(function(){
-  const c = document.getElementById('marsStars');
-  for(let i=0;i<40;i++){
-    const s = document.createElement('span');
-    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px`;
-    c.appendChild(s);
+let playerHpVal = 100;
+let bossHpVal = 100;
+let comboStreak = 0;
+let _scoreToastTimer = null;
+
+// ── Score Toast ──
+function showScoreToast(pts, combo) {
+  const el  = document.getElementById('scoreToast');
+  const pts_ = document.getElementById('scoreToastPts');
+  const cmb_ = document.getElementById('scoreToastCombo');
+  if (!el) return;
+  if (pts_) pts_.textContent = '+' + pts + ' điểm ✨';
+  if (cmb_) {
+    if (combo >= 2) { cmb_.textContent = '🔥 COMBO ×' + combo; cmb_.style.display = 'block'; }
+    else { cmb_.style.display = 'none'; }
   }
-})();
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  if (_scoreToastTimer) clearTimeout(_scoreToastTimer);
+  _scoreToastTimer = setTimeout(() => el.classList.remove('pop'), 1900);
+}
+
+// ── HP bars ──
+function updateBattleHp() {
+  document.getElementById('bossHp').style.width = bossHpVal + '%';
+  document.getElementById('playerHp').style.width = playerHpVal + '%';
+}
 
 // ── Score ──
-function updateScore(){
-  const c=Object.values(answered).filter(v=>v===true).length;
-  const w=Object.values(answered).filter(v=>v===false).length;
-  document.getElementById('scoreCorrect').textContent=c;
-  document.getElementById('scoreWrong').textContent=w;
-  document.getElementById('scoreLeft').textContent=TOTAL-c-w;
-  document.getElementById('progressText').textContent=currentSlide;
+function updateScore() {
+  const c = Object.values(answered).filter(v => v === true).length;
+  const w = Object.values(answered).filter(v => v === false).length;
+  document.getElementById('scoreCorrect').textContent = c;
+  document.getElementById('scoreWrong').textContent = w;
+  document.getElementById('scoreLeft').textContent = TOTAL - c - w;
+  document.getElementById('progressText').textContent = currentSlide;
 }
 
 // ── Slides ──
-function nextSlide(){
-  const cur = document.getElementById('slide'+currentSlide);
-  if(cur) cur.classList.remove('active');
+function nextSlide() {
+  const cur = document.getElementById('slide' + currentSlide);
+  if (cur) cur.classList.remove('active');
   currentSlide++;
-  if(currentSlide > TOTAL){ submitAll(); return; }
-  const next = document.getElementById('slide'+currentSlide);
-  if(next){ next.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
-  updateScore(); saveProgress();
+  if (currentSlide > TOTAL) { submitAll(); return; }
+  const next = document.getElementById('slide' + currentSlide);
+  if (next) { next.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  updateScore();
+  saveProgress();
+  if (GAME_LEVEL >= 3) _startTimer();
 }
 
 // ── Feedback ──
-function showFeedback(qId, correct, msg){
-  const fb = document.getElementById('fb'+qId);
-  fb.className = 'feedback show '+(correct?'correct-fb':'wrong-fb');
-  fb.innerHTML = (correct?'✅ ':'❌ ')+msg;
+function showFeedback(qId, correct, msg) {
+  const fb = document.getElementById('fb' + qId);
+  fb.className = 'feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = (correct ? '✅ ' : '❌ ') + msg;
   const card = document.getElementById(qId);
   card.classList.remove('correct','wrong');
-  card.classList.add(correct?'correct':'wrong');
+  card.classList.add(correct ? 'correct' : 'wrong');
 }
 
-function handleAfterAnswer(qNum, isCorrect){
-  const btn = document.querySelector('#q'+qNum+' .check-btn');
-  btn.disabled = false;
-  btn.innerHTML = '⏭ Nhiệm Vụ Tiếp Theo';
-  btn.classList.add('btn-next-pulse');
-  btn.onclick = function(){ nextSlide(); };
-  // Light up building
-  if(isCorrect){
-    const b = document.getElementById('b'+qNum);
-    if(b) b.classList.add('lit');
+function handleAfterAnswer(qNum, isCorrect) {
+  _hideTimer();
+  const btn = document.querySelector('#q' + qNum + ' .check-btn');
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = '⏭ Nhiệm Vụ Tiếp Theo';
+    btn.classList.add('btn-next-pulse');
+    btn.onclick = function() { nextSlide(); };
   }
   saveProgress();
 }
 
 // ── Mo-Mo ──
-function closeMomo(){
+function closeMomo() {
   document.getElementById('momoOverlay').classList.remove('show');
-  const input = document.querySelector('.q-slide.active .ans-input');
-  if(input && !input.disabled){
-    input.focus(); input.value = '';
-    input.dispatchEvent(new Event('input',{bubbles:true}));
+  const inp = document.querySelector('.q-slide.active .ans-input');
+  if (inp && !inp.disabled) {
+    inp.value = '';
+    inp.dispatchEvent(new Event('input', {bubbles:true}));
+    setTimeout(function() { if(window._showNumpad) window._showNumpad(inp); }, 220);
   }
+}
+
+// ── Timer ──
+const TIMER_SECONDS = 90;
+var _timerInterval = null;
+var _timerLeft = TIMER_SECONDS;
+
+function _startTimer() {
+  if (GAME_LEVEL < 3) return;
+  _stopTimer();
+  _timerLeft = TIMER_SECONDS;
+  var wrap = document.getElementById('timerWrap');
+  var slide = document.querySelector('.q-slide.active');
+  if (wrap && slide) {
+    var anchor = slide.querySelector('.check-btn');
+    if (anchor) anchor.parentNode.insertBefore(wrap, anchor);
+  }
+  _renderTimer();
+  if (wrap) wrap.style.display = 'flex';
+  _timerInterval = setInterval(function() {
+    _timerLeft--;
+    _renderTimer();
+    if (_timerLeft <= 0) { _stopTimer(); _timerExpire(); }
+  }, 1000);
+}
+
+function _stopTimer() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+}
+
+function _hideTimer() {
+  _stopTimer();
+  var w = document.getElementById('timerWrap');
+  if (w) w.style.display = 'none';
+}
+
+function _renderTimer() {
+  var fill = document.getElementById('timerFill');
+  var num  = document.getElementById('timerNum');
+  var wrap = document.getElementById('timerWrap');
+  if (!fill || !num) return;
+  var pct = (_timerLeft / TIMER_SECONDS) * 100;
+  fill.style.width = pct + '%';
+  num.textContent = _timerLeft;
+  var cls = _timerLeft <= 10 ? 'td' : _timerLeft <= 20 ? 'tw' : '';
+  num.className  = 'timer-num ' + cls;
+  fill.className = 'timer-fill ' + cls;
+  if (wrap) wrap.className = cls ? cls : '';
+}
+
+function _timerExpire() {
+  var slide = document.querySelector('.q-slide.active');
+  if (!slide) return;
+  var card = slide.querySelector('.q-card');
+  if (!card) return;
+  var qId = card.id;
+  if (!qId || answered[qId] !== undefined) return;
+  slide.querySelectorAll('.check-btn,.ans-input').forEach(function(el) { el.disabled = true; });
+  answered[qId] = false;
+  comboStreak = 0;
+  bossAttack();
+  updateScore();
+  showFeedback(qId, false, '⏰ Hết giờ! Câu này bị bỏ qua.');
+  _hideTimer();
+  var qNum = parseInt(qId.replace('q',''));
+  handleAfterAnswer(qNum, false);
+  saveProgress();
+}
+
+// ── Combat animations ──
+function showDamage(targetId, dmgText, isCritical) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const dmg = document.createElement('div');
+  dmg.className = 'damage-number';
+  dmg.textContent = dmgText;
+  if (isCritical) { dmg.style.color = '#fbbf24'; dmg.style.textShadow = '0 0 15px #fbbf24'; dmg.style.fontSize = '40px'; }
+  const offsetX = (Math.random() - 0.5) * 60;
+  dmg.style.marginLeft = offsetX + 'px';
+  target.parentElement.appendChild(dmg);
+  setTimeout(() => dmg.remove(), 1000);
+}
+
+function spawnExplosion(targetId) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const expl = document.createElement('div');
+  expl.className = 'explosion';
+  expl.textContent = '💥';
+  target.parentElement.appendChild(expl);
+  setTimeout(() => expl.remove(), 500);
+}
+
+function playerAttack() {
+  const pAvatar = document.getElementById('playerAvatar');
+  const bAvatar = document.getElementById('bossAvatar');
+  const zone = document.getElementById('combatZone');
+  pAvatar.style.animation = 'none'; void pAvatar.offsetWidth;
+  pAvatar.style.animation = 'castMagic 0.5s ease';
+  const beam = document.createElement('div');
+  beam.className = 'energy-beam';
+  beam.style.top = '50%';
+  beam.style.animation = 'fireBeam 0.4s ease-in forwards';
+  zone.appendChild(beam);
+  setTimeout(() => {
+    beam.remove();
+    bAvatar.style.animation = 'none'; void bAvatar.offsetWidth;
+    bAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    const dmg = Math.round((100 / TOTAL) * LEVEL_MULT);
+    bossHpVal = Math.max(0, bossHpVal - dmg);
+    updateBattleHp();
+    if (dmg > 0) showDamage('bossAvatar', '-' + dmg, comboStreak >= 2);
+    spawnExplosion('bossAvatar');
+    if (bossHpVal <= 0) {
+      bAvatar.style.transition = 'all 1s ease';
+      bAvatar.style.transform = 'scale(1.5)';
+      bAvatar.style.filter = 'brightness(2) drop-shadow(0 0 20px var(--primary))';
+      showDamage('bossAvatar', 'DEFEATED!', true);
+      setTimeout(() => { bAvatar.style.opacity = '0'; }, 1000);
+    } else {
+      setTimeout(() => {
+        pAvatar.style.animation = 'idle 2s ease-in-out infinite';
+        bAvatar.style.animation = 'idle 2s ease-in-out infinite';
+        bAvatar.style.animationDelay = '1s';
+      }, 500);
+    }
+  }, 400);
+}
+
+function bossAttack() {
+  const pAvatar = document.getElementById('playerAvatar');
+  const bAvatar = document.getElementById('bossAvatar');
+  const zone = document.getElementById('combatZone');
+  if (bossHpVal <= 0) return;
+  playerHpVal = Math.max(0, playerHpVal - 15);
+  bAvatar.style.animation = 'none'; void bAvatar.offsetWidth;
+  bAvatar.style.animation = 'castBossMagic 0.5s ease';
+  const orb = document.createElement('div');
+  orb.className = 'projectile';
+  orb.textContent = '🌑';
+  orb.style.color = 'var(--secondary)';
+  orb.style.animation = 'flyLeft 0.6s ease-in forwards';
+  zone.appendChild(orb);
+  setTimeout(() => {
+    orb.remove();
+    pAvatar.style.animation = 'none'; void pAvatar.offsetWidth;
+    pAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    updateBattleHp();
+    showDamage('playerAvatar', '-15');
+    document.body.style.transition = 'background 0.2s';
+    const oldBg = document.body.style.background;
+    document.body.style.background = '#fef2f2';
+    setTimeout(() => { document.body.style.background = oldBg; }, 200);
+    if (playerHpVal <= 0) {
+      setTimeout(() => { document.getElementById('gameOverOverlay').classList.add('show'); }, 500);
+    } else {
+      setTimeout(() => {
+        pAvatar.style.animation = 'idle 2s ease-in-out infinite';
+        bAvatar.style.animation = 'idle 2s ease-in-out infinite';
+        bAvatar.style.animationDelay = '1s';
+      }, 500);
+    }
+  }, 500);
 }
 
 // ── Question definitions ──
 const QUESTIONS = {
-  1: {
-    type: 'single', inputs: ['q1ans'],
-    correct: [['9']], answer: 9,
-    explain: 'Dãy 1, 2, 3, …, 9 có khoảng cách = 1.<br>Số hạng = (9 − 1) ÷ 1 + 1 = <strong>9 trạm</strong>.',
-    hint: 'Đếm từ 1 đến 9, mỗi số là 1 trạm.<br>Dùng công thức: <code>(Cuối − Đầu) ÷ KC + 1</code>',
-    viz: 'count', vizData: {start:1, end:9, gap:1, emoji:'🔋', label:'trạm'}
-  },
-  2: {
-    type: 'single', inputs: ['q2ans'],
-    correct: [['100']], answer: 100,
-    explain: 'Dãy 1, 2, 3, …, 100 có khoảng cách = 1.<br>Số hạng = (100 − 1) ÷ 1 + 1 = <strong>100 tầng</strong>.',
-    hint: 'Tương tự câu 1, đếm từ 1 đến 100.',
-    viz: 'count', vizData: {start:1, end:100, gap:1, emoji:'🏢', label:'tầng'}
-  },
-  3: {
-    type: 'single', inputs: ['q3ans'],
-    correct: [['45']], answer: 45,
-    explain: 'Số chẵn 2 chữ số: 10, 12, 14, …, 98. KC = 2.<br>Số hạng = (98 − 10) ÷ 2 + 1 = 88÷2 + 1 = <strong>45 nhà</strong>.',
-    hint: 'Số chẵn 2 chữ số nhỏ nhất = 10, lớn nhất = 98.<br>Khoảng cách giữa các số chẵn = 2.',
-    viz: 'count', vizData: {start:10, end:98, gap:2, emoji:'🏠', label:'nhà'}
-  },
-  4: {
-    type: 'multi', inputs: ['q4a','q4b'],
-    correct: [['20'],['200']],
-    explain: 'a) Dãy 2, 4, …, 40. KC=2. Số cây = (40−2)÷2+1 = <strong>20</strong>.<br>b) Cây 100: 2 + (100−1)×2 = 2 + 198 = <strong>200m</strong>.',
-    hint: 'a) Dùng CT đếm: (Cuối−Đầu)÷KC+1.<br>b) Dùng CT thứ N: Đầu + (N−1)×KC.',
-    viz: 'nth', vizData: {start:2, end:40, gap:2, emoji:'🌳', n:100, nthAns:200}
-  },
-  5: {
-    type: 'multi', inputs: ['q5a','q5b','q5c'],
-    correct: [['20'],['199'],['399']],
-    explain: 'Dãy 3, 7, 11, …, 79. KC=4.<br>a) Số đèn = (79−3)÷4+1 = <strong>20</strong>.<br>b) Đèn 50: 3+(50−1)×4 = <strong>199</strong>.<br>c) Đèn 100: 3+(100−1)×4 = <strong>399</strong>.',
-    hint: 'KC = 7−3 = 4.<br>a) Công thức đếm. b,c) Công thức thứ N.',
-    viz: 'nth', vizData: {start:3, end:79, gap:4, emoji:'💡', n:50, nthAns:199}
-  },
-  6: {
-    type: 'multi', inputs: ['q6a','q6b'],
-    correct: [['13'],['4997']],
-    explain: 'Dãy 2, 7, 12, …, 62. KC=5.<br>a) Số bậc = (62−2)÷5+1 = <strong>13</strong>.<br>b) Bậc 1000: 2+(1000−1)×5 = 2+4995 = <strong>4997cm</strong>.',
-    hint: 'KC = 7−2 = 5.<br>a) Đếm: (62−2)÷5+1.<br>b) Thứ N: 2+(1000−1)×5.',
-    viz: 'nth', vizData: {start:2, end:62, gap:5, emoji:'🪜', n:1000, nthAns:4997}
-  },
-  7: {
-    type: 'single', inputs: ['q7ans'],
-    correct: [['420']],
-    explain: 'Dãy 2, 4, …, 40. Số hạng = 20.<br>Tổng = (2+40) × 20 ÷ 2 = 42 × 10 = <strong>420 viên</strong>.',
-    hint: 'Đếm số hạng trước: (40−2)÷2+1 = 20.<br>Rồi ghép cặp: Tổng = (Đầu+Cuối)×SH÷2.',
-    viz: 'sum', vizData: {start:2, end:40, gap:2, emoji:'🧱'}
-  },
-  8: {
-    type: 'single', inputs: ['q8ans'],
-    correct: [['820']],
-    explain: 'Dãy 3, 7, 11, …, 79. KC=4, Số hạng = 20.<br>Tổng = (3+79) × 20 ÷ 2 = 82 × 10 = <strong>820°C</strong>.',
-    hint: 'KC=4. Đếm: (79−3)÷4+1 = 20 SH.<br>Tổng = (3+79)×20÷2.',
-    viz: 'sum', vizData: {start:3, end:79, gap:4, emoji:'🌡️'}
-  },
-  9: {
-    type: 'multi', inputs: ['q9a','q9b'],
-    correct: [['16'],['496']],
-    explain: 'Dãy 1, 5, 9, …, 61. KC=4.<br>a) Số trạm = (61−1)÷4+1 = <strong>16</strong>.<br>b) Tổng = (1+61)×16÷2 = 62×8 = <strong>496</strong>.',
-    hint: 'KC=4. a) Đếm SH. b) Dùng CT tổng ghép cặp.',
-    viz: 'sum', vizData: {start:1, end:61, gap:4, emoji:'⛽'}
-  }
+  1: { type:'single', inputs:['q1ans'], correct:[['9']], explain:'Dãy 1,2,3,…,9 có KC=1.<br>Số hạng = (9−1)÷1+1 = <strong>9 trạm</strong>.', hint:'Đếm từ 1 đến 9, mỗi số là 1 trạm.<br>Dùng CT: (Cuối−Đầu)÷KC+1', viz:'count', vizData:{start:1,end:9,gap:1,emoji:'🔋',label:'trạm'} },
+  2: { type:'single', inputs:['q2ans'], correct:[['100']], explain:'Dãy 1,2,3,…,100 có KC=1.<br>Số hạng = (100−1)÷1+1 = <strong>100 tầng</strong>.', hint:'Đếm từ 1 đến 100.', viz:'count', vizData:{start:1,end:100,gap:1,emoji:'🏢',label:'tầng'} },
+  3: { type:'single', inputs:['q3ans'], correct:[['45']], explain:'Số chẵn 2 chữ số: 10,12,…,98. KC=2.<br>Số hạng=(98−10)÷2+1=44+1=<strong>45 nhà</strong>.', hint:'Số chẵn 2 chữ số nhỏ nhất=10, lớn nhất=98.<br>KC=2. Dùng CT đếm.', viz:'count', vizData:{start:10,end:98,gap:2,emoji:'🏠',label:'nhà'} },
+  4: { type:'multi', inputs:['q4a','q4b'], correct:[['20'],['200']], explain:'a) Dãy 2,4,…,40. KC=2. Số cây=(40−2)÷2+1=<strong>20</strong>.<br>b) Cây 100: 2+(100−1)×2=2+198=<strong>200m</strong>.', hint:'a) Dùng CT đếm: (Cuối−Đầu)÷KC+1.<br>b) CT thứ N: Đầu+(N−1)×KC.', viz:'nth', vizData:{start:2,end:40,gap:2,emoji:'🌳',n:100,nthAns:200} },
+  5: { type:'multi', inputs:['q5a','q5b','q5c'], correct:[['20'],['199'],['399']], explain:'Dãy 3,7,11,…,79. KC=4.<br>a) Số đèn=(79−3)÷4+1=<strong>20</strong>.<br>b) Đèn 50: 3+(50−1)×4=<strong>199</strong>.<br>c) Đèn 100: 3+(100−1)×4=<strong>399</strong>.', hint:'KC=7−3=4.<br>a) CT đếm. b,c) CT thứ N.', viz:'nth', vizData:{start:3,end:79,gap:4,emoji:'💡',n:50,nthAns:199} },
+  6: { type:'multi', inputs:['q6a','q6b'], correct:[['13'],['4997']], explain:'Dãy 2,7,12,…,62. KC=5.<br>a) Số bậc=(62−2)÷5+1=<strong>13</strong>.<br>b) Bậc 1000: 2+(1000−1)×5=2+4995=<strong>4997cm</strong>.', hint:'KC=7−2=5.<br>a) Đếm: (62−2)÷5+1.<br>b) Thứ N: 2+(1000−1)×5.', viz:'nth', vizData:{start:2,end:62,gap:5,emoji:'🪜',n:1000,nthAns:4997} },
+  7: { type:'single', inputs:['q7ans'], correct:[['420']], explain:'Dãy 2,4,…,40. SH=20.<br>Tổng=(2+40)×20÷2=42×10=<strong>420 viên</strong>.', hint:'Đếm SH trước: (40−2)÷2+1=20.<br>Tổng=(Đầu+Cuối)×SH÷2.', viz:'sum', vizData:{start:2,end:40,gap:2,emoji:'🧱'} },
+  8: { type:'single', inputs:['q8ans'], correct:[['820']], explain:'Dãy 3,7,11,…,79. KC=4, SH=20.<br>Tổng=(3+79)×20÷2=82×10=<strong>820°C</strong>.', hint:'KC=4. Đếm: (79−3)÷4+1=20 SH.<br>Tổng=(3+79)×20÷2.', viz:'sum', vizData:{start:3,end:79,gap:4,emoji:'🌡️'} },
+  9: { type:'multi', inputs:['q9a','q9b'], correct:[['16'],['496']], explain:'Dãy 1,5,9,…,61. KC=4.<br>a) SH=(61−1)÷4+1=<strong>16</strong>.<br>b) Tổng=(1+61)×16÷2=62×8=<strong>496</strong>.', hint:'KC=4. a) Đếm SH. b) CT tổng ghép cặp.', viz:'sum', vizData:{start:1,end:61,gap:4,emoji:'⛽'} }
 };
 
 // ── Check answer ──
-function checkQ(qNum){
+function checkQ(qNum) {
   const q = QUESTIONS[qNum];
-  const qId = 'q'+qNum;
-
-  // Collect values
+  const qId = 'q' + qNum;
   const vals = q.inputs.map(id => document.getElementById(id).value.trim());
-  if(vals.some(v => v === '')){
-    const emptyInput = q.inputs.find(id => document.getElementById(id).value.trim() === '');
-    const inp = document.getElementById(emptyInput);
+  if (vals.some(v => v === '')) {
+    const emptyId = q.inputs.find(id => document.getElementById(id).value.trim() === '');
+    const inp = document.getElementById(emptyId);
     inp.style.borderColor = 'var(--amber)'; inp.focus();
     return;
   }
-
-  // Mo-Mo hint on first wrong
-  const results = vals.map((v,i) => q.correct[i].includes(v));
+  const results = vals.map((v, i) => q.correct[i].includes(v));
   const isCorrect = results.every(r => r);
 
-  if(!isCorrect && !momoHinted[qId]){
+  if (!isCorrect && !momoHinted[qId]) {
+    // Record checkpoint BEFORE showing momo
+    const now0 = Date.now();
+    const ts0 = Math.round((now0 - window._lastInteractionTime) / 1000);
+    window._lastInteractionTime = now0;
+    window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+    window._checkpoints.push({ question_id: qNum, attempt_number: window._attempts[qId], submitted_answer: vals.join(','), is_correct: false, time_spent_seconds: ts0 });
     momoHinted[qId] = true;
     document.getElementById('momoText').innerHTML = '<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>' + q.hint;
     document.getElementById('momoOverlay').classList.add('show');
     return;
   }
 
-  // Record checkpoint
   const now = Date.now();
-  const timeSpent = Math.round((now - window._lastInteractionTime)/1000);
+  const timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
   window._lastInteractionTime = now;
-  window._attempts[qId] = (window._attempts[qId]||0)+1;
-  window._checkpoints.push({
-    question_id: qNum, attempt_number: window._attempts[qId],
-    submitted_answer: vals.join(','), is_correct: isCorrect,
-    time_spent_seconds: timeSpent
-  });
+  window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+  window._checkpoints.push({ question_id: qNum, attempt_number: window._attempts[qId], submitted_answer: vals.join(','), is_correct: isCorrect, time_spent_seconds: timeSpent });
 
   answered[qId] = isCorrect;
   updateScore();
 
-  // Style inputs
-  q.inputs.forEach((id,i) => {
+  q.inputs.forEach((id, i) => {
     const inp = document.getElementById(id);
-    inp.className = 'ans-input '+(results[i]?'correct-input':'wrong-input');
+    inp.className = 'ans-input ' + (results[i] ? 'correct-input' : 'wrong-input');
     inp.disabled = true;
   });
 
-  showFeedback(qId, isCorrect, isCorrect ? q.explain : 'Chưa đúng rồi. '+q.explain);
+  if (isCorrect) {
+    comboStreak++;
+    showScoreToast(Math.round(10 * LEVEL_MULT), comboStreak);
+    playerAttack();
+  } else {
+    comboStreak = 0;
+    bossAttack();
+  }
+
+  showFeedback(qId, isCorrect, isCorrect ? q.explain : 'Chưa đúng rồi. ' + q.explain);
   showVisualization(qNum);
   handleAfterAnswer(qNum, isCorrect);
 }
 
-// ══════════════════════════════════════════
-// VISUALIZATIONS — Minh họa bản chất bài toán
-// ══════════════════════════════════════════
-
-function showVisualization(qNum){
+// ── Visualizations ──
+function showVisualization(qNum) {
   const q = QUESTIONS[qNum];
-  const container = document.getElementById('vizq'+qNum);
-  if(!container) return;
-
+  const container = document.getElementById('vizq' + qNum);
+  if (!container) return;
   const d = q.vizData;
   let html = '<div class="viz-title">📐 Minh Họa Bản Chất Bài Toán</div>';
-
-  if(q.viz === 'count'){
-    html += vizCount(d);
-  } else if(q.viz === 'nth'){
-    html += vizNthTerm(d);
-  } else if(q.viz === 'sum'){
-    html += vizGaussPair(d);
-  }
-
+  if (q.viz === 'count') html += vizCount(d);
+  else if (q.viz === 'nth') html += vizNthTerm(d);
+  else if (q.viz === 'sum') html += vizGaussPair(d);
   container.innerHTML = html;
   container.classList.add('show');
 }
 
-function vizCount(d){
+function vizCount(d) {
   const items = [];
-  for(let i=d.start; i<=d.end; i+=d.gap) items.push(i);
+  for (let i = d.start; i <= d.end; i += d.gap) items.push(i);
   const count = items.length;
-
   let html = '<div class="viz-items">';
-  if(items.length <= 12){
-    items.forEach((v,i) => {
-      html += `<div class="viz-item" style="--d:${i*0.08}s">${d.emoji}<div class="viz-num">${v}</div></div>`;
-    });
+  if (items.length <= 12) {
+    items.forEach((v, i) => { html += `<div class="viz-item" style="--d:${i*0.08}s">${d.emoji}<div class="viz-num">${v}</div></div>`; });
   } else {
-    // Show first 5, dots, last 5
-    for(let i=0;i<5;i++){
-      html += `<div class="viz-item" style="--d:${i*0.08}s">${d.emoji}<div class="viz-num">${items[i]}</div></div>`;
-    }
+    for (let i=0;i<5;i++) html += `<div class="viz-item" style="--d:${i*0.08}s">${d.emoji}<div class="viz-num">${items[i]}</div></div>`;
     html += `<div class="viz-dots" style="--d:0.4s">⋯</div>`;
-    for(let i=items.length-5;i<items.length;i++){
-      html += `<div class="viz-item" style="--d:${(i-items.length+10)*0.08}s">${d.emoji}<div class="viz-num">${items[i]}</div></div>`;
-    }
+    for (let i=items.length-5;i<items.length;i++) html += `<div class="viz-item" style="--d:${(i-items.length+10)*0.08}s">${d.emoji}<div class="viz-num">${items[i]}</div></div>`;
   }
   html += '</div>';
-
   html += `<div class="viz-gap">← khoảng cách = ${d.gap} →</div>`;
-
   html += '<div class="viz-formula">';
   html += `<div class="viz-step" style="--d:0.8s">Số ${d.label} = (<span class="viz-hl">${d.end}</span> − <span class="viz-hl">${d.start}</span>) ÷ <span class="viz-hl">${d.gap}</span> + 1</div>`;
   html += `<div class="viz-step" style="--d:1.1s">= ${d.end-d.start} ÷ ${d.gap} + 1 = ${(d.end-d.start)/d.gap} + 1 = <strong>${count}</strong></div>`;
@@ -977,208 +1087,322 @@ function vizCount(d){
   return html;
 }
 
-function vizNthTerm(d){
+function vizNthTerm(d) {
   const items = [];
-  for(let i=d.start; i<=d.end; i+=d.gap) items.push(i);
+  for (let i = d.start; i <= d.end; i += d.gap) items.push(i);
   const count = items.length;
-
-  // Part 1: Counting visualization
   let html = '<div class="viz-items">';
-  const showItems = items.length <= 10 ? items : [...items.slice(0,4), '...', ...items.slice(-4)];
+  const showItems = items.length <= 10 ? items : [...items.slice(0,4),'...',...items.slice(-4)];
   let delay = 0;
-  showItems.forEach((v,i) => {
-    if(v === '...'){
-      html += `<div class="viz-dots" style="--d:${delay*0.08}s">⋯</div>`;
-    } else {
-      html += `<div class="viz-item" style="--d:${delay*0.08}s">${d.emoji}<div class="viz-num">${v}</div></div>`;
-    }
+  showItems.forEach((v, i) => {
+    if (v === '...') html += `<div class="viz-dots" style="--d:${delay*0.08}s">⋯</div>`;
+    else html += `<div class="viz-item" style="--d:${delay*0.08}s">${d.emoji}<div class="viz-num">${v}</div></div>`;
     delay++;
   });
   html += '</div>';
   html += `<div class="viz-gap">← khoảng cách = ${d.gap} →</div>`;
-
   html += '<div class="viz-formula">';
-  html += `<div class="viz-step" style="--d:0.7s"><strong>Đếm:</strong> (${d.end} − ${d.start}) ÷ ${d.gap} + 1 = <strong>${count}</strong> ${d.emoji}</div>`;
-  html += `<div class="viz-step" style="--d:1.0s"><strong>Thứ ${d.n}:</strong> ${d.start} + (${d.n} − 1) × ${d.gap}</div>`;
-  html += `<div class="viz-step" style="--d:1.3s">= ${d.start} + ${d.n-1} × ${d.gap} = ${d.start} + ${(d.n-1)*d.gap} = <strong>${d.nthAns}</strong></div>`;
+  html += `<div class="viz-step" style="--d:0.7s"><strong>Đếm:</strong> (${d.end}−${d.start})÷${d.gap}+1 = <strong>${count}</strong> ${d.emoji}</div>`;
+  html += `<div class="viz-step" style="--d:1.0s"><strong>Thứ ${d.n}:</strong> ${d.start}+(${d.n}−1)×${d.gap}</div>`;
+  html += `<div class="viz-step" style="--d:1.3s">= ${d.start}+${d.n-1}×${d.gap} = ${d.start}+${(d.n-1)*d.gap} = <strong>${d.nthAns}</strong></div>`;
   html += '</div>';
   return html;
 }
 
-function vizGaussPair(d){
+function vizGaussPair(d) {
   const items = [];
-  for(let i=d.start; i<=d.end; i+=d.gap) items.push(i);
+  for (let i = d.start; i <= d.end; i += d.gap) items.push(i);
   const count = items.length;
   const pairSum = d.start + d.end;
   const total = pairSum * count / 2;
-
-  // Show pairing: first row (forward), second row (reverse)
-  const show = items.length <= 8 ? items : [...items.slice(0,3), '⋯', ...items.slice(-3)];
-  const showRev = items.length <= 8 ? [...items].reverse() : [...items.slice(-3).reverse(), '⋯', ...items.slice(0,3).reverse()];
-
+  const show = items.length <= 8 ? items : [...items.slice(0,3),'⋯',...items.slice(-3)];
+  const showRev = items.length <= 8 ? [...items].reverse() : [...items.slice(-3).reverse(),'⋯',...items.slice(0,3).reverse()];
   let html = '<div class="viz-pair-container">';
-
-  // Forward row
   html += '<div class="viz-pair-row forward">';
-  show.forEach((v,i) => {
-    html += `<span style="--d:${i*0.1}s">${v}</span>`;
-  });
+  show.forEach((v,i) => { html += `<span style="--d:${i*0.1}s">${v}</span>`; });
   html += '</div>';
-
-  // + signs
   html += '<div class="viz-pair-row" style="font-size:12px;color:var(--text-muted)">';
-  show.forEach((v,i) => {
-    html += `<span style="--d:${i*0.1+0.3}s;background:none;min-width:32px">+</span>`;
-  });
+  show.forEach((v,i) => { html += `<span style="--d:${i*0.1+0.3}s;background:none;min-width:32px">+</span>`; });
   html += '</div>';
-
-  // Reverse row
   html += '<div class="viz-pair-row reverse">';
-  showRev.forEach((v,i) => {
-    html += `<span style="--d:${i*0.1+0.5}s">${v}</span>`;
-  });
+  showRev.forEach((v,i) => { html += `<span style="--d:${i*0.1+0.5}s">${v}</span>`; });
   html += '</div>';
-
-  // Separator
   html += '<div class="viz-pair-line"></div>';
-
-  // Sum row
   html += '<div class="viz-pair-sums">';
-  show.forEach((v,i) => {
-    const sumVal = (v === '⋯') ? '⋯' : pairSum;
-    html += `<span style="--d:${i*0.1+0.8}s">${sumVal}</span>`;
-  });
-  html += '</div>';
-
-  html += '</div>';
-
+  show.forEach((v,i) => { const sv = (v==='⋯') ? '⋯' : pairSum; html += `<span style="--d:${i*0.1+0.8}s">${sv}</span>`; });
+  html += '</div></div>';
   html += '<div class="viz-formula">';
-  html += `<div class="viz-step" style="--d:1.2s">Mỗi cặp = ${d.start} + ${d.end} = <span class="viz-hl">${pairSum}</span></div>`;
+  html += `<div class="viz-step" style="--d:1.2s">Mỗi cặp = ${d.start}+${d.end} = <span class="viz-hl">${pairSum}</span></div>`;
   html += `<div class="viz-step" style="--d:1.5s">Số hạng = (${d.end}−${d.start})÷${d.gap}+1 = <span class="viz-hl">${count}</span></div>`;
-  html += `<div class="viz-step" style="--d:1.8s">Tổng = ${pairSum} × ${count} ÷ 2 = <strong>${total}</strong></div>`;
+  html += `<div class="viz-step" style="--d:1.8s">Tổng = ${pairSum}×${count}÷2 = <strong>${total}</strong></div>`;
   html += '</div>';
   return html;
 }
 
-// ── Enable/disable buttons ──
-document.addEventListener('DOMContentLoaded', () => {
-  for(let qNum=1; qNum<=TOTAL; qNum++){
-    const q = QUESTIONS[qNum];
-    const btn = document.querySelector('#q'+qNum+' .check-btn');
-    q.inputs.forEach(id => {
-      const inp = document.getElementById(id);
-      inp.addEventListener('input', () => {
-        btn.disabled = q.inputs.some(iid => document.getElementById(iid).value.trim() === '');
-      });
-      inp.addEventListener('keydown', e => {
-        if(e.key === 'Enter' && !btn.disabled) btn.click();
-      });
-    });
-  }
-});
-
-// ── Save / Resume ──
-const SAVE_KEY = 'cbToan_progress_bai4';
-function saveProgress(){
+// ── Save / Restart ──
+function saveProgress() {
+  if (currentSlide > TOTAL) return;
   localStorage.setItem(SAVE_KEY, JSON.stringify({
-    slide: currentSlide, answered, attempts: window._attempts,
-    checkpoints: window._checkpoints
+    slide: currentSlide,
+    answered: answered,
+    attempts: window._attempts,
+    checkpoints: window._checkpoints,
+    playerHp: playerHpVal,
+    bossHp: bossHpVal,
+    combo: comboStreak,
+    total: TOTAL,
+    level: GAME_LEVEL
   }));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(saved && saved.slide >= 1 && saved.slide <= TOTAL){
-      answered = saved.answered || {};
-      window._answered = answered;
-      window._attempts = saved.attempts || {};
-      window._checkpoints = saved.checkpoints || [];
+function restartGame() {
+  localStorage.removeItem(SAVE_KEY);
+  window.location.href = '../../map.html';
+}
 
-      for(const [qId, isCorrect] of Object.entries(answered)){
-        const qNum = parseInt(qId.replace('q',''));
-        const q = QUESTIONS[qNum];
-        if(!q) continue;
-        q.inputs.forEach(id => { const inp = document.getElementById(id); if(inp) inp.disabled = true; });
-        const card = document.getElementById(qId);
-        if(card) card.classList.add(isCorrect?'correct':'wrong');
-        const btn = card?.querySelector('.check-btn');
-        if(btn){ btn.disabled=false; btn.innerHTML='⏭ Nhiệm Vụ Tiếp Theo'; btn.classList.add('btn-next-pulse'); btn.onclick=function(){nextSlide();}; }
-        if(isCorrect){ const b = document.getElementById('b'+qNum); if(b) b.classList.add('lit'); }
-      }
-
-      const cur = document.querySelector('.q-slide.active');
-      if(cur) cur.classList.remove('active');
-      currentSlide = saved.slide;
-      const target = document.getElementById('slide'+currentSlide);
-      if(target) target.classList.add('active');
-    }
-  } catch(e){}
-  updateScore();
-});
-
-function restartGame(){
-  if(confirm('Bạn có chắc muốn chơi lại từ đầu?')){
+function restartConfirm() {
+  if (confirm('Chơi lại từ đầu? Tiến trình sẽ bị xóa!')) {
     localStorage.removeItem(SAVE_KEY);
     location.reload();
   }
 }
 
-function pauseGame(){
-  saveProgress();
-  if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.close();
-  else window.history.back();
+// ── Video ──
+function openHelpVideo() {
+  if (GAME_LEVEL >= 2) {
+    alert('🔒 Xem video không khả dụng ở Level ' + GAME_LEVEL);
+    return;
+  }
+  const embedUrl = 'https://www.youtube.com/embed/' + VIDEO_ID + '?autoplay=1&rel=0';
+  document.getElementById('videoWrapper').innerHTML =
+    '<iframe width="100%" height="100%" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+  document.getElementById('videoModal').classList.add('show');
+}
+
+function closeVideo() {
+  document.getElementById('videoModal').classList.remove('show');
+  document.getElementById('videoWrapper').innerHTML = '';
 }
 
 // ── Submit ──
-function submitAll(){
-  const c = Object.values(answered).filter(v=>v===true).length;
-  const w = Object.values(answered).filter(v=>v===false).length;
-  const skip = TOTAL-c-w;
-  const pct = Math.round(c/TOTAL*100);
-
-  let emoji,title;
-  if(pct>=90){emoji='🏆';title='Kiến Trúc Sư Huyền Thoại!';}
-  else if(pct>=70){emoji='⭐';title='Thợ Xây Xuất Sắc!';}
-  else if(pct>=50){emoji='📖';title='Đang Tiến Bộ!';}
-  else{emoji='🌱';title='Cố Gắng Thêm Nhé!';}
-
-  document.getElementById('resultEmoji').textContent=emoji;
-  document.getElementById('resultTitle').textContent=title;
-  document.getElementById('resultScore').textContent=c+'/'+TOTAL;
-  document.getElementById('rdCorrect').textContent=c;
-  document.getElementById('rdWrong').textContent=w;
-  document.getElementById('rdSkip').textContent=skip;
-
-  if(pct>=50){
-    const cl = parseInt(window.location.pathname.match(/bai(\d+)/)?.[1]||0);
-    if(cl>0){
-      let badges=[]; try{badges=JSON.parse(localStorage.getItem('cbToan_badges'))||[];}catch(e){}
-      if(!badges.includes(cl)){badges.push(cl);localStorage.setItem('cbToan_badges',JSON.stringify(badges));}
-    }
-    document.getElementById('resultTitle').innerHTML='🏆 Nhận Huy Hiệu Kiến Trúc Sư!';
-  }
+function submitAll() {
   localStorage.removeItem(SAVE_KEY);
+  const c = Object.values(answered).filter(v => v === true).length;
+  const w = Object.values(answered).filter(v => v === false).length;
+  const skip = TOTAL - c - w;
+  const pct = Math.round(c / TOTAL * 100);
+  let emoji, title, levelText, levelColor;
+  if (pct >= 90) { emoji='🏆'; title='Kiến Trúc Sư Huyền Thoại!'; levelText='🏆 Mức 4 — Giỏi toán'; levelColor='#fef3c7'; }
+  else if (pct >= 70) { emoji='⭐'; title='Thợ Xây Xuất Sắc!'; levelText='⭐ Mức 3 — Làm tốt'; levelColor='#dbeafe'; }
+  else if (pct >= 50) { emoji='📖'; title='Đang Tiến Bộ!'; levelText='📖 Mức 2 — Hiểu bài'; levelColor='#e0f2fe'; }
+  else { emoji='🌱'; title='Cố Gắng Thêm Nhé!'; levelText='🌱 Mức 1 — Đang học'; levelColor='#f0fdf4'; }
+  const BASE_PT = 10;
+  const levelScore = Math.round(c * BASE_PT * LEVEL_MULT);
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = c + '/' + TOTAL + ' câu  •  ' + levelScore + ' điểm';
+  const rl = document.getElementById('resultLevel');
+  rl.textContent = levelText + '  ' + LEVEL_STARS[GAME_LEVEL];
+  rl.style.background = levelColor; rl.style.color = '#1e293b';
+  document.getElementById('rdCorrect').textContent = c;
+  document.getElementById('rdWrong').textContent = w;
+  document.getElementById('rdSkip').textContent = skip;
+  if (pct >= 50) {
+    const cl = parseInt(window.location.pathname.match(/bai(\d+)/)?.[1] || 0);
+    if (cl > 0) {
+      let badges = []; try { badges = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
+      if (!badges.includes(cl)) { badges.push(cl); localStorage.setItem('cbToan_badges', JSON.stringify(badges)); }
+      var prevBest = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + cl) || '0');
+      if (GAME_LEVEL > prevBest) localStorage.setItem('cbToan_bestLevel_bai' + cl, String(GAME_LEVEL));
+      var prevScore = parseInt(localStorage.getItem('cbToan_bestScore_bai' + cl) || '0');
+      if (levelScore > prevScore) localStorage.setItem('cbToan_bestScore_bai' + cl, String(levelScore));
+    }
+    document.getElementById('resultTitle').innerHTML = '🏆 Bạn Đã Nhận Được Huy Hiệu!';
+  }
   document.getElementById('resultOverlay').classList.add('show');
 }
+
+// ── DOMContentLoaded ──
+document.addEventListener('DOMContentLoaded', function() {
+  // Enable/disable buttons based on input
+  for (let qNum = 1; qNum <= TOTAL; qNum++) {
+    const q = QUESTIONS[qNum];
+    const btn = document.querySelector('#q' + qNum + ' .check-btn');
+    q.inputs.forEach(id => {
+      const inp = document.getElementById(id);
+      if (!inp || !btn) return;
+      inp.addEventListener('input', () => {
+        btn.disabled = q.inputs.some(iid => document.getElementById(iid).value.trim() === '');
+      });
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !btn.disabled) btn.click();
+      });
+    });
+  }
+
+  // Restore saved progress or show level modal
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (saved && saved.slide >= 1 && saved.slide <= TOTAL) {
+      // Has saved progress — restore
+      if (saved.level) {
+        GAME_LEVEL = saved.level;
+        LEVEL_MULT = GAME_LEVEL === 3 ? 2 : GAME_LEVEL === 2 ? 1.5 : 1;
+      }
+      answered = saved.answered || {};
+      window._answered = answered;
+      window._attempts = saved.attempts || {};
+      window._checkpoints = saved.checkpoints || [];
+      playerHpVal = saved.playerHp !== undefined ? saved.playerHp : 100;
+      bossHpVal = saved.bossHp !== undefined ? saved.bossHp : 100;
+      comboStreak = saved.combo || 0;
+      updateBattleHp();
+
+      for (const [qId, isCorrect] of Object.entries(answered)) {
+        const qNum = parseInt(qId.replace('q',''));
+        const q = QUESTIONS[qNum];
+        if (!q) continue;
+        q.inputs.forEach(id => { const inp = document.getElementById(id); if (inp) inp.disabled = true; });
+        const card = document.getElementById(qId);
+        if (card) card.classList.add(isCorrect ? 'correct' : 'wrong');
+        const btn = card?.querySelector('.check-btn');
+        if (btn) { btn.disabled = false; btn.innerHTML = '⏭ Nhiệm Vụ Tiếp Theo'; btn.classList.add('btn-next-pulse'); btn.onclick = function() { nextSlide(); }; }
+      }
+
+      const cur = document.querySelector('.q-slide.active');
+      if (cur) cur.classList.remove('active');
+      currentSlide = saved.slide;
+      const target = document.getElementById('slide' + currentSlide);
+      if (target) target.classList.add('active');
+
+      const toast = document.getElementById('resumeToast');
+      if (toast) {
+        toast.textContent = '▶ Tiếp tục câu ' + saved.slide + '/' + TOTAL;
+        toast.style.display = '';
+        setTimeout(function() { toast.style.display = 'none'; }, 2800);
+      }
+      updateScore();
+      if (GAME_LEVEL >= 3) _startTimer();
+    } else {
+      // No saved progress — show level modal
+      showLevelModal();
+    }
+  } catch(e) {
+    showLevelModal();
+  }
+});
+
+// Auto-save
+window.addEventListener('pagehide', function() { saveProgress(); });
+document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') saveProgress(); });
 </script>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="/static/auth.js"></script>
 <script>
 const tg = window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand();}
+if (tg) { tg.ready(); tg.expand(); }
 
 const _origSubmit = window.submitAll;
-window.submitAll = function(){
-  if(typeof _origSubmit==='function') _origSubmit();
-  const answered = window._answered||{};
-  const correct = Object.values(answered).filter(v=>v===true).length;
+window.submitAll = function() {
+  if (typeof _origSubmit === 'function') _origSubmit();
+  const ans = window._answered || {};
+  const correct = Object.values(ans).filter(v => v === true).length;
+  const gameLevel = GAME_LEVEL || parseInt(localStorage.getItem('cbToan_gameLevel') || '1');
+  const levelMult = gameLevel === 3 ? 2 : gameLevel === 2 ? 1.5 : 1;
   const payload = {
-    buoi: window._BUOI||0, diem: correct, tong: window._TOTAL||9,
-    chi_tiet: answered, checkpoints: window._checkpoints||[]
+    buoi: window._BUOI || 4,
+    diem: correct,
+    tong: window._TOTAL || 9,
+    level: gameLevel,
+    level_diem: Math.round(correct * 10 * levelMult),
+    chi_tiet: ans,
+    checkpoints: window._checkpoints || []
   };
-  if(tg && tg.sendData) tg.sendData(JSON.stringify(payload));
+  if (tg && tg.sendData) tg.sendData(JSON.stringify(payload));
 };
+</script>
+
+<!-- Numpad logic -->
+<script>
+(function() {
+  'use strict';
+  var _inp = null, _checkBtn = null;
+  function npSync() {
+    var el = document.getElementById('npVal');
+    if (el) el.textContent = (_inp && _inp.value) ? _inp.value : '?';
+  }
+  window._showNumpad = function(inp) {
+    if (!inp || inp.disabled) return;
+    _inp = inp;
+    var card = inp.closest('.q-card');
+    var cbId = inp.getAttribute('data-checkbtn');
+    if (cbId) _checkBtn = document.getElementById(cbId);
+    else _checkBtn = card ? card.querySelector('.check-btn') : null;
+    var badge = card ? card.querySelector('.q-num-badge') : null;
+    var labelEl = document.getElementById('npLabel');
+    if (labelEl) labelEl.textContent = badge ? badge.textContent : 'Nhập đáp án';
+    npSync();
+    document.getElementById('numpadOverlay').classList.add('show');
+  };
+  window._hideNumpad = function() {
+    document.getElementById('numpadOverlay').classList.remove('show');
+    _inp = null; _checkBtn = null;
+  };
+  document.querySelectorAll('.np-btn[data-d]').forEach(function(b) {
+    b.addEventListener('click', function() {
+      if (!_inp || _inp.disabled) return;
+      if (_inp.value.length >= 6) return;
+      _inp.value += this.dataset.d;
+      _inp.dispatchEvent(new Event('input', {bubbles:true}));
+      npSync();
+    });
+  });
+  document.getElementById('npDel').addEventListener('click', function() {
+    if (!_inp) return;
+    _inp.value = _inp.value.slice(0, -1);
+    _inp.dispatchEvent(new Event('input', {bubbles:true}));
+    npSync();
+  });
+  function doNpOk() {
+    if (!_inp) return;
+    if (!_inp.value.trim()) {
+      var lbl = document.getElementById('npLabel');
+      if (lbl) { var orig = lbl.textContent; lbl.textContent = '⚠ Chưa nhập!'; lbl.style.color = '#ff6b6b'; setTimeout(function() { lbl.textContent = orig; lbl.style.color = ''; }, 1400); }
+      return;
+    }
+    var btn = _checkBtn;
+    window._hideNumpad();
+    setTimeout(function() { if (btn && !btn.disabled) btn.click(); }, 80);
+  }
+  document.getElementById('npOk').addEventListener('click', doNpOk);
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    var overlay = document.getElementById('numpadOverlay');
+    if (overlay && overlay.classList.contains('show')) { e.preventDefault(); doNpOk(); }
+    else {
+      var activeInput = document.querySelector('.q-slide.active .ans-input:not([disabled])');
+      if (activeInput) { e.preventDefault(); window._showNumpad(activeInput); }
+    }
+  });
+  document.getElementById('numpadBd').addEventListener('click', window._hideNumpad);
+  document.getElementById('npCloseBtn').addEventListener('click', window._hideNumpad);
+  function hookAll() {
+    document.querySelectorAll('.ans-input').forEach(function(inp) {
+      if (inp.dataset.npHooked) return;
+      inp.dataset.npHooked = '1';
+      inp.setAttribute('readonly', 'readonly');
+      inp.setAttribute('inputmode', 'none');
+      inp.style.cursor = 'pointer';
+      inp.style.caretColor = 'transparent';
+      inp.addEventListener('click', function(e) { if (this.disabled) return; e.preventDefault(); e.stopPropagation(); window._showNumpad(this); });
+      inp.addEventListener('focus', function() { this.blur(); });
+      inp.addEventListener('touchstart', function(e) { if (this.disabled) return; e.preventDefault(); window._showNumpad(this); }, {passive:false});
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hookAll);
+  else hookAll();
+})();
 </script>
 
 </body>

@@ -158,7 +158,7 @@ body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'S
   background:var(--bg2); display:flex; align-items:center; justify-content:center;
   font-size:1.6rem;
 }
-.p-avatar img { width:100%; height:100%; border-radius:10px; object-fit:cover; }
+.p-avatar img { width:100%; height:100%; border-radius:10px; object-fit:cover; object-position:top center; aspect-ratio:3/4; }
 .p-info { flex:1; min-width:0; }
 .p-name { font-weight:700; font-size:.95rem; color:var(--text); margin-bottom:4px; }
 .p-email { font-size:.75rem; color:rgba(200,230,255,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -218,7 +218,7 @@ body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'S
   background:var(--bg2); font-size:1rem; display:inline-flex;
   align-items:center; justify-content:center;
 }
-.stu-avatar-sm img { width:100%; height:100%; border-radius:7px; object-fit:cover; }
+.stu-avatar-sm img { width:100%; height:100%; border-radius:7px; object-fit:cover; object-position:top center; }
 .status-badge {
   font-size:.68rem; padding:3px 9px; border-radius:99px; font-weight:700;
 }
@@ -611,10 +611,11 @@ function showToast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.style.background = type==='success' ? 'var(--success)' :
-                       type==='error'   ? 'var(--danger)'  : 'var(--primary)';
+                       type==='error'   ? 'var(--danger)'  :
+                       type==='warn'    ? '#f59e0b'        : 'var(--primary)';
   t.style.color = type==='success' ? '#000' : '#fff';
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3200);
+  setTimeout(()=>t.classList.remove('show'), type==='warn' ? 6000 : 3200);
 }
 
 // ── Login ────────────────────────────────────────────────────────────────
@@ -801,10 +802,16 @@ async function confirmReject() {
       method:'POST',
       body: JSON.stringify({reason})
     });
+    const data = await res.json().catch(() => ({}));
     if (res.ok) {
       document.getElementById('pcard-' + rejectTargetId)?.remove();
       closeModal('rejectModal');
-      showToast('❌ Đã từ chối hồ sơ');
+      if (data.tg_notified) {
+        showToast('❌ Đã từ chối — 📲 Đã nhắn Telegram');
+      } else {
+        const why = data.tg_error || 'Không có Telegram ID';
+        showToast(`❌ Đã từ chối — ⚠️ Chưa nhắn TG: ${why}`, 'warn');
+      }
       loadLeaderboard();
     } else {
       showToast('Lỗi', 'error');

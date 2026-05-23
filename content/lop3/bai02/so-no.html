@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#050a1f">
 <title>💣 Số Nổ — VInaStudy</title>
@@ -821,6 +822,22 @@ function sendScore() {
 document.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 document.addEventListener('touchend',   e => { if (e.touches.length > 0) e.preventDefault(); }, { passive: false });
 document.addEventListener('dblclick',   e => e.preventDefault());
+
+// ── Auth Gate ──────────────────────────────────────────────────────────
+(async function() {
+  const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+  if (!tgId) return; // mở trực tiếp trên browser → cho qua (dev/test)
+  try {
+    const res  = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
+    const data = await res.json();
+    if (data.status === 'approved') return; // ✓ hợp lệ
+    // Không hợp lệ → quay về đăng ký
+    window.location.replace(`/register?tg_id=${tgId}`);
+  } catch(e) {
+    // Lỗi mạng → fail open, không chặn học sinh
+    console.warn('Auth gate error:', e);
+  }
+})();
 </script>
 </body>
 </html>

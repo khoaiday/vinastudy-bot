@@ -139,6 +139,12 @@ async def init_db():
     migration = """
     ALTER TABLE web_users ADD COLUMN IF NOT EXISTS gioi_tinh VARCHAR(10) DEFAULT 'nam';
 
+    -- Thêm level vào results để biết học sinh chơi level nào
+    ALTER TABLE results ADD COLUMN IF NOT EXISTS level INT DEFAULT 1;
+
+    -- Thêm question_num (số thứ tự câu 1-N) vào checkpoints, không dùng FK
+    ALTER TABLE checkpoints ADD COLUMN IF NOT EXISTS question_num INT;
+
     -- Thách đấu giữa học sinh
     CREATE TABLE IF NOT EXISTS challenges (
         id               SERIAL PRIMARY KEY,

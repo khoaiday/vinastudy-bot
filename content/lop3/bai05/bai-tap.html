@@ -3,98 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bài 5 — Biểu Thức Số</title>
-<style>
-  :root {
-    --violet:  #7c3aed;
-    --violet2: #a78bfa;
-    --violet3: #ede9fe;
-    --amber:   #d97706;
-    --amber2:  #fbbf24;
-    --bg:      #f5f3ff;
-    --card:    #ffffff;
-    --text:    #2e1065;
-    --muted:   #6b7280;
-    --border:  #ddd6fe;
-    --green:   #10b981;
-    --red:     #ef4444;
-    --radius:  20px;
-    --shadow:  0 8px 32px rgba(124,58,237,0.10);
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body {
-    font-family:'Times New Roman',Times,serif;
-    background:var(--bg); color:var(--text); min-height:100vh;
-    background-image:
-      radial-gradient(circle at 10% 20%,rgba(167,139,250,0.12) 0%,transparent 50%),
-      radial-gradient(circle at 90% 80%,rgba(217,119,6,0.10) 0%,transparent 50%);
-  }
-  .header { background:linear-gradient(135deg,var(--violet) 0%,#6d28d9 100%); color:white; padding:28px 20px 24px; text-align:center; position:relative; overflow:hidden; }
-  .header::before { content:""; position:absolute; top:-40px; right:-40px; width:180px; height:180px; background:rgba(255,255,255,0.06); border-radius:50%; }
-  .header-badge { display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:20px; padding:4px 14px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
-  .header h1 { font-size:clamp(20px,5vw,28px); font-weight:900; line-height:1.2; margin-bottom:8px; }
-  .header p  { font-size:14px; opacity:0.8; margin-bottom:20px; }
-  .progress-wrap { max-width:500px; margin:0 auto; }
-  .progress-info { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:8px; opacity:0.9; }
-  .progress-bar  { height:10px; background:rgba(255,255,255,0.2); border-radius:10px; overflow:hidden; }
-  .progress-fill { height:100%; background:linear-gradient(90deg,var(--amber2),#fde68a); border-radius:10px; transition:width 0.5s; width:0%; }
-  .score-bar { display:flex; justify-content:center; gap:20px; padding:14px 20px; background:white; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(124,58,237,0.08); }
-  .score-item { display:flex; align-items:center; gap:7px; font-weight:700; font-size:14px; }
-  .score-dot  { width:10px; height:10px; border-radius:50%; }
-  .main { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
-  .rule-box { background:linear-gradient(135deg,#f5f3ff,var(--violet3)); border:2px solid var(--violet2); border-radius:16px; padding:16px 18px; margin-bottom:24px; font-size:13px; line-height:1.9; }
-  .rule-box strong { color:var(--violet); font-weight:800; }
-  .section-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--violet); margin:32px 0 14px; display:flex; align-items:center; gap:8px; }
-  .section-title::after { content:""; flex:1; height:2px; background:linear-gradient(90deg,var(--border),transparent); border-radius:2px; }
-  .q-card { background:var(--card); border-radius:var(--radius); padding:22px 22px 18px; margin-bottom:14px; box-shadow:var(--shadow); border:1.5px solid var(--border); transition:border-color 0.3s; animation:fadeUp 0.4s ease both; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  .q-card.correct { border-color:var(--green); background:#f0fdf9; }
-  .q-card.wrong   { border-color:var(--red);   background:#fff5f5; }
-  .q-num { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--violet); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-  .q-num-badge { background:var(--violet); color:white; border-radius:8px; padding:2px 8px; font-size:11px; }
-  .q-text { font-size:15px; font-weight:600; line-height:1.65; margin-bottom:14px; }
-  .q-text strong { color:var(--violet); }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px; }
-  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:4px; }
-  .expr-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-  .expr-lbl { font-weight:700; font-size:14px; min-width:22px; }
-  .expr-txt { font-size:14px; font-weight:600; flex:1; }
-  .ans-input { border:2px solid var(--border); border-radius:10px; padding:7px 10px; font-size:14px; font-family:'Times New Roman',Times,serif; font-weight:700; outline:none; transition:border 0.2s; background:white; color:var(--text); width:110px; text-align:center; }
-  .ans-input:focus { border-color:var(--violet2); box-shadow:0 0 0 3px rgba(167,139,250,0.15); }
-  .ans-input.correct-input { border-color:var(--green); background:#f0fdf9; }
-  .ans-input.wrong-input   { border-color:var(--red);   background:#fff5f5; }
-  .feedback { margin-top:12px; padding:10px 14px; border-radius:12px; font-size:13px; font-weight:600; display:none; line-height:1.6; }
-  .feedback.show { display:block; }
-  .feedback.correct-fb { background:#dcfce7; color:#166534; }
-  .feedback.wrong-fb   { background:#fee2e2; color:#991b1b; }
-  .check-btn { margin-top:14px; padding:10px 22px; background:var(--violet); color:white; border:none; border-radius:12px; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; }
-  .check-btn:hover:not(:disabled) { background:var(--violet2); transform:translateY(-1px); }
-  .check-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; transform:none; }
-  .submit-wrap { text-align:center; margin-top:36px; }
-  .submit-btn { padding:16px 48px; background:linear-gradient(135deg,var(--violet),#6d28d9); color:white; border:none; border-radius:16px; font-family:'Times New Roman',Times,serif; font-size:18px; font-weight:800; cursor:pointer; transition:all 0.25s; box-shadow:0 8px 24px rgba(124,58,237,0.3); }
-  .submit-btn:hover { transform:translateY(-3px); }
-  .result-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); z-index:200; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
-  .result-overlay.show { display:flex; }
-  .result-card { background:white; border-radius:28px; padding:36px 32px; max-width:440px; width:100%; text-align:center; box-shadow:0 24px 64px rgba(15,23,42,0.25); animation:popIn 0.4s cubic-bezier(.34,1.56,.64,1); }
-  @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
-  .result-emoji { font-size:64px; margin-bottom:12px; display:block; }
-  .result-title { font-size:26px; font-weight:900; color:var(--violet); margin-bottom:6px; }
-  .result-score { font-size:48px; font-weight:900; margin:12px 0; background:linear-gradient(135deg,var(--violet),var(--violet2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .result-level { display:inline-block; padding:8px 20px; border-radius:20px; font-weight:800; font-size:15px; margin:8px 0 20px; }
-  .result-detail { display:flex; justify-content:center; gap:24px; margin-bottom:24px; }
-  .result-detail-item { text-align:center; }
-  .result-detail-num { font-size:24px; font-weight:900; }
-  .result-detail-label { font-size:12px; color:var(--muted); font-weight:600; }
-  .result-btn { padding:13px 32px; border-radius:14px; font-family:'Times New Roman',Times,serif; font-size:15px; font-weight:800; cursor:pointer; border:none; transition:all 0.2s; margin:0 6px; }
-  .btn-retry  { background:var(--violet); color:white; }
-  .btn-review { background:var(--bg); color:var(--violet); border:2px solid var(--border); }
-  @media(max-width:480px){ .grid2,.grid3{grid-template-columns:1fr} .q-card{padding:18px 16px 14px} }
+<title>Toán Lớp 3 - Biểu Thức Số</title>
 
-  /* =========================================
-     CYBERPUNK RESKIN OVERRIDES 
-     ========================================= */
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap');
-  
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
   :root {
     --primary: #0ae0fe;
     --primary-glow: rgba(10, 224, 254, 0.5);
@@ -107,489 +19,1358 @@
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --border: rgba(10, 224, 254, 0.4);
+    --radius: 0px;
   }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Roboto', sans-serif !important;
-    background-color: var(--bg-base) !important;
-    color: var(--text-main) !important;
-    background-image: 
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    min-height: 100vh;
+    background-image:
       linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px) !important;
+      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
   }
 
-  h1, .section-title, .result-title, .q-num, .check-btn, .submit-btn, .result-score, .result-btn {
-    font-family: 'Rajdhani', sans-serif !important;
+  /* ── Battle Arena ── */
+  .battle-arena {
+    background: radial-gradient(circle at center, #0e173a, #050a1f);
+    padding: 12px 20px 16px;
+    border-bottom: 2px solid var(--primary);
+    box-shadow: 0 5px 30px rgba(10,224,254,0.2);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
   }
 
-  .header {
-    background: transparent !important;
-    border-bottom: 1px solid var(--border) !important;
+  .arena-bg {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; perspective: 800px;
   }
-  .header h1 {
-    color: var(--primary) !important;
-    text-shadow: 0 0 10px var(--primary-glow) !important;
+  .arena-grid-wrapper {
+    position: absolute; bottom: 0; left: -50%; width: 200%; height: 200%;
+    transform: rotateX(75deg); transform-origin: center bottom;
+    -webkit-mask-image: linear-gradient(transparent 50%, black 100%);
   }
-  .header p { color: var(--text-muted) !important; }
-  .header-badge {
-    background: rgba(10, 224, 254, 0.1) !important;
-    border-color: var(--primary) !important;
-    color: var(--primary) !important;
+  .arena-grid {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0 L0 0 0 60' fill='none' stroke='%230ae0fe' stroke-width='3' stroke-opacity='0.3'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+    animation: gridMove 2s linear infinite;
   }
-  
-  .score-bar {
-    background: var(--bg-base) !important;
-    border-bottom: 1px solid var(--border) !important;
-    color: var(--text-main) !important;
+  @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 60px; } }
+
+  .math-particles { position: absolute; inset: 0; perspective: 600px; }
+  .math-particles span {
+    position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900;
+    left: var(--startX); top: var(--startY); opacity: 0; animation: flyForward linear infinite;
   }
-  
-  .progress-wrap { margin-top: 10px; }
-  .progress-bar { background: rgba(255,255,255,0.1) !important; }
-  .progress-fill { background: linear-gradient(90deg, var(--primary), var(--secondary)) !important; box-shadow: 0 0 10px var(--secondary-glow) !important;}
+  @keyframes flyForward {
+    0% { transform: translateZ(-600px) scale(0.5); opacity: 0; }
+    20% { opacity: 0.8; } 80% { opacity: 0.8; }
+    100% { transform: translateZ(300px) scale(1.5); opacity: 0; }
+  }
+  .p1 { --startX:10%;--startY:20%;color:var(--primary);font-size:30px;animation-duration:4s;animation-delay:0s;text-shadow:0 0 10px var(--primary-glow); }
+  .p2 { --startX:80%;--startY:10%;color:#fbbf24;font-size:40px;animation-duration:5s;animation-delay:1s;text-shadow:0 0 10px rgba(251,191,36,0.5); }
+  .p3 { --startX:20%;--startY:60%;color:var(--primary);font-size:35px;animation-duration:6s;animation-delay:2s;text-shadow:0 0 10px var(--primary-glow); }
+  .p4 { --startX:70%;--startY:50%;color:var(--secondary);font-size:28px;animation-duration:4.5s;animation-delay:0.5s;text-shadow:0 0 10px var(--secondary-glow); }
+  .p5 { --startX:40%;--startY:30%;color:#4eff9f;font-size:32px;animation-duration:5.5s;animation-delay:1.5s;text-shadow:0 0 10px rgba(78,255,159,0.5); }
+  .p6 { --startX:60%;--startY:20%;color:var(--primary);font-size:25px;animation-duration:4.2s;animation-delay:2.5s;text-shadow:0 0 10px var(--primary-glow); }
+  .p7 { --startX:90%;--startY:60%;color:var(--secondary);font-size:45px;animation-duration:6.5s;animation-delay:3s;text-shadow:0 0 10px var(--secondary-glow); }
+  .p8 { --startX:15%;--startY:40%;color:#fbbf24;font-size:26px;animation-duration:5s;animation-delay:3.5s;text-shadow:0 0 10px rgba(251,191,36,0.5); }
+  .p9 { --startX:50%;--startY:70%;color:var(--primary);font-size:38px;animation-duration:4.8s;animation-delay:4s;text-shadow:0 0 10px var(--primary-glow); }
+  .p10 { --startX:30%;--startY:10%;color:var(--secondary);font-size:30px;animation-duration:5.2s;animation-delay:0.8s;text-shadow:0 0 10px var(--secondary-glow); }
+
+  .battle-title {
+    font-size: 22px; font-weight: 900; color: var(--primary);
+    text-transform: uppercase; margin-bottom: 20px;
+    text-shadow: 0 0 15px var(--primary-glow); z-index: 2;
+    letter-spacing: 2px; text-align: center;
+  }
+  .battle-subtitle { font-size: 12px; color: var(--text-muted); margin-top: -16px; margin-bottom: 16px; z-index: 2; text-align: center; }
+
+  .combat-zone {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    width: 100%; max-width: 500px; position: relative; z-index: 2; padding: 0 20px;
+  }
+
+  .fighter { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 120px; }
+  .avatar {
+    font-size: 64px; line-height: 1;
+    filter: drop-shadow(0 0 15px var(--primary-glow));
+    animation: idle 2s ease-in-out infinite;
+    position: relative; background: rgba(10,224,254,0.1);
+    border: 2px solid var(--primary); border-radius: 12px; padding: 10px;
+  }
+  .player .avatar { animation-delay: 0s; transform-origin: bottom center; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+  .boss .avatar { animation-delay: 1s; transform-origin: bottom center; border-color: var(--secondary); box-shadow: 0 0 15px var(--secondary-glow); background: rgba(234,14,237,0.1); filter: drop-shadow(0 0 15px var(--secondary-glow)); }
+
+  .hp-bar-container { width: 100%; background: rgba(0,0,0,0.6); border: 2px solid var(--border); border-radius: 4px; height: 20px; overflow: hidden; position: relative; box-shadow: inset 0 0 5px #000; }
+  .hp-bar-fill { height: 100%; width: 100%; transition: width 0.3s ease; }
+  .player .hp-bar-fill { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+  .boss .hp-bar-fill { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); }
+  .fighter-name { font-size: 14px; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase; }
+
+  .projectile { position: absolute; font-size: 38px; top: 50%; transform: translateY(-50%); z-index: 3; pointer-events: none; filter: drop-shadow(0 0 20px currentColor); }
+
+  @keyframes idle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05) translateY(-2px); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); filter: brightness(1); } 20% { transform: translateX(-10px); filter: brightness(1.5) saturate(3); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } }
+  @keyframes castMagic { 0% { transform: scale(1) translateX(0); } 50% { transform: scale(1.1) translateX(20px) rotate(5deg); } 100% { transform: scale(1) translateX(0); } }
+  @keyframes castBossMagic { 0% { transform: scale(1) translateX(0); } 50% { transform: scale(1.1) translateX(-20px) rotate(-5deg); } 100% { transform: scale(1) translateX(0); } }
+  @keyframes flyRight { 0% { left: 80px; opacity: 1; transform: translateY(-50%) scale(0.5); } 100% { left: calc(100% - 100px); opacity: 0; transform: translateY(-50%) scale(2); } }
+  @keyframes flyLeft { 0% { right: 80px; opacity: 1; transform: translateY(-50%) scale(0.5); } 100% { right: calc(100% - 100px); opacity: 0; transform: translateY(-50%) scale(2); } }
+
+  .arena-stats { display: flex; justify-content: center; gap: 16px; position: relative; z-index: 2; margin-bottom: 8px; width: 100%; }
+  .astat { display: flex; flex-direction: row; align-items: center; gap: 5px; }
+  .astat-num { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; line-height: 1; }
+  .astat-lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
+  .astat-ok .astat-num { color: var(--success); text-shadow: 0 0 6px rgba(78,255,159,0.5); }
+  .astat-ok .astat-lbl { color: var(--success); opacity: 0.85; }
+  .astat-err .astat-num { color: var(--danger); text-shadow: 0 0 6px rgba(255,0,85,0.5); }
+  .astat-err .astat-lbl { color: var(--danger); opacity: 0.85; }
+  .astat-rem .astat-num { color: #7ab8d0; }
+  .astat-rem .astat-lbl { color: #5d8fa0; }
+
+  .main { max-width: 720px; margin: 0 auto; padding: 16px 16px 60px; }
+
+  .action-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
+    display: flex; gap: 8px;
+    padding: 7px 12px calc(env(safe-area-inset-bottom, 0px) + 7px);
+    background: rgba(5,10,31,0.97); border-top: 1px solid var(--border); backdrop-filter: blur(10px);
+  }
+  .action-bar button {
+    flex: 1; padding: 8px 8px; border-radius: 6px; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.5px; transition: all 0.18s; text-transform: uppercase;
+  }
+  .btn-help { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.45); color: #fbbf24; }
+  .btn-help:hover { background: rgba(251,191,36,0.22); }
+  .btn-pause { background: rgba(255,80,80,0.08); border: 1px solid rgba(255,80,80,0.35); color: #ff8080; }
+  .btn-pause:hover { background: rgba(255,80,80,0.18); }
+  .btn-next-action { background: rgba(10,224,254,0.12); border: 1px solid rgba(10,224,254,0.55); color: var(--primary); animation: pulseNeon 1.5s infinite; }
+  .btn-next-action:hover { background: rgba(10,224,254,0.28); }
+
+  #timerWrap {
+    display: none; align-items: center; gap: 8px; margin-bottom: 12px;
+    padding: 6px 10px; background: rgba(10,224,254,0.05);
+    border: 1px solid rgba(10,224,254,0.2); border-radius: 10px; transition: border-color 0.3s, background 0.3s;
+  }
+  #timerWrap.tw { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.05); }
+  #timerWrap.td { border-color: rgba(255,0,85,0.45); background: rgba(255,0,85,0.07); }
+  .timer-icon { font-size: 15px; flex-shrink: 0; }
+  .timer-track { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+  .timer-fill { height: 100%; width: 100%; background: #0ae0fe; border-radius: 4px; transition: width 0.95s linear, background 0.3s; box-shadow: 0 0 6px #0ae0fe88; }
+  .timer-fill.tw { background: #fbbf24; box-shadow: 0 0 6px #fbbf2488; }
+  .timer-fill.td { background: #ff0055; box-shadow: 0 0 8px #ff005588; }
+  .timer-num { font-size: 16px; font-weight: 900; font-family: 'Rajdhani', sans-serif; color: #0ae0fe; min-width: 26px; text-align: right; flex-shrink: 0; transition: color 0.3s; }
+  .timer-num.tw { color: #fbbf24; }
+  .timer-num.td { color: #ff0055; animation: tpulse 0.4s ease-in-out infinite; }
+  @keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+
+  .help-overlay {
+    display: none; position: fixed; inset: 0; z-index: 5500;
+    background: #050a1f; flex-direction: column; overflow-y: auto; padding: 20px 16px 110px;
+  }
+  .help-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+  .help-panel { max-width: 560px; margin: 0 auto; width: 100%; }
+  .help-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid var(--primary); }
+  .help-header-icon { font-size: 26px; }
+  .help-header-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; color: var(--primary); letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--primary-glow); }
+  .help-section { background: rgba(10,224,254,0.04); border: 1px solid rgba(10,224,254,0.15); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+  .help-section-label { font-size: 12px; font-weight: 700; color: var(--primary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; }
+  .help-body { font-size: 16px; line-height: 1.65; color: #e0f4ff; }
+  .help-body code { background: rgba(10,224,254,0.12); padding: 1px 6px; border-radius: 3px; font-family: 'Rajdhani', monospace; color: var(--primary); font-size: 16px; border: 1px solid rgba(10,224,254,0.3); font-weight: 700; }
+  @keyframes magicColor { 0%{color:#0ae0fe;text-shadow:0 0 10px #0ae0fe88} 25%{color:#ea0eed;text-shadow:0 0 10px #ea0eed88} 50%{color:#fbbf24;text-shadow:0 0 10px #fbbf2488} 75%{color:#4eff9f;text-shadow:0 0 10px #4eff9f88} 100%{color:#0ae0fe;text-shadow:0 0 10px #0ae0fe88} }
+  .tc-formula { margin-top: 12px; text-align: center; font-size: 15px; font-weight: 800; letter-spacing: 0.3px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); animation: magicColor 3s linear infinite; }
+  .help-encourage { margin-top: 12px; padding: 10px 12px; background: rgba(78,255,159,0.06); border-left: 3px solid var(--success); border-radius: 6px; font-size: 13.5px; line-height: 1.6; color: #a8f0c8; font-style: italic; }
+  .help-video-note { text-align: center; font-size: 13px; color: #5d8fa0; margin-bottom: 14px; }
+  .help-btns { display: flex; gap: 9px; }
+  .help-btn-ok, .help-btn-video { flex: 1; padding: 12px 8px; border-radius: 8px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; transition: all 0.18s; }
+  .help-btn-ok { background: rgba(78,255,159,0.1); border: 1px solid rgba(78,255,159,0.4); color: var(--success); }
+  .help-btn-ok:hover { background: rgba(78,255,159,0.22); }
+  .help-btn-video { background: rgba(234,14,237,0.08); border: 1px solid rgba(234,14,237,0.35); color: var(--secondary); }
+  .help-btn-video:hover { background: rgba(234,14,237,0.2); }
 
   .section-title {
-    color: var(--primary) !important;
-    text-shadow: 0 0 10px var(--primary-glow) !important;
+    font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--primary); margin: 8px 0 8px;
+    display: flex; align-items: center; gap: 12px; text-shadow: 0 0 10px var(--primary-glow);
   }
-  .section-title::after {
-    background: linear-gradient(90deg, var(--primary), transparent) !important;
-  }
+  .section-title::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, var(--primary), transparent); }
 
-  /* Inputs and Buttons */
+  .q-card { background: transparent !important; padding: 12px 16px 12px; margin-bottom: 0; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: all 0.3s; animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .q-card.correct { border-color: var(--success); box-shadow: 0 0 15px rgba(78,255,159,0.2); }
+  .q-card.wrong { border-color: var(--danger); box-shadow: 0 0 15px rgba(255,0,85,0.2); }
+
+  .q-num { font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .q-slide > .q-num { margin-bottom: 10px; text-shadow: 0 0 10px var(--primary-glow); }
+  .q-slide > .q-num::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, var(--primary), transparent); }
+  .q-num-badge { background: transparent; color: var(--primary); font-size: 14px; }
+  .q-num-badge::after { content: "/10"; opacity: 0.6; }
+  .vinaid { display: none; }
+  .q-text { font-size: 19px; font-weight: 600; line-height: 1.6; margin-bottom: 10px; color: var(--text-main); }
+  .q-text strong { color: var(--primary); }
+
+  .expr-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .expr-lbl { font-weight: 700; font-size: 15px; min-width: 24px; color: var(--primary); }
+  .expr-txt { font-size: 15px; font-weight: 600; flex: 1; color: var(--text-main); min-width: 160px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px; }
+  @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+
   .ans-input {
-    background: rgba(10,224,254,0.05) !important;
-    border: 2px solid var(--primary) !important;
-    color: var(--primary) !important;
-    text-shadow: 0 0 5px var(--primary-glow) !important;
+    border: 2px solid var(--primary); border-radius: 4px; padding: 10px 16px; font-size: 18px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; outline: none; transition: all 0.2s;
+    background: rgba(10,224,254,0.05); color: var(--primary); width: 110px; text-align: center;
+    text-shadow: 0 0 5px var(--primary-glow);
+    user-select: auto !important; -webkit-user-select: auto !important; pointer-events: auto !important;
   }
-  .ans-input:focus {
-    box-shadow: 0 0 15px var(--primary-glow) !important;
-  }
-  .ans-input.correct-input { border-color: var(--success) !important; color: var(--success) !important; text-shadow: 0 0 5px var(--success) !important; }
-  .ans-input.wrong-input { border-color: var(--danger) !important; color: var(--danger) !important; text-shadow: 0 0 5px var(--danger) !important; }
+  .ans-input:focus { background: rgba(10,224,254,0.15); box-shadow: 0 0 15px var(--primary-glow); }
+  .ans-input.correct-input { border-color: var(--success); color: var(--success); background: rgba(78,255,159,0.1); text-shadow: 0 0 5px var(--success); }
+  .ans-input.wrong-input { border-color: var(--danger); color: var(--danger); background: rgba(255,0,85,0.1); text-shadow: 0 0 5px var(--danger); }
 
-  .check-btn, .submit-btn, .result-btn {
-    background: rgba(10,224,254,0.1) !important;
-    border: 2px solid var(--primary) !important;
-    color: var(--primary) !important;
-    box-shadow: 0 0 15px var(--primary-glow) !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-  }
-  .check-btn:hover:not(:disabled), .submit-btn:hover, .result-btn:hover {
-    background: var(--primary) !important;
-    color: #000 !important;
-  }
-  .check-btn:disabled {
-    border-color: var(--border) !important;
-    color: var(--text-muted) !important;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
+  .feedback { margin-top: 8px; padding: 10px 14px; border-radius: 4px; font-size: 18px; font-weight: 700; display: none; animation: fadeUp 0.3s ease; border-left: 4px solid; }
+  .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
+  .feedback.correct-fb { background: rgba(78,255,159,0.1); color: var(--success); border-color: var(--success); text-shadow: 0 0 5px rgba(78,255,159,0.5); }
+  .feedback.wrong-fb { background: rgba(255,0,85,0.1); color: var(--danger); border-color: var(--danger); text-shadow: 0 0 5px rgba(255,0,85,0.5); }
 
-    
-  
-  
-  
-  /* Fix z-index of content inside cyber-box */
+  .check-btn { display: none !important; }
+
+  .submit-wrap { text-align: center; margin-top: 48px; }
+  .submit-btn { padding: 18px 48px; background: var(--primary); color: #000; border: none; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 900; cursor: pointer; transition: all 0.25s; box-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase; letter-spacing: 2px; }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--primary); background: #fff; }
+
+  .result-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,31,0.92); z-index: 200; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; backdrop-filter: blur(8px); }
+  .result-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .result-card { background: transparent !important; padding: 24px 20px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 0 40px var(--primary-glow); animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1); margin: auto; }
+  @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .result-emoji { font-size: 48px; margin-bottom: 6px; display: block; filter: drop-shadow(0 0 20px var(--primary)); }
+  .result-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 900; color: var(--primary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--primary-glow); }
+  .result-score { font-size: 38px; font-weight: 900; margin: 10px 0; color: #fff; text-shadow: 0 0 20px var(--primary); }
+  .result-level { display: inline-block; padding: 6px 18px; border-radius: 4px; font-weight: 900; font-size: 14px; margin: 6px 0 16px; border: 2px solid; background: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 1.5px; }
+  .result-detail { display: flex; justify-content: center; gap: 24px; margin-bottom: 20px; }
+  .result-detail-item { text-align: center; }
+  .result-detail-num { font-size: 22px; font-weight: 900; }
+  .result-detail-label { font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+
+  .result-btn { padding: 12px 24px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 900; cursor: pointer; transition: all 0.2s; margin: 0 6px; text-transform: uppercase; letter-spacing: 1.5px; }
+  .btn-retry { background: var(--primary); color: #000; border: none; box-shadow: 0 0 15px var(--primary-glow); }
+  .btn-retry:hover { background: #fff; box-shadow: 0 0 25px var(--primary); }
+  .btn-review { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-review:hover { background: rgba(10,224,254,0.1); box-shadow: 0 0 15px var(--primary-glow); }
+
+  .answer-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* ── Cyber Box Style ── */
+  .cyber-box { position: relative; z-index: 1; border-radius: 16px; background: transparent !important; }
+  .cyber-box::before { content: ""; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; border-radius: 18px; background: linear-gradient(135deg, var(--primary), var(--secondary)); z-index: -2; box-shadow: 0 0 15px var(--primary-glow); }
+  .cyber-box::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 16px; z-index: -1; }
+  .q-card.cyber-box::after { background: #080e22; }
+  .result-card.cyber-box::after { background: #0a122a; }
   .cyber-box > * { position: relative; z-index: 1; }
 
+  /* ── Slides ── */
+  .q-slide { display: none; animation: fadeInRight 0.4s ease forwards; }
+  .q-slide.active { display: flex; flex-direction: column; align-items: stretch; justify-content: center; min-height: calc(100dvh - 326px); }
+  @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-  /* ── NPC Mo-Mo ── */
-  .momo-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(5,10,31,0.85); z-index: 300;
-    align-items: center; justify-content: center; padding: 20px;
-    backdrop-filter: blur(5px);
-  }
+  @keyframes pulseNeon { 0% { box-shadow: 0 0 10px var(--primary-glow); } 50% { box-shadow: 0 0 30px var(--primary); } 100% { box-shadow: 0 0 10px var(--primary-glow); } }
+  .btn-next-pulse { animation: pulseNeon 1.5s infinite !important; background: var(--primary) !important; color: #000 !important; }
+
+  .momo-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,31,0.85); z-index: 300; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
   .momo-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
-  .momo-box {
-    background: rgba(11, 19, 43, 0.95); padding: 30px;
-    max-width: 400px; width: 100%; border-radius: 16px;
-    border: 2px solid var(--primary);
-    box-shadow: 0 0 30px var(--primary-glow);
-    text-align: center; position: relative;
-  }
-  .momo-header {
-    position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
-    background: var(--primary); color: #000;
-    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900;
-    padding: 8px 24px; border-radius: 20px; text-transform: uppercase;
-    box-shadow: 0 0 15px var(--primary-glow); white-space: nowrap;
-  }
-  .momo-text {
-    font-size: 18px; line-height: 1.6; color: #fff; margin-top: 16px; margin-bottom: 24px; font-weight: 500;
-  }
-  .momo-btn {
-    padding: 12px 32px; background: transparent; border: 2px solid var(--success);
-    color: var(--success); border-radius: 8px; font-family: 'Rajdhani', sans-serif;
-    font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.2s;
-    text-transform: uppercase; box-shadow: inset 0 0 10px rgba(78,255,159,0.2);
-  }
+  .momo-box { background: rgba(11, 19, 43, 0.95); padding: 30px; max-width: 400px; width: 100%; border-radius: 16px; border: 2px solid var(--primary); box-shadow: 0 0 30px var(--primary-glow); text-align: center; position: relative; }
+  .momo-header { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900; padding: 8px 24px; border-radius: 20px; text-transform: uppercase; box-shadow: 0 0 15px var(--primary-glow); white-space: nowrap; }
+  .momo-text { font-size: 18px; line-height: 1.6; color: #fff; margin-top: 16px; margin-bottom: 24px; font-weight: 500; }
+  .momo-btn { padding: 12px 32px; background: transparent; border: 2px solid var(--success); color: var(--success); border-radius: 8px; font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.2s; text-transform: uppercase; box-shadow: inset 0 0 10px rgba(78,255,159,0.2); }
   .momo-btn:hover { background: var(--success); color: #000; box-shadow: 0 0 20px rgba(78,255,159,0.5); }
 
-  /* Energy Beam */
-  .energy-beam {
-    position: absolute; height: 6px; background: var(--primary);
-    box-shadow: 0 0 15px var(--primary), 0 0 30px var(--secondary);
-    border-radius: 3px; z-index: 10;
-  }
-  @keyframes fireBeam {
-    0% { width: 0; left: 60px; opacity: 1; }
-    50% { width: 150px; left: 60px; opacity: 1; }
-    100% { width: 0; left: calc(100% - 60px); opacity: 0; }
-  }
-\n</style>
+  .damage-number { position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 900; font-size: 28px; color: var(--danger); z-index: 100; animation: floatDamage 1s ease-out forwards; text-shadow: 0 0 10px rgba(255,0,85,0.8); pointer-events: none; left: 50%; top: 0; transform: translateX(-50%); }
+  @keyframes floatDamage { 0% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -60px) scale(1.5); } }
+  .explosion { position: absolute; font-size: 60px; pointer-events: none; animation: explodeAnim 0.5s ease-out forwards; z-index: 100; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  @keyframes explodeAnim { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
+
+  .game-over-overlay { position: fixed; inset: 0; background: rgba(5,10,31,0.95); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+  .game-over-overlay.show { opacity: 1; pointer-events: auto; }
+  .game-over-title { font-family: 'Rajdhani', sans-serif; font-size: 64px; font-weight: 900; color: var(--danger); text-shadow: 0 0 20px var(--danger); margin-bottom: 20px; letter-spacing: 5px; }
+  .game-over-btn { background: transparent; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 8px; font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 15px rgba(10,224,254,0.3); }
+  .game-over-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 25px var(--primary); }
+
+  .score-toast { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 160; pointer-events: none; text-align: center; font-family: 'Rajdhani', sans-serif; font-weight: 900; opacity: 0; }
+  .score-toast.pop { animation: scoreToastPop 1.8s ease forwards; }
+  @keyframes scoreToastPop { 0% { opacity: 0; transform: translateX(-50%) translateY(-10px); } 12% { opacity: 1; transform: translateX(-50%) translateY(0); } 70% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
+  .score-toast-pts { display: inline-block; background: rgba(78,255,159,0.13); border: 2px solid var(--success); border-radius: 20px; padding: 5px 18px; font-size: 20px; color: var(--success); text-shadow: 0 0 10px rgba(78,255,159,0.5); white-space: nowrap; }
+  .score-toast-combo { font-size: 13px; color: #fbbf24; letter-spacing: 2px; margin-top: 3px; text-shadow: 0 0 8px rgba(251,191,36,0.5); }
+
+  .energy-beam { position: absolute; height: 6px; background: var(--primary); box-shadow: 0 0 15px var(--primary), 0 0 30px var(--secondary); border-radius: 3px; z-index: 10; }
+  @keyframes fireBeam { 0% { width: 0; left: 60px; opacity: 1; } 50% { width: 150px; left: 60px; opacity: 1; } 100% { width: 0; left: calc(100% - 60px); opacity: 0; } }
+
+  .video-modal { position: fixed; inset: 0; z-index: 10000; background: rgba(5, 10, 31, 0.95); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; flex-direction: column; }
+  .video-modal.show { display: flex; }
+  .video-container { width: 90%; max-width: 800px; background: var(--bg-card); border: 2px solid var(--primary); border-radius: 12px; box-shadow: 0 0 30px var(--primary-glow); overflow: hidden; position: relative; }
+  .video-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(10, 224, 254, 0.1); border-bottom: 1px solid var(--primary); }
+  .video-title { font-family: 'Rajdhani', sans-serif; font-weight: bold; color: var(--primary); font-size: 18px; }
+  .close-video-btn { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
+  .video-iframe-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+  .video-iframe-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+  /* ── Level Modal ── */
+  .level-modal { display: none; position: fixed; inset: 0; z-index: 50000; background: rgba(5,10,31,0.97); align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+  .level-modal.show { display: flex; animation: fadeIn 0.3s ease; }
+  .level-box { max-width: 380px; width: 100%; text-align: center; }
+  .level-title { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 900; color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+  .level-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+  .level-cards { display: flex; flex-direction: column; gap: 10px; }
+  .level-card { background: rgba(10,224,254,0.05); border: 2px solid rgba(10,224,254,0.3); border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; text-align: left; }
+  .level-card:hover { border-color: var(--primary); background: rgba(10,224,254,0.12); box-shadow: 0 0 20px var(--primary-glow); }
+  .level-card.lv2 { border-color: rgba(251,191,36,0.3); }
+  .level-card.lv2:hover { border-color: #fbbf24; background: rgba(251,191,36,0.1); box-shadow: 0 0 20px rgba(251,191,36,0.4); }
+  .level-card.lv3 { border-color: rgba(234,14,237,0.3); }
+  .level-card.lv3:hover { border-color: var(--secondary); background: rgba(234,14,237,0.1); box-shadow: 0 0 20px var(--secondary-glow); }
+  .lc-head { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 900; margin-bottom: 4px; }
+  .level-card.lv1 .lc-head { color: var(--primary); }
+  .level-card.lv2 .lc-head { color: #fbbf24; }
+  .level-card.lv3 .lc-head { color: var(--secondary); }
+  .lc-desc { font-size: 13px; color: var(--text-muted); }
+
+  /* ── Custom Numpad ── */
+  .numpad-overlay { position: fixed; inset: 0; z-index: 6000; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.18s; }
+  .numpad-overlay.show { pointer-events: auto; opacity: 1; }
+  .numpad-bd { position: absolute; inset: 0; background: rgba(5,10,31,0.6); }
+  .numpad-panel { position: relative; background: #080f21; border-top: 2px solid var(--primary); box-shadow: 0 -8px 40px rgba(10,224,254,0.35); padding: 10px 10px calc(env(safe-area-inset-bottom, 0px) + 14px); transform: translateY(100%); transition: transform 0.24s cubic-bezier(0.34,1.1,0.64,1); }
+  .numpad-overlay.show .numpad-panel { transform: translateY(0); }
+  .numpad-display { display: flex; align-items: center; gap: 10px; background: rgba(10,224,254,0.06); border: 1.5px solid var(--primary); border-radius: 8px; padding: 8px 14px; margin-bottom: 10px; }
+  .np-cur-val { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 900; color: var(--primary); text-shadow: 0 0 8px var(--primary-glow); min-width: 64px; letter-spacing: 3px; }
+  .np-cur-label { flex: 1; font-size: 12px; color: #5d8fa0; text-align: right; }
+  .np-close-btn { background: transparent; border: none; color: #5d8fa0; font-size: 20px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+  .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .np-btn { height: 72px; border-radius: 10px; border: 1.5px solid rgba(10,224,254,0.2); background: rgba(10,224,254,0.06); color: #e0f4ff; font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.08s, transform 0.08s; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
+  .np-btn:active { background: rgba(10,224,254,0.28); border-color: var(--primary); transform: scale(0.9); }
+  .np-btn.np-del { color: #ff6688; border-color: rgba(255,0,85,0.25); background: rgba(255,0,85,0.07); font-size: 26px; }
+  .np-btn.np-del:active { background: rgba(255,0,85,0.25); border-color: var(--danger); }
+  .np-btn.np-ok { background: linear-gradient(135deg, var(--primary), #00c8e0); color: #000; border-color: var(--primary); font-size: 20px; font-weight: 900; box-shadow: 0 0 16px var(--primary-glow); }
+  .np-btn.np-ok:active { background: #fff; transform: scale(0.9); }
+
+  #resumeToast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(10,224,254,0.12); border: 1px solid rgba(10,224,254,0.4); color: var(--primary); font-size: 13px; font-weight: 700; padding: 7px 18px; border-radius: 20px; z-index: 9000; white-space: nowrap; letter-spacing: 0.5px; animation: fadeUp 0.3s ease; text-shadow: 0 0 8px var(--primary-glow); pointer-events: none; }
+</style>
 </head>
 <body>
 
-<div class="header">
-  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
-    <img src="https://cdn-media.vinastudy.vn/cdn-cgi/image/w=128,h=56,q=85/web/desktop/logo.png" alt="VInaStudy" style="height:44px;object-fit:contain;filter:brightness(0) invert(1)">
-    <span style="font-size:15px;font-weight:800;letter-spacing:0.3px;opacity:0.95">VInaStudy — Toán Lớp 3 HSG</span>
+<!-- Battle Arena -->
+<div class="battle-arena">
+  <div class="arena-bg">
+    <div class="arena-grid-wrapper"><div class="arena-grid"></div></div>
+    <div class="math-particles">
+      <span class="p1">+</span><span class="p2">×</span><span class="p3">÷</span>
+      <span class="p4">−</span><span class="p5">()</span><span class="p6">∑</span>
+      <span class="p7">🔮</span><span class="p8">=</span><span class="p9">≠</span><span class="p10">√</span>
+    </div>
   </div>
-  <h1>🧮 Bài 5 — Biểu Thức Số<br>Tính Giá Trị Biểu Thức</h1>
-  <p>Thầy Nguyễn Thành Long • 11 câu bài tập</p>
-  <div class="progress-wrap">
-    <div class="progress-info"><span id="progressText">0 / 11 câu</span><span id="progressPct">0%</span></div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="arena-stats">
+    <div class="astat astat-ok"><span class="astat-num" id="scoreCorrect">0</span><span class="astat-lbl">✅ ĐÚNG</span></div>
+    <div class="astat astat-err"><span class="astat-num" id="scoreWrong">0</span><span class="astat-lbl">❌ SAI</span></div>
+    <div class="astat astat-rem"><span class="astat-num" id="scoreLeft">10</span><span class="astat-lbl">▪ CHƯA LÀM</span></div>
+  </div>
+
+  <div class="battle-title">🧮 ẢI 5 — BIỂU THỨC SỐ</div>
+  <div class="battle-subtitle">Tiêu diệt Số Phù Thủy bằng cách tính đúng biểu thức!</div>
+
+  <div class="combat-zone" id="combatZone">
+    <div class="fighter player">
+      <div class="fighter-name">Chiến Binh</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="playerHp"></div></div>
+      <div class="avatar" id="playerAvatar">🧙‍♂️</div>
+    </div>
+    <div style="font-size:36px;font-weight:900;color:var(--primary);text-shadow:0 0 15px var(--primary-glow);opacity:0.9;font-family:'Rajdhani',sans-serif">VS</div>
+    <div class="fighter boss">
+      <div class="fighter-name">Số Phù Thủy 🔮</div>
+      <div class="hp-bar-container"><div class="hp-bar-fill" id="bossHp"></div></div>
+      <div class="avatar" id="bossAvatar">🔮</div>
+    </div>
   </div>
 </div>
 
-<div class="score-bar">
-  <div class="score-item"><div class="score-dot" style="background:var(--green)"></div><span id="scoreCorrect">0</span> Đúng</div>
-  <div class="score-item"><div class="score-dot" style="background:var(--red)"></div><span id="scoreWrong">0</span> Sai</div>
-  <div class="score-item"><div class="score-dot" style="background:var(--border)"></div><span id="scoreLeft">11</span> Chưa làm</div>
+<span id="progressText" style="display:none;">1/10</span>
+<div id="resumeToast" style="display:none;"></div>
+
+<!-- Mo-Mo Overlay -->
+<div class="momo-overlay" id="momoOverlay">
+  <div class="momo-box">
+    <div class="momo-header">🤖 Mo-Mo Gợi Ý</div>
+    <div id="momoText" class="momo-text"></div>
+    <button class="momo-btn" onclick="closeMomo()" style="margin-bottom:10px;">Thử Lại Nhé!</button>
+    <button class="momo-btn" onclick="openVideoHelp()" style="background:transparent;color:var(--primary);border:2px solid var(--primary);margin-left:10px;">🎬 Xem Video Bài Giảng</button>
+  </div>
 </div>
 
+<!-- Main -->
 <div class="main">
 
-  <div class="rule-box">
-    💡 <strong>Thứ tự thực hiện phép tính:</strong><br>
-    1️⃣ Trong <strong>ngoặc</strong> trước → ngoài ngoặc sau<br>
-    2️⃣ <strong>Nhân, chia</strong> trước → cộng, trừ sau<br>
-    3️⃣ Chỉ cộng/trừ hoặc chỉ nhân/chia → tính từ <strong>trái sang phải</strong>
-  </div>
-
-  <!-- Dạng 1: Có ngoặc -->
-  <div class="section-title">🔢 Dạng 1 — Biểu thức có dấu ngoặc</div>
-
-  <div class="q-card" id="q1">
-    <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 131857</div>
-    <div class="q-text">Tính giá trị biểu thức:</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">(563 + 126) × 2 =</span><input class="ans-input" id="q1a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">4 × 108 + 157 =</span><input class="ans-input" id="q1b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">1243 − 366 : 3 =</span><input class="ans-input" id="q1c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">435 : 5 + 582 =</span><input class="ans-input" id="q1d" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">153 + 638 − 470 =</span><input class="ans-input" id="q1e" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q1',['q1a','q1b','q1c','q1d','q1e'],['1278','589','1121','669','321'],'✅ Đúng! a)(563+126)×2=689×2=1278 b)4×108+157=432+157=589 c)1243-122=1121 d)87+582=669 e)153+168=321')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq1"></div>
-  </div>
-
-  <div class="q-card" id="q2">
-    <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 131858 &nbsp;🏠 Bài tập về nhà</div>
-    <div class="q-text">Tính giá trị biểu thức:</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">(672 + 83) : 5 =</span><input class="ans-input" id="q2a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1956 + 126 × 4 =</span><input class="ans-input" id="q2b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">4672 − (3583 − 193) =</span><input class="ans-input" id="q2c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">2078 − 328 : 4 =</span><input class="ans-input" id="q2d" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q2',['q2a','q2b','q2c','q2d'],['151','2460','1282','1996'],'✅ Đúng! a)(672+83):5=755:5=151 b)1956+504=2460 c)4672-3390=1282 d)2078-82=1996')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq2"></div>
-  </div>
-
-  <!-- Dạng 2: Nhân/chia + cộng/trừ -->
-  <div class="section-title">✖️ Dạng 2 — Nhân/chia trước, cộng/trừ sau</div>
-
-  <div class="q-card" id="q3">
-    <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 131862 &nbsp;🏠 Bài tập về nhà</div>
-    <div class="q-text">Tính giá trị các biểu thức:</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">78 × 6 + 345 =</span><input class="ans-input" id="q3a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">378 + 324 : 3 =</span><input class="ans-input" id="q3b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">56 + 67 × 6 =</span><input class="ans-input" id="q3c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">288 : 6 × 7 =</span><input class="ans-input" id="q3d" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q3',['q3a','q3b','q3c','q3d'],['813','486','458','336'],'✅ Đúng! a)468+345=813 b)378+108=486 c)56+402=458 d)48×7=336')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq3"></div>
-  </div>
-
-  <div class="q-card" id="q5">
-    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 131871</div>
-    <div class="q-text">Tính giá trị biểu thức:</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">800 − 253 × 3 =</span><input class="ans-input" id="q5a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">38 × 7 + 405 =</span><input class="ans-input" id="q5b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">900 − 399 × 2 =</span><input class="ans-input" id="q5c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">262 : 2 + 645 =</span><input class="ans-input" id="q5d" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">903 : 3 + 429 =</span><input class="ans-input" id="q5e" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">f)</span><span class="expr-txt">899 + 906 : 6 =</span><input class="ans-input" id="q5f" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q5',['q5a','q5b','q5c','q5d','q5e','q5f'],['41','671','102','776','730','1050'],'✅ Đúng! a)800-759=41 b)266+405=671 c)900-798=102 d)131+645=776 e)301+429=730 f)899+151=1050')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq5"></div>
-  </div>
-
-  <!-- Dạng 3: Chỉ nhân/chia -->
-  <div class="section-title">➗ Dạng 3 — Chỉ có nhân/chia (trái → phải)</div>
-
-  <div class="q-card" id="q4">
-    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 131865 &nbsp;🏠 Bài tập về nhà</div>
-    <div class="q-text">Tính giá trị biểu thức:</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">25 × 4 × 7 =</span><input class="ans-input" id="q4a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">216 × 3 : 6 =</span><input class="ans-input" id="q4b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">990 : 3 : 6 =</span><input class="ans-input" id="q4c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">480 : 8 × 7 =</span><input class="ans-input" id="q4d" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">125 × 2 : 5 =</span><input class="ans-input" id="q4e" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q4',['q4a','q4b','q4c','q4d','q4e'],['700','108','55','420','50'],'✅ Đúng! a)100×7=700 b)648:6=108 c)330:6=55 d)60×7=420 e)250:5=50')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq4"></div>
-  </div>
-
-  <div class="q-card" id="q7">
-    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 131875</div>
-    <div class="q-text">Tính giá trị biểu thức:</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">15 × 3 × 2 =</span><input class="ans-input" id="q7a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">48 : 2 : 6 =</span><input class="ans-input" id="q7b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">8 × 5 : 2 =</span><input class="ans-input" id="q7c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">81 : 9 × 7 =</span><input class="ans-input" id="q7d" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q7',['q7a','q7b','q7c','q7d'],['90','4','20','63'],'✅ Đúng! a)45×2=90 b)24:6=4 c)40:2=20 d)9×7=63')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq7"></div>
-  </div>
-
-  <!-- Dạng 4: Hỗn hợp phức tạp -->
-  <div class="section-title">🔀 Dạng 4 — Biểu thức hỗn hợp</div>
-
-  <div class="q-card" id="q8">
-    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 131881</div>
-    <div class="q-text">Tính giá trị biểu thức:</div>
-    <div class="grid2">
-      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">87+92−32=</span><input class="ans-input" id="q8a" placeholder="?" disabled></div>
-      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">138−30−8=</span><input class="ans-input" id="q8b" placeholder="?" disabled></div>
-      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">30×2:3=</span><input class="ans-input" id="q8c" placeholder="?" disabled></div>
-      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">80:2×4=</span><input class="ans-input" id="q8d" placeholder="?" disabled></div>
-      <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">927−10×2=</span><input class="ans-input" id="q8e" placeholder="?" disabled></div>
-      <div class="expr-row"><span class="expr-lbl">f)</span><span class="expr-txt">163+90:3=</span><input class="ans-input" id="q8f" placeholder="?" disabled></div>
-      <div class="expr-row"><span class="expr-lbl">g)</span><span class="expr-txt">90+10×2=</span><input class="ans-input" id="q8g" placeholder="?" disabled></div>
-      <div class="expr-row"><span class="expr-lbl">h)</span><span class="expr-txt">106−80:4=</span><input class="ans-input" id="q8h" placeholder="?" disabled></div>
+  <!-- Slide 1: Câu 1 — 5 biểu thức -->
+  <div class="q-slide active" id="slide1">
+    <div class="section-title">🔢 Dạng 1 — Biểu thức có dấu ngoặc</div>
+    <div class="q-card" id="q1">
+      <div class="q-num"><span class="q-num-badge">Câu 1</span></div>
+      <div class="q-text">Tính giá trị biểu thức:</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">(563 + 126) × 2 =</span><input class="ans-input" id="q1a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">4 × 108 + 157 =</span><input class="ans-input" id="q1b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">1243 − 366 : 3 =</span><input class="ans-input" id="q1c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">435 : 5 + 582 =</span><input class="ans-input" id="q1d" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">153 + 638 − 470 =</span><input class="ans-input" id="q1e" placeholder="?"></div>
+      <button class="check-btn" id="chkq1" onclick="checkSlide(1,['q1a','q1b','q1c','q1d','q1e'],['1278','589','1121','669','321'],'a)(563+126)×2=689×2=1278 | b)4×108+157=432+157=589 | c)1243-122=1121 | d)87+582=669 | e)153+168=321','Nhớ thứ tự: Ngoặc trước, nhân/chia trước cộng/trừ sau!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq1"></div>
     </div>
-    <button class="check-btn" onclick="checkMultiExpr('q8',['q8a','q8b','q8c','q8d','q8e','q8f','q8g','q8h'],['147','100','20','160','907','193','110','86'],'✅ Đúng! a)147 b)100 c)60:3=20 d)40×4=160 e)927-20=907 f)163+30=193 g)90+20=110 h)106-20=86')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq8"></div>
   </div>
 
-  <div class="q-card" id="q9">
-    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 131883</div>
-    <div class="q-text">Tính giá trị biểu thức:</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">89 + 10×2 + 96:3 =</span><input class="ans-input" id="q9a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">25×2 + 78:2 =</span><input class="ans-input" id="q9b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">(46+7)×2 + 123:3 =</span><input class="ans-input" id="q9c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">35×2 + 90:2:3 =</span><input class="ans-input" id="q9d" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q9',['q9a','q9b','q9c','q9d'],['141','89','147','85'],'✅ Đúng! a)89+20+32=141 b)50+39=89 c)106+41=147 d)70+15=85')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq9"></div>
+  <!-- Slide 2: Câu 2 — 4 biểu thức -->
+  <div class="q-slide" id="slide2">
+    <div class="section-title">🔢 Dạng 1 — Biểu thức có dấu ngoặc</div>
+    <div class="q-card" id="q2">
+      <div class="q-num"><span class="q-num-badge">Câu 2</span></div>
+      <div class="q-text">Tính giá trị biểu thức:</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">(672 + 83) : 5 =</span><input class="ans-input" id="q2a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1956 + 126 × 4 =</span><input class="ans-input" id="q2b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">4672 − (3583 − 193) =</span><input class="ans-input" id="q2c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">2078 − 328 : 4 =</span><input class="ans-input" id="q2d" placeholder="?"></div>
+      <button class="check-btn" id="chkq2" onclick="checkSlide(2,['q2a','q2b','q2c','q2d'],['151','2460','1282','1996'],'a)(672+83):5=755:5=151 | b)1956+504=2460 | c)4672-3390=1282 | d)2078-82=1996','Nhớ thứ tự: Ngoặc trước, nhân/chia trước cộng/trừ sau!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq2"></div>
+    </div>
   </div>
 
-  <!-- Dạng 5: Tính thuận tiện -->
-  <div class="section-title">⚡ Dạng 5 — Tính thuận tiện</div>
-
-  <div class="q-card" id="q10">
-    <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 130414</div>
-    <div class="q-text">Tính bằng cách <strong>thuận tiện</strong> (ghép cặp tổng tròn trăm):</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">664 + 36 + 70 =</span><input class="ans-input" id="q10a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1500 − 981 − 119 =</span><input class="ans-input" id="q10b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">2854 + 1249 + 146 + 751 =</span><input class="ans-input" id="q10c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">567 + 789 + 433 =</span><input class="ans-input" id="q10d" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q10',['q10a','q10b','q10c','q10d'],['770','400','5000','1789'],'✅ Đúng! a)(664+36)+70=700+70=770 b)1500-(981+119)=1500-1100=400 c)(2854+146)+(1249+751)=3000+2000=5000 d)(567+433)+789=1000+789=1789')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq10"></div>
+  <!-- Slide 3: Câu 3 — 4 biểu thức -->
+  <div class="q-slide" id="slide3">
+    <div class="section-title">✖️ Dạng 2 — Nhân/chia trước, cộng/trừ sau</div>
+    <div class="q-card" id="q3">
+      <div class="q-num"><span class="q-num-badge">Câu 3</span></div>
+      <div class="q-text">Tính giá trị các biểu thức:</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">78 × 6 + 345 =</span><input class="ans-input" id="q3a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">378 + 324 : 3 =</span><input class="ans-input" id="q3b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">56 + 67 × 6 =</span><input class="ans-input" id="q3c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">288 : 6 × 7 =</span><input class="ans-input" id="q3d" placeholder="?"></div>
+      <button class="check-btn" id="chkq3" onclick="checkSlide(3,['q3a','q3b','q3c','q3d'],['813','486','458','336'],'a)468+345=813 | b)378+108=486 | c)56+402=458 | d)48×7=336','Nhân/chia trước cộng/trừ sau. Trái sang phải nếu cùng loại.')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq3"></div>
+    </div>
   </div>
 
-  <div class="q-card" id="q11">
-    <div class="q-num"><span class="q-num-badge">Câu 11</span> Mã VinaID 130420</div>
-    <div class="q-text">Tính bằng cách <strong>thuận tiện</strong> (rút thừa số chung):</div>
-    <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">2×465 + 2×535 =</span><input class="ans-input" id="q11a" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1235×5 − 5×235 =</span><input class="ans-input" id="q11b" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">3×876 + 124×3 =</span><input class="ans-input" id="q11c" placeholder="?" disabled></div>
-    <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">175×9 − 175×3 − 175 =</span><input class="ans-input" id="q11d" placeholder="?" disabled></div>
-    <button class="check-btn" onclick="checkMultiExpr('q11',['q11a','q11b','q11c','q11d'],['2000','5000','3000','875'],'✅ Đúng! a)2×(465+535)=2×1000=2000 b)5×(1235-235)=5×1000=5000 c)3×(876+124)=3×1000=3000 d)175×(9-3-1)=175×5=875')" disabled>✓ Kiểm tra</button>
-    <div class="feedback" id="fbq11"></div>
+  <!-- Slide 4: Câu 4 — 5 biểu thức nhân/chia -->
+  <div class="q-slide" id="slide4">
+    <div class="section-title">➗ Dạng 3 — Chỉ có nhân/chia (trái → phải)</div>
+    <div class="q-card" id="q4">
+      <div class="q-num"><span class="q-num-badge">Câu 4</span></div>
+      <div class="q-text">Tính giá trị biểu thức:</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">25 × 4 × 7 =</span><input class="ans-input" id="q4a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">216 × 3 : 6 =</span><input class="ans-input" id="q4b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">990 : 3 : 6 =</span><input class="ans-input" id="q4c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">480 : 8 × 7 =</span><input class="ans-input" id="q4d" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">125 × 2 : 5 =</span><input class="ans-input" id="q4e" placeholder="?"></div>
+      <button class="check-btn" id="chkq4" onclick="checkSlide(4,['q4a','q4b','q4c','q4d','q4e'],['700','108','55','420','50'],'a)100×7=700 | b)648:6=108 | c)330:6=55 | d)60×7=420 | e)250:5=50','Chỉ nhân/chia: tính từ trái sang phải!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq4"></div>
+    </div>
   </div>
 
-  <div class="submit-wrap">
-    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
+  <!-- Slide 5: Câu 5 — 6 biểu thức -->
+  <div class="q-slide" id="slide5">
+    <div class="section-title">✖️ Dạng 2 — Nhân/chia trước, cộng/trừ sau</div>
+    <div class="q-card" id="q5">
+      <div class="q-num"><span class="q-num-badge">Câu 5</span></div>
+      <div class="q-text">Tính giá trị biểu thức:</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">800 − 253 × 3 =</span><input class="ans-input" id="q5a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">38 × 7 + 405 =</span><input class="ans-input" id="q5b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">900 − 399 × 2 =</span><input class="ans-input" id="q5c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">262 : 2 + 645 =</span><input class="ans-input" id="q5d" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">903 : 3 + 429 =</span><input class="ans-input" id="q5e" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">f)</span><span class="expr-txt">899 + 906 : 6 =</span><input class="ans-input" id="q5f" placeholder="?"></div>
+      <button class="check-btn" id="chkq5" onclick="checkSlide(5,['q5a','q5b','q5c','q5d','q5e','q5f'],['41','671','102','776','730','1050'],'a)800-759=41 | b)266+405=671 | c)900-798=102 | d)131+645=776 | e)301+429=730 | f)899+151=1050','Nhân/chia trước cộng/trừ sau!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq5"></div>
+    </div>
   </div>
+
+  <!-- Slide 6: Câu 7 gốc — 4 biểu thức -->
+  <div class="q-slide" id="slide6">
+    <div class="section-title">➗ Dạng 3 — Chỉ có nhân/chia (trái → phải)</div>
+    <div class="q-card" id="q6">
+      <div class="q-num"><span class="q-num-badge">Câu 6</span></div>
+      <div class="q-text">Tính giá trị biểu thức:</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">15 × 3 × 2 =</span><input class="ans-input" id="q6a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">48 : 2 : 6 =</span><input class="ans-input" id="q6b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">8 × 5 : 2 =</span><input class="ans-input" id="q6c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">81 : 9 × 7 =</span><input class="ans-input" id="q6d" placeholder="?"></div>
+      <button class="check-btn" id="chkq6" onclick="checkSlide(6,['q6a','q6b','q6c','q6d'],['90','4','20','63'],'a)45×2=90 | b)24:6=4 | c)40:2=20 | d)9×7=63','Chỉ nhân/chia: tính từ trái sang phải!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq6"></div>
+    </div>
+  </div>
+
+  <!-- Slide 7: Câu 8 gốc — 8 biểu thức dạng grid2 -->
+  <div class="q-slide" id="slide7">
+    <div class="section-title">🔀 Dạng 4 — Biểu thức hỗn hợp</div>
+    <div class="q-card" id="q7">
+      <div class="q-num"><span class="q-num-badge">Câu 7</span></div>
+      <div class="q-text">Tính giá trị biểu thức:</div>
+      <div class="grid2">
+        <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">87+92−32=</span><input class="ans-input" id="q7a" placeholder="?"></div>
+        <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">138−30−8=</span><input class="ans-input" id="q7b" placeholder="?"></div>
+        <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">30×2:3=</span><input class="ans-input" id="q7c" placeholder="?"></div>
+        <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">80:2×4=</span><input class="ans-input" id="q7d" placeholder="?"></div>
+        <div class="expr-row"><span class="expr-lbl">e)</span><span class="expr-txt">927−10×2=</span><input class="ans-input" id="q7e" placeholder="?"></div>
+        <div class="expr-row"><span class="expr-lbl">f)</span><span class="expr-txt">163+90:3=</span><input class="ans-input" id="q7f" placeholder="?"></div>
+        <div class="expr-row"><span class="expr-lbl">g)</span><span class="expr-txt">90+10×2=</span><input class="ans-input" id="q7g" placeholder="?"></div>
+        <div class="expr-row"><span class="expr-lbl">h)</span><span class="expr-txt">106−80:4=</span><input class="ans-input" id="q7h" placeholder="?"></div>
+      </div>
+      <button class="check-btn" id="chkq7" onclick="checkSlide(7,['q7a','q7b','q7c','q7d','q7e','q7f','q7g','q7h'],['147','100','20','160','907','193','110','86'],'a)147 | b)100 | c)60:3=20 | d)40×4=160 | e)927-20=907 | f)163+30=193 | g)90+20=110 | h)106-20=86','Nhớ thứ tự phép tính hỗn hợp!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq7"></div>
+    </div>
+  </div>
+
+  <!-- Slide 8: Câu 9 gốc — 4 biểu thức hỗn hợp -->
+  <div class="q-slide" id="slide8">
+    <div class="section-title">🔀 Dạng 4 — Biểu thức hỗn hợp</div>
+    <div class="q-card" id="q8">
+      <div class="q-num"><span class="q-num-badge">Câu 8</span></div>
+      <div class="q-text">Tính giá trị biểu thức:</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">89 + 10×2 + 96:3 =</span><input class="ans-input" id="q8a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">25×2 + 78:2 =</span><input class="ans-input" id="q8b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">(46+7)×2 + 123:3 =</span><input class="ans-input" id="q8c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">35×2 + 90:2:3 =</span><input class="ans-input" id="q8d" placeholder="?"></div>
+      <button class="check-btn" id="chkq8" onclick="checkSlide(8,['q8a','q8b','q8c','q8d'],['141','89','147','85'],'a)89+20+32=141 | b)50+39=89 | c)106+41=147 | d)70+15=85','Thực hiện ngoặc trước, rồi nhân/chia, cuối cùng cộng/trừ!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq8"></div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Câu 10 gốc — 4 biểu thức tính thuận tiện -->
+  <div class="q-slide" id="slide9">
+    <div class="section-title">⚡ Dạng 5 — Tính thuận tiện</div>
+    <div class="q-card" id="q9">
+      <div class="q-num"><span class="q-num-badge">Câu 9</span></div>
+      <div class="q-text">Tính bằng cách <strong>thuận tiện</strong> (ghép cặp tổng tròn trăm):</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">664 + 36 + 70 =</span><input class="ans-input" id="q9a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1500 − 981 − 119 =</span><input class="ans-input" id="q9b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">2854 + 1249 + 146 + 751 =</span><input class="ans-input" id="q9c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">567 + 789 + 433 =</span><input class="ans-input" id="q9d" placeholder="?"></div>
+      <button class="check-btn" id="chkq9" onclick="checkSlide(9,['q9a','q9b','q9c','q9d'],['770','400','5000','1789'],'a)(664+36)+70=700+70=770 | b)1500-(981+119)=400 | c)(2854+146)+(1249+751)=5000 | d)(567+433)+789=1789','Tìm các cặp số có tổng tròn trăm hoặc nghìn!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq9"></div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Câu 11 gốc — 4 biểu thức rút thừa số chung -->
+  <div class="q-slide" id="slide10">
+    <div class="section-title">⚡ Dạng 5 — Tính thuận tiện</div>
+    <div class="q-card" id="q10">
+      <div class="q-num"><span class="q-num-badge">Câu 10</span></div>
+      <div class="q-text">Tính bằng cách <strong>thuận tiện</strong> (rút thừa số chung):</div>
+      <div class="expr-row"><span class="expr-lbl">a)</span><span class="expr-txt">2×465 + 2×535 =</span><input class="ans-input" id="q10a" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">b)</span><span class="expr-txt">1235×5 − 5×235 =</span><input class="ans-input" id="q10b" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">c)</span><span class="expr-txt">3×876 + 124×3 =</span><input class="ans-input" id="q10c" placeholder="?"></div>
+      <div class="expr-row"><span class="expr-lbl">d)</span><span class="expr-txt">175×9 − 175×3 − 175 =</span><input class="ans-input" id="q10d" placeholder="?"></div>
+      <button class="check-btn" id="chkq10" onclick="checkSlide(10,['q10a','q10b','q10c','q10d'],['2000','5000','3000','875'],'a)2×(465+535)=2×1000=2000 | b)5×(1235-235)=5×1000=5000 | c)3×(876+124)=3×1000=3000 | d)175×(9-3-1)=175×5=875','Rút thừa số chung rồi tính tổng/hiệu trong ngoặc!')">✓ Kiểm tra</button>
+      <div class="feedback" id="fbq10"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<div class="game-over-overlay" id="gameOverOverlay">
+  <div class="game-over-title">GAME OVER</div>
+  <button class="game-over-btn" onclick="restartConfirm()">🔄 CHƠI LẠI TỪ ĐẦU</button>
 </div>
-
-  <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:2;text-align:center">
-    <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
-    <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
-    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
-  </div>
-    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
-  </div>
 
 <div class="result-overlay" id="resultOverlay">
   <div class="result-card">
     <span class="result-emoji" id="resultEmoji">🎉</span>
     <div class="result-title" id="resultTitle">Kết quả</div>
-    <div class="result-score" id="resultScore">0/11</div>
+    <div class="result-score" id="resultScore">0/10</div>
     <div class="result-level" id="resultLevel"></div>
     <div class="result-detail">
-      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div><div class="result-detail-label">Đúng</div></div>
-      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong" style="color:var(--red)">0</div><div class="result-detail-label">Sai</div></div>
-      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip" style="color:#94a3b8">0</div><div class="result-detail-label">Bỏ qua</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--success)">0</div><div class="result-detail-label">✅ Đúng</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong" style="color:var(--danger)">0</div><div class="result-detail-label">❌ Sai</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip" style="color:#94a3b8">0</div><div class="result-detail-label">⬜ Bỏ qua</div></div>
     </div>
     <div>
-      <button class="result-btn btn-retry" onclick="location.reload()">Làm lại</button>
-      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">Xem lại</button>
+      <button class="result-btn btn-retry" onclick="restartGame()">🔄 Chơi lại</button>
+      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">📖 Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<div class="score-toast" id="scoreToast">
+  <span class="score-toast-pts" id="scoreToastPts">+10 điểm</span>
+  <span class="score-toast-combo" id="scoreToastCombo"></span>
+</div>
+
+<!-- Level Modal -->
+<div class="level-modal" id="levelModal">
+  <div class="level-box">
+    <div class="level-title">🔮 Chọn Cấp Độ</div>
+    <div class="level-sub">Ải 5 — Biểu Thức Số · Tiêu diệt Số Phù Thủy!</div>
+    <div class="level-cards">
+      <div class="level-card lv1" onclick="startGame(1)">
+        <div class="lc-head">⭐ Cấp 1 — Tập Sự</div>
+        <div class="lc-desc">Có trợ giúp Mo-Mo và video bài giảng. Điểm ×1.</div>
+      </div>
+      <div class="level-card lv2" onclick="startGame(2)">
+        <div class="lc-head">⭐⭐ Cấp 2 — Chiến Binh</div>
+        <div class="lc-desc">Có Mo-Mo nhưng không xem video. Điểm ×1.5.</div>
+      </div>
+      <div class="level-card lv3" onclick="startGame(3)">
+        <div class="lc-head">⭐⭐⭐ Cấp 3 — Cao Thủ</div>
+        <div class="lc-desc">Không trợ giúp + đồng hồ 90 giây/câu. Điểm ×2.</div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const TOTAL = 11;
-const _TOTAL = 11; window._TOTAL = 11; window._BUOI = 5;
+const VIDEO_ID = "placeholder_b5";
+const TOTAL = 10;
+const SAVE_KEY = 'cbToan_progress_bai5';
+window._BUOI = 5; window._TOTAL = 10;
+
 let answered = {}; window._answered = answered;
+let selected = {};
 
-function norm(s){ return s.trim().toLowerCase().replace(/\s+/g,''); }
+/* ── Level System ── */
+var GAME_LEVEL = 1;
+var LEVEL_MULT = 1;
+var LEVEL_NAMES = ['', 'Cấp 1', 'Cấp 2', 'Cấp 3'];
+var LEVEL_STARS = ['', '⭐', '⭐⭐', '⭐⭐⭐'];
 
-function updateScore(){
-  const c=Object.values(answered).filter(v=>v===true).length;
-  const w=Object.values(answered).filter(v=>v===false).length;
-  const done=c+w;
-  document.getElementById('scoreCorrect').textContent=c;
-  document.getElementById('scoreWrong').textContent=w;
-  document.getElementById('scoreLeft').textContent=TOTAL-done;
-  document.getElementById('progressText').textContent=`${done} / ${TOTAL} câu`;
-  const pct=Math.round(done/TOTAL*100);
-  document.getElementById('progressPct').textContent=pct+'%';
-  document.getElementById('progressFill').style.width=pct+'%';
+function showLevelModal() {
+  document.getElementById('levelModal').classList.add('show');
 }
 
-function showFeedback(id,correct,msg){
-  const fb=document.getElementById(id);
-  fb.className='feedback show '+(correct?'correct-fb':'wrong-fb');
-  fb.innerHTML=(correct?'✅ ':'❌ ')+msg;
-  fb.closest('.q-card').classList.remove('correct','wrong');
-  fb.closest('.q-card').classList.add(correct?'correct':'wrong');
+function startGame(lv) {
+  GAME_LEVEL = lv;
+  LEVEL_MULT = lv === 3 ? 2 : lv === 2 ? 1.5 : 1;
+  localStorage.setItem('cbToan_gameLevel', String(lv));
+  document.getElementById('levelModal').classList.remove('show');
+  if (lv >= 3) {
+    var helpBtn = document.querySelector('.btn-help');
+    if (helpBtn) helpBtn.style.display = 'none';
+    _startTimer();
+  }
 }
 
-function checkMultiExpr(qId, inputIds, correctList, explanation){
-  const results = inputIds.map((id,i) => norm(document.getElementById(id).value) === norm(correctList[i]));
-  const ok = results.every(r=>r);
-  const wrong = results.filter(r=>!r).length;
-  answered[qId]=ok; updateScore();
-  inputIds.forEach((id,i)=>{
-    const inp=document.getElementById(id);
-    inp.className='ans-input '+(results[i]?'correct-input':'wrong-input');
-    inp.disabled=true;
+/* Gameplay variables */
+let playerHpVal = 100;
+let bossHpVal = 100;
+let comboStreak = 0;
+
+function updateComboUI() {}
+
+let _scoreToastTimer = null;
+function showScoreToast(pts, combo) {
+  const el = document.getElementById('scoreToast');
+  const pts_ = document.getElementById('scoreToastPts');
+  const cmb_ = document.getElementById('scoreToastCombo');
+  if (!el) return;
+  if (pts_) pts_.textContent = '+' + pts + ' điểm ✨';
+  if (cmb_) {
+    if (combo >= 2) { cmb_.textContent = '🔥 COMBO ×' + combo; cmb_.style.display = 'block'; }
+    else { cmb_.style.display = 'none'; }
+  }
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  if (_scoreToastTimer) clearTimeout(_scoreToastTimer);
+  _scoreToastTimer = setTimeout(() => el.classList.remove('pop'), 1900);
+}
+
+function updateBattleHp() {
+  document.getElementById('bossHp').style.width = bossHpVal + '%';
+  document.getElementById('playerHp').style.width = playerHpVal + '%';
+}
+
+window._checkpoints = [];
+window._attempts = {};
+window._lastInteractionTime = Date.now();
+
+function updateScore() {
+  const c = Object.values(answered).filter(v => v === true).length;
+  const w = Object.values(answered).filter(v => v === false).length;
+  const done = c + w;
+  document.getElementById('scoreCorrect').textContent = c;
+  document.getElementById('scoreWrong').textContent = w;
+  document.getElementById('scoreLeft').textContent = TOTAL - done;
+}
+
+let currentSlide = 1;
+function nextSlide() {
+  const current = document.getElementById('slide' + currentSlide);
+  if (current) current.classList.remove('active');
+  currentSlide++;
+  document.getElementById('progressText').innerText = Math.min(currentSlide, TOTAL) + '/' + TOTAL;
+  saveProgress();
+  if (currentSlide > TOTAL) { submitAll(); return; }
+  const next = document.getElementById('slide' + currentSlide);
+  if (next) { next.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); _startTimer(); }
+  else { submitAll(); }
+}
+
+/* ── Countdown Timer (Cấp 3: 90s/câu) ── */
+var TIMER_SECS = 90;
+var _timerInt = null;
+var _timerLeft = TIMER_SECS;
+
+function _startTimer() {
+  if (GAME_LEVEL < 3) return;
+  _stopTimer();
+  _timerLeft = TIMER_SECS;
+  var wrap = document.getElementById('timerWrap');
+  var slide = document.querySelector('.q-slide.active');
+  if (wrap && slide) {
+    var anchor = slide.querySelector('.check-btn, .feedback');
+    if (anchor) anchor.parentNode.insertBefore(wrap, anchor);
+  }
+  _renderTimer();
+  if (wrap) wrap.style.display = 'flex';
+  _timerInt = setInterval(function () {
+    _timerLeft--;
+    _renderTimer();
+    if (_timerLeft <= 0) { _stopTimer(); _timerExpire(); }
+  }, 1000);
+}
+
+function _stopTimer() { if (_timerInt) { clearInterval(_timerInt); _timerInt = null; } }
+function _hideTimer() { _stopTimer(); var w = document.getElementById('timerWrap'); if (w) w.style.display = 'none'; }
+
+function _renderTimer() {
+  var fill = document.getElementById('timerFill');
+  var num = document.getElementById('timerNum');
+  var wrap = document.getElementById('timerWrap');
+  if (!fill || !num) return;
+  var pct = (_timerLeft / TIMER_SECS) * 100;
+  fill.style.width = pct + '%';
+  num.textContent = _timerLeft;
+  var cls = _timerLeft <= 10 ? 'td' : _timerLeft <= 20 ? 'tw' : '';
+  num.className = 'timer-num ' + cls;
+  fill.className = 'timer-fill ' + cls;
+  if (wrap) wrap.className = cls || '';
+}
+
+function _timerExpire() {
+  var slide = document.querySelector('.q-slide.active');
+  if (!slide) return;
+  var card = slide.querySelector('.q-card');
+  if (!card) return;
+  var qId = card.id;
+  if (!qId || answered[qId] !== undefined) return;
+  slide.querySelectorAll('.ans-input,.check-btn').forEach(function(el) { el.disabled = true; });
+  answered[qId] = false;
+  comboStreak = 0;
+  bossAttack();
+  updateScore();
+  showFeedback('fb' + qId, false, '⏰ Hết 90 giây! Câu này bị bỏ qua.');
+  _hideTimer();
+  handleAfterAttack(null, qId);
+  saveProgress();
+}
+
+function handleAfterAttack(btn, qId) {
+  _hideTimer();
+  var nb = document.getElementById('actionNextBtn');
+  var pb = document.getElementById('actionPauseBtn');
+  if (nb) nb.style.display = '';
+  if (pb) pb.style.display = 'none';
+}
+
+function _showNextBtn() {
+  var nb = document.getElementById('actionNextBtn');
+  var pb = document.getElementById('actionPauseBtn');
+  if (nb) nb.style.display = '';
+  if (pb) pb.style.display = 'none';
+}
+
+/* ── Multi-input slide checker ── */
+var slideHinted = {};
+
+function norm(s) { return String(s).trim().toLowerCase().replace(/\s+/g,''); }
+
+function checkSlide(slideNum, inputIds, correctAnswers, explanation, hintMsg) {
+  var qId = 'q' + slideNum;
+  if (answered[qId] !== undefined) return;
+
+  var vals = inputIds.map(function(id) { return document.getElementById(id) ? document.getElementById(id).value.trim() : ''; });
+  var results = vals.map(function(v, i) { return norm(v) === norm(correctAnswers[i]); });
+  var allCorrect = results.every(function(r) { return r; });
+  var anyEmpty = vals.some(function(v) { return v === ''; });
+
+  if (anyEmpty) {
+    var lbl = document.getElementById('npLabel');
+    if (lbl) { lbl.textContent = '⚠ Còn ô trống!'; lbl.style.color = '#ff6b6b'; setTimeout(function() { lbl.textContent = 'Nhập đáp án'; lbl.style.color = ''; }, 1400); }
+    return;
+  }
+
+  if (!allCorrect && !slideHinted[qId]) {
+    /* Sai lần 1 — ghi checkpoint rồi hiện Mo-Mo */
+    var now0 = Date.now();
+    var ts0 = Math.round((now0 - window._lastInteractionTime) / 1000);
+    window._lastInteractionTime = now0;
+    window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+    window._checkpoints.push({
+      question_id: slideNum,
+      attempt_number: window._attempts[qId],
+      submitted_answer: vals.join('|'),
+      is_correct: false,
+      time_spent_seconds: ts0
+    });
+    answered[qId] = false;
+    updateScore();
+    slideHinted[qId] = true;
+    document.getElementById('momoText').innerHTML = '<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>' + (hintMsg || 'Hãy đọc kỹ lại đề bài!');
+    document.getElementById('momoOverlay').classList.add('show');
+    return;
+  }
+
+  /* Lần 2 trở đi — accept dù đúng hay sai */
+  var now = Date.now();
+  var timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
+  window._lastInteractionTime = now;
+  window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+  window._checkpoints.push({
+    question_id: slideNum,
+    attempt_number: window._attempts[qId],
+    submitted_answer: vals.join('|'),
+    is_correct: allCorrect,
+    time_spent_seconds: timeSpent
   });
-  showFeedback(`fb${qId}`,ok,
-    ok ? explanation : `Con sai ${wrong} ô. ${explanation}`
+
+  answered[qId] = allCorrect;
+  updateScore();
+
+  /* Style inputs */
+  inputIds.forEach(function(id, i) {
+    var inp = document.getElementById(id);
+    if (inp) {
+      inp.className = 'ans-input ' + (results[i] ? 'correct-input' : 'wrong-input');
+      inp.disabled = true;
+    }
+  });
+
+  var wrongCount = results.filter(function(r) { return !r; }).length;
+  showFeedback('fb' + qId, allCorrect,
+    allCorrect ? explanation : 'Sai ' + wrongCount + ' ô. ' + explanation
   );
-  document.querySelector(`#${qId} .check-btn`).disabled=true;
+
+  if (allCorrect) {
+    comboStreak++;
+    showScoreToast(Math.round(10 * LEVEL_MULT), comboStreak);
+    playerAttack();
+  } else {
+    comboStreak = 0;
+    bossAttack();
+  }
+
+  handleAfterAttack(null, qId);
+  saveProgress();
 }
 
-function submitAll(){
-  const c=Object.values(answered).filter(v=>v===true).length;
-  const w=Object.values(answered).filter(v=>v===false).length;
-  const skip=TOTAL-c-w;
-  const pct=Math.round(c/TOTAL*100);
-  let emoji,title,levelText,levelColor;
-  if(pct>=90)      {emoji='🏆';title='Xuat sac!';   levelText='Muc 4 - Gioi toan'; levelColor='#fef3c7';}
-  else if(pct>=70) {emoji='⭐';title='Lam tot!';     levelText='Muc 3 - Lam tot';   levelColor='#dbeafe';}
-  else if(pct>=50) {emoji='📖';title='Hieu bai!';    levelText='Muc 2 - Hieu bai';  levelColor='#e0f2fe';}
-  else             {emoji='🌱';title='Co gang them!';levelText='Muc 1 - Dang hoc'; levelColor='#f0fdf4';}
-  document.getElementById('resultEmoji').textContent=emoji;
-  document.getElementById('resultTitle').textContent=title;
-  document.getElementById('resultScore').textContent=`${c}/${TOTAL}`;
-  const rl=document.getElementById('resultLevel');
-  rl.textContent=levelText; rl.style.background=levelColor; rl.style.color='#1e293b';
-  document.getElementById('rdCorrect').textContent=c;
-  document.getElementById('rdWrong').textContent=w;
-  document.getElementById('rdSkip').textContent=skip;
-  
-  // LƯU HUY HIỆU NẾU ĐẠT TRÊN 50%
-  if (pct >= 50) {
-    const currentLesson = parseInt(window.location.pathname.match(/bai(\d+)/)?.[1] || 0);
-    if (currentLesson > 0) {
-      let badges = [];
-      try { badges = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
-      if (!badges.includes(currentLesson)) {
-        badges.push(currentLesson);
-        localStorage.setItem('cbToan_badges', JSON.stringify(badges));
-      }
+/* ── Save / Restore ── */
+function saveProgress() {
+  if (currentSlide > TOTAL) return;
+  var data = {
+    slide: currentSlide,
+    answered: answered,
+    attempts: window._attempts || {},
+    playerHp: playerHpVal,
+    bossHp: bossHpVal,
+    combo: comboStreak,
+    total: TOTAL,
+    level: GAME_LEVEL
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+}
+
+function restartGame() {
+  localStorage.removeItem(SAVE_KEY);
+  window.location.href = '../../map.html';
+}
+
+function restartConfirm() {
+  if (confirm('Chơi lại từ đầu? Tiến trình hiện tại sẽ bị xóa!')) restartGame();
+}
+
+function pauseGame() {
+  saveProgress();
+  if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.close(); }
+  else { window.history.back(); }
+}
+
+window.addEventListener('pagehide', function() { saveProgress(); });
+document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') saveProgress(); });
+
+/* ── Combat ── */
+function showFeedback(id, correct, msg) {
+  var fb = document.getElementById(id);
+  fb.className = 'feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = (correct ? '✅ ' : '❌ ') + msg;
+  var card = fb.closest('.q-card');
+  if (card) { card.classList.remove('correct', 'wrong'); card.classList.add(correct ? 'correct' : 'wrong'); }
+}
+
+function showDamage(targetId, dmgText, isCritical) {
+  var target = document.getElementById(targetId);
+  if (!target) return;
+  var dmg = document.createElement('div');
+  dmg.className = 'damage-number';
+  dmg.textContent = dmgText;
+  if (isCritical) { dmg.style.color = '#fbbf24'; dmg.style.textShadow = '0 0 15px #fbbf24'; dmg.style.fontSize = '40px'; }
+  dmg.style.marginLeft = ((Math.random() - 0.5) * 60) + 'px';
+  target.parentElement.appendChild(dmg);
+  setTimeout(function() { dmg.remove(); }, 1000);
+}
+
+function spawnExplosion(targetId) {
+  var target = document.getElementById(targetId);
+  if (!target) return;
+  var expl = document.createElement('div');
+  expl.className = 'explosion';
+  expl.textContent = '💥';
+  target.parentElement.appendChild(expl);
+  setTimeout(function() { expl.remove(); }, 500);
+}
+
+function playerAttack() {
+  var pAvatar = document.getElementById('playerAvatar');
+  var bAvatar = document.getElementById('bossAvatar');
+  var zone = document.getElementById('combatZone');
+  pAvatar.style.animation = 'none'; void pAvatar.offsetWidth; pAvatar.style.animation = 'castMagic 0.5s ease';
+  var beam = document.createElement('div');
+  beam.className = 'energy-beam'; beam.style.top = '50%'; beam.style.animation = 'fireBeam 0.4s ease-in forwards';
+  zone.appendChild(beam);
+  setTimeout(function() {
+    beam.remove();
+    bAvatar.style.animation = 'none'; void bAvatar.offsetWidth; bAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    var baseDmg = 100 / TOTAL;
+    var comboMult = 1 + (Math.max(0, comboStreak - 1) * 0.1);
+    var dmg = Math.round(baseDmg * comboMult);
+    bossHpVal = Math.max(0, bossHpVal - dmg);
+    updateBattleHp();
+    if (dmg > 0) showDamage('bossAvatar', '-' + dmg, comboStreak >= 2);
+    spawnExplosion('bossAvatar');
+    if (bossHpVal <= 0) {
+      bAvatar.style.transition = 'all 1s ease'; bAvatar.style.transform = 'scale(1.5)';
+      bAvatar.style.filter = 'brightness(2) drop-shadow(0 0 20px var(--primary))';
+      showDamage('bossAvatar', 'DEFEATED!', true);
+      setTimeout(function() { bAvatar.style.opacity = '0'; }, 1000);
+    } else {
+      setTimeout(function() { pAvatar.style.animation = 'idle 2s ease-in-out infinite'; bAvatar.style.animation = 'idle 2s ease-in-out infinite'; bAvatar.style.animationDelay = '1s'; }, 500);
     }
-    // Đổi Title chúc mừng nhận huy hiệu
+  }, 400);
+}
+
+function bossAttack() {
+  var pAvatar = document.getElementById('playerAvatar');
+  var bAvatar = document.getElementById('bossAvatar');
+  var zone = document.getElementById('combatZone');
+  if (bossHpVal <= 0) return;
+  playerHpVal = Math.max(0, playerHpVal - 10);
+  bAvatar.style.animation = 'none'; void bAvatar.offsetWidth; bAvatar.style.animation = 'castBossMagic 0.5s ease';
+  var orb = document.createElement('div');
+  orb.className = 'projectile'; orb.textContent = '🌑'; orb.style.color = 'var(--secondary)'; orb.style.animation = 'flyLeft 0.6s ease-in forwards';
+  zone.appendChild(orb);
+  setTimeout(function() {
+    orb.remove();
+    pAvatar.style.animation = 'none'; void pAvatar.offsetWidth; pAvatar.style.animation = 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both';
+    updateBattleHp(); showDamage('playerAvatar', '-10');
+    document.body.style.transition = 'background 0.2s';
+    document.body.style.background = '#fef2f2';
+    setTimeout(function() { document.body.style.background = ''; }, 200);
+    if (playerHpVal <= 0) { setTimeout(function() { document.getElementById('gameOverOverlay').classList.add('show'); }, 500); }
+    else { setTimeout(function() { pAvatar.style.animation = 'idle 2s ease-in-out infinite'; bAvatar.style.animation = 'idle 2s ease-in-out infinite'; bAvatar.style.animationDelay = '1s'; }, 500); }
+  }, 500);
+}
+
+/* ── Submit ── */
+function submitAll() {
+  localStorage.removeItem(SAVE_KEY);
+  var c = Object.values(answered).filter(function(v) { return v === true; }).length;
+  var w = Object.values(answered).filter(function(v) { return v === false; }).length;
+  var skip = TOTAL - c - w;
+  var pct = Math.round(c / TOTAL * 100);
+  var emoji, title, levelText, levelColor;
+  if (pct >= 90) { emoji='🏆'; title='Xuất sắc!'; levelText='🏆 Mức 4 — Giỏi toán'; levelColor='#fef3c7'; }
+  else if (pct >= 70) { emoji='⭐'; title='Làm tốt!'; levelText='⭐ Mức 3 — Làm tốt'; levelColor='#dbeafe'; }
+  else if (pct >= 50) { emoji='📖'; title='Hiểu bài!'; levelText='📖 Mức 2 — Hiểu bài'; levelColor='#e0f2fe'; }
+  else { emoji='🌱'; title='Cố gắng thêm!'; levelText='🌱 Mức 1 — Đang học'; levelColor='#f0fdf4'; }
+  var levelScore = Math.round(c * 10 * LEVEL_MULT);
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = c + '/' + TOTAL + ' câu  •  ' + levelScore + ' điểm';
+  var rl = document.getElementById('resultLevel');
+  rl.textContent = levelText + '  ' + LEVEL_STARS[GAME_LEVEL];
+  rl.style.background = levelColor; rl.style.color = '#1e293b';
+  document.getElementById('rdCorrect').textContent = c;
+  document.getElementById('rdWrong').textContent = w;
+  document.getElementById('rdSkip').textContent = skip;
+  if (pct >= 50) {
+    var currentLesson = parseInt((window.location.pathname.match(/bai(\d+)/) || [])[1] || 0);
+    if (currentLesson > 0) {
+      var badges = []; try { badges = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
+      if (!badges.includes(currentLesson)) { badges.push(currentLesson); localStorage.setItem('cbToan_badges', JSON.stringify(badges)); }
+      var prevBest = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + currentLesson) || '0');
+      if (GAME_LEVEL > prevBest) localStorage.setItem('cbToan_bestLevel_bai' + currentLesson, String(GAME_LEVEL));
+      var prevScore = parseInt(localStorage.getItem('cbToan_bestScore_bai' + currentLesson) || '0');
+      if (levelScore > prevScore) localStorage.setItem('cbToan_bestScore_bai' + currentLesson, String(levelScore));
+    }
     document.getElementById('resultTitle').innerHTML = '🏆 Bạn Đã Nhận Được Huy Hiệu!';
   }
   document.getElementById('resultOverlay').classList.add('show');
-
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
-  const groups = {
-    q1: ['q1a','q1b','q1c','q1d','q1e'],
-    q2: ['q2a','q2b','q2c','q2d'],
-    q3: ['q3a','q3b','q3c','q3d'],
-    q4: ['q4a','q4b','q4c','q4d','q4e'],
-    q5: ['q5a','q5b','q5c','q5d','q5e','q5f'],
-    q7: ['q7a','q7b','q7c','q7d'],
-    q8: ['q8a','q8b','q8c','q8d','q8e','q8f','q8g','q8h'],
-    q9: ['q9a','q9b','q9c','q9d'],
-    q10:['q10a','q10b','q10c','q10d'],
-    q11:['q11a','q11b','q11c','q11d'],
-  };
-  Object.entries(groups).forEach(([qId,ids])=>{
-    const btn=document.querySelector(`#${qId} .check-btn`);
-    ids.forEach(id=>{
-      const inp=document.getElementById(id);
-      inp.disabled=false;
-      inp.addEventListener('input',()=>{
-        btn.disabled=ids.some(i=>document.getElementById(i).value.trim()==='');
-      });
-      inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)btn.click();});
-    });
-    btn.disabled=true;
-  });
-});
-</script>
+/* ── Mo-Mo ── */
+const momoHinted = {};
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
+function closeMomo() {
+  document.getElementById('momoOverlay').classList.remove('show');
+}
 
-  // Tự động thêm class cyber-box
-  document.addEventListener('DOMContentLoaded', () => {
-  // Always initialize checkpoint tracking variables
+/* ── Video ── */
+var _helpQid = null;
+function openVideoHelp() {
+  document.getElementById('momoOverlay').classList.remove('show');
+  if (GAME_LEVEL >= 2) return;
+  var embedUrl = 'https://www.youtube.com/embed/' + VIDEO_ID + '?autoplay=1&rel=0';
+  document.getElementById('videoWrapper').innerHTML = '<iframe width="100%" height="100%" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+  document.getElementById('videoModal').classList.add('show');
+}
+
+function closeVideo() {
+  document.getElementById('videoModal').classList.remove('show');
+  document.getElementById('videoWrapper').innerHTML = '';
+}
+
+/* ── Help overlay ── */
+function showHelp() {
+  var activeSlide = document.querySelector('.q-slide.active');
+  if (!activeSlide) return;
+  var card = activeSlide.querySelector('.q-card');
+  _helpQid = card ? card.id : null;
+  document.getElementById('helpKienThuc').innerHTML = '💡 <strong>Thứ tự thực hiện phép tính:</strong><br>1. Trong <strong>ngoặc</strong> trước<br>2. <strong>Nhân, chia</strong> trước cộng, trừ sau<br>3. Chỉ cộng/trừ hoặc chỉ nhân/chia → tính từ <strong>trái sang phải</strong><div class="tc-formula">Ngoặc → × ÷ → + −</div>';
+  document.getElementById('helpGoiY').innerHTML = 'Hãy đọc kỹ từng biểu thức và xác định thứ tự thực hiện phép tính trước khi tính.';
+  document.getElementById('helpOverlay').classList.add('show');
+}
+
+function closeHelp() { document.getElementById('helpOverlay').classList.remove('show'); }
+function openHelpVideo() {
+  if (GAME_LEVEL >= 2) { closeHelp(); return; }
+  var embedUrl = 'https://www.youtube.com/embed/' + VIDEO_ID + '?autoplay=1&rel=0';
+  document.getElementById('videoWrapper').innerHTML = '<iframe width="100%" height="100%" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+  document.getElementById('videoModal').classList.add('show');
+  closeHelp();
+}
+
+/* ── DOMContentLoaded ── */
+document.addEventListener('DOMContentLoaded', function() {
   window._attempts = window._attempts || {};
   window._checkpoints = window._checkpoints || [];
   window._lastInteractionTime = window._lastInteractionTime || Date.now();
 
-    document.querySelectorAll('.method-box, .q-card, .result-card').forEach(el => {
-      el.classList.add('cyber-box');
-    });
-  });
+  /* Load saved avatar */
+  var savedAvatar = localStorage.getItem('cbToan_avatar');
+  if (savedAvatar) document.getElementById('playerAvatar').textContent = savedAvatar;
 
+  /* Telegram BackButton */
+  var tgWa = window.Telegram && window.Telegram.WebApp;
+  if (tgWa && tgWa.BackButton) {
+    tgWa.BackButton.show();
+    tgWa.BackButton.onClick(function() { saveProgress(); tgWa.close(); });
+  }
 
-// Khởi tạo Telegram Web App
+  /* Try to restore progress */
+  var restored = false;
+  try {
+    var saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (saved && saved.slide >= 1 && saved.slide <= TOTAL && saved.level) {
+      GAME_LEVEL = saved.level || 1;
+      LEVEL_MULT = GAME_LEVEL === 3 ? 2 : GAME_LEVEL === 2 ? 1.5 : 1;
+      answered = saved.answered || {}; window._answered = answered;
+      window._attempts = saved.attempts || {};
+      playerHpVal = saved.playerHp !== undefined ? saved.playerHp : 100;
+      bossHpVal = saved.bossHp !== undefined ? saved.bossHp : 100;
+      comboStreak = saved.combo || 0;
+      updateBattleHp(); updateScore();
+      /* Disable inputs for answered questions */
+      Object.keys(answered).forEach(function(qId) {
+        var card = document.getElementById(qId);
+        if (card) {
+          card.classList.add(answered[qId] ? 'correct' : 'wrong');
+          card.querySelectorAll('.ans-input').forEach(function(inp) { inp.disabled = true; });
+        }
+      });
+      var currentActive = document.querySelector('.q-slide.active');
+      if (currentActive) currentActive.classList.remove('active');
+      currentSlide = saved.slide;
+      var target = document.getElementById('slide' + currentSlide);
+      if (target) target.classList.add('active');
+      /* Nếu câu hiện tại đã trả lời thì hiện nút tiếp */
+      var curCard = target ? target.querySelector('.q-card') : null;
+      if (curCard && answered[curCard.id] !== undefined) _showNextBtn();
+      if (GAME_LEVEL >= 3) _startTimer();
+      if (GAME_LEVEL >= 3) { var helpBtn = document.querySelector('.btn-help'); if (helpBtn) helpBtn.style.display = 'none'; }
+      var toast = document.getElementById('resumeToast');
+      if (toast) { toast.textContent = '▶ Đã tới câu ' + saved.slide + '/' + TOTAL; toast.style.display = ''; setTimeout(function() { toast.style.display = 'none'; }, 2800); }
+      restored = true;
+    }
+  } catch(e) {}
+
+  if (!restored) showLevelModal();
+
+  document.getElementById('progressText').innerText = currentSlide + '/' + TOTAL;
+
+  /* Add cyber-box */
+  document.querySelectorAll('.q-card, .result-card').forEach(function(el) { el.classList.add('cyber-box'); });
+});
+</script>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="/static/auth.js"></script>
+<script>
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
-// Ghi đè hàm submitAll để gửi kết quả về bot
 const _origSubmit = window.submitAll;
 window.submitAll = function() {
-  // Gọi hàm gốc để hiện result overlay
   if (typeof _origSubmit === 'function') _origSubmit();
-
-  // Thu thập kết quả
   const answered = window._answered || {};
-  const correct  = Object.values(answered).filter(v => v === true).length;
-  const total    = window._TOTAL || Object.keys(answered).length;
-  const buoi     = window._BUOI || 0;
-
+  const correct = Object.values(answered).filter(v => v === true).length;
+  const total = window._TOTAL || Object.keys(answered).length;
+  const buoi = window._BUOI || 0;
+  const gameLevel = GAME_LEVEL || parseInt(localStorage.getItem('cbToan_gameLevel') || '1');
+  const levelMult = gameLevel === 3 ? 2 : gameLevel === 2 ? 1.5 : 1;
   const payload = {
-    buoi:      buoi,
-    diem:      correct,
-    tong:      total,
-    chi_tiet:  answered,
+    buoi: buoi,
+    diem: correct,
+    tong: total,
+    level: gameLevel,
+    level_diem: Math.round(correct * 10 * levelMult),
+    chi_tiet: answered,
+    checkpoints: window._checkpoints || []
+  };
+  if (tg && tg.sendData) tg.sendData(JSON.stringify(payload));
+};
+</script>
+
+<!-- Video Popup -->
+<div class="video-modal" id="videoModal">
+  <div class="video-container">
+    <div class="video-header">
+      <span class="video-title">🎬 BÀI GIẢNG: BIỂU THỨC SỐ</span>
+      <button class="close-video-btn" onclick="closeVideo()">✖</button>
+    </div>
+    <div class="video-iframe-wrapper" id="videoWrapper"></div>
+  </div>
+</div>
+
+<!-- Timer -->
+<div id="timerWrap">
+  <span class="timer-icon">⏱</span>
+  <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+  <span class="timer-num" id="timerNum">90</span>
+</div>
+
+<!-- Action bar -->
+<div class="action-bar">
+  <button class="btn-help" onclick="showHelp()">💡 Trợ giúp</button>
+  <button class="btn-pause" id="actionPauseBtn" onclick="pauseGame()">⏸ Dừng chơi</button>
+  <button class="btn-next-action" id="actionNextBtn" style="display:none;" onclick="(function(){var nb=document.getElementById('actionNextBtn'),pb=document.getElementById('actionPauseBtn');if(nb)nb.style.display='none';if(pb)pb.style.display='';nextSlide();}())">⏭ Câu tiếp theo</button>
+</div>
+
+<!-- Help Overlay -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-panel">
+    <div class="help-header">
+      <span class="help-header-icon">⚔️</span>
+      <span class="help-header-title">Tuyệt chiêu cần có</span>
+    </div>
+    <div class="help-section">
+      <div class="help-section-label">📚 Kiến thức cần nhớ</div>
+      <div class="help-body" id="helpKienThuc"></div>
+    </div>
+    <div class="help-section">
+      <div class="help-section-label">💡 Gợi ý thêm</div>
+      <div class="help-body" id="helpGoiY"></div>
+      <div class="help-encourage">✏️ Hãy lấy giấy bút ra, bắt đầu viết xuống để làm từng bước một.<br>Thầy tin rằng em sẽ làm được đó!</div>
+    </div>
+    <div class="help-video-note">🎬 Nếu vẫn chưa hiểu, em ấn nút <strong>TRUI RÈN</strong> để xem thầy giảng lại nhé!</div>
+    <div class="help-btns">
+      <button class="help-btn-ok" onclick="closeHelp()">⚔️ Áp dụng</button>
+      <button class="help-btn-video" onclick="openHelpVideo()">🔥 Trui Rèn</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Numpad -->
+<div class="numpad-overlay" id="numpadOverlay">
+  <div class="numpad-bd" id="numpadBd"></div>
+  <div class="numpad-panel">
+    <div class="numpad-display">
+      <span class="np-cur-val" id="npVal">?</span>
+      <span class="np-cur-label" id="npLabel">Nhập đáp án</span>
+      <button class="np-close-btn" id="npCloseBtn">✕</button>
+    </div>
+    <div class="numpad-grid">
+      <button class="np-btn" data-d="1">1</button>
+      <button class="np-btn" data-d="2">2</button>
+      <button class="np-btn" data-d="3">3</button>
+      <button class="np-btn" data-d="4">4</button>
+      <button class="np-btn" data-d="5">5</button>
+      <button class="np-btn" data-d="6">6</button>
+      <button class="np-btn" data-d="7">7</button>
+      <button class="np-btn" data-d="8">8</button>
+      <button class="np-btn" data-d="9">9</button>
+      <button class="np-btn np-del" id="npDel">⌫</button>
+      <button class="np-btn" data-d="0">0</button>
+      <button class="np-btn np-ok" id="npOk">✓ OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Custom Numpad Logic ── */
+(function () {
+  'use strict';
+  var _inp = null, _checkBtn = null;
+
+  function npSync() {
+    var el = document.getElementById('npVal');
+    if (el) el.textContent = (_inp && _inp.value) ? _inp.value : '?';
+  }
+
+  window._showNumpad = function (inp) {
+    if (!inp || inp.disabled) return;
+    _inp = inp;
+    var card = inp.closest('.q-card');
+    _checkBtn = card ? card.querySelector('.check-btn') : null;
+    var badge = card ? card.querySelector('.q-num-badge') : null;
+    var labelEl = document.getElementById('npLabel');
+    if (labelEl) labelEl.textContent = badge ? badge.textContent : 'Nhập đáp án';
+    npSync();
+    document.getElementById('numpadOverlay').classList.add('show');
   };
 
-  // Gửi về Telegram bot
-  if (tg && tg.sendData) {
-    tg.sendData(JSON.stringify(payload));
+  window._hideNumpad = function () {
+    document.getElementById('numpadOverlay').classList.remove('show');
+    _inp = null; _checkBtn = null;
+  };
+
+  document.querySelectorAll('.np-btn[data-d]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (!_inp || _inp.disabled) return;
+      if (_inp.value.length >= 6) return;
+      _inp.value += this.dataset.d;
+      _inp.dispatchEvent(new Event('input', { bubbles: true }));
+      npSync();
+    });
+  });
+
+  document.getElementById('npDel').addEventListener('click', function () {
+    if (!_inp) return;
+    _inp.value = _inp.value.slice(0, -1);
+    _inp.dispatchEvent(new Event('input', { bubbles: true }));
+    npSync();
+  });
+
+  function doNpOk() {
+    if (!_inp) return;
+    if (!_inp.value.trim()) {
+      var lbl = document.getElementById('npLabel');
+      if (lbl) { var orig = lbl.textContent; lbl.textContent = '⚠ Chưa nhập đáp án!'; lbl.style.color = '#ff6b6b'; setTimeout(function() { lbl.textContent = orig; lbl.style.color = ''; }, 1400); }
+      return;
+    }
+    /* Find sibling inputs and check if all filled, then trigger check-btn */
+    var card = _inp.closest('.q-card');
+    var allInputs = card ? Array.from(card.querySelectorAll('.ans-input')) : [_inp];
+    var btn = card ? card.querySelector('.check-btn') : null;
+    window._hideNumpad();
+    /* Auto-open next empty input if any */
+    var nextEmpty = allInputs.find(function(i) { return !i.disabled && !i.value.trim() && i !== _inp; });
+    if (nextEmpty) {
+      setTimeout(function() { window._showNumpad(nextEmpty); }, 80);
+    } else {
+      /* All filled — click check */
+      setTimeout(function() { if (btn && !btn.disabled) btn.click(); }, 80);
+    }
   }
-};
+
+  document.getElementById('npOk').addEventListener('click', doNpOk);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var overlay = document.getElementById('numpadOverlay');
+    if (overlay && overlay.classList.contains('show')) { e.preventDefault(); doNpOk(); }
+    else {
+      var activeInput = document.querySelector('.q-slide.active .ans-input:not([disabled])');
+      if (activeInput) { e.preventDefault(); window._showNumpad(activeInput); }
+    }
+  });
+
+  document.getElementById('numpadBd').addEventListener('click', window._hideNumpad);
+  document.getElementById('npCloseBtn').addEventListener('click', window._hideNumpad);
+
+  function hookAll() {
+    document.querySelectorAll('.ans-input').forEach(function (inp) {
+      if (inp.dataset.npHooked) return;
+      inp.dataset.npHooked = '1';
+      inp.setAttribute('readonly', 'readonly');
+      inp.setAttribute('inputmode', 'none');
+      inp.style.cursor = 'pointer';
+      inp.style.caretColor = 'transparent';
+      inp.addEventListener('click', function (e) { if (this.disabled) return; e.preventDefault(); e.stopPropagation(); window._showNumpad(this); });
+      inp.addEventListener('focus', function () { this.blur(); });
+      inp.addEventListener('touchstart', function (e) { if (this.disabled) return; e.preventDefault(); window._showNumpad(this); }, { passive: false });
+    });
+    /* Enable check-btn logic: enabled when ALL inputs in card are filled */
+    document.querySelectorAll('.q-card').forEach(function(card) {
+      var btn = card.querySelector('.check-btn');
+      if (!btn) return;
+      var inputs = Array.from(card.querySelectorAll('.ans-input'));
+      btn.disabled = inputs.some(function(i) { return !i.value.trim(); });
+      inputs.forEach(function(inp) {
+        inp.addEventListener('input', function() {
+          btn.disabled = inputs.some(function(i) { return !i.value.trim(); });
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', hookAll); }
+  else { hookAll(); }
+
+  /* Override closeMomo to reopen numpad */
+  function overrideMomo() {
+    window.closeMomo = function () {
+      document.getElementById('momoOverlay').classList.remove('show');
+      /* Clear wrong inputs in the active slide */
+      var slide = document.querySelector('.q-slide.active');
+      if (!slide) return;
+      var firstEmpty = slide.querySelector('.ans-input:not([disabled])');
+      if (firstEmpty) {
+        firstEmpty.value = '';
+        firstEmpty.dispatchEvent(new Event('input', { bubbles: true }));
+        setTimeout(function () { window._showNumpad(firstEmpty); }, 220);
+      }
+    };
+  }
+
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', overrideMomo); }
+  else { overrideMomo(); }
+
+  /* Move .q-num outside .q-card */
+  function moveQNums() {
+    document.querySelectorAll('.q-card > .q-num').forEach(function (qnum) {
+      var card = qnum.closest('.q-card');
+      card.parentNode.insertBefore(qnum, card);
+    });
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', moveQNums); }
+  else { moveQNums(); }
+})();
 </script>
 
 </body>

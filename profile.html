@@ -118,13 +118,13 @@ body::before {
 
 .avatar-ring {
   position: relative;
-  width: 130px; height: 130px;
-  border-radius: 22px;
+  width: 98px; height: 130px;
+  border-radius: 18px;
 }
 .avatar-ring::before {
   content: '';
   position: absolute; inset: -3px;
-  border-radius: 25px;
+  border-radius: 21px;
   background: linear-gradient(135deg, var(--primary), var(--secondary), var(--success));
   background-size: 200% 200%;
   animation: gradShift 3s ease infinite;
@@ -138,15 +138,15 @@ body::before {
 }
 .avatar-ph {
   position: relative; z-index: 1;
-  width: 130px; height: 130px; border-radius: 20px;
+  width: 98px; height: 130px; border-radius: 16px;
   background: #0a1428;
   display: flex; align-items: center; justify-content: center;
   font-size: 3.5rem;
 }
 #avatarImg {
   position: relative; z-index: 1;
-  width: 130px; height: 130px; border-radius: 20px;
-  object-fit: cover; display: none;
+  width: 98px; height: 130px; border-radius: 16px;
+  object-fit: cover; object-position: top center; display: none;
 }
 
 .avatar-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
@@ -197,9 +197,10 @@ canvas#snap { display: none; }
   background: #0a1428;
 }
 .pv-final img {
-  width: 96px; height: 96px;
+  width: 72px; height: 96px;
   border-color: var(--primary);
   box-shadow: 0 0 16px rgba(10,224,254,.4);
+  object-position: top center;
 }
 .pv-item p { font-size: .62rem; color: rgba(200,230,255,.35); margin-top: 5px; }
 

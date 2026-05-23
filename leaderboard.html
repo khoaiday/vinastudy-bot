@@ -100,16 +100,16 @@
   .podium-card.rank-1 .medal { font-size: 2.4rem; }
 
   .avatar-wrap {
-    width: 72px; height: 72px; margin: 0 auto .6rem;
-    border-radius: 50%; overflow: hidden;
+    width: 54px; height: 72px; margin: 0 auto .6rem;
+    border-radius: 10px; overflow: hidden;
     border: 2px solid var(--border);
     background: #0d1b3e;
   }
   .podium-card.rank-1 .avatar-wrap {
-    width: 84px; height: 84px; border-color: var(--gold);
+    width: 63px; height: 84px; border-color: var(--gold);
     box-shadow: 0 0 12px rgba(255,215,0,.4);
   }
-  .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
   .avatar-wrap .no-avatar {
     width: 100%; height: 100%; display: flex; align-items: center;
     justify-content: center; font-size: 2rem; background: #0a1635;
@@ -156,11 +156,11 @@
     font-size: .95rem; color: #5d8fa0; flex-shrink: 0;
   }
   .rank-avatar {
-    width: 42px; height: 42px; border-radius: 50%;
+    width: 32px; height: 42px; border-radius: 6px;
     overflow: hidden; border: 1px solid var(--border); flex-shrink: 0;
     background: #0a1635;
   }
-  .rank-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .rank-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
   .rank-avatar .no-avatar-sm {
     width: 100%; height: 100%; display: flex; align-items: center;
     justify-content: center; font-size: 1.2rem;
@@ -243,7 +243,7 @@ function avatarEl(avatar_final, character_type, size = 'normal') {
   wrap.className = size === 'small' ? 'rank-avatar' : 'avatar-wrap';
   if (avatar_final) {
     const img = document.createElement('img');
-    img.src = 'data:image/png;base64,' + avatar_final;
+    img.src = avatar_final; // avatar_final is already a full data URL
     img.alt = 'avatar';
     wrap.appendChild(img);
   } else {

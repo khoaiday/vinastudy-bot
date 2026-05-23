@@ -15,6 +15,7 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 # Buoi configurations
 BUOI_CONFIG = {
+    1:  {"ten": "Cấu Tạo Số Tự Nhiên",                  "video": "https://youtu.be/Tkx5Tf3Omks",                "folder": "bai01"},
     2:  {"ten": "Bài Toán Cấu Tạo Số",                 "video": "https://youtu.be/tQPklWVzur8",                "folder": "bai02"},
     3:  {"ten": "Viết Số Tự Nhiên Thỏa Mãn Điều Kiện", "video": "https://youtu.be/fMegXvbsYPk",                "folder": "bai03"},
     4:  {"ten": "Dãy Số Cách Đều",                      "video": "https://youtu.be/TcJ50kKlyg0",                "folder": "bai04"},
@@ -26,6 +27,7 @@ BUOI_CONFIG = {
 }
 
 BTVN_CONFIG = {
+    1:  {"so_cau": 10, "html": "content/lop3/bai01/bai-tap.html"},
     2:  {"so_cau": 2,  "html": "content/lop3/bai02/bai-tap.html"},
     3:  {"so_cau": 3,  "html": "content/lop3/bai03/bai-tap.html"},
     4:  {"so_cau": 3,  "html": "content/lop3/bai04/bai-tap.html"},
@@ -37,6 +39,7 @@ BTVN_CONFIG = {
 }
 
 DANG_BAI = {
+    1:  ["Viết số thành tổng trăm+chục+đơn vị", "Điền số còn thiếu", "So sánh số tự nhiên"],
     2:  ["Cấu tạo số từ chữ số", "Tìm số theo điều kiện"],
     3:  ["Đếm số thỏa mãn điều kiện", "Số tròn chục/trăm", "Tổng chữ số"],
     4:  ["Số hạng dãy số", "Số hạng thứ N", "Đếm số chẵn/lẻ"],

@@ -109,6 +109,10 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
     tg_id = body.telegram_id or user.get("telegram_id")
     if body.telegram_id:
         await crud.patch_web_user(google_id, {"telegram_id": body.telegram_id})
+        logger.info(f"telegram_id={body.telegram_id} saved for google_id={google_id}")
+    else:
+        logger.warning(f"complete_profile: telegram_id NOT sent from browser (google_id={google_id}). "
+                       f"Existing in DB: {user.get('telegram_id')!r}")
 
     # ── Thông báo Telegram: Đã gửi hồ sơ ───────────────────────────────
     char_label = CHAR_LABEL.get(body.character_type, body.character_type)
@@ -123,6 +127,7 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
     )
 
     return JSONResponse({"ok": True, "status": "pending",
+                         "cartoon_b64":  avatar_result["cartoon_b64"],
                          "avatar_final": avatar_result["final_b64"]})
 
 

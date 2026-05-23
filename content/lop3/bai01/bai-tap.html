@@ -1892,7 +1892,18 @@ function checkText(qId, inputId, correctList, explanation, hintMsg) {
   const isCorrect = correctList.some(c => c.toLowerCase() === val);
   
   if (!isCorrect && !momoHinted[qId]) {
-    // Sai lần 1 -> Hiện Mo-Mo
+    // Sai lần 1 -> Ghi checkpoint TRƯỚC rồi mới hiện Mo-Mo
+    const now0 = Date.now();
+    const ts0 = Math.round((now0 - window._lastInteractionTime) / 1000);
+    window._lastInteractionTime = now0;
+    window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+    window._checkpoints.push({
+      question_id: parseInt(qId.replace('q', '')),
+      attempt_number: window._attempts[qId],
+      submitted_answer: val,
+      is_correct: false,
+      time_spent_seconds: ts0
+    });
     momoHinted[qId] = true;
     currentHelpQid = qId;
     document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
@@ -1900,12 +1911,12 @@ function checkText(qId, inputId, correctList, explanation, hintMsg) {
     return; // Dừng lại, chưa trừ điểm
   }
 
-  // Lưu Checkpoint
+  // Lưu Checkpoint (lần 2 trở đi)
   const now = Date.now();
   const timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
   window._lastInteractionTime = now;
   window._attempts[qId] = (window._attempts[qId] || 0) + 1;
-  
+
   window._checkpoints.push({
     question_id: parseInt(qId.replace('q', '')),
     attempt_number: window._attempts[qId],
@@ -1974,11 +1985,23 @@ function checkChoice(qId, correct, explanation, hintMsg) {
   const isCorrect = selected[qId] === correct;
   
   if (!isCorrect && !momoHinted[qId]) {
+    // Sai lần 1 -> Ghi checkpoint TRƯỚC rồi mới hiện Mo-Mo
+    const now0 = Date.now();
+    const ts0 = Math.round((now0 - window._lastInteractionTime) / 1000);
+    window._lastInteractionTime = now0;
+    window._attempts[qId] = (window._attempts[qId] || 0) + 1;
+    window._checkpoints.push({
+      question_id: parseInt(qId.replace('q', '')),
+      attempt_number: window._attempts[qId],
+      submitted_answer: selected[qId],
+      is_correct: false,
+      time_spent_seconds: ts0
+    });
     momoHinted[qId] = true;
     currentHelpQid = qId;
     document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
     document.getElementById('momoOverlay').classList.add('show');
-    
+
     // Reset selected
     selected[qId] = null;
     const btns = document.querySelectorAll('#' + qId + 'choices .choice-btn');
@@ -1987,12 +2010,12 @@ function checkChoice(qId, correct, explanation, hintMsg) {
     return;
   }
 
-  // Lưu Checkpoint
+  // Lưu Checkpoint (lần 2 trở đi)
   const now = Date.now();
   const timeSpent = Math.round((now - window._lastInteractionTime) / 1000);
   window._lastInteractionTime = now;
   window._attempts[qId] = (window._attempts[qId] || 0) + 1;
-  
+
   window._checkpoints.push({
     question_id: parseInt(qId.replace('q', '')),
     attempt_number: window._attempts[qId],
@@ -2087,6 +2110,7 @@ function submitAll() {
 </script>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="/static/auth.js"></script>
 <script>
 // Khởi tạo Telegram Web App
 const tg = window.Telegram?.WebApp;

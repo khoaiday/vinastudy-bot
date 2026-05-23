@@ -22,9 +22,11 @@ async def add_student(telegram_id: int, ho_ten: str, lop: str = "3", telegram_ph
     return dict(row) if row else None
 
 async def get_student(telegram_id: int) -> dict | None:
+    """Trả về student đang active. Trả None nếu không tồn tại hoặc đã bị deactivate."""
     pool = get_pool()
     async with pool.acquire() as conn:
-        row = await conn.fetchrow("SELECT * FROM students WHERE telegram_id=$1", telegram_id)
+        row = await conn.fetchrow(
+            "SELECT * FROM students WHERE telegram_id=$1 AND active=TRUE", telegram_id)
     return dict(row) if row else None
 
 async def get_all_students() -> list:
@@ -91,7 +93,8 @@ async def get_materials(so_buoi: int) -> list:
 
 async def save_result(telegram_id: int, so_buoi: int,
                       diem: int, tong_cau: int,
-                      chi_tiet: dict, nhan_xet_ai: str = None) -> dict:
+                      chi_tiet: dict, nhan_xet_ai: str = None,
+                      level: int = 1) -> dict:
     phan_tram = round(diem / tong_cau * 100) if tong_cau else 0
     pool = get_pool()
     async with pool.acquire() as conn:
@@ -105,11 +108,11 @@ async def save_result(telegram_id: int, so_buoi: int,
 
         sql = """
             INSERT INTO results
-                (student_id, lesson_id, diem, tong_cau, phan_tram, chi_tiet, nhan_xet_ai)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+                (student_id, lesson_id, diem, tong_cau, phan_tram, chi_tiet, nhan_xet_ai, level)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
         """
-        row = await conn.fetchrow(sql, student_id, lesson_id, diem, tong_cau, phan_tram, json.dumps(chi_tiet), nhan_xet_ai)
+        row = await conn.fetchrow(sql, student_id, lesson_id, diem, tong_cau, phan_tram, json.dumps(chi_tiet), nhan_xet_ai, level)
     return dict(row) if row else None
 
 async def get_results_student(telegram_id: int, limit: int = 10) -> list:
@@ -183,21 +186,26 @@ async def save_session_with_checkpoints(telegram_id: int, so_buoi: int, checkpoi
             """, student_id, lesson_id)
             
             # Insert checkpoints
+            # question_id (FK → questions) luôn NULL vì bảng questions chưa có dữ liệu.
+            # question_num lưu số thứ tự câu (1..N) gửi từ HTML.
             if checkpoints:
                 vals = []
                 for cp in checkpoints:
+                    q_num = cp.get('question_num') or cp.get('question_id')  # fallback cho field cũ
                     vals.append((
-                        session_id, 
-                        cp.get('question_id'), 
-                        cp.get('attempt_number', 1), 
-                        str(cp.get('submitted_answer', '')), 
-                        bool(cp.get('is_correct', False)), 
+                        session_id,
+                        None,          # question_id FK = NULL
+                        q_num,         # question_num (số thứ tự câu thực tế)
+                        cp.get('attempt_number', 1),
+                        str(cp.get('submitted_answer', '')),
+                        bool(cp.get('is_correct', False)),
                         int(cp.get('time_spent_seconds', 0))
                     ))
-                
+
                 await conn.copy_records_to_table(
                     'checkpoints',
-                    columns=['session_id', 'question_id', 'attempt_number', 'submitted_answer', 'is_correct', 'time_spent_seconds'],
+                    columns=['session_id', 'question_id', 'question_num',
+                             'attempt_number', 'submitted_answer', 'is_correct', 'time_spent_seconds'],
                     records=vals
                 )
             
@@ -585,7 +593,15 @@ async def update_web_user_admin(user_id: int, updates: dict):
 async def delete_web_user(user_id: int):
     pool = get_pool()
     async with pool.acquire() as conn:
+        # Lấy telegram_id trước khi xóa để deactivate bảng students
+        row = await conn.fetchrow(
+            "SELECT telegram_id FROM web_users WHERE id=$1", user_id)
         await conn.execute("DELETE FROM web_users WHERE id=$1", user_id)
+        # Đồng bộ: deactivate student trong bảng bot nếu tồn tại
+        if row and row["telegram_id"]:
+            await conn.execute(
+                "UPDATE students SET active=FALSE WHERE telegram_id=$1",
+                row["telegram_id"])
 
 
 # ── Challenges ─────────────────────────────────────────────────────────

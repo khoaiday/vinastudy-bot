@@ -103,7 +103,16 @@ async def reject_user(user_id: int, body: RejectBody,
 
     # Thông báo qua Telegram nếu có telegram_id
     tg_id = user.get("telegram_id")
-    if tg_id and TELEGRAM_TOKEN:
+    tg_notified = False
+    tg_error    = ""
+
+    if not tg_id:
+        tg_error = "Không có Telegram ID trong hồ sơ"
+        logger.warning(f"TG reject notify skipped: user_id={user_id}, telegram_id=None")
+    elif not TELEGRAM_TOKEN:
+        tg_error = "TELEGRAM_TOKEN chưa được cấu hình"
+        logger.warning("TG reject notify skipped: TELEGRAM_TOKEN MISSING")
+    else:
         try:
             import httpx
             msg = (
@@ -116,22 +125,26 @@ async def reject_user(user_id: int, body: RejectBody,
             async with httpx.AsyncClient(timeout=8) as client:
                 resp = await client.post(
                     f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
-                    json={"chat_id": tg_id, "text": msg},  # plain text, no parse_mode
+                    json={"chat_id": tg_id, "text": msg},
                 )
             result = resp.json()
             if result.get("ok"):
+                tg_notified = True
                 logger.info(f"TG reject notify sent → chat_id={tg_id}")
             else:
+                tg_error = result.get("description", "Telegram API error")
                 logger.warning(f"TG reject notify API error → {result}")
         except Exception as e:
+            tg_error = str(e)
             logger.warning(f"TG reject notify exception → {e}")
-    else:
-        logger.warning(
-            f"TG reject notify skipped: telegram_id={tg_id!r}, "
-            f"token={'set' if TELEGRAM_TOKEN else 'MISSING'}"
-        )
 
-    return JSONResponse({"ok": True, "message": f"Đã từ chối {user['ho_ten']}"})
+    return JSONResponse({
+        "ok":          True,
+        "message":     f"Đã từ chối {user['ho_ten']}",
+        "tg_notified": tg_notified,
+        "tg_error":    tg_error,
+        "telegram_id": tg_id,
+    })
 
 
 # ── Students list ──────────────────────────────────────────────────────
