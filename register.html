@@ -91,19 +91,6 @@ body {
 .step { display: none; }
 .step.active { display: block; }
 
-/* ── Google button ── */
-.btn-google {
-  width: 100%; padding: 14px;
-  background: #fff; color: #333;
-  border: none; border-radius: 10px;
-  font-size: 1rem; font-weight: 600;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
-  transition: transform .15s, box-shadow .15s;
-  text-decoration: none;
-}
-.btn-google:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,255,255,.15); }
-.btn-google img { width: 22px; height: 22px; }
-
 /* ── Generic button ── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -263,40 +250,19 @@ body {
   <div class="logo">⚔️ CHIẾN BINH <span>TOÁN</span></div>
   <div class="subtitle">Hành trình chinh phục Toán Học bắt đầu từ đây</div>
 
-  <!-- Step indicator -->
+  <!-- Step indicator (3 bước: Thông tin → Ảnh → Chờ duyệt) -->
   <div class="steps">
-    <div class="step-dot active" id="dot1">1</div>
+    <div class="step-dot active" id="dot2">1</div>
     <div class="step-line"></div>
-    <div class="step-dot" id="dot2">2</div>
-    <div class="step-line"></div>
-    <div class="step-dot" id="dot3">3</div>
+    <div class="step-dot" id="dot3">2</div>
     <div class="step-line"></div>
     <div class="step-dot" id="dot4">✓</div>
   </div>
 
   <div class="card">
 
-    <!-- ── STEP 1: Login ── -->
-    <div class="step active" id="step1">
-      <div class="card-title">🔐 Bước 1: Đăng nhập</div>
-      <div class="card-sub">Dùng tài khoản Gmail để bắt đầu hành trình</div>
-
-      <a href="#" class="btn-google" id="btnGoogle" onclick="doGoogleLogin(event)">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-        Đăng nhập với Google
-      </a>
-
-      <div style="margin-top:24px; padding:16px; background:rgba(10,224,254,.05); border-radius:10px; border:1px solid var(--border);">
-        <p style="font-size:.78rem; line-height:1.7; color:rgba(200,230,255,.6);">
-          🛡️ Thông tin Gmail chỉ dùng để tạo tài khoản học sinh.<br>
-          🎮 Sau khi đăng ký xong, thầy sẽ duyệt tài khoản và thông báo qua Telegram.<br>
-          ⏰ Thường được duyệt trong vòng 24h.
-        </p>
-      </div>
-    </div>
-
     <!-- ── STEP 2: Name + Character ── -->
-    <div class="step" id="step2">
+    <div class="step active" id="step2">
       <div class="card-title">⚔️ Bước 2: Chọn nhân vật</div>
       <div class="card-sub">Đặt tên và chọn nhân vật sẽ đồng hành cùng em</div>
 
@@ -527,7 +493,7 @@ body {
 
 <script>
 // ── State ────────────────────────────────────────────────────────────────
-let token = '';
+let tgId = null;   // Telegram user ID (number)
 let currentChar = 'chien_binh';
 let currentGender = 'nam';
 let faceB64 = '';
@@ -601,22 +567,7 @@ function selectGender(gt) {
   document.getElementById('btnNu').style.cssText  = (gt === 'nu'  ? activeStyle : inactiveStyle) + ';flex:1;padding:10px;border-radius:10px;font-size:1.1rem;cursor:pointer;font-weight:700;transition:.2s';
 }
 
-// ── Google login với tg_id ───────────────────────────────────────────────
-function doGoogleLogin(e) {
-  e.preventDefault();
-  const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id
-             || localStorage.getItem('vsTgId') || '';
-  if (tgId) localStorage.setItem('vsTgId', String(tgId));
-  const path = tgId ? `/auth/google/login?tg_id=${tgId}` : '/auth/google/login';
-  const fullUrl = window.location.origin + path;
-  // Luôn redirect cùng tab để localStorage (vsTgId) không bị mất khi popup bị chặn.
-  // Telegram in-app browser (Chrome Custom Tab / SFSafariViewController) cho phép Google OAuth.
-  if (window.Telegram?.WebApp?.openLink) {
-    window.Telegram.WebApp.openLink(fullUrl);
-  } else {
-    window.location.href = fullUrl;
-  }
-}
+// (Google login đã được bỏ — dùng Telegram ID trực tiếp)
 
 // ── Starfield ────────────────────────────────────────────────────────────
 (function() {
@@ -660,45 +611,30 @@ function showToast(msg, ok=false) {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ── URL params (token from OAuth callback) ───────────────────────────────
+// ── Init: lấy tgId, kiểm tra trạng thái ────────────────────────────────
 (async function init() {
-  const params = new URLSearchParams(window.location.search);
-  const t      = params.get('token');
-  const step   = params.get('step');
-  const err    = params.get('error');
-  const tgId   = params.get('tg_id');
+  // Lấy tgId từ Telegram WebApp hoặc URL param
+  const tgIdWebApp = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+  const tgIdParam  = new URLSearchParams(window.location.search).get('tg_id');
+  tgId = tgIdWebApp || (tgIdParam ? parseInt(tgIdParam) : null);
 
-  if (err) { showToast('Đăng nhập thất bại, thử lại!'); return; }
-
-  // Lưu tg_id vào localStorage ngay khi có (từ link bot hoặc từ callback)
-  if (tgId) localStorage.setItem('vsTgId', tgId);
-
-  if (t) {
-    token = t;
-    localStorage.setItem('vsToken', t);
-    // Clean URL
-    window.history.replaceState({}, '', '/register');
-  } else {
-    token = localStorage.getItem('vsToken') || '';
+  if (!tgId) {
+    // Không mở từ Telegram → hiển thị thông báo thay vì redirect
+    showToast('Vui lòng mở trang này từ bot Telegram!');
+    return;
   }
 
-  if (!token) { goStep(1); return; }
-
-  // Verify token with server
+  // Kiểm tra trạng thái tài khoản
   try {
-    const res = await fetch('/auth/me', {
-      headers: { Authorization: 'Bearer ' + token }
-    });
-    if (!res.ok) { localStorage.removeItem('vsToken'); token = ''; goStep(1); return; }
+    const res  = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
     const user = await res.json();
 
-    if (step === 'done' || user.status === 'approved') {
+    if (user.status === 'approved') {
       document.getElementById('doneAvatar').src = user.avatar_final || '';
-      document.getElementById('doneName').textContent = user.ho_ten || user.email;
+      document.getElementById('doneName').textContent = user.ho_ten || '';
       goStep('done'); return;
     }
 
-    // Bị từ chối → hiện màn rejected với lý do
     if (user.status === 'rejected') {
       document.getElementById('rejectedReason').textContent =
         user.rejection_reason || 'Không có lý do cụ thể. Hãy liên hệ thầy qua Telegram.';
@@ -706,19 +642,18 @@ function showToast(msg, ok=false) {
       goStep('rejected'); return;
     }
 
-    if (user.ho_ten && user.avatar_final) {
-      // Already submitted, show pending + poll để phát hiện khi được duyệt
-      document.getElementById('pendingAvatar').src = user.avatar_final;
-      document.getElementById('pendingName').textContent = user.ho_ten;
+    if (user.status === 'pending') {
+      document.getElementById('pendingAvatar').src = user.avatar_final || '';
+      document.getElementById('pendingName').textContent = user.ho_ten || '';
       goStep(4);
       startPendingPoll();
       return;
     }
-    // Step 2: fill profile
-    if (user.ho_ten) document.getElementById('inputName').value = user.ho_ten;
+
+    // not_found → bắt đầu đăng ký từ step 2
     goStep(2);
   } catch(e) {
-    goStep(1);
+    goStep(2); // lỗi mạng → cho đăng ký bình thường
   }
 })();
 
@@ -755,17 +690,14 @@ function _tickCountdown(n) {
 }
 
 async function _checkApproval() {
-  if (!token) return;
+  if (!tgId) return;
   try {
-    const res = await fetch('/auth/me', {
-      headers: { Authorization: 'Bearer ' + token }
-    });
-    if (!res.ok) return;
+    const res  = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
     const user = await res.json();
     if (user.status === 'approved') {
       stopPendingPoll();
       document.getElementById('doneAvatar').src = user.avatar_final || '';
-      document.getElementById('doneName').textContent = user.ho_ten || user.email;
+      document.getElementById('doneName').textContent = user.ho_ten || '';
       goStep('done');
     }
   } catch(e) { /* lỗi mạng — thử lại lần sau */ }
@@ -790,8 +722,8 @@ function goStep(n) {
   const el = document.getElementById('step' + n);
   if (el) el.classList.add('active');
 
-  // Update dots
-  [1,2,3,4].forEach(i => {
+  // Update dots (dot2=step1, dot3=step2, dot4=step3 visually)
+  [2,3,4].forEach(i => {
     const d = document.getElementById('dot' + i);
     if (!d) return;
     d.classList.remove('active','done');
@@ -937,22 +869,21 @@ async function _generateAvatar() {
   document.getElementById('btnRetake').style.display = 'none';
 
   try {
-    const tgId = localStorage.getItem('vsTgId');
+    if (!tgId) { _onGenError('Không tìm thấy Telegram ID, mở lại từ bot!'); return; }
+
     const body = {
-      ho_ten: name, lop,
-      gioi_tinh: currentGender,
-      character_type: currentChar,
+      telegram_id:     tgId,
+      ho_ten:          name,
+      lop,
+      gioi_tinh:       currentGender,
+      character_type:  currentChar,
       avatar_face_b64: faceB64,
     };
-    if (tgId) body.telegram_id = parseInt(tgId);
 
-    const res = await fetch('/api/student/complete-profile', {
+    const res = await fetch('/api/student/tg-complete-profile', {
       method: 'POST',
       signal: _abortCtrl.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 

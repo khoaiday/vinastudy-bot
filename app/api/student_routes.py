@@ -228,12 +228,75 @@ async def tg_status(tg_id: int):
     if not user:
         return JSONResponse({"status": "not_found"})
     return JSONResponse({
-        "status":         user["status"],
-        "ho_ten":         user.get("ho_ten") or "",
-        "character_type": user.get("character_type") or "chien_binh",
-        "avatar_final":   user.get("avatar_final") or "",
-        "lop":            user.get("lop") or "3",
+        "status":           user["status"],
+        "ho_ten":           user.get("ho_ten") or "",
+        "character_type":   user.get("character_type") or "chien_binh",
+        "avatar_final":     user.get("avatar_final") or "",
+        "lop":              user.get("lop") or "3",
+        "rejection_reason": user.get("rejection_reason") or "",
     })
+
+
+class TgCompleteProfileBody(BaseModel):
+    telegram_id:     int
+    ho_ten:          str
+    lop:             str = "3"
+    gioi_tinh:       str = "nam"
+    character_type:  str = "chien_binh"
+    avatar_face_b64: str
+
+
+@router.post("/tg-complete-profile")
+async def tg_complete_profile(body: TgCompleteProfileBody):
+    """Đăng ký bằng Telegram ID — không cần Google OAuth."""
+    google_id = f"tg_{body.telegram_id}"
+    email     = f"tg_{body.telegram_id}@telegram"
+
+    # Upsert web_user (tạo mới hoặc giữ nguyên nếu đã có)
+    await crud.upsert_web_user(google_id, email, body.ho_ten)
+
+    # Gắn telegram_id
+    await crud.patch_web_user(google_id, {"telegram_id": body.telegram_id})
+
+    # Nếu trước đó bị từ chối → reset về pending
+    user = await crud.get_web_user_by_google_id(google_id)
+    if user and user.get("status") == "rejected":
+        await crud.update_web_user_admin(
+            user["id"], {"status": "pending", "rejection_reason": None}
+        )
+
+    # Tạo avatar
+    avatar_result = generate_avatar_pipeline(
+        body.avatar_face_b64, body.character_type, body.gioi_tinh)
+    if not avatar_result["ok"]:
+        raise HTTPException(500, f"Lỗi tạo avatar: {avatar_result['error']}")
+
+    await crud.update_web_user_profile(
+        google_id       = google_id,
+        ho_ten          = body.ho_ten,
+        lop             = body.lop,
+        character_type  = body.character_type,
+        avatar_original = body.avatar_face_b64,
+        avatar_cartoon  = avatar_result["cartoon_b64"],
+        avatar_final    = avatar_result["final_b64"],
+        gioi_tinh       = body.gioi_tinh,
+    )
+
+    # Thông báo Telegram
+    char_label = CHAR_LABEL.get(body.character_type, body.character_type)
+    await _send_tg(
+        body.telegram_id,
+        f"⏳ Đã gửi hồ sơ thành công!\n\n"
+        f"👤 Tên: {body.ho_ten}\n"
+        f"📚 Lớp: {body.lop}\n"
+        f"🎮 Nhân vật: {char_label}\n\n"
+        f"Thầy đang xem xét hồ sơ và sẽ thông báo khi được duyệt.\n"
+        f"Thường trong vòng 24 giờ 🚀",
+    )
+
+    return JSONResponse({"ok": True, "status": "pending",
+                         "cartoon_b64":  avatar_result["cartoon_b64"],
+                         "avatar_final": avatar_result["final_b64"]})
 
 
 @router.get("/profile")
