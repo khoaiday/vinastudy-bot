@@ -115,6 +115,43 @@ async def admin_page():
     return HTMLResponse("<h1>Admin dashboard chưa sẵn sàng</h1>", status_code=503)
 
 
+@app.get("/ping/replicate")
+async def ping_replicate():
+    """Kiểm tra Replicate API riêng — trả về lỗi chính xác nếu có."""
+    import os, io
+    from PIL import Image
+
+    token = os.getenv("REPLICATE_API_TOKEN", "")
+    if not token:
+        return {"ok": False, "step": "token", "error": "REPLICATE_API_TOKEN chưa set"}
+
+    # Kiểm tra import
+    try:
+        import replicate as _rep
+        rep_version = getattr(_rep, "__version__", "unknown")
+    except ImportError as e:
+        return {"ok": False, "step": "import", "error": str(e)}
+
+    # Gọi API thật với ảnh nhỏ
+    try:
+        os.environ["REPLICATE_API_TOKEN"] = token
+        img = Image.new("RGB", (128, 128), (200, 150, 100))
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=90)
+        buf.seek(0)
+
+        output = _rep.run(
+            "ptran1203/pytorch-animegan:7d44f1878a07e7b5a32af9727c1f6120cac04203d48f3f7b0432e28fa8e5c6b6",
+            input={"image": buf, "style": "BarbieFace"},
+        )
+        url = str(output[0]) if isinstance(output, list) else str(output)
+        return {"ok": True, "step": "done", "output_url": url,
+                "replicate_version": rep_version, "token_prefix": token[:8] + "..."}
+    except Exception as e:
+        return {"ok": False, "step": "api_call", "error": str(e),
+                "replicate_version": rep_version, "token_prefix": token[:8] + "..."}
+
+
 @app.get("/ping/avatar", response_class=HTMLResponse)
 async def ping_avatar(character: str = "chien_binh", gioi_tinh: str = "nam"):
     """Public test endpoint — kiểm tra pipeline avatar (không cần auth)."""
