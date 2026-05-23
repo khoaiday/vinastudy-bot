@@ -809,8 +809,8 @@ async function confirmReject() {
       if (data.tg_notified) {
         showToast('❌ Đã từ chối — 📲 Đã nhắn Telegram');
       } else {
-        const why = data.tg_error || 'Không có Telegram ID';
-        showToast(`❌ Đã từ chối — ⚠️ Chưa nhắn TG: ${why}`, 'warn');
+        showToast('❌ Đã từ chối (học sinh chưa nhận được TG)', 'warn');
+        if (data.tg_error) console.warn('TG notify error:', data.tg_error);
       }
       loadLeaderboard();
     } else {

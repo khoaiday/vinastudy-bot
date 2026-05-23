@@ -5,7 +5,12 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 
-from app.config import ADMIN_SECRET, TELEGRAM_TOKEN
+import os
+from app.config import ADMIN_SECRET, TELEGRAM_TOKEN as _TELEGRAM_TOKEN_CONFIG
+
+def _get_tg_token() -> str:
+    """Đọc TELEGRAM_TOKEN tại runtime để tránh lỗi khi Railway chưa inject env var lúc startup."""
+    return os.getenv("TELEGRAM_TOKEN") or _TELEGRAM_TOKEN_CONFIG or ""
 from app.database import crud
 
 logger = logging.getLogger(__name__)
@@ -69,12 +74,13 @@ async def approve_user(user_id: int, request: Request,
     await crud.sync_web_user_to_student(user_id)
 
     # Thông báo qua Telegram nếu có telegram_id
-    if user.get("telegram_id") and TELEGRAM_TOKEN:
+    tg_token = _get_tg_token()
+    if user.get("telegram_id") and tg_token:
         try:
             import httpx
             async with httpx.AsyncClient() as client:
                 await client.post(
-                    f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                    f"https://api.telegram.org/bot{tg_token}/sendMessage",
                     json={
                         "chat_id": user["telegram_id"],
                         "text": (
@@ -106,11 +112,12 @@ async def reject_user(user_id: int, body: RejectBody,
     tg_notified = False
     tg_error    = ""
 
+    tg_token = _get_tg_token()
     if not tg_id:
         tg_error = "Không có Telegram ID trong hồ sơ"
         logger.warning(f"TG reject notify skipped: user_id={user_id}, telegram_id=None")
-    elif not TELEGRAM_TOKEN:
-        tg_error = "TELEGRAM_TOKEN chưa được cấu hình"
+    elif not tg_token:
+        tg_error = "TELEGRAM_TOKEN chưa được cấu hình trong web service"
         logger.warning("TG reject notify skipped: TELEGRAM_TOKEN MISSING")
     else:
         try:
@@ -124,7 +131,7 @@ async def reject_user(user_id: int, body: RejectBody,
             )
             async with httpx.AsyncClient(timeout=8) as client:
                 resp = await client.post(
-                    f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                    f"https://api.telegram.org/bot{tg_token}/sendMessage",
                     json={"chat_id": tg_id, "text": msg},
                 )
             result = resp.json()
