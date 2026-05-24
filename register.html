@@ -151,28 +151,6 @@ body {
 .char-card.selected { border-color: var(--c); box-shadow: 0 0 18px color-mix(in srgb, var(--c) 40%, transparent); }
 .char-card .badge { background: var(--c); color: #000; }
 
-/* ── Camera / canvas ── */
-.cam-box {
-  width: 100%; aspect-ratio: 4/3; border-radius: 12px;
-  overflow: hidden; background: #000;
-  border: 1px solid var(--border); margin-bottom: 16px; position: relative;
-}
-.cam-box video, .cam-box canvas { width: 100%; height: 100%; object-fit: cover; }
-.cam-overlay {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  pointer-events: none;
-}
-.face-guide {
-  width: 55%; aspect-ratio: 1/1;
-  border: 3px dashed rgba(10,224,254,.6);
-  border-radius: 50%;
-  box-shadow: 0 0 0 9999px rgba(0,0,0,.35);
-}
-
-.cam-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-.cam-controls .btn { flex: 1; min-width: 120px; font-size: .85rem; padding: 10px; }
-
 /* ── Preview ── */
 .avatar-preview {
   display: flex; gap: 16px; margin-bottom: 20px;
@@ -190,15 +168,18 @@ body {
 }
 .preview-item p { font-size: .72rem; color: rgba(200,230,255,.5); margin-top: 6px; }
 
-/* ── Upload fallback ── */
+/* ── Upload area ── */
 .upload-area {
-  border: 2px dashed var(--border); border-radius: 12px;
-  padding: 28px; text-align: center; cursor: pointer;
-  transition: border-color .2s; margin-bottom: 12px;
+  border: 2px dashed var(--border); border-radius: 14px;
+  padding: 36px 24px; text-align: center; cursor: pointer;
+  transition: border-color .25s, background .25s; margin-bottom: 16px;
+  background: rgba(10,224,254,.03);
 }
-.upload-area:hover { border-color: var(--primary); }
+.upload-area:hover { border-color: var(--primary); background: rgba(10,224,254,.07); }
 .upload-area input { display: none; }
-.upload-area p { font-size: .85rem; color: rgba(200,230,255,.5); margin-top: 8px; }
+.upload-area .upload-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+.upload-area p { font-size: .88rem; color: rgba(200,230,255,.6); margin-top: 4px; line-height: 1.5; }
+.upload-area small { font-size: .75rem; color: rgba(200,230,255,.35); }
 
 /* ── Spinner ── */
 .spinner {
@@ -332,36 +313,24 @@ body {
 
     <!-- ── STEP 3: Photo ── -->
     <div class="step" id="step3">
-      <div class="card-title">📸 Bước 3: Ảnh đại diện</div>
-      <div class="card-sub">Chụp ảnh mặt để tạo nhân vật hoạt hình của em</div>
+      <div class="card-title">🖼️ Bước 3: Ảnh đại diện</div>
+      <div class="card-sub">Tải ảnh mặt của em lên để tạo nhân vật hoạt hình</div>
 
-      <!-- Camera -->
-      <div class="cam-box" id="camBox">
-        <video id="video" autoplay playsinline muted></video>
-        <div class="cam-overlay"><div class="face-guide"></div></div>
-      </div>
+      <!-- canvas dùng để crop ảnh (ẩn) -->
       <canvas id="snapCanvas" style="display:none"></canvas>
 
-      <div class="cam-controls">
-        <button class="btn btn-primary" id="btnCamera" onclick="startCamera()">📷 Mở camera</button>
-        <button class="btn btn-secondary" id="btnSnap" onclick="snapPhoto()" style="display:none">📸 Chụp ảnh</button>
-        <button class="btn" id="btnRetake" onclick="retakePhoto()"
-          style="display:none; background:rgba(255,0,85,.15); color:var(--danger); border:1px solid var(--danger)">
-          🔄 Chụp lại
-        </button>
-      </div>
-
-      <!-- Upload fallback -->
+      <!-- Upload -->
       <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
         <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(event)">
-        <div style="font-size:2rem">📁</div>
-        <p>Hoặc tải ảnh từ thư viện<br><small>(chụp ảnh mặt rõ, nền sáng)</small></p>
+        <span class="upload-icon">📷</span>
+        <p><strong style="color:var(--primary)">Chọn ảnh từ thư viện</strong></p>
+        <p><small>Ảnh chụp mặt rõ, nền sáng — JPEG / PNG</small></p>
       </div>
 
-      <!-- Preview — 3 panels: face / cartoon / character avatar -->
+      <!-- Preview: ảnh gốc + avatar nhân vật -->
       <div class="avatar-preview" id="previewBox" style="display:none">
 
-        <!-- Ảnh gốc -->
+        <!-- Ảnh gốc (thu nhỏ) -->
         <div class="preview-item">
           <img id="previewFace" src="" alt="Ảnh gốc">
           <p>Ảnh gốc</p>
@@ -381,14 +350,23 @@ body {
 
       </div>
 
-      <!-- Thông báo tiến trình tạo avatar -->
+      <!-- Tiến trình tạo avatar -->
       <div id="genStatus"
            style="display:none;text-align:center;font-size:.85rem;
                   color:var(--primary);margin:10px 0 4px;
                   min-height:1.5em;padding:4px 0;letter-spacing:.3px;font-weight:600"></div>
 
+      <!-- Tải ảnh khác (hiện sau khi đã chọn ảnh) -->
+      <button class="btn btn-full" id="btnRetake" onclick="retakePhoto()"
+        style="display:none; margin-top:8px;
+               background:rgba(10,224,254,.08); color:var(--primary);
+               border:1px solid rgba(10,224,254,.35); font-size:.85rem">
+        🔄 Chọn ảnh khác
+      </button>
+
       <button class="btn btn-full" id="btnBack" onclick="goStep(2)"
-        style="margin-top:12px; background:transparent; border:1px solid var(--border); color:rgba(200,230,255,.5); font-size:.85rem">
+        style="margin-top:10px; background:transparent; border:1px solid var(--border);
+               color:rgba(200,230,255,.5); font-size:.85rem">
         ← Quay lại
       </button>
     </div>
@@ -474,7 +452,6 @@ let tgId = null;   // Telegram user ID (number)
 let currentChar = 'chien_binh';
 let currentGender = 'nam';
 let faceB64 = '';
-let stream = null;
 
 // ── Character emoji map ────────────────────────────────────────────────
 const CHAR_EMOJI = { chien_binh: '⚔️', phu_thuy: '🔮', xa_thu: '🏹', hiep_si: '🛡️' };
@@ -482,21 +459,17 @@ function charEmoji(c) { return CHAR_EMOJI[c] || '⚔️'; }
 
 // ── Avatar state (idle | loading | done) ───────────────────────────────
 function _setAvState(which, state, src) {
-  const stateId   = which === 'cartoon' ? 'cartoonState' : 'finalState';
-  const imgId     = which === 'cartoon' ? 'cartoonImg'   : 'previewFinal';
-  const isCartoon = which === 'cartoon';
-  const ph  = document.getElementById(stateId);
-  const img = document.getElementById(imgId);
+  const ph  = document.getElementById('finalState');
+  const img = document.getElementById('previewFinal');
   if (!ph || !img) return;
 
   if (state === 'idle') {
-    ph.innerHTML = isCartoon ? '🎨' : charEmoji(currentChar);
+    ph.innerHTML = charEmoji(currentChar);
     ph.style.display = 'flex';
     img.style.display = 'none';
-    img.removeAttribute('src');          // tránh iOS Safari hiện alt text
+    img.removeAttribute('src');
   } else if (state === 'loading') {
-    const cls = isCartoon ? 'av-spin mg' : 'av-spin';
-    ph.innerHTML = `<div class="${cls}"></div>`;
+    ph.innerHTML = `<div class="av-spin"></div>`;
     ph.style.display = 'flex';
     img.style.display = 'none';
     img.removeAttribute('src');
@@ -688,18 +661,17 @@ function startPendingPoll() {
 
 // ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
 function reRegister() {
-  resetStep3UI(); // dọn sạch step3 (ảnh, camera, upload)
-  goStep(2);      // về bước điền tên / chọn nhân vật
+  resetStep3UI();
+  goStep(2);
 }
 
 // ── Step navigation ──────────────────────────────────────────────────────
 function goStep(n) {
-  if (n !== 4) stopPendingPoll(); // dừng poll khi rời step4
+  if (n !== 4) stopPendingPoll();
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('step' + n);
   if (el) el.classList.add('active');
 
-  // Update dots (dot2=step1, dot3=step2, dot4=step3 visually)
   [2,3,4].forEach(i => {
     const d = document.getElementById('dot' + i);
     if (!d) return;
@@ -710,8 +682,7 @@ function goStep(n) {
     }
   });
 
-  if (n === 3) resetStep3UI(); // reset hoàn toàn khi vào step3
-  else stopCamera();           // chỉ dừng stream khi rời step3
+  if (n === 3) resetStep3UI();
 }
 
 // ── Character selection ──────────────────────────────────────────────────
@@ -726,41 +697,6 @@ function goStep3() {
   const name = document.getElementById('inputName').value.trim();
   if (!name) { showToast('Em chưa nhập tên!'); return; }
   goStep(3);
-}
-
-// ── Camera ──────────────────────────────────────────────────────────────
-async function startCamera() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-    const video = document.getElementById('video');
-    video.srcObject = stream;
-    video.style.display = 'block';
-    document.getElementById('camBox').querySelector('canvas') &&
-      (document.getElementById('camBox').querySelector('canvas').style.display = 'none');
-    document.getElementById('btnCamera').style.display = 'none';
-    document.getElementById('btnSnap').style.display = '';
-    document.getElementById('uploadArea').style.display = 'none';
-    document.getElementById('previewBox').style.display = 'none';
-  } catch(e) {
-    showToast('Không mở được camera, hãy tải ảnh từ thư viện!');
-  }
-}
-
-function snapPhoto() {
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('snapCanvas');
-  const SIZE = 512;
-  canvas.width = canvas.height = SIZE;
-  const ctx = canvas.getContext('2d');
-
-  // Crop center square from video
-  const vw = video.videoWidth, vh = video.videoHeight;
-  const side = Math.min(vw, vh);
-  const sx = (vw - side) / 2, sy = (vh - side) / 2;
-  ctx.drawImage(video, sx, sy, side, side, 0, 0, SIZE, SIZE);
-
-  faceB64 = canvas.toDataURL('image/jpeg', 0.88);
-  showPhotoPreview();
 }
 
 function uploadFile(e) {
@@ -787,12 +723,8 @@ function uploadFile(e) {
 }
 
 function showPhotoPreview() {
-  stopCamera();
-  document.getElementById('video').style.display    = 'none';
-  document.getElementById('previewFace').src        = faceB64;
-  document.getElementById('btnCamera').style.display = 'none'; // ẩn trong lúc tạo
-  document.getElementById('btnSnap').style.display   = 'none';
-  document.getElementById('btnRetake').style.display = '';     // vẫn cho Chụp lại
+  document.getElementById('previewFace').src         = faceB64;
+  document.getElementById('btnRetake').style.display = 'none';  // ẩn trong lúc tạo
   document.getElementById('uploadArea').style.display = 'none';
   document.getElementById('previewBox').style.display = 'flex';
   // Tự động bắt đầu tạo avatar ngay
@@ -800,28 +732,20 @@ function showPhotoPreview() {
 }
 
 function resetStep3UI() {
-  /* Đặt lại toàn bộ giao diện step 3 về trạng thái ban đầu.
-     Gọi khi: vào step3, bấm Chụp lại, bấm Quay lại từ step3. */
   if (_abortCtrl) { _abortCtrl.abort(); _abortCtrl = null; }
-  stopCamera();
   stopGenMsg();
   faceB64 = '';
-  _setAvState('cartoon', 'idle');
+  // Reset file input để có thể chọn lại cùng file
+  const fi = document.getElementById('fileInput');
+  if (fi) fi.value = '';
   _setAvState('final', 'idle');
-  document.getElementById('video').style.display      = 'none';
-  document.getElementById('btnCamera').style.display  = '';
-  document.getElementById('btnSnap').style.display    = 'none';
-  document.getElementById('btnRetake').style.display  = 'none';
   document.getElementById('uploadArea').style.display = '';
   document.getElementById('previewBox').style.display = 'none';
+  document.getElementById('btnRetake').style.display  = 'none';
 }
 
 function retakePhoto() {
-  resetStep3UI();   // về trạng thái ban đầu để chụp lại hoặc upload
-}
-
-function stopCamera() {
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  resetStep3UI();
 }
 
 // ── Auto-generate avatar (gọi tự động khi ảnh được chọn) ─────────────────
@@ -838,12 +762,8 @@ async function _generateAvatar() {
   _abortCtrl = new AbortController();
 
   // Spinner + cycling messages
-  _setAvState('cartoon', 'loading');
   _setAvState('final', 'loading');
   startGenMsg();
-
-  // Ẩn nút Chụp lại trong lúc đang tạo để tránh nhầm lẫn
-  document.getElementById('btnRetake').style.display = 'none';
 
   try {
     if (!tgId) { _onGenError('Không tìm thấy Telegram ID, mở lại từ bot!'); return; }
@@ -872,16 +792,9 @@ async function _generateAvatar() {
     }
 
     // ── Hiển thị kết quả ──────────────────────────────────────────────
-    _setAvState('cartoon', 'done', data.cartoon_b64 || '');
-    _setAvState('final',   'done', data.avatar_final || faceB64);
+    _setAvState('final', 'done', data.avatar_final || faceB64);
     stopGenMsg('✅ Avatar đã tạo xong!');
 
-    // Chuẩn bị dữ liệu step 4
-    if (data.cartoon_b64) {
-      const ct = document.getElementById('pendingCartoon');
-      ct.src = data.cartoon_b64;
-      ct.style.display = '';
-    }
     document.getElementById('pendingAvatar').src = data.avatar_final || faceB64;
     document.getElementById('pendingName').textContent = name;
 
@@ -889,17 +802,14 @@ async function _generateAvatar() {
     setTimeout(() => { goStep(4); startPendingPoll(); }, 1800);
 
   } catch(e) {
-    if (e.name === 'AbortError') return; // người dùng chụp lại → bỏ qua
+    if (e.name === 'AbortError') return; // người dùng chọn ảnh khác → bỏ qua
     _onGenError('Lỗi kết nối, thử lại!');
   }
 }
 
 function _onGenError(msg) {
   stopGenMsg();
-  _setAvState('cartoon', 'idle');
   _setAvState('final', 'idle');
-  // Cho chụp lại / upload lại
-  document.getElementById('btnCamera').style.display  = '';
   document.getElementById('uploadArea').style.display = '';
   document.getElementById('btnRetake').style.display  = '';
   showToast(msg);
