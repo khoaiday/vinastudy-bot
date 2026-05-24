@@ -63,13 +63,11 @@ _PM_NEGATIVE = (
 )
 
 
-def _cartoon_photomaker(img: Image.Image, character_type: str = "chien_binh",
-                         gioi_tinh: str = "nam", timeout_sec: int = 65) -> Image.Image:
+def _faceswap_replicate(img: Image.Image, character_type: str = "chien_binh",
+                         gioi_tinh: str = "nam", timeout_sec: int = 40) -> Image.Image:
     """
-    PhotoMaker Style (tencentarc/photomaker-style) — Anime portrait.
-    Dùng async prediction + polling để kiểm soát timeout,
-    tránh block request quá giới hạn Railway (~100s).
-    Timeout 65s → worst-case tổng với AnimeGAN2 fallback ≈ 90s < 100s.
+    FaceSwap via Replicate (lucataco/faceswap).
+    Nhanh hơn, chính xác hơn PhotoMaker, giữ nguyên bộ giáp 100%.
     """
     import replicate as _rep
     import httpx
@@ -81,38 +79,34 @@ def _cartoon_photomaker(img: Image.Image, character_type: str = "chien_binh",
         raise ValueError("REPLICATE_API_TOKEN chưa được cấu hình")
     os.environ["REPLICATE_API_TOKEN"] = token
 
-    # Encode ảnh thành data URI
+    # Determine base image path
+    gender_suffix = "nu" if gioi_tinh.lower() in ("nu", "nữ", "female") else "nam"
+    base_image_path = os.path.join("app", "assets", "base_avatars", f"{character_type}_{gender_suffix}.jpg")
+    
+    # Fallback to chien_binh_nam if the specific base image doesn't exist yet
+    if not os.path.exists(base_image_path):
+        logger.warning(f"Base avatar {base_image_path} not found. Fallback to chien_binh_nam.jpg")
+        base_image_path = os.path.join("app", "assets", "base_avatars", "chien_binh_nam.jpg")
+        if not os.path.exists(base_image_path):
+             raise FileNotFoundError(f"Missing base template: {base_image_path}")
+
+    # Encode ảnh selfie của user
     img_sq = img.convert("RGB").resize((512, 512), Image.LANCZOS)
     buf = io.BytesIO()
     img_sq.save(buf, format="JPEG", quality=95)
     buf.seek(0)
     data_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
-    # Prompt: theo phương án "Math Warrior Original Expression Demo" với chi tiết 4 class
-    char_class, char_desc = _PM_PROMPTS.get(character_type, _PM_PROMPTS["chien_binh"])
-    gender_str = "10-year-old girl" if gioi_tinh.lower() in ("nu", "nữ", "female") else "10-year-old boy"
-    
-    prompt = (f"A close-up manga panel portrait of a {gender_str} {char_class} img, "
-              f"Vietnamese Asian facial features, upper body shot, head and shoulders, "
-              f"{char_desc}. "
-              "Vibrant bright colors, clean vector lines, flat shading, cel-shaded, "
-              "anime illustration style, plain solid white background, high quality, masterpiece")
-
     # Tạo prediction không chặn (non-blocking)
+    # Model lucataco/faceswap (9a4298548422074c3f57258c5d544497314ae4112df80d116f0d2109e843d20d)
     prediction = _rep.predictions.create(
-        version="ddfc2b08d209f9fa8c1eca692712918bd449f695dabb4a958da31802a9570fe4",
+        version="9a4298548422074c3f57258c5d544497314ae4112df80d116f0d2109e843d20d",
         input={
-            "input_image":          data_uri,
-            "prompt":               prompt,
-            "negative_prompt":      _PM_NEGATIVE,
-            "style_name":           "Comic book",
-            "style_strength_ratio": 25,
-            "num_steps":            50,
-            "guidance_scale":       5.0,
-            "num_outputs":          1,
+            "target_image": open(base_image_path, "rb"),
+            "swap_image": data_uri,
         },
     )
-    logger.info(f"[avatar] PhotoMaker prediction created id={prediction.id}")
+    logger.info(f"[avatar] FaceSwap prediction created id={prediction.id}")
 
     # Poll cho đến khi xong hoặc hết timeout
     t0 = time.time()
@@ -123,22 +117,21 @@ def _cartoon_photomaker(img: Image.Image, character_type: str = "chien_binh",
             out = prediction.output
             url = str(out[0]) if isinstance(out, list) else str(out)
             if not url.startswith("http"):
-                raise ValueError(f"PhotoMaker output không phải URL: {url!r}")
+                raise ValueError(f"FaceSwap output không phải URL: {url!r}")
             resp = httpx.get(url, timeout=30)
             resp.raise_for_status()
             result = Image.open(io.BytesIO(resp.content)).convert("RGB")
-            logger.info(f"[avatar] PhotoMaker OK ({time.time()-t0:.1f}s): {result.size}")
+            logger.info(f"[avatar] FaceSwap OK ({time.time()-t0:.1f}s): {result.size}")
             return result
         if status in ("failed", "canceled"):
-            raise RuntimeError(f"PhotoMaker prediction {status}: {prediction.error}")
-        time.sleep(3)
+            raise RuntimeError(f"FaceSwap prediction {status}: {prediction.error}")
+        time.sleep(2)
 
-    # Hết timeout → huỷ prediction, raise để fallback AnimeGAN2
     try:
         prediction.cancel()
     except Exception:
         pass
-    raise TimeoutError(f"[avatar] PhotoMaker timeout sau {timeout_sec}s → fallback AnimeGAN2")
+    raise TimeoutError(f"[avatar] FaceSwap timeout sau {timeout_sec}s")
 
 
 # ── AnimeGAN2 (fallback) ─────────────────────────────────────────────────────
@@ -193,22 +186,21 @@ def apply_cartoon_filter(img: Image.Image,
                           gioi_tinh: str = "nam") -> Image.Image:
     """
     Thứ tự ưu tiên:
-      1. PhotoMaker Style (tencentarc/photomaker-style)  (~30-65s, timeout 65s)
-      2. AnimeGAN2 Hayao                                 (~15-25s)
-      3. PIL enhance                                     (instant, always works)
-    Worst-case tổng ≈ 90s — dưới giới hạn 100s của Railway.
+      1. FaceSwap via Replicate (lucataco/faceswap)
+      2. AnimeGAN2 Hayao (fallback)
+      3. PIL enhance (final fallback)
     """
     import os
     token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
     if token:
-        # 1️⃣ PhotoMaker Style
+        # 1️⃣ FaceSwap
         try:
-            result = _cartoon_photomaker(img, character_type=character_type,
-                                         gioi_tinh=gioi_tinh, timeout_sec=65)
-            logger.info("✅ PhotoMaker thành công")
+            result = _faceswap_replicate(img, character_type=character_type,
+                                         gioi_tinh=gioi_tinh, timeout_sec=40)
+            logger.info("✅ FaceSwap thành công")
             return result
         except Exception as e:
-            logger.warning(f"⚠️ PhotoMaker thất bại → AnimeGAN2: {e}")
+            logger.warning(f"⚠️ FaceSwap thất bại → AnimeGAN2: {e}")
 
         # 2️⃣ AnimeGAN2 Hayao
         try:
