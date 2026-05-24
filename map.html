@@ -466,12 +466,29 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
 
 // ── Auth Gate ─────────────────────────────────────────────────────────────
 (async function authGate() {
-  const tgId = tg?.initDataUnsafe?.user?.id;
-  if (!tgId) { window.location.replace('/register'); return; } // Không có Telegram context → chuyển về đăng ký
+  // Fallback: lấy tgId từ URL param nếu WebApp context chưa sẵn sàng
+  const tgIdWA  = tg?.initDataUnsafe?.user?.id;
+  const tgIdURL = new URLSearchParams(window.location.search).get('tg_id');
+  const tgId    = tgIdWA || (tgIdURL ? parseInt(tgIdURL) : null);
+
+  if (!tgId) {
+    window.location.replace('/register');
+    return;
+  }
+
+  async function fetchStatus() {
+    const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
 
   try {
-    const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
-    const data = await res.json();
+    let data;
+    try { data = await fetchStatus(); }
+    catch(e1) {
+      await new Promise(r => setTimeout(r, 1500));
+      data = await fetchStatus();
+    }
 
     if (data.status === 'approved') {
       // Lưu tgId vào localStorage → profile.html dùng làm fallback khi mở trong iframe
@@ -496,12 +513,12 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
       return;
     }
 
-    // Chưa đăng ký → về trang đăng ký
+    // Chưa đăng ký → về trang đăng ký (kèm tg_id)
     window.location.replace(`/register?tg_id=${tgId}`);
 
   } catch(e) {
     console.warn('Auth gate error:', e);
-    // Fail open
+    // Fail open — không chặn học sinh đã đăng ký
   }
 })();
 // ─────────────────────────────────────────────────────────────────────────

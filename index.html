@@ -212,7 +212,10 @@ let vsUser = null;
 
 // ── Auth Gate ─────────────────────────────────────────────────────────────
 (async function authGate() {
-  const tgId = tg?.initDataUnsafe?.user?.id;
+  // Fallback: nếu WebApp context chưa ready, lấy tgId từ URL param
+  const tgIdWA  = tg?.initDataUnsafe?.user?.id;
+  const tgIdURL = new URLSearchParams(window.location.search).get('tg_id');
+  const tgId    = tgIdWA || (tgIdURL ? parseInt(tgIdURL) : null);
 
   if (!tgId) {
     // Không mở từ Telegram → chuyển về trang đăng ký
@@ -220,9 +223,22 @@ let vsUser = null;
     return;
   }
 
-  try {
+  // Hàm gọi API với retry 1 lần (giảm lỗi transient)
+  async function fetchStatus() {
     const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
-    const data = await res.json();
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  try {
+    let data;
+    try {
+      data = await fetchStatus();
+    } catch(e1) {
+      // Retry sau 1.5s nếu lần đầu lỗi
+      await new Promise(r => setTimeout(r, 1500));
+      data = await fetchStatus();
+    }
 
     if (data.status === 'approved') {
       vsUser = data;
@@ -245,11 +261,11 @@ let vsUser = null;
       return;
     }
 
-    // not_found / rejected → về trang đăng ký
+    // not_found / rejected → về trang đăng ký (kèm tg_id để register có thể dùng)
     window.location.replace(`/register?tg_id=${tgId}`);
 
   } catch(e) {
-    // Lỗi mạng → cho qua (fail open)
+    // Lỗi mạng / server → fail open (không chặn học sinh đã đăng ký)
     console.warn('Auth gate error:', e);
     document.getElementById('authOverlay').style.display = 'none';
     document.getElementById('mainApp').style.display = '';
@@ -277,13 +293,16 @@ function goToScene(n) {
 
 function goToMap() {
   // Đánh dấu đã chơi để lần sau skip intro
-  const tgId = tg?.initDataUnsafe?.user?.id;
+  const tgIdWA  = tg?.initDataUnsafe?.user?.id;
+  const tgIdURL = new URLSearchParams(window.location.search).get('tg_id');
+  const tgId    = tgIdWA || (tgIdURL ? parseInt(tgIdURL) : null);
   if (tgId) localStorage.setItem('vsPlayed_' + tgId, '1');
 
   // Truyền dữ liệu thật qua sessionStorage cho map.html dùng
   if (vsUser) sessionStorage.setItem('vsUser', JSON.stringify(vsUser));
 
-  window.location.href = 'map.html';
+  // Kèm tg_id vào URL để map.html có fallback khi WebApp context chưa ready
+  window.location.href = tgId ? `map.html?tg_id=${tgId}` : 'map.html';
 }
 </script>
 </body>

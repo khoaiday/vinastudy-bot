@@ -437,7 +437,7 @@ body {
             <p id="doneName" style="color:var(--success); font-weight:700; font-size:.9rem; margin-top:8px"></p>
           </div>
         </div>
-        <button class="btn btn-primary btn-full" style="margin-top:24px" onclick="window.location.replace('/game')">
+        <button class="btn btn-primary btn-full" style="margin-top:24px" onclick="goToGame()">
           🎮 Vào game ngay!
         </button>
       </div>
@@ -583,7 +583,7 @@ function showToast(msg, ok=false) {
 
     if (user.status === 'approved') {
       // Đã được duyệt → redirect thẳng vào game, không dừng ở register
-      window.location.replace('/game');
+      goToGame();
       return;
     }
 
@@ -650,9 +650,14 @@ async function _checkApproval() {
     if (user.status === 'approved') {
       stopPendingPoll();
       // Redirect thẳng vào game — không dừng ở register
-      window.location.replace('/game');
+      goToGame();
     }
   } catch(e) { /* lỗi mạng — thử lại lần sau */ }
+}
+
+// ── Navigate to game (giữ tg_id trong URL để index.html dùng được) ──────
+function goToGame() {
+  window.location.replace(tgId ? `/game?tg_id=${tgId}` : '/game');
 }
 
 function startPendingPoll() {
