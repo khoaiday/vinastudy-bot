@@ -175,7 +175,8 @@ async def ping_avatar(character: str = "chien_binh", gioi_tinh: str = "nam"):
 
     token   = os.getenv("REPLICATE_API_TOKEN", "")
     t0      = time.time()
-    result  = generate_avatar_pipeline(face_b64, character, gioi_tinh)
+    from fastapi.concurrency import run_in_threadpool
+    result  = await run_in_threadpool(generate_avatar_pipeline, face_b64, character, gioi_tinh)
     elapsed = round(time.time() - t0, 2)
 
     if not result["ok"]:

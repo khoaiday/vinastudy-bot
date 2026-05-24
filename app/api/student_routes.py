@@ -265,9 +265,11 @@ async def tg_complete_profile(body: TgCompleteProfileBody):
             user["id"], {"status": "pending", "rejection_reason": None}
         )
 
-    # Tạo avatar
-    avatar_result = generate_avatar_pipeline(
-        body.avatar_face_b64, body.character_type, body.gioi_tinh)
+    # Tạo avatar (chạy trong threadpool để không block event loop)
+    from fastapi.concurrency import run_in_threadpool
+    avatar_result = await run_in_threadpool(
+        generate_avatar_pipeline, body.avatar_face_b64, body.character_type, body.gioi_tinh
+    )
     if not avatar_result["ok"]:
         raise HTTPException(500, f"Lỗi tạo avatar: {avatar_result['error']}")
 
