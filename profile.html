@@ -563,10 +563,9 @@ function resolveTgId() {
       if (data.status === 'pending') {
         showError(`⏳ Hồ sơ đang chờ thầy duyệt!<br><br>
           <span style="color:rgba(200,230,255,.6);font-size:.85rem">Thầy sẽ thông báo qua Telegram khi được duyệt.</span><br><br>
-          <a href="https://t.me/chienbiantoanbot" target="_blank"
-             style="display:inline-block;margin-top:8px;padding:10px 22px;background:rgba(10,224,254,.12);border:1px solid #0ae0fe;color:#0ae0fe;border-radius:10px;font-weight:700;text-decoration:none;font-size:.85rem;font-family:'Rajdhani',sans-serif;letter-spacing:1px">
-            🤖 Mở Telegram Bot
-          </a>`);
+          <button onclick="window.close()" 
+             style="display:inline-block;padding:12px 28px;background:var(--primary);border:none;color:#000;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;box-shadow:0 4px 15px rgba(10,224,254,0.3)">         🤖 Mở Telegram Bot
+          </button>`);
       } else {
         showError('❌ Chưa đăng ký. Hãy đăng ký trước!');
       }
