@@ -41,10 +41,22 @@ def _load_font(size: int = 13):
 # Token "img" bắt buộc — PhotoMaker dùng nó để neo danh tính khuôn mặt.
 
 _PM_PROMPTS = {
-    "chien_binh": "glowing bright cyan futuristic armor, futuristic energy sword",
-    "phu_thuy": "glowing magical purple robes, digital math staff",
-    "xa_thu": "glowing bright green ranger armor, laser bow and arrow",
-    "hiep_si": "glowing golden heavy plate armor, geometry energy shield",
+    "chien_binh": (
+        "warrior",
+        "wearing futuristic deep navy blue sci-fi armor with glowing neon cyan (#0ae0fe) accents and geometric math symbols, holding a glowing neon cyan energy sword"
+    ),
+    "phu_thuy": (
+        "mage",
+        "wearing a stylish dark purple sci-fi cloak with glowing neon magenta (#ea0eed) accents and floating holographic math equations, holding a glowing magenta techno-magic staff"
+    ),
+    "xa_thu": (
+        "archer",
+        "wearing sleek dark green tactical sci-fi gear with glowing neon green (#4eff9f) accents, holding a futuristic glowing neon green energy bow"
+    ),
+    "hiep_si": (
+        "knight",
+        "wearing heavy dark brown mecha sci-fi armor with glowing bright gold (#ffd700) accents, holding a massive glowing gold energy shield with math patterns"
+    ),
 }
 _PM_NEGATIVE = (
     "realistic, photorealistic, 3d, photography, cinematic, real person, photograph, dark, gloomy, sad"
@@ -76,14 +88,15 @@ def _cartoon_photomaker(img: Image.Image, character_type: str = "chien_binh",
     buf.seek(0)
     data_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
-    # Prompt: theo phương án "Math Warrior Original Expression Demo"
-    char_desc = _PM_PROMPTS.get(character_type, _PM_PROMPTS["chien_binh"])
-    gender_str = "10 year old girl" if gioi_tinh.lower() in ("nu", "nữ", "female") else "10 year old boy"
-    prompt = (f"A close-up manga panel portrait of a {gender_str} math warrior img, "
-              f"upper body shot, head and shoulders, {char_desc}, "
-              "bright sunny space galaxy background with colorful floating math equations, "
-              "2D comic book art, anime manga style, pencil sketch strokes, cel shaded, "
-              "vibrant bright pastel colors, halftone patterns")
+    # Prompt: theo phương án "Math Warrior Original Expression Demo" với chi tiết 4 class
+    char_class, char_desc = _PM_PROMPTS.get(character_type, _PM_PROMPTS["chien_binh"])
+    gender_str = "10-year-old girl" if gioi_tinh.lower() in ("nu", "nữ", "female") else "10-year-old boy"
+    
+    prompt = (f"A close-up manga panel portrait of a {gender_str} {char_class} img, "
+              f"Vietnamese Asian facial features, upper body shot, head and shoulders, "
+              f"{char_desc}. "
+              "Vibrant bright colors, clean vector lines, flat shading, cel-shaded, "
+              "anime illustration style, plain solid white background, high quality, masterpiece")
 
     # Tạo prediction không chặn (non-blocking)
     prediction = _rep.predictions.create(
