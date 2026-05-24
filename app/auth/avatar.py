@@ -1,4 +1,4 @@
-"""Avatar generation: AnimeGAN2 face filter + custom character card."""
+"""Avatar generation: PhotoMaker → AnimeGAN2 → PIL fallback."""
 import io
 import base64
 import logging
@@ -37,10 +37,121 @@ def _load_font(size: int = 13):
     return ImageFont.load_default()
 
 
-# ── AI face filter (AnimeGAN2) ───────────────────────────────────────────────
+# ── PhotoMaker prompts (công thức: "[mô tả] img, [style], [chất lượng]") ──────
+# Token "img" bắt buộc — PhotoMaker dùng nó để neo danh tính khuôn mặt.
+
+_PM_PROMPTS = {
+    "chien_binh": (
+        "anime manga portrait of a young math warrior img, "
+        "glowing cyan energy armor, energy sword, floating math equations and numbers, "
+        "fierce heroic expression, dynamic lighting, clean line art, vibrant colors, "
+        "detailed anime eyes, high quality illustration"
+    ),
+    "phu_thuy": (
+        "anime manga portrait of a young math mage img, "
+        "glowing purple magical robes, crystal staff with math symbols, "
+        "floating geometric shapes and numbers, mysterious expression, "
+        "magical sparkles, clean line art, vibrant colors, high quality illustration"
+    ),
+    "xa_thu": (
+        "anime manga portrait of a young math ranger img, "
+        "glowing green archer armor, energy bow and arrow, "
+        "floating math equations, focused determined expression, "
+        "forest hints background, clean line art, vibrant colors, "
+        "detailed anime eyes, high quality illustration"
+    ),
+    "hiep_si": (
+        "anime manga portrait of a young math knight img, "
+        "glowing golden plate armor, shield with math symbols, "
+        "brave noble expression, royal golden light, "
+        "floating numbers and equations, clean line art, vibrant colors, "
+        "high quality illustration"
+    ),
+}
+_PM_NEGATIVE = (
+    "ugly, deformed, blurry, low quality, bad anatomy, extra fingers, "
+    "old, elderly, wrinkles, nsfw, watermark, realistic photo, photorealistic, "
+    "mutation, poorly drawn face, out of frame"
+)
+
+
+def _cartoon_photomaker(img: Image.Image, character_type: str = "chien_binh",
+                         gioi_tinh: str = "nam", timeout_sec: int = 65) -> Image.Image:
+    """
+    PhotoMaker Style (tencentarc/photomaker-style) — Anime portrait.
+    Dùng async prediction + polling để kiểm soát timeout,
+    tránh block request quá giới hạn Railway (~100s).
+    Timeout 65s → worst-case tổng với AnimeGAN2 fallback ≈ 90s < 100s.
+    """
+    import replicate as _rep
+    import httpx
+    import os
+    import time
+
+    token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
+    if not token:
+        raise ValueError("REPLICATE_API_TOKEN chưa được cấu hình")
+    os.environ["REPLICATE_API_TOKEN"] = token
+
+    # Encode ảnh thành data URI
+    img_sq = img.convert("RGB").resize((512, 512), Image.LANCZOS)
+    buf = io.BytesIO()
+    img_sq.save(buf, format="JPEG", quality=95)
+    buf.seek(0)
+    data_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+    # Prompt: thêm giới tính vào cuối để model render đúng
+    base_prompt = _PM_PROMPTS.get(character_type, _PM_PROMPTS["chien_binh"])
+    gt_tag = "female girl" if gioi_tinh.lower() in ("nu", "nữ", "female") else "male boy"
+    prompt = f"{base_prompt}, {gt_tag}"
+
+    # Tạo prediction không chặn (non-blocking)
+    prediction = _rep.predictions.create(
+        model="tencentarc/photomaker-style",
+        input={
+            "input_image":          data_uri,
+            "prompt":               prompt,
+            "negative_prompt":      _PM_NEGATIVE,
+            "style_name":           "Anime",
+            "num_steps":            50,
+            "style_strength_ratio": 35,
+            "guidance_scale":       5.0,
+            "num_outputs":          1,
+        },
+    )
+    logger.info(f"[avatar] PhotoMaker prediction created id={prediction.id}")
+
+    # Poll cho đến khi xong hoặc hết timeout
+    t0 = time.time()
+    while time.time() - t0 < timeout_sec:
+        prediction.reload()
+        status = prediction.status
+        if status == "succeeded":
+            out = prediction.output
+            url = str(out[0]) if isinstance(out, list) else str(out)
+            if not url.startswith("http"):
+                raise ValueError(f"PhotoMaker output không phải URL: {url!r}")
+            resp = httpx.get(url, timeout=30)
+            resp.raise_for_status()
+            result = Image.open(io.BytesIO(resp.content)).convert("RGB")
+            logger.info(f"[avatar] PhotoMaker OK ({time.time()-t0:.1f}s): {result.size}")
+            return result
+        if status in ("failed", "canceled"):
+            raise RuntimeError(f"PhotoMaker prediction {status}: {prediction.error}")
+        time.sleep(3)
+
+    # Hết timeout → huỷ prediction, raise để fallback AnimeGAN2
+    try:
+        prediction.cancel()
+    except Exception:
+        pass
+    raise TimeoutError(f"[avatar] PhotoMaker timeout sau {timeout_sec}s → fallback AnimeGAN2")
+
+
+# ── AnimeGAN2 (fallback) ─────────────────────────────────────────────────────
 
 def _cartoon_ai(img: Image.Image) -> Image.Image:
-    """Gọi AnimeGAN2 qua Replicate để chuyển ảnh mặt thành anime."""
+    """Gọi AnimeGAN2 Hayao qua Replicate — fallback khi PhotoMaker timeout."""
     import replicate
     import httpx
     import os
@@ -70,103 +181,6 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
     return result
 
 
-# ── Character-specific prompts for IP-Adapter ──────────────────────────────
-_IP_PROMPTS = {
-    "chien_binh": (
-        "anime manga portrait, young math warrior, glowing cyan energy armor, "
-        "energy sword, floating math equations and numbers, fierce heroic expression, "
-        "dynamic lighting, clean line art, vibrant colors, detailed anime eyes"
-    ),
-    "phu_thuy": (
-        "anime manga portrait, young math mage, glowing purple magical robes, "
-        "crystal staff with math symbols, floating geometric shapes and numbers, "
-        "mysterious expression, magical sparkles, clean line art, vibrant colors"
-    ),
-    "xa_thu": (
-        "anime manga portrait, young math ranger, glowing green archer armor, "
-        "energy bow and arrow, floating math equations, focused determined expression, "
-        "forest background hints, clean line art, vibrant colors, detailed anime eyes"
-    ),
-    "hiep_si": (
-        "anime manga portrait, young math knight, glowing golden plate armor, "
-        "shield with math symbols, brave noble expression, royal golden light, "
-        "floating numbers and equations, clean line art, vibrant colors"
-    ),
-}
-_IP_NEGATIVE = (
-    "realistic, photorealistic, ugly, deformed, blurry, low quality, "
-    "old, elderly, wrinkles, nsfw, extra fingers, bad anatomy"
-)
-
-
-def _cartoon_ip_adapter(img: Image.Image, character_type: str = "chien_binh",
-                         timeout_sec: int = 50) -> Image.Image:
-    """
-    fofr/face-to-many (IP-Adapter + InstantID + SDXL) — Anime style.
-    Dùng async prediction + polling để kiểm soát timeout,
-    tránh block request quá giới hạn Railway (~100s).
-    """
-    import replicate as _rep
-    import httpx
-    import os
-    import time
-
-    token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
-    if not token:
-        raise ValueError("REPLICATE_API_TOKEN chưa được cấu hình")
-    os.environ["REPLICATE_API_TOKEN"] = token
-
-    # Encode ảnh thành data URI
-    img_sq = img.convert("RGB").resize((512, 512), Image.LANCZOS)
-    buf = io.BytesIO()
-    img_sq.save(buf, format="JPEG", quality=95)
-    buf.seek(0)
-    data_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
-
-    prompt = _IP_PROMPTS.get(character_type, _IP_PROMPTS["chien_binh"])
-
-    # Tạo prediction không chặn (non-blocking)
-    prediction = _rep.predictions.create(
-        model="fofr/face-to-many",
-        input={
-            "image":               data_uri,
-            "style":               "Anime",
-            "prompt":              prompt,
-            "negative_prompt":     _IP_NEGATIVE,
-            "prompt_strength":     4.5,
-            "denoising_strength":  1.0,
-            "instant_id_strength": 1.0,
-        },
-    )
-    logger.info(f"[avatar] IP-Adapter prediction created id={prediction.id}")
-
-    # Poll cho đến khi xong hoặc hết timeout
-    t0 = time.time()
-    while time.time() - t0 < timeout_sec:
-        prediction.reload()
-        status = prediction.status
-        if status == "succeeded":
-            out = prediction.output
-            url = str(out[0]) if isinstance(out, list) else str(out)
-            if not url.startswith("http"):
-                raise ValueError(f"IP-Adapter output không phải URL: {url!r}")
-            resp = httpx.get(url, timeout=30)
-            resp.raise_for_status()
-            result = Image.open(io.BytesIO(resp.content)).convert("RGB")
-            logger.info(f"[avatar] IP-Adapter OK ({time.time()-t0:.1f}s): {result.size}")
-            return result
-        if status in ("failed", "canceled"):
-            raise RuntimeError(f"IP-Adapter prediction {status}: {prediction.error}")
-        time.sleep(3)
-
-    # Hết timeout → huỷ prediction, raise để fallback
-    try:
-        prediction.cancel()
-    except Exception:
-        pass
-    raise TimeoutError(f"[avatar] IP-Adapter timeout sau {timeout_sec}s → fallback AnimeGAN2")
-
-
 def _cartoon_pil(img: Image.Image) -> Image.Image:
     """Fallback PIL: tăng độ sắc nét + màu sắc nhẹ."""
     try:
@@ -186,21 +200,22 @@ def apply_cartoon_filter(img: Image.Image,
                           gioi_tinh: str = "nam") -> Image.Image:
     """
     Thứ tự ưu tiên:
-      1. IP-Adapter fofr/face-to-many Anime   (~30-60s, timeout 50s)
-      2. AnimeGAN2 Hayao                       (~15-25s)
-      3. PIL enhance                           (instant, always works)
-    Worst-case tổng ≈ 75s — dưới giới hạn 100s của Railway.
+      1. PhotoMaker Style (tencentarc/photomaker-style)  (~30-65s, timeout 65s)
+      2. AnimeGAN2 Hayao                                 (~15-25s)
+      3. PIL enhance                                     (instant, always works)
+    Worst-case tổng ≈ 90s — dưới giới hạn 100s của Railway.
     """
     import os
     token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
     if token:
-        # 1️⃣ IP-Adapter
+        # 1️⃣ PhotoMaker Style
         try:
-            result = _cartoon_ip_adapter(img, character_type=character_type, timeout_sec=50)
-            logger.info("✅ IP-Adapter thành công")
+            result = _cartoon_photomaker(img, character_type=character_type,
+                                         gioi_tinh=gioi_tinh, timeout_sec=65)
+            logger.info("✅ PhotoMaker thành công")
             return result
         except Exception as e:
-            logger.warning(f"⚠️ IP-Adapter thất bại → AnimeGAN2: {e}")
+            logger.warning(f"⚠️ PhotoMaker thất bại → AnimeGAN2: {e}")
 
         # 2️⃣ AnimeGAN2 Hayao
         try:

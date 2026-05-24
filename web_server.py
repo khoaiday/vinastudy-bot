@@ -220,7 +220,7 @@ async def ping_avatar_upload(request: Request,
                               gioi_tinh: str = "nam"):
     """
     Test avatar pipeline với ảnh thật — upload qua form.
-    Dùng để kiểm tra chất lượng IP-Adapter trước khi đưa vào production.
+    Dùng để kiểm tra chất lượng PhotoMaker trước khi đưa vào production.
     """
     import time, io, base64
     from fastapi.concurrency import run_in_threadpool
@@ -248,7 +248,7 @@ async def ping_avatar_upload(request: Request,
           </body></html>""")
 
     final_src = result["final_b64"]
-    method    = "🤖 IP-Adapter" if elapsed > 25 else "🎨 AnimeGAN2 / PIL fallback"
+    method    = "🤖 PhotoMaker Style" if elapsed > 25 else "🎨 AnimeGAN2 / PIL fallback"
     return HTMLResponse(f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Avatar Upload Test</title>
 <style>
