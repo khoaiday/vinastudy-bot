@@ -543,7 +543,7 @@ def generate_avatar_pipeline(face_b64: str, character_type: str,
         logger.warning(f"[avatar] step2 cartoon FAIL → dùng ảnh gốc: {e}")
         ai_avatar = face_img.convert("RGB")
 
-    # Step 3 – encode cartoon
+    # Step 3 – encode cartoon (dùng luôn làm final, không ghép thân hình)
     try:
         cartoon_b64 = image_to_b64(ai_avatar)
         logger.info("[avatar] step3 encode cartoon OK")
@@ -551,21 +551,4 @@ def generate_avatar_pipeline(face_b64: str, character_type: str,
         logger.error(f"[avatar] step3 encode cartoon FAIL: {e}", exc_info=True)
         return {"ok": False, "error": f"Lỗi encode ảnh cartoon: {e}"}
 
-    # Step 4 – character card
-    try:
-        final_img = make_character_frame(character_type, ai_avatar,
-                                         gioi_tinh=gioi_tinh, size=400)
-        logger.info(f"[avatar] step4 frame OK  size={final_img.size}")
-    except Exception as e:
-        logger.error(f"[avatar] step4 frame FAIL: {e}", exc_info=True)
-        return {"ok": False, "error": f"Lỗi tạo character frame: {e}"}
-
-    # Step 5 – encode final
-    try:
-        final_b64 = image_to_b64(final_img)
-        logger.info("[avatar] step5 encode final OK")
-    except Exception as e:
-        logger.error(f"[avatar] step5 encode final FAIL: {e}", exc_info=True)
-        return {"ok": False, "error": f"Lỗi encode ảnh cuối: {e}"}
-
-    return {"ok": True, "cartoon_b64": cartoon_b64, "final_b64": final_b64}
+    return {"ok": True, "cartoon_b64": cartoon_b64, "final_b64": cartoon_b64}
