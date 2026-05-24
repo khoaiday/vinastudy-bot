@@ -60,6 +60,39 @@ async def get_pending(request: Request,
     users = await crud.get_web_users_by_status("pending")
     return JSONResponse({"users": users, "total": len(users)})
 
+async def _notify_approved_user(user: dict):
+    tg_token = _get_tg_token()
+    if not user.get("telegram_id") or not tg_token:
+        return
+    try:
+        import httpx
+        base = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
+        main_menu = {
+            "keyboard": [
+                [{"text": "🎮 Chơi game", "web_app": {"url": f"{base}/game"}}],
+                [{"text": "🏆 Xếp hạng",  "web_app": {"url": f"{base}/leaderboard"}},
+                 {"text": "🧑‍🎖️ Hồ sơ",   "web_app": {"url": f"{base}/profile"}}],
+                [{"text": "🚪 Thoát"}],
+            ],
+            "resize_keyboard": True,
+        }
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                f"https://api.telegram.org/bot{tg_token}/sendMessage",
+                json={
+                    "chat_id":      user["telegram_id"],
+                    "text": (
+                        f"🎉 *Chào mừng {user['ho_ten']}!*\n\n"
+                        "✅ Tài khoản *Chiến Binh Toán* của em đã được duyệt!\n\n"
+                        "👇 Nhấn *Chơi game* bên dưới để vào Bản đồ Chiến Dịch và bắt đầu hành trình 🚀"
+                    ),
+                    "parse_mode":   "Markdown",
+                    "reply_markup": main_menu,
+                }
+            )
+    except Exception as e:
+        logger.warning(f"Telegram notify failed: {e}")
+
 
 @router.post("/approve/{user_id}")
 async def approve_user(user_id: int, request: Request,
@@ -74,40 +107,7 @@ async def approve_user(user_id: int, request: Request,
     await crud.sync_web_user_to_student(user_id)
 
     # Thông báo qua Telegram nếu có telegram_id
-    tg_token = _get_tg_token()
-    if user.get("telegram_id") and tg_token:
-        try:
-            import httpx
-            # Gửi kèm main menu keyboard → học sinh dùng ngay được, không cần /start
-            base = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
-            main_menu = {
-                "keyboard": [
-                    [{"text": "🎮 Chơi game",
-                      "web_app": {"url": f"{base}/game"}}],
-                    [{"text": "🏆 Xếp hạng",
-                      "web_app": {"url": f"{base}/leaderboard"}},
-                     {"text": "🧑‍🎖️ Hồ sơ",
-                      "web_app": {"url": f"{base}/profile"}}],
-                    [{"text": "🚪 Thoát"}],
-                ],
-                "resize_keyboard": True,
-            }
-            async with httpx.AsyncClient() as client:
-                await client.post(
-                    f"https://api.telegram.org/bot{tg_token}/sendMessage",
-                    json={
-                        "chat_id":      user["telegram_id"],
-                        "text": (
-                            f"🎉 *Chào mừng {user['ho_ten']}!*\n\n"
-                            "✅ Tài khoản *Chiến Binh Toán* của em đã được duyệt!\n\n"
-                            "👇 Nhấn *Chơi game* bên dưới để vào Bản đồ Chiến Dịch và bắt đầu hành trình 🚀"
-                        ),
-                        "parse_mode":   "Markdown",
-                        "reply_markup": main_menu,
-                    }
-                )
-        except Exception as e:
-            logger.warning(f"Telegram notify failed: {e}")
+    await _notify_approved_user(user)
 
     return JSONResponse({"ok": True, "message": f"Đã duyệt {user['ho_ten']}"})
 
@@ -229,6 +229,7 @@ async def create_user(body: CreateUserBody,
     )
     if body.status == "approved" and body.telegram_id:
         await crud.sync_web_user_to_student(user["id"])
+        await _notify_approved_user(user)
     return JSONResponse({"ok": True, "user": user})
 
 
@@ -242,6 +243,8 @@ async def update_user(user_id: int, body: UpdateUserBody,
     if body.status == "approved":
         await crud.sync_web_user_to_student(user_id)
     user = await crud.get_web_user_by_id(user_id)
+    if body.status == "approved" and user.get("status") == "approved" and user.get("telegram_id"):
+        await _notify_approved_user(user)
     return JSONResponse({"ok": True, "user": user})
 
 
