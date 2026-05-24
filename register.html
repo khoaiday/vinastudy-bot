@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chiến Binh Toán – Đăng Ký</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
   --primary: #0ae0fe;
@@ -456,8 +457,8 @@ body {
             <p id="doneName" style="color:var(--success); font-weight:700; font-size:.9rem; margin-top:8px"></p>
           </div>
         </div>
-        <button class="btn btn-primary btn-full" style="margin-top:24px" onclick="window.open('https://t.me/chienbiantoanbot','_blank')">
-          🤖 Mở Telegram Bot
+        <button class="btn btn-primary btn-full" style="margin-top:24px" onclick="tryClose()">
+          🤖 Quay lại Telegram
         </button>
       </div>
     </div>
@@ -643,7 +644,8 @@ function tryClose() {
   // 2. In-app browser (Telegram url= button → Chrome Custom Tab / Safari View)
   window.close();
   // 3. Fallback: navigate về bot
-  setTimeout(() => { window.location.href = 'https://t.me/chienbiantoanbot'; }, 500);
+  // 3. Fallback: Báo người dùng tự đóng
+  setTimeout(() => { showToast("Hãy bấm X (Đóng) ở góc trên bên trái để trở lại Telegram!"); }, 500);
 }
 
 function stopPendingPoll() {
