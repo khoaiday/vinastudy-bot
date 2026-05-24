@@ -70,6 +70,71 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
     return result
 
 
+def _cartoon_ip_adapter(img: Image.Image, timeout_sec: int = 50) -> Image.Image:
+    """
+    fofr/face-to-many (IP-Adapter + InstantID + SDXL) — Anime style.
+    Dùng async prediction + polling để kiểm soát timeout,
+    tránh block request quá giới hạn Railway (~100s).
+    """
+    import replicate as _rep
+    import httpx
+    import os
+    import time
+
+    token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
+    if not token:
+        raise ValueError("REPLICATE_API_TOKEN chưa được cấu hình")
+    os.environ["REPLICATE_API_TOKEN"] = token
+
+    # Encode ảnh thành data URI
+    img_sq = img.convert("RGB").resize((512, 512), Image.LANCZOS)
+    buf = io.BytesIO()
+    img_sq.save(buf, format="JPEG", quality=95)
+    buf.seek(0)
+    data_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+    # Tạo prediction không chặn (non-blocking)
+    prediction = _rep.predictions.create(
+        model="fofr/face-to-many",
+        input={
+            "image":               data_uri,
+            "style":               "Anime",
+            "prompt":              "anime style, manga, vibrant colors, detailed eyes, clean line art, beautiful face",
+            "negative_prompt":     "realistic, photorealistic, ugly, deformed, blurry, low quality, nsfw",
+            "prompt_strength":     4.5,
+            "denoising_strength":  1.0,
+            "instant_id_strength": 1.0,
+        },
+    )
+    logger.info(f"[avatar] IP-Adapter prediction created id={prediction.id}")
+
+    # Poll cho đến khi xong hoặc hết timeout
+    t0 = time.time()
+    while time.time() - t0 < timeout_sec:
+        prediction.reload()
+        status = prediction.status
+        if status == "succeeded":
+            out = prediction.output
+            url = str(out[0]) if isinstance(out, list) else str(out)
+            if not url.startswith("http"):
+                raise ValueError(f"IP-Adapter output không phải URL: {url!r}")
+            resp = httpx.get(url, timeout=30)
+            resp.raise_for_status()
+            result = Image.open(io.BytesIO(resp.content)).convert("RGB")
+            logger.info(f"[avatar] IP-Adapter OK ({time.time()-t0:.1f}s): {result.size}")
+            return result
+        if status in ("failed", "canceled"):
+            raise RuntimeError(f"IP-Adapter prediction {status}: {prediction.error}")
+        time.sleep(3)
+
+    # Hết timeout → huỷ prediction, raise để fallback
+    try:
+        prediction.cancel()
+    except Exception:
+        pass
+    raise TimeoutError(f"[avatar] IP-Adapter timeout sau {timeout_sec}s → fallback AnimeGAN2")
+
+
 def _cartoon_pil(img: Image.Image) -> Image.Image:
     """Fallback PIL: tăng độ sắc nét + màu sắc nhẹ."""
     try:
@@ -87,18 +152,34 @@ def _cartoon_pil(img: Image.Image) -> Image.Image:
 def apply_cartoon_filter(img: Image.Image,
                           character_type: str = "chien_binh",
                           gioi_tinh: str = "nam") -> Image.Image:
-    """Chuyển ảnh mặt thành anime. character_type/gioi_tinh không dùng ở đây
-    nhưng giữ signature để tương thích với generate_avatar_pipeline."""
+    """
+    Thứ tự ưu tiên:
+      1. IP-Adapter fofr/face-to-many Anime   (~30-60s, timeout 50s)
+      2. AnimeGAN2 Hayao                       (~15-25s)
+      3. PIL enhance                           (instant, always works)
+    Worst-case tổng ≈ 75s — dưới giới hạn 100s của Railway.
+    """
     import os
     token = os.getenv("REPLICATE_API_TOKEN") or REPLICATE_API_TOKEN
     if token:
+        # 1️⃣ IP-Adapter
         try:
-            result = _cartoon_ai(img)
-            logger.info("✅ AnimeGAN2 thành công")
+            result = _cartoon_ip_adapter(img, timeout_sec=50)
+            logger.info("✅ IP-Adapter thành công")
             return result
         except Exception as e:
-            logger.warning(f"⚠️ AnimeGAN2 thất bại → PIL fallback: {e}")
-    logger.info("🎨 PIL portrait-enhance (fallback)")
+            logger.warning(f"⚠️ IP-Adapter thất bại → AnimeGAN2: {e}")
+
+        # 2️⃣ AnimeGAN2 Hayao
+        try:
+            result = _cartoon_ai(img)
+            logger.info("✅ AnimeGAN2 thành công (fallback)")
+            return result
+        except Exception as e:
+            logger.warning(f"⚠️ AnimeGAN2 thất bại → PIL: {e}")
+
+    # 3️⃣ PIL
+    logger.info("🎨 PIL portrait-enhance (final fallback)")
     return _cartoon_pil(img)
 
 
