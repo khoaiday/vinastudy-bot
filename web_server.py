@@ -214,6 +214,111 @@ img{{max-width:280px;border-radius:8px;display:block;margin:8px auto}}
 </body></html>""")
 
 
+@app.post("/ping/avatar-upload", response_class=HTMLResponse)
+async def ping_avatar_upload(request: Request,
+                              character: str = "chien_binh",
+                              gioi_tinh: str = "nam"):
+    """
+    Test avatar pipeline với ảnh thật — upload qua form.
+    Dùng để kiểm tra chất lượng IP-Adapter trước khi đưa vào production.
+    """
+    import time, io, base64
+    from fastapi.concurrency import run_in_threadpool
+    from app.auth.avatar import generate_avatar_pipeline
+
+    # Nhận file upload
+    form    = await request.form()
+    file    = form.get("image")
+    if not file or not hasattr(file, "read"):
+        return HTMLResponse("<h2 style='color:red'>Thiếu field 'image'</h2>", status_code=400)
+
+    raw = await file.read()
+    face_b64 = "data:image/jpeg;base64," + base64.b64encode(raw).decode()
+
+    t0     = time.time()
+    result = await run_in_threadpool(generate_avatar_pipeline, face_b64, character, gioi_tinh)
+    elapsed = round(time.time() - t0, 1)
+
+    if not result["ok"]:
+        return HTMLResponse(f"""<!DOCTYPE html><html><body
+          style="font-family:monospace;background:#111;color:#f66;padding:32px">
+          <h2>❌ Pipeline thất bại</h2>
+          <p><b>Lỗi:</b> {result['error']}</p>
+          <p><b>Elapsed:</b> {elapsed}s</p>
+          </body></html>""")
+
+    final_src = result["final_b64"]
+    method    = "🤖 IP-Adapter" if elapsed > 25 else "🎨 AnimeGAN2 / PIL fallback"
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Avatar Upload Test</title>
+<style>
+  body{{font-family:sans-serif;background:#0a0a1a;color:#eee;text-align:center;padding:24px}}
+  img{{max-width:400px;border-radius:12px;border:2px solid #0ae0fe}}
+  .info{{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:16px 0}}
+  .card{{background:#161630;border-radius:10px;padding:12px 20px;font-size:.9rem}}
+  form{{margin-top:28px;background:#161630;border-radius:12px;padding:20px;display:inline-block}}
+  input[type=file]{{color:#eee}}
+  button{{margin-top:12px;padding:10px 28px;background:#0ae0fe;color:#000;
+          border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:1rem}}
+</style></head>
+<body>
+<h2>🧪 Avatar Test — {character} / {gioi_tinh}</h2>
+<div class="info">
+  <div class="card">Method<br><b>{method}</b></div>
+  <div class="card">Thời gian<br><b>{elapsed}s</b></div>
+  <div class="card">Character<br><b>{character}</b></div>
+</div>
+<img src="{final_src}" alt="avatar">
+<br><br>
+<form method="POST" enctype="multipart/form-data"
+      action="/ping/avatar-upload?character={character}&gioi_tinh={gioi_tinh}">
+  <div>Thử ảnh khác:</div>
+  <input type="file" name="image" accept="image/*" required>
+  <br><button type="submit">Convert lại</button>
+</form>
+<div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+  {''.join(f'<a href="/ping/avatar-upload-form?character={c}&gioi_tinh={gioi_tinh}" style="padding:6px 14px;background:#161630;border:1px solid #0ae0fe;border-radius:6px;color:#0ae0fe;text-decoration:none">{c}</a>'
+           for c in ["chien_binh","phu_thuy","xa_thu","hiep_si"])}
+</div>
+</body></html>""")
+
+
+@app.get("/ping/avatar-upload-form", response_class=HTMLResponse)
+async def ping_avatar_upload_form(character: str = "chien_binh", gioi_tinh: str = "nam"):
+    """Form upload ảnh để test pipeline."""
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Avatar Test Upload</title>
+<style>
+  body{{font-family:sans-serif;background:#0a0a1a;color:#eee;text-align:center;padding:40px}}
+  form{{background:#161630;border-radius:14px;padding:32px;display:inline-block;min-width:300px}}
+  select,input[type=file]{{width:100%;padding:8px;margin:8px 0;background:#0a0a1a;
+    border:1px solid #0ae0fe33;border-radius:6px;color:#eee}}
+  button{{margin-top:16px;width:100%;padding:12px;background:#0ae0fe;color:#000;
+    border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:1rem}}
+</style></head>
+<body>
+<h2>🧪 Test Avatar Pipeline</h2>
+<form method="POST" enctype="multipart/form-data" id="f">
+  <div style="margin-bottom:12px;text-align:left">
+    <label>Character</label>
+    <select name="character" onchange="this.form.action='/ping/avatar-upload?character='+this.value+'&gioi_tinh='+document.querySelector('[name=gioi_tinh]').value">
+      {''.join(f'<option value="{c}" {"selected" if c==character else ""}>{c}</option>' for c in ["chien_binh","phu_thuy","xa_thu","hiep_si"])}
+    </select>
+    <label>Giới tính</label>
+    <select name="gioi_tinh">
+      <option value="nam" {"selected" if gioi_tinh=="nam" else ""}>Nam</option>
+      <option value="nu"  {"selected" if gioi_tinh=="nu"  else ""}>Nữ</option>
+    </select>
+    <label>Ảnh mặt (JPEG/PNG)</label>
+    <input type="file" name="image" accept="image/*" required>
+  </div>
+  <button type="submit" onclick="this.form.action='/ping/avatar-upload?character='+this.form.character.value+'&gioi_tinh='+this.form.gioi_tinh.value">
+    🎨 Convert → Anime
+  </button>
+</form>
+</body></html>""")
+
+
 @app.get("/leaderboard", response_class=HTMLResponse)
 async def leaderboard_page():
     """Bảng xếp hạng chiến binh."""

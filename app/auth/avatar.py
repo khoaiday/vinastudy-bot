@@ -70,7 +70,37 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
     return result
 
 
-def _cartoon_ip_adapter(img: Image.Image, timeout_sec: int = 50) -> Image.Image:
+# ── Character-specific prompts for IP-Adapter ──────────────────────────────
+_IP_PROMPTS = {
+    "chien_binh": (
+        "anime manga portrait, young math warrior, glowing cyan energy armor, "
+        "energy sword, floating math equations and numbers, fierce heroic expression, "
+        "dynamic lighting, clean line art, vibrant colors, detailed anime eyes"
+    ),
+    "phu_thuy": (
+        "anime manga portrait, young math mage, glowing purple magical robes, "
+        "crystal staff with math symbols, floating geometric shapes and numbers, "
+        "mysterious expression, magical sparkles, clean line art, vibrant colors"
+    ),
+    "xa_thu": (
+        "anime manga portrait, young math ranger, glowing green archer armor, "
+        "energy bow and arrow, floating math equations, focused determined expression, "
+        "forest background hints, clean line art, vibrant colors, detailed anime eyes"
+    ),
+    "hiep_si": (
+        "anime manga portrait, young math knight, glowing golden plate armor, "
+        "shield with math symbols, brave noble expression, royal golden light, "
+        "floating numbers and equations, clean line art, vibrant colors"
+    ),
+}
+_IP_NEGATIVE = (
+    "realistic, photorealistic, ugly, deformed, blurry, low quality, "
+    "old, elderly, wrinkles, nsfw, extra fingers, bad anatomy"
+)
+
+
+def _cartoon_ip_adapter(img: Image.Image, character_type: str = "chien_binh",
+                         timeout_sec: int = 50) -> Image.Image:
     """
     fofr/face-to-many (IP-Adapter + InstantID + SDXL) — Anime style.
     Dùng async prediction + polling để kiểm soát timeout,
@@ -93,14 +123,16 @@ def _cartoon_ip_adapter(img: Image.Image, timeout_sec: int = 50) -> Image.Image:
     buf.seek(0)
     data_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
+    prompt = _IP_PROMPTS.get(character_type, _IP_PROMPTS["chien_binh"])
+
     # Tạo prediction không chặn (non-blocking)
     prediction = _rep.predictions.create(
         model="fofr/face-to-many",
         input={
             "image":               data_uri,
             "style":               "Anime",
-            "prompt":              "anime style, manga, vibrant colors, detailed eyes, clean line art, beautiful face",
-            "negative_prompt":     "realistic, photorealistic, ugly, deformed, blurry, low quality, nsfw",
+            "prompt":              prompt,
+            "negative_prompt":     _IP_NEGATIVE,
             "prompt_strength":     4.5,
             "denoising_strength":  1.0,
             "instant_id_strength": 1.0,
@@ -164,7 +196,7 @@ def apply_cartoon_filter(img: Image.Image,
     if token:
         # 1️⃣ IP-Adapter
         try:
-            result = _cartoon_ip_adapter(img, timeout_sec=50)
+            result = _cartoon_ip_adapter(img, character_type=character_type, timeout_sec=50)
             logger.info("✅ IP-Adapter thành công")
             return result
         except Exception as e:
