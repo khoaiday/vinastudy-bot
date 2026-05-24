@@ -57,7 +57,7 @@ def _cartoon_ai(img: Image.Image) -> Image.Image:
 
     output = replicate.run(
         "ptran1203/pytorch-animegan:7d44f1878a07e7b5a32af9727c1f6120cac04203d48f3f7b0432e28fa8e5c6b6",
-        input={"image": buf, "style": "BarbieFace"},
+        input={"image": buf, "style": "Hayao"},
     )
     url = str(output[0]) if isinstance(output, list) else str(output)
     if not url.startswith("http"):
