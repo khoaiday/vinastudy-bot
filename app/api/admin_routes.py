@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 import os
-from app.config import ADMIN_SECRET, TELEGRAM_TOKEN as _TELEGRAM_TOKEN_CONFIG
+from app.config import ADMIN_SECRET, TELEGRAM_TOKEN as _TELEGRAM_TOKEN_CONFIG, BASE_DOMAIN
 
 def _get_tg_token() -> str:
     """Đọc TELEGRAM_TOKEN tại runtime để tránh lỗi khi Railway chưa inject env var lúc startup."""
@@ -78,17 +78,32 @@ async def approve_user(user_id: int, request: Request,
     if user.get("telegram_id") and tg_token:
         try:
             import httpx
+            # Gửi kèm main menu keyboard → học sinh dùng ngay được, không cần /start
+            base = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
+            main_menu = {
+                "keyboard": [
+                    [{"text": "🎮 Chơi game",
+                      "web_app": {"url": f"{base}/game"}}],
+                    [{"text": "🏆 Xếp hạng",
+                      "web_app": {"url": f"{base}/leaderboard"}},
+                     {"text": "🧑‍🎖️ Hồ sơ",
+                      "web_app": {"url": f"{base}/profile"}}],
+                    [{"text": "🚪 Thoát"}],
+                ],
+                "resize_keyboard": True,
+            }
             async with httpx.AsyncClient() as client:
                 await client.post(
                     f"https://api.telegram.org/bot{tg_token}/sendMessage",
                     json={
-                        "chat_id": user["telegram_id"],
+                        "chat_id":      user["telegram_id"],
                         "text": (
                             f"🎉 *Chào mừng {user['ho_ten']}!*\n\n"
-                            "Tài khoản Chiến Binh Toán của em đã được duyệt!\n"
-                            "Hãy quay lại bot để bắt đầu hành trình 🚀"
+                            "✅ Tài khoản *Chiến Binh Toán* của em đã được duyệt!\n\n"
+                            "👇 Nhấn *Chơi game* bên dưới để vào Bản đồ Chiến Dịch và bắt đầu hành trình 🚀"
                         ),
-                        "parse_mode": "Markdown",
+                        "parse_mode":   "Markdown",
+                        "reply_markup": main_menu,
                     }
                 )
         except Exception as e:
