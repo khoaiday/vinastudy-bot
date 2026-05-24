@@ -234,11 +234,9 @@ body {
   <div class="logo">⚔️ CHIẾN BINH <span>TOÁN</span></div>
   <div class="subtitle">Hành trình chinh phục Toán Học bắt đầu từ đây</div>
 
-  <!-- Step indicator (3 bước: Thông tin → Ảnh → Chờ duyệt) -->
+  <!-- Step indicator (2 bước: Thông tin → Chờ duyệt) -->
   <div class="steps">
     <div class="step-dot active" id="dot2">1</div>
-    <div class="step-line"></div>
-    <div class="step-dot" id="dot3">2</div>
     <div class="step-line"></div>
     <div class="step-dot" id="dot4">✓</div>
   </div>
@@ -310,67 +308,7 @@ body {
         </div>
       </div>
 
-      <button class="btn btn-primary btn-full" onclick="goStep3()">Tiếp theo →</button>
-    </div>
-
-    <!-- ── STEP 3: Photo ── -->
-    <div class="step" id="step3">
-      <div class="card-title">🖼️ Bước 3: Ảnh đại diện</div>
-      <div class="card-sub">Tải ảnh mặt của em lên để tạo nhân vật hoạt hình</div>
-
-      <!-- canvas dùng để crop ảnh (ẩn) -->
-      <canvas id="snapCanvas" style="display:none"></canvas>
-
-      <!-- Upload -->
-      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-        <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(event)">
-        <span class="upload-icon">🖼️</span>
-        <p><strong style="color:var(--primary)">Chọn ảnh từ thư viện</strong></p>
-        <p><small>Ảnh chụp mặt rõ, nền sáng — JPEG / PNG</small></p>
-      </div>
-
-      <!-- Preview: ảnh gốc + avatar nhân vật -->
-      <div class="avatar-preview" id="previewBox" style="display:none">
-
-        <!-- Ảnh gốc (thu nhỏ) -->
-        <div class="preview-item">
-          <img id="previewFace" src="" alt="Ảnh gốc">
-          <p>Ảnh gốc</p>
-        </div>
-
-        <!-- Avatar nhân vật (idle → loading → done) -->
-        <div class="preview-item final" style="grid-column: 1 / -1; margin: 0 auto;">
-          <div id="finalState"
-               style="width:180px;height:240px;border-radius:14px;
-                      border:2px dashed rgba(10,224,254,.3);
-                      background:rgba(10,224,254,.05);
-                      display:flex;align-items:center;justify-content:center;
-                      font-size:3.5rem;color:rgba(200,230,255,.6)">⚔️</div>
-          <img id="previewFinal" alt="Avatar nhân vật" style="display:none">
-          <p>Avatar nhân vật</p>
-        </div>
-
-      </div>
-
-      <!-- Tiến trình tạo avatar -->
-      <div id="genStatus"
-           style="display:none;text-align:center;font-size:.85rem;
-                  color:var(--primary);margin:10px 0 4px;
-                  min-height:1.5em;padding:4px 0;letter-spacing:.3px;font-weight:600"></div>
-
-      <!-- Tải ảnh khác (hiện sau khi đã chọn ảnh) -->
-      <button class="btn btn-full" id="btnRetake" onclick="retakePhoto()"
-        style="display:none; margin-top:8px;
-               background:rgba(10,224,254,.08); color:var(--primary);
-               border:1px solid rgba(10,224,254,.35); font-size:.85rem">
-        🔄 Chọn ảnh khác
-      </button>
-
-      <button class="btn btn-full" id="btnBack" onclick="goStep(2)"
-        style="margin-top:10px; background:transparent; border:1px solid var(--border);
-               color:rgba(200,230,255,.5); font-size:.85rem">
-        ← Quay lại
-      </button>
+      <button class="btn btn-primary btn-full" onclick="_submitProfile()">Hoàn tất Đăng ký →</button>
     </div>
 
     <!-- ── STEP 4: Pending ── -->
@@ -671,7 +609,6 @@ function startPendingPoll() {
 
 // ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
 function reRegister() {
-  resetStep3UI();
   goStep(2);
 }
 
@@ -682,7 +619,7 @@ function goStep(n) {
   const el = document.getElementById('step' + n);
   if (el) el.classList.add('active');
 
-  [2,3,4].forEach(i => {
+  [2,4].forEach(i => {
     const d = document.getElementById('dot' + i);
     if (!d) return;
     d.classList.remove('active','done');
@@ -691,8 +628,6 @@ function goStep(n) {
       else if (i === n) d.classList.add('active');
     }
   });
-
-  if (n === 3) resetStep3UI();
 }
 
 // ── Character selection ──────────────────────────────────────────────────
@@ -702,81 +637,14 @@ function selectChar(el) {
   currentChar = el.dataset.char;
 }
 
-// ── Step 2 → 3 ──────────────────────────────────────────────────────────
-function goStep3() {
-  const name = document.getElementById('inputName').value.trim();
-  if (!name) { showToast('Em chưa nhập tên!'); return; }
-  goStep(3);
-}
-
-function uploadFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    // Crop to square via canvas
-    const img = new Image();
-    img.onload = () => {
-      const SIZE = 512;
-      const canvas = document.getElementById('snapCanvas');
-      canvas.width = canvas.height = SIZE;
-      const ctx = canvas.getContext('2d');
-      const side = Math.min(img.width, img.height);
-      const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
-      ctx.drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
-      faceB64 = canvas.toDataURL('image/jpeg', 0.88);
-      showPhotoPreview();
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function showPhotoPreview() {
-  document.getElementById('previewFace').src         = faceB64;
-  document.getElementById('btnRetake').style.display = 'none';  // ẩn trong lúc tạo
-  document.getElementById('uploadArea').style.display = 'none';
-  document.getElementById('previewBox').style.display = 'flex';
-  // Tự động bắt đầu tạo avatar ngay
-  _generateAvatar();
-}
-
-function resetStep3UI() {
-  if (_abortCtrl) { _abortCtrl.abort(); _abortCtrl = null; }
-  stopGenMsg();
-  faceB64 = '';
-  // Reset file input để có thể chọn lại cùng file
-  const fi = document.getElementById('fileInput');
-  if (fi) fi.value = '';
-  _setAvState('final', 'idle');
-  document.getElementById('uploadArea').style.display = '';
-  document.getElementById('previewBox').style.display = 'none';
-  document.getElementById('btnRetake').style.display  = 'none';
-}
-
-function retakePhoto() {
-  resetStep3UI();
-}
-
-// ── Auto-generate avatar (gọi tự động khi ảnh được chọn) ─────────────────
-let _abortCtrl = null;
-
-async function _generateAvatar() {
+// ── Submit Profile ────────────────────────────────────────────────────────
+async function _submitProfile() {
   const name = document.getElementById('inputName').value.trim();
   const lop  = document.getElementById('inputLop').value;
-  if (!name) { showToast('Em chưa nhập tên!'); goStep(2); return; }
-  if (!faceB64) return;
-
-  // Huỷ request cũ nếu có (ví dụ: chụp lại ngay)
-  if (_abortCtrl) _abortCtrl.abort();
-  _abortCtrl = new AbortController();
-
-  // Spinner + cycling messages
-  _setAvState('final', 'loading');
-  startGenMsg();
+  if (!name) { showToast('Em chưa nhập tên!'); return; }
 
   try {
-    if (!tgId) { _onGenError('Không tìm thấy Telegram ID, mở lại từ bot!'); return; }
+    if (!tgId) { showToast('Không tìm thấy Telegram ID, mở lại từ bot!'); return; }
 
     const body = {
       telegram_id:     tgId,
@@ -784,45 +652,37 @@ async function _generateAvatar() {
       lop,
       gioi_tinh:       currentGender,
       character_type:  currentChar,
-      avatar_face_b64: faceB64,
+      avatar_face_b64: "", // Không cần ảnh gốc nữa
     };
+
+    const btn = document.querySelector('#step2 .btn-primary');
+    btn.disabled = true;
+    btn.textContent = "Đang xử lý...";
 
     const res = await fetch('/api/student/tg-complete-profile', {
       method: 'POST',
-      signal: _abortCtrl.signal,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 
     const data = await res.json();
+    btn.disabled = false;
+    btn.textContent = "Hoàn tất Đăng ký →";
 
     if (!res.ok) {
-      _onGenError(data.detail || 'Lỗi máy chủ, thử lại!');
+      showToast(data.detail || 'Lỗi máy chủ, thử lại!');
       return;
     }
 
-    // ── Hiển thị kết quả ──────────────────────────────────────────────
-    _setAvState('final', 'done', data.avatar_final || faceB64);
-    stopGenMsg('✅ Avatar đã tạo xong!');
-
-    document.getElementById('pendingAvatar').src = data.avatar_final || faceB64;
+    document.getElementById('pendingAvatar').src = data.avatar_final;
     document.getElementById('pendingName').textContent = name;
 
-    // Hiện kết quả 1.8s rồi sang step 4
-    setTimeout(() => { goStep(4); startPendingPoll(); }, 1800);
+    goStep(4);
+    startPendingPoll();
 
   } catch(e) {
-    if (e.name === 'AbortError') return; // người dùng chọn ảnh khác → bỏ qua
-    _onGenError('Lỗi kết nối, thử lại!');
+    showToast('Lỗi kết nối, thử lại!');
   }
-}
-
-function _onGenError(msg) {
-  stopGenMsg();
-  _setAvState('final', 'idle');
-  document.getElementById('uploadArea').style.display = '';
-  document.getElementById('btnRetake').style.display  = '';
-  showToast(msg);
 }
 </script>
 </body>

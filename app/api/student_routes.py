@@ -5,7 +5,6 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from app.auth.google_oauth import decode_session_token
-from app.auth.avatar import generate_avatar_pipeline
 from app.database import crud
 from app.config import TELEGRAM_TOKEN
 
@@ -82,20 +81,18 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
     if not user:
         raise HTTPException(404, "Tài khoản không tồn tại")
 
-    # Generate avatar
-    avatar_result = generate_avatar_pipeline(
-        body.avatar_face_b64, body.character_type, body.gioi_tinh)
-    if not avatar_result["ok"]:
-        raise HTTPException(500, f"Lỗi tạo avatar: {avatar_result['error']}")
+    # Generate static avatar path based on character type and gender
+    gender_suffix = "nu" if body.gioi_tinh.lower() in ("nu", "nữ", "female") else "nam"
+    avatar_url = f"/static/avatars/{body.character_type}_{gender_suffix}.jpg"
 
     await crud.update_web_user_profile(
         google_id       = google_id,
         ho_ten          = body.ho_ten,
         lop             = body.lop,
         character_type  = body.character_type,
-        avatar_original = body.avatar_face_b64,
-        avatar_cartoon  = avatar_result["cartoon_b64"],
-        avatar_final    = avatar_result["final_b64"],
+        avatar_original = None,
+        avatar_cartoon  = None,
+        avatar_final    = avatar_url,
         gioi_tinh       = body.gioi_tinh,
     )
 
@@ -127,8 +124,8 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
     )
 
     return JSONResponse({"ok": True, "status": "pending",
-                         "cartoon_b64":  avatar_result["cartoon_b64"],
-                         "avatar_final": avatar_result["final_b64"]})
+                         "cartoon_b64":  None,
+                         "avatar_final": avatar_url})
 
 
 @router.put("/profile")
