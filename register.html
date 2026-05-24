@@ -423,13 +423,13 @@ body {
       </div>
     </div>
 
-    <!-- ── STEP DONE ── -->
+    <!-- ── STEP DONE (hiện tạm 2s rồi redirect vào game) ── -->
     <div class="step" id="stepdone">
       <div class="pending-box">
         <div class="pending-icon">🎉</div>
         <div class="pending-title" style="color:var(--success)">Tài khoản đã được duyệt!</div>
         <div class="pending-sub">
-          Chào mừng chiến binh! Hãy mở Telegram và nhắn tin với bot để bắt đầu luyện Toán ngay nào! 🌟
+          Đang vào Bản đồ Chiến Dịch... ⚔️
         </div>
         <div style="margin-top:24px">
           <div class="preview-item final" style="display:inline-block">
@@ -437,8 +437,8 @@ body {
             <p id="doneName" style="color:var(--success); font-weight:700; font-size:.9rem; margin-top:8px"></p>
           </div>
         </div>
-        <button class="btn btn-primary btn-full" style="margin-top:24px" onclick="tryClose()">
-          🤖 Quay lại Telegram
+        <button class="btn btn-primary btn-full" style="margin-top:24px" onclick="window.location.replace('/game')">
+          🎮 Vào game ngay!
         </button>
       </div>
     </div>
@@ -582,9 +582,9 @@ function showToast(msg, ok=false) {
     const user = await res.json();
 
     if (user.status === 'approved') {
-      document.getElementById('doneAvatar').src = user.avatar_final || '';
-      document.getElementById('doneName').textContent = user.ho_ten || '';
-      goStep('done'); return;
+      // Đã được duyệt → redirect thẳng vào game, không dừng ở register
+      window.location.replace('/game');
+      return;
     }
 
     if (user.status === 'rejected') {
@@ -649,16 +649,19 @@ async function _checkApproval() {
     const user = await res.json();
     if (user.status === 'approved') {
       stopPendingPoll();
-      document.getElementById('doneAvatar').src = user.avatar_final || '';
-      document.getElementById('doneName').textContent = user.ho_ten || '';
-      goStep('done');
+      // Redirect thẳng vào game — không dừng ở register
+      window.location.replace('/game');
     }
   } catch(e) { /* lỗi mạng — thử lại lần sau */ }
 }
 
 function startPendingPoll() {
   stopPendingPoll();
-  _tickCountdown(9);
+  // Poll thực sự mỗi 5 giây (trước đây thiếu setInterval)
+  _pollTimer = setInterval(_checkApproval, 5000);
+  // Cập nhật UI countdown
+  const el = document.getElementById('pollStatus');
+  if (el) el.textContent = '🔄 Tự kiểm tra trạng thái mỗi 5 giây...';
 }
 
 // ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
