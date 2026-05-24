@@ -87,7 +87,7 @@ def _cartoon_photomaker(img: Image.Image, character_type: str = "chien_binh",
 
     # Tạo prediction không chặn (non-blocking)
     prediction = _rep.predictions.create(
-        model="tencentarc/photomaker:ddfc2b08d209f9fa8c1eca692712918bd449f695dabb4a958da31802a9570fe4",
+        version="ddfc2b08d209f9fa8c1eca692712918bd449f695dabb4a958da31802a9570fe4",
         input={
             "input_image":          data_uri,
             "prompt":               prompt,
