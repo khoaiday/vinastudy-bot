@@ -41,37 +41,13 @@ def _load_font(size: int = 13):
 # Token "img" bắt buộc — PhotoMaker dùng nó để neo danh tính khuôn mặt.
 
 _PM_PROMPTS = {
-    "chien_binh": (
-        "anime manga portrait of a young math warrior img, "
-        "glowing cyan energy armor, energy sword, floating math equations and numbers, "
-        "fierce heroic expression, dynamic lighting, clean line art, vibrant colors, "
-        "detailed anime eyes, high quality illustration"
-    ),
-    "phu_thuy": (
-        "anime manga portrait of a young math mage img, "
-        "glowing purple magical robes, crystal staff with math symbols, "
-        "floating geometric shapes and numbers, mysterious expression, "
-        "magical sparkles, clean line art, vibrant colors, high quality illustration"
-    ),
-    "xa_thu": (
-        "anime manga portrait of a young math ranger img, "
-        "glowing green archer armor, energy bow and arrow, "
-        "floating math equations, focused determined expression, "
-        "forest hints background, clean line art, vibrant colors, "
-        "detailed anime eyes, high quality illustration"
-    ),
-    "hiep_si": (
-        "anime manga portrait of a young math knight img, "
-        "glowing golden plate armor, shield with math symbols, "
-        "brave noble expression, royal golden light, "
-        "floating numbers and equations, clean line art, vibrant colors, "
-        "high quality illustration"
-    ),
+    "chien_binh": "glowing bright cyan futuristic armor, futuristic energy sword",
+    "phu_thuy": "glowing magical purple robes, digital math staff",
+    "xa_thu": "glowing bright green ranger armor, laser bow and arrow",
+    "hiep_si": "glowing golden heavy plate armor, geometry energy shield",
 }
 _PM_NEGATIVE = (
-    "ugly, deformed, blurry, low quality, bad anatomy, extra fingers, "
-    "old, elderly, wrinkles, nsfw, watermark, realistic photo, photorealistic, "
-    "mutation, poorly drawn face, out of frame"
+    "realistic, photorealistic, 3d, photography, cinematic, real person, photograph, dark, gloomy, sad"
 )
 
 
@@ -100,21 +76,25 @@ def _cartoon_photomaker(img: Image.Image, character_type: str = "chien_binh",
     buf.seek(0)
     data_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
-    # Prompt: thêm giới tính vào cuối để model render đúng
-    base_prompt = _PM_PROMPTS.get(character_type, _PM_PROMPTS["chien_binh"])
-    gt_tag = "female girl" if gioi_tinh.lower() in ("nu", "nữ", "female") else "male boy"
-    prompt = f"{base_prompt}, {gt_tag}"
+    # Prompt: theo phương án "Math Warrior Original Expression Demo"
+    char_desc = _PM_PROMPTS.get(character_type, _PM_PROMPTS["chien_binh"])
+    gender_str = "10 year old girl" if gioi_tinh.lower() in ("nu", "nữ", "female") else "10 year old boy"
+    prompt = (f"A close-up manga panel portrait of a {gender_str} math warrior img, "
+              f"upper body shot, head and shoulders, {char_desc}, "
+              "bright sunny space galaxy background with colorful floating math equations, "
+              "2D comic book art, anime manga style, pencil sketch strokes, cel shaded, "
+              "vibrant bright pastel colors, halftone patterns")
 
     # Tạo prediction không chặn (non-blocking)
     prediction = _rep.predictions.create(
-        model="tencentarc/photomaker-style",
+        model="tencentarc/photomaker:ddfc2b08d209f9fa8c1eca692712918bd449f695dabb4a958da31802a9570fe4",
         input={
             "input_image":          data_uri,
             "prompt":               prompt,
             "negative_prompt":      _PM_NEGATIVE,
-            "style_name":           "Anime",
+            "style_name":           "Comic book",
+            "style_strength_ratio": 25,
             "num_steps":            50,
-            "style_strength_ratio": 35,
             "guidance_scale":       5.0,
             "num_outputs":          1,
         },
