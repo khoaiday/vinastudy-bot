@@ -60,6 +60,39 @@ async def get_pending(request: Request,
     users = await crud.get_web_users_by_status("pending")
     return JSONResponse({"users": users, "total": len(users)})
 
+async def _notify_deleted_user(user: dict):
+    """Gửi thông báo tài khoản bị xóa + reset keyboard về màn hình đăng ký."""
+    tg_token = _get_tg_token()
+    tg_id    = user.get("telegram_id")
+    if not tg_id or not tg_token:
+        return
+    try:
+        import httpx
+        base     = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
+        reg_url  = f"{base}/register?tg_id={tg_id}"
+        reg_keyboard = {
+            "keyboard": [
+                [{"text": "📝 Tạo tài khoản", "web_app": {"url": reg_url}}]
+            ],
+            "resize_keyboard": True,
+        }
+        async with httpx.AsyncClient(timeout=8) as client:
+            await client.post(
+                f"https://api.telegram.org/bot{tg_token}/sendMessage",
+                json={
+                    "chat_id":      tg_id,
+                    "text": (
+                        f"🗑️ Tài khoản *{user.get('ho_ten', 'của em')}* đã bị xóa.\n\n"
+                        "Nếu muốn tham gia lại, em nhấn *Tạo tài khoản* bên dưới để đăng ký mới nhé! 👇"
+                    ),
+                    "parse_mode":   "Markdown",
+                    "reply_markup": reg_keyboard,
+                }
+            )
+    except Exception as e:
+        logger.warning(f"Telegram delete notify failed: {e}")
+
+
 async def _notify_approved_user(user: dict):
     tg_token = _get_tg_token()
     if not user.get("telegram_id") or not tg_token:
@@ -256,6 +289,8 @@ async def delete_user(user_id: int,
     if not user:
         raise HTTPException(404, "Không tìm thấy user")
     await crud.delete_web_user(user_id)
+    # Reset keyboard về màn hình đăng ký (nếu có telegram_id)
+    await _notify_deleted_user(user)
     return JSONResponse({"ok": True, "message": f"Đã xóa {user['ho_ten']}"})
 
 
