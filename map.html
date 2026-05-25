@@ -280,6 +280,34 @@
   .lv-btn .lv-mult  { font-size: 11px; color: #fbbf24; font-weight: 700; }
   .lv-cancel { width: 100%; background: transparent; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 6px; margin-top: 2px; }
 
+  /* ── Stage Intro Modal ── */
+  .intro-modal {
+    display: none; position: fixed; inset: 0; z-index: 9998;
+    background-color: #050a1f;
+    background-image: url('/static/images/boss_ai_1.jpg');
+    background-size: cover; background-position: center;
+    flex-direction: column; justify-content: flex-end;
+  }
+  .intro-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(5,10,31,0.2) 0%, rgba(5,10,31,0.9) 60%, rgba(5,10,31,1) 100%);
+  }
+  .intro-content {
+    position: relative; z-index: 1; padding: 30px 20px 40px; text-align: center;
+  }
+  .intro-title { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px var(--primary-glow); margin-bottom: 12px; }
+  .intro-story { font-size: 14px; color: var(--text-main); line-height: 1.6; margin-bottom: 20px; text-align: justify; }
+  .intro-mission { font-size: 14px; color: var(--secondary); font-weight: 700; margin-bottom: 30px; background: rgba(234, 14, 237, 0.1); padding: 10px; border-radius: 8px; border: 1px solid var(--secondary); }
+  
+  .btn-intro {
+    width: 100%; padding: 16px; border-radius: 30px; border: none; font-size: 18px; font-weight: 900;
+    font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; margin-bottom: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+  .btn-ren-tuyet-chieu { background: linear-gradient(90deg, #ff0055, #ff00a0); color: white; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); }
+  .btn-vao-ai { background: linear-gradient(90deg, var(--primary), var(--success)); color: #000; box-shadow: 0 0 20px var(--primary-glow); }
+  .btn-intro-close { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-muted); padding: 10px; border-radius: 20px; font-size: 14px; width: auto; min-width: 120px; cursor: pointer; transition: all 0.2s; }
+  .btn-intro-close:hover { background: rgba(255,255,255,0.1); }
 </style>
 </head>
 <body>
@@ -370,6 +398,25 @@
         <div class="card-arrow">⏳</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ── Intro Modal ── -->
+<div class="intro-modal" id="introModal">
+  <div class="intro-overlay"></div>
+  <div class="intro-content">
+    <div class="intro-title" id="introTitle">Ải 1: Truy tìm chúa tể</div>
+    <div class="intro-story">
+      Boss Hỗn Loạn đang phong ấn các con số để phá vỡ trật tự của vũ trụ Toán học. Hãy ngăn chặn nó!
+    </div>
+    <div class="intro-mission">
+      🎯 Nhiệm vụ: Chơi Mini Game "Phân Biệt Số & Chữ Số" đạt 8/10 câu để lĩnh ngộ Tuyệt Chiêu phá khiên của Boss.
+    </div>
+    
+    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()">🔥 RÈN TUYỆT CHIÊU</button>
+    <button class="btn-intro btn-vao-ai" id="btnVaoAi" style="display:none" onclick="openLvSelect()">⚔️ VÀO ẢI</button>
+    
+    <button class="btn-intro-close" onclick="closeIntroModal()">✕ Thoát</button>
   </div>
 </div>
 
@@ -544,9 +591,13 @@ function openProfile() {
 
 /* ── Level selection ── */
 var _pending = {};
+let currentBuoi = null;
+let currentTitle = null;
 
 function open_(buoi, title, path, el) {
   _pending = { buoi, title, path, el };
+  currentBuoi = buoi;
+  currentTitle = title;
 
   /* Nếu đang chơi dở → vào thẳng với level đã lưu, không chọn lại */
   try {
@@ -561,15 +612,55 @@ function open_(buoi, title, path, el) {
     }
   } catch(e) {}
 
-  /* Chưa có progress → hiện modal chọn level */
-  document.getElementById('lvModalName').textContent = title;
-  var best = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + buoi) || '0');
+  /* Mở màn Intro thay vì mở Level Modal */
+  document.getElementById('introTitle').textContent = `ẢI ${buoi}: ${title}`;
+  
+  const hasSkill = localStorage.getItem('cbToan_skill_bai' + buoi) === 'true';
+  if (hasSkill) {
+    document.getElementById('btnRenTuyetChieu').style.display = 'none';
+    document.getElementById('btnVaoAi').style.display = 'block';
+  } else {
+    document.getElementById('btnRenTuyetChieu').style.display = 'block';
+    document.getElementById('btnVaoAi').style.display = 'none';
+  }
+  document.getElementById('introModal').style.display = 'flex';
+}
+
+function closeIntroModal() {
+  document.getElementById('introModal').style.display = 'none';
+}
+
+function openLvSelect() {
+  closeIntroModal();
+  document.getElementById('lvModalName').textContent = currentTitle;
+  var best = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + currentBuoi) || '0');
   [1,2,3].forEach(function(n) {
     var btn = document.getElementById('lvBtn' + n);
     if (btn) btn.classList.toggle('best-lv', n === best);
   });
   document.getElementById('levelModal').style.display = 'flex';
 }
+
+function playMinigame() {
+  document.getElementById('pgTitle').textContent = 'Rèn Tuyệt Chiêu';
+  document.getElementById('pgSub').textContent   = 'Phân Biệt Số & Chữ Số';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('frame').src = `${BASE}/minigame.html?buoi=${currentBuoi}`;
+  requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
+  if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
+}
+
+window.addEventListener('message', function(e) {
+  if (e.data === 'minigame_won') {
+    close_(); 
+    document.getElementById('btnRenTuyetChieu').style.display = 'none';
+    document.getElementById('btnVaoAi').style.display = 'block';
+    // Optionally alert
+    setTimeout(() => {
+      alert("✨ Tuyệt vời! Bạn đã lĩnh ngộ tuyệt chiêu thành công! Bấm VÀO ẢI để khiêu chiến Boss!");
+    }, 400);
+  }
+});
 
 function closeLvModal() {
   document.getElementById('levelModal').style.display = 'none';
