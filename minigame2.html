@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tuyệt Chiêu Cấu Tạo Số</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #0ae0fe;
+            --primary-glow: rgba(10, 224, 254, 0.6);
+            --secondary: #ff0055;
+            --secondary-glow: rgba(255, 0, 85, 0.6);
+            --bg-color: #050b14;
+            --card-bg: #0f172a;
+            --success: #4eff9f;
+            --danger: #ff0055;
+            --warning: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(10, 224, 254, 0.1) 0%, transparent 60%),
+                linear-gradient(rgba(10,224,254,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(10,224,254,0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .header {
+            padding: 15px 20px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: 'Chakra Petch', sans-serif;
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .score-text { color: var(--success); text-shadow: 0 0 10px rgba(78, 255, 159, 0.5); }
+        .time-text { color: var(--danger); text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
+        .progress-text { color: var(--primary); text-align: center; margin-top: 5px; font-weight: bold; font-family: 'Chakra Petch', sans-serif; font-size: 16px;}
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .number-display-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-number {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
+            letter-spacing: 10px;
+        }
+
+        .targets-container {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .target-box {
+            width: 80px;
+            height: 120px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 4rem;
+            font-weight: bold;
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .target-left {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            text-shadow: 0 0 15px var(--secondary-glow);
+            box-shadow: inset 0 0 20px rgba(255,0,85,0.2);
+        }
+
+        .target-right {
+            border-color: var(--primary);
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary-glow);
+            box-shadow: inset 0 0 20px rgba(10,224,254,0.2);
+        }
+
+        .deck-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 240px;
+            height: 340px;
+            perspective: 1000px;
+            z-index: 10;
+        }
+
+        .card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, var(--card-bg), #1e293b);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: bold;
+            font-size: 2.2rem;
+            text-align: center;
+            padding: 20px;
+            text-transform: uppercase;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.1);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease, opacity 0.3s ease;
+            cursor: pointer;
+            line-height: 1.3;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 3D Stack positions */
+        .card[data-index="0"] { /* Top card */
+            transform: translateY(0) scale(1);
+            z-index: 3;
+            filter: brightness(1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 0 0 2px var(--primary);
+        }
+        .card[data-index="1"] { /* Middle card */
+            transform: translateY(30px) scale(0.9);
+            z-index: 2;
+            filter: brightness(0.6);
+            pointer-events: none;
+        }
+        .card[data-index="2"] { /* Bottom card */
+            transform: translateY(60px) scale(0.8);
+            z-index: 1;
+            filter: brightness(0.3);
+            pointer-events: none;
+        }
+
+        /* Card specific colors */
+        .card.type-tram { color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.8); border-bottom: 5px solid #fbbf24; }
+        .card.type-chuc { color: #4eff9f; text-shadow: 0 0 15px rgba(78, 255, 159, 0.8); border-bottom: 5px solid #4eff9f; }
+        .card.type-donvi { color: #0ae0fe; text-shadow: 0 0 15px rgba(10, 224, 254, 0.8); border-bottom: 5px solid #0ae0fe; }
+
+        .feedback {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+            text-align: center;
+        }
+
+        .feedback.show {
+            animation: popOut 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -100%) scale(1); }
+        }
+
+        .bottom-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 30, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+        
+        .overlay.hidden {
+            display: none;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, var(--primary), #0077ff);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: bold;
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: transform 0.1s, box-shadow 0.1s;
+            margin-top: 20px;
+        }
+
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+
+        .card.swipe-left { animation: swipeLeftAnim 0.5s forwards; }
+        .card.swipe-right { animation: swipeRightAnim 0.5s forwards; }
+        .card.swipe-out { animation: fadeOutDown 0.3s forwards; } /* when tapped */
+
+        @keyframes swipeLeftAnim {
+            to { transform: translate(-200px, 50px) rotate(-30deg) scale(0.5); opacity: 0; }
+        }
+        @keyframes swipeRightAnim {
+            to { transform: translate(200px, 50px) rotate(30deg) scale(0.5); opacity: 0; }
+        }
+        @keyframes fadeOutDown {
+            to { transform: translateY(100px) scale(0.8); opacity: 0; }
+        }
+        
+        .win-bg {
+            background: linear-gradient(rgba(10, 15, 30, 0.7), rgba(10, 15, 30, 0.95)), url('assets/thay_long_bg.jpg') !important;
+            background-size: cover !important;
+            background-position: center top !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Intro Screen -->
+    <div id="introScreen" class="overlay">
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Tuyệt Chiêu<br><span style="color: #fbbf24">Cấu Tạo Số</span></h1>
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid var(--primary); text-align: left; max-width: 350px; margin-bottom: 20px;">
+            <p style="color: var(--primary); font-weight: bold; margin-top: 0;">📜 LUẬT CHƠI MỚI:</p>
+            <ul style="padding-left: 20px; margin-bottom: 0; line-height: 1.6;">
+                <li>Trên màn hình hiện 1 số có 3 chữ số.</li>
+                <li>2 bên trái phải là 2 chữ số mục tiêu được tách ra.</li>
+                <li><strong>Chạm (Tap)</strong> vào bộ bài để tráo thẻ "Hàng Trăm / Chục / Đơn vị" lên trên cùng.</li>
+                <li><strong>Vuốt (Swipe)</strong> thẻ trên cùng về đúng phía chữ số tương ứng với hàng đó.</li>
+            </ul>
+        </div>
+        <button class="start-btn" onclick="startGame()">BẮT ĐẦU</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="overlay hidden">
+        <!-- Content injected by JS -->
+    </div>
+
+    <!-- Main Game -->
+    <div class="header">
+        <h1>Tuyệt Chiêu Cấu Tạo Số</h1>
+        <div class="stats">
+            <div class="score-text">ĐÚNG: <span id="scoreDisplay">0</span>/12</div>
+            <div class="time-text">THỜI GIAN: <span id="timeDisplay">45</span>s</div>
+        </div>
+        <div class="progress-text">Câu: <span id="questionCountDisplay">1</span>/12</div>
+    </div>
+    
+    <div class="game-area">
+        <div class="number-display-container">
+            <div class="main-number" id="mainNumberDisplay">000</div>
+        </div>
+
+        <div class="targets-container">
+            <div class="target-box target-left" id="targetLeft">0</div>
+            <div class="target-box target-right" id="targetRight">0</div>
+        </div>
+
+        <div class="deck-container" id="deckContainer">
+            <!-- Cards rendered here by JS -->
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+        <div class="bottom-hint">Chạm để tráo bài - Vuốt để chọn hướng</div>
+    </div>
+
+    <script>
+        // Game variables
+        const TOTAL_QUESTIONS = 12;
+        let score = 0;
+        let questionCount = 1;
+        let timeLeft = 45;
+        let gameInterval;
+        
+        let targetNumberStr = "";
+        let leftDigitInfo = {};
+        let rightDigitInfo = {};
+        
+        // Deck state
+        let deck = [
+            { type: 'tram', label: 'HÀNG<br>TRĂM' },
+            { type: 'chuc', label: 'HÀNG<br>CHỤC' },
+            { type: 'donvi', label: 'HÀNG<br>ĐƠN VỊ' }
+        ];
+
+        // Interaction state
+        let startX, startY;
+        let isDragging = false;
+        let hasMoved = false;
+        let topCardEl = null;
+
+        const deckContainer = document.getElementById('deckContainer');
+        const feedbackEl = document.getElementById('feedback');
+
+        function startGame() {
+            document.getElementById('introScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.remove('win-bg');
+            
+            score = 0;
+            questionCount = 1;
+            timeLeft = 45;
+            
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('timeDisplay').innerText = timeLeft;
+            document.getElementById('questionCountDisplay').innerText = questionCount;
+            
+            clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeDisplay').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame(true);
+                }
+            }, 1000);
+            
+            nextRound();
+        }
+
+        function nextRound() {
+            // Generate a random 3 distinct digit number (no zero at front)
+            let digits = [];
+            while(digits.length < 3) {
+                let r = Math.floor(Math.random() * 10);
+                if (digits.length === 0 && r === 0) continue; 
+                if (!digits.includes(r)) digits.push(r);
+            }
+            
+            targetNumberStr = digits.join('');
+            document.getElementById('mainNumberDisplay').innerText = targetNumberStr;
+            
+            // The mapping
+            let mapping = [
+                { val: digits[0], type: 'tram' },
+                { val: digits[1], type: 'chuc' },
+                { val: digits[2], type: 'donvi' }
+            ];
+            
+            // Pick 2 out of 3 randomly to display on left/right
+            mapping.sort(() => Math.random() - 0.5);
+            
+            leftDigitInfo = mapping[0];
+            rightDigitInfo = mapping[1];
+            
+            document.getElementById('targetLeft').innerText = leftDigitInfo.val;
+            document.getElementById('targetRight').innerText = rightDigitInfo.val;
+            
+            // Randomize deck initial state visually? No, just keep current deck order or shuffle
+            deck.sort(() => Math.random() - 0.5);
+            renderDeck();
+        }
+
+        function renderDeck() {
+            deckContainer.innerHTML = '';
+            
+            // Render from bottom to top so top is last in DOM but receives highest z-index via CSS
+            for (let i = 2; i >= 0; i--) {
+                const cData = deck[i];
+                const card = document.createElement('div');
+                card.className = `card type-${cData.type}`;
+                card.innerHTML = cData.label;
+                card.dataset.index = i; // 0 is top, 1 is middle, 2 is bottom
+                card.id = `card-${i}`;
+                deckContainer.appendChild(card);
+            }
+            
+            topCardEl = document.getElementById('card-0');
+            setupInteraction(topCardEl);
+        }
+
+        function cycleDeck() {
+            // Top card moves out visually
+            topCardEl.classList.add('swipe-out');
+            
+            setTimeout(() => {
+                // Logic shift
+                let top = deck.shift();
+                deck.push(top);
+                renderDeck();
+            }, 150); // fast transition
+        }
+
+        function setupInteraction(card) {
+            card.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+            
+            card.addEventListener('touchstart', dragStart, {passive: false});
+            document.addEventListener('touchmove', dragMove, {passive: false});
+            document.addEventListener('touchend', dragEnd);
+        }
+
+        function removeInteraction() {
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchmove', dragMove);
+            document.removeEventListener('touchend', dragEnd);
+        }
+
+        function dragStart(e) {
+            if (e.type === 'touchstart') {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            } else {
+                startX = e.clientX;
+                startY = e.clientY;
+                e.preventDefault();
+            }
+            isDragging = true;
+            hasMoved = false;
+        }
+
+        function dragMove(e) {
+            if (!isDragging) return;
+            let currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            let currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+            
+            let deltaX = currentX - startX;
+            let deltaY = currentY - startY;
+            
+            if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                hasMoved = true;
+                if (e.type === 'touchmove') e.preventDefault(); // prevent scrolling
+            }
+            
+            if (hasMoved && topCardEl) {
+                topCardEl.style.transition = 'none';
+                topCardEl.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${deltaX * 0.05}deg)`;
+            }
+        }
+
+        function dragEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            removeInteraction();
+            
+            if (!hasMoved) {
+                // It was a tap!
+                cycleDeck();
+                return;
+            }
+            
+            let currentX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX;
+            let deltaX = currentX - startX;
+            
+            if (Math.abs(deltaX) > 80) {
+                // Swiped!
+                if (deltaX > 0) {
+                    processSwipe('right');
+                } else {
+                    processSwipe('left');
+                }
+            } else {
+                // Snap back
+                if (topCardEl) {
+                    topCardEl.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    topCardEl.style.transform = '';
+                }
+            }
+        }
+
+        function processSwipe(direction) {
+            let currentTopType = deck[0].type;
+            let isCorrect = false;
+            
+            if (direction === 'left' && currentTopType === leftDigitInfo.type) {
+                isCorrect = true;
+            } else if (direction === 'right' && currentTopType === rightDigitInfo.type) {
+                isCorrect = true;
+            }
+            
+            // Animation
+            if (direction === 'left') topCardEl.classList.add('swipe-left');
+            else topCardEl.classList.add('swipe-right');
+            
+            // Feedback
+            feedbackEl.classList.remove('show');
+            void feedbackEl.offsetWidth; // trigger reflow
+            
+            if (isCorrect) {
+                score++;
+                feedbackEl.innerText = "CHÍNH XÁC!";
+                feedbackEl.style.color = "var(--success)";
+                feedbackEl.style.textShadow = "0 0 20px rgba(78,255,159,0.8)";
+            } else {
+                feedbackEl.innerText = "SAI RỒI!";
+                feedbackEl.style.color = "var(--danger)";
+                feedbackEl.style.textShadow = "0 0 20px rgba(255,0,85,0.8)";
+            }
+            
+            feedbackEl.classList.add('show');
+            document.getElementById('scoreDisplay').innerText = score;
+            
+            setTimeout(() => {
+                if (questionCount >= TOTAL_QUESTIONS) {
+                    endGame(false);
+                } else {
+                    questionCount++;
+                    document.getElementById('questionCountDisplay').innerText = questionCount;
+                    nextRound();
+                }
+            }, 400);
+        }
+
+        function endGame(timeOut = false) {
+            clearInterval(gameInterval);
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            
+            const isWin = score >= 11;
+            const goScreen = document.getElementById('gameOverScreen');
+            
+            if (isWin) {
+                goScreen.classList.add('win-bg');
+                
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+                
+                goScreen.innerHTML = `
+                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(78,255,159,0.5);">TUYỆT VỜI!</h1>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; margin-top: 10px;">Bạn đã thành thạo Tuyệt chiêu Cấu Tạo Số!</h2>
+                    <div style="background: rgba(10,224,254,0.1); border: 1px solid var(--primary); border-radius: 10px; padding: 15px; margin: 15px; font-size: 1rem; line-height: 1.5; color: var(--primary); backdrop-filter: blur(5px);">
+                        <strong>👨‍🏫 Thầy Long khen ngợi:</strong><br>"Giỏi lắm! Nắm vững Hàng Trăm, Chục, Đơn vị thì số nào cũng phân tích được dễ dàng!"
+                    </div>
+                    <button class="start-btn" onclick="startGame()">CHƠI LẠI</button>
+                `;
+            } else {
+                goScreen.innerHTML = `
+                    <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ đúng ${score}/12 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần 11/12 để qua ải.</h2>
+                    <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
