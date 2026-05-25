@@ -314,6 +314,73 @@
             background-size: cover !important;
             background-position: center top !important;
         }
+
+        .lose-bg {
+            background: linear-gradient(rgba(10, 15, 30, 0.7), rgba(10, 15, 30, 0.95)), url('assets/boss_so_than_portrait.jpg') !important;
+            background-size: cover !important;
+            background-position: center top !important;
+        }
+        
+        .yt-btn {
+            background: #ff0000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: bold;
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            transition: transform 0.1s;
+        }
+
+        .yt-btn:active {
+            transform: scale(0.95);
+        }
+
+        .video-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-modal.show {
+            display: flex;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        }
+
+        .video-close-btn {
+            margin-top: 15px;
+            background: #333;
+            border: none;
+            color: #fff;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-family: 'Chakra Petch', sans-serif;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -336,6 +403,14 @@
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
         <!-- Content injected by JS -->
+    </div>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="video-modal">
+        <div class="video-container">
+            <iframe id="ytIframe" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        <button class="video-close-btn" onclick="closeVideo()">✕ ĐÓNG VIDEO</button>
     </div>
 
     <!-- Main Game -->
@@ -397,7 +472,7 @@
         function startGame() {
             document.getElementById('introScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.remove('win-bg');
+            document.getElementById('gameOverScreen').classList.remove('win-bg', 'lose-bg');
             
             score = 0;
             questionCount = 1;
@@ -635,6 +710,19 @@
             }, 400);
         }
 
+        function openVideo() {
+            // Thay ID video và start time ở đây
+            let videoId = "VIDEO_ID_HERE";
+            let startTime = "0"; 
+            document.getElementById('ytIframe').src = `https://www.youtube.com/embed/${videoId}?start=${startTime}&autoplay=1`;
+            document.getElementById('videoModal').classList.add('show');
+        }
+
+        function closeVideo() {
+            document.getElementById('ytIframe').src = "";
+            document.getElementById('videoModal').classList.remove('show');
+        }
+
         function endGame(timeOut = false) {
             clearInterval(gameInterval);
             document.getElementById('gameOverScreen').classList.remove('hidden');
@@ -660,10 +748,17 @@
                     <button class="start-btn" onclick="startGame()">CHƠI LẠI</button>
                 `;
             } else {
+                goScreen.classList.add('lose-bg');
                 goScreen.innerHTML = `
                     <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
                     <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ đúng ${score}/12 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần 11/12 để qua ải.</h2>
                     <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
+                    <button class="yt-btn" onclick="openVideo()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21.582 6.186a2.506 2.506 0 0 0-1.762-1.766C18.265 4 12 4 12 4s-6.264 0-7.82.42a2.506 2.506 0 0 0-1.76 1.766C2 7.74 2 12 2 12s0 4.26.42 5.814a2.506 2.506 0 0 0 1.76 1.766C5.736 20 12 20 12 20s6.265 0 7.82-.42a2.506 2.506 0 0 0 1.762-1.766C22 16.26 22 12 22 12s0-4.26-.418-5.814zM9.99 15.47V8.529L16 12l-6.01 3.47z"/>
+                        </svg>
+                        XEM BÀI GIẢNG
+                    </button>
                 `;
             }
         }
