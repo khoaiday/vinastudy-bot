@@ -125,6 +125,7 @@ body {
 .char-grid {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 8px; margin-bottom: 24px;
+  padding: 0 10px; /* Thêm chút margin 2 bên cho grid nhỏ lại */
 }
 .char-card {
   padding: 8px 6px; border-radius: 10px;
@@ -138,13 +139,14 @@ body {
 .char-card.selected { border: 2px solid var(--primary); background: rgba(10,224,254,.4); }
 .char-card .emoji { font-size: 1.4rem; display: block; margin-bottom: 2px; }
 .char-card .name { font-size: .75rem; font-weight: 700; }
-.char-card .desc { display: none; } /* Hide description to make it smaller */
+.char-card .desc { display: block; font-size: .6rem; opacity: 0.8; margin-top: 2px; }
 .char-card .badge {
-  position: absolute; top: 4px; right: 4px;
-  font-size: .6rem; padding: 2px 4px;
-  border-radius: 99px; font-weight: 700; display: none;
+  position: absolute; top: -5px; right: -5px;
+  font-size: .7rem; width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-weight: 700; display: none;
 }
-.char-card.selected .badge { display: block; }
+.char-card.selected .badge { display: flex; }
 
 /* Characters colors */
 .char-chien_binh { --c: #0ae0fe; }
@@ -301,25 +303,25 @@ body {
           <span class="emoji">⚔️</span>
           <div class="name" style="color:#0ae0fe">Chiến Binh</div>
           <div class="desc">Mạnh mẽ, kiên định</div>
-          <span class="badge">✓ Đang chọn</span>
+          <span class="badge">✓</span>
         </div>
         <div class="char-card char-phu_thuy" data-char="phu_thuy" onclick="selectChar(this)">
           <span class="emoji">🔮</span>
           <div class="name" style="color:#ea0eed">Phù Thủy</div>
           <div class="desc">Thông minh, sáng tạo</div>
-          <span class="badge">✓ Đang chọn</span>
+          <span class="badge">✓</span>
         </div>
         <div class="char-card char-xa_thu" data-char="xa_thu" onclick="selectChar(this)">
           <span class="emoji">🏹</span>
           <div class="name" style="color:#4eff9f">Xạ Thủ</div>
           <div class="desc">Nhanh nhẹn, chính xác</div>
-          <span class="badge">✓ Đang chọn</span>
+          <span class="badge">✓</span>
         </div>
         <div class="char-card char-hiep_si" data-char="hiep_si" onclick="selectChar(this)">
           <span class="emoji">🛡️</span>
           <div class="name" style="color:#ffd700">Hiệp Sĩ</div>
           <div class="desc">Dũng cảm, bảo vệ</div>
-          <span class="badge">✓ Đang chọn</span>
+          <span class="badge">✓</span>
         </div>
       </div>
 
