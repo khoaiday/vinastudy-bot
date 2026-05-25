@@ -420,25 +420,51 @@
         }
 
         function nextRound() {
-            // Generate a random 3 distinct digit number (no zero at front)
-            let digits = [];
-            while(digits.length < 3) {
-                let r = Math.floor(Math.random() * 10);
-                if (digits.length === 0 && r === 0) continue; 
-                if (!digits.includes(r)) digits.push(r);
+            let h, t, u;
+            
+            if (questionCount === 7) {
+                // Lượt đặc biệt 1: a _ b (Ví dụ: a5b)
+                h = 'a';
+                t = Math.floor(Math.random() * 10).toString();
+                u = 'b';
+            } else if (questionCount === 11) {
+                // Lượt đặc biệt 2: _ a b (Ví dụ: 8ab)
+                h = (Math.floor(Math.random() * 9) + 1).toString();
+                t = 'a';
+                u = 'b';
+            } else {
+                // Số bình thường
+                let digits = [];
+                while(digits.length < 3) {
+                    let r = Math.floor(Math.random() * 10);
+                    if (digits.length === 0 && r === 0) continue; 
+                    if (!digits.includes(r)) digits.push(r);
+                }
+                h = digits[0].toString();
+                t = digits[1].toString();
+                u = digits[2].toString();
             }
             
-            targetNumberStr = digits.join('');
+            targetNumberStr = h + t + u;
             document.getElementById('mainNumberDisplay').innerText = targetNumberStr;
             
             // The mapping
             let mapping = [
-                { val: digits[0], type: 'tram' },
-                { val: digits[1], type: 'chuc' },
-                { val: digits[2], type: 'donvi' }
+                { val: h, type: 'tram' },
+                { val: t, type: 'chuc' },
+                { val: u, type: 'donvi' }
             ];
             
-            // Pick 2 out of 3 randomly to display on left/right
+            if (questionCount === 7 || questionCount === 11) {
+                // Ở lượt đặc biệt, luôn chọn 'a' và 'b' làm mục tiêu để test
+                mapping = mapping.filter(m => m.val === 'a' || m.val === 'b');
+            } else {
+                // Lượt bình thường, chọn ngẫu nhiên 2 chữ số
+                mapping.sort(() => Math.random() - 0.5);
+                mapping = mapping.slice(0, 2);
+            }
+            
+            // Tráo ngẫu nhiên để chia ra 2 bên Trái/Phải
             mapping.sort(() => Math.random() - 0.5);
             
             leftDigitInfo = mapping[0];
