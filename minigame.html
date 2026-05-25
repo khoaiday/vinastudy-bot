@@ -218,11 +218,11 @@
 
     <!-- Start Screen -->
     <div id="startScreen" class="overlay">
-        <h1 style="color: var(--neon-blue); font-size: 2.5rem; margin-bottom: 10px; text-align: center;">TRẠM KIỂM SOÁT<br>HỖN LOẠN</h1>
+        <h1 style="color: var(--neon-blue); font-size: 2.5rem; margin-bottom: 10px; text-align: center;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
         <div class="instructions">
             <p>Luật chơi rất đơn giản:</p>
-            <p style="color: var(--neon-blue); font-weight: bold;">👉 CHỮ SỐ (0 đến 9) -> Đi Cổng VIP (Phải)</p>
-            <p style="color: var(--neon-red); font-weight: bold;">👈 SỐ TỰ NHIÊN (> 9) -> Đi Cổng Thường (Trái)</p>
+            <p style="color: var(--neon-blue); font-weight: bold;">👉 Vuốt sang Phải nếu là Số</p>
+            <p style="color: var(--neon-red); font-weight: bold;">👈 Vuốt sang Trái nếu là Chữ Số</p>
             <p>Phân loại thật nhanh trước khi hết giờ!</p>
         </div>
         <button class="start-btn" onclick="startGame()">BẮT ĐẦU</button>
@@ -253,8 +253,8 @@
     </div>
 
     <div class="controls">
-        <button class="btn btn-left" onclick="checkAnswer('SO')">👈 LÀ SỐ (>9)<br><span style="font-size: 0.8rem; font-weight: normal;">(Gồm nhiều chữ số)</span></button>
-        <button class="btn btn-right" onclick="checkAnswer('CHU_SO')">LÀ CHỮ SỐ 👉<br><span style="font-size: 0.8rem; font-weight: normal;">(Từ 0 đến 9)</span></button>
+        <button class="btn btn-left" onclick="checkAnswer('CHU_SO')">👈 CHỮ SỐ<br><span style="font-size: 0.8rem; font-weight: normal;">(Từ 0 đến 9)</span></button>
+        <button class="btn btn-right" onclick="checkAnswer('SO')">LÀ SỐ 👉<br><span style="font-size: 0.8rem; font-weight: normal;">(Lớn hơn 9)</span></button>
     </div>
 
     <script>
@@ -380,7 +380,7 @@
             }
 
             // Animate card
-            if (userChoice === 'SO') {
+            if (userChoice === 'CHU_SO') {
                 card.classList.add('swipe-left');
             } else {
                 card.classList.add('swipe-right');
@@ -425,9 +425,9 @@
             if (document.getElementById('startScreen').classList.contains('hidden') && 
                 document.getElementById('gameOverScreen').classList.contains('hidden')) {
                 if (e.key === 'ArrowLeft') {
-                    checkAnswer('SO');
-                } else if (e.key === 'ArrowRight') {
                     checkAnswer('CHU_SO');
+                } else if (e.key === 'ArrowRight') {
+                    checkAnswer('SO');
                 }
             }
         });
