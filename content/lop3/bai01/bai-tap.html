@@ -847,11 +847,129 @@
   }
   .np-btn.np-ok:active { background: #fff; transform: scale(0.9); }
 
+  /* ── Boss Awakening Cinematic ── */
+  .awakening-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    overflow: hidden; cursor: pointer; user-select: none;
+  }
+  .aw-bg-glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center bottom, rgba(100,0,0,0.6) 0%, #000 65%);
+  }
+  .aw-boss-img {
+    position: absolute; bottom: 0; left: 50%;
+    transform: translateX(-50%) translateY(20%);
+    width: min(100%, 500px); max-height: 80vh;
+    object-fit: contain; object-position: bottom center;
+    opacity: 0; filter: brightness(0.15) saturate(0.3);
+    transition: filter 1.4s ease, opacity 0.1s;
+    animation: awBossRise 1.8s cubic-bezier(0.16,1,0.3,1) forwards 0.4s;
+  }
+  @keyframes awBossRise {
+    from { transform: translateX(-50%) translateY(30%); opacity: 0; }
+    to   { transform: translateX(-50%) translateY(0);   opacity: 1; }
+  }
+  .aw-boss-img.lit { filter: brightness(1) saturate(1.1) drop-shadow(0 0 40px rgba(180,0,0,0.9)); }
+  .aw-red-pulse {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(180,0,0,0.35) 0%, transparent 60%);
+    opacity: 0; animation: awPulse 2s ease-in-out infinite 2.5s;
+  }
+  @keyframes awPulse { 0%,100%{opacity:0;} 50%{opacity:1;} }
+  .aw-flash {
+    position: absolute; inset: 0; background: rgba(140,0,0,0.3);
+    opacity: 0; pointer-events: none;
+    animation: awF1 0.12s 2.2s, awF1 0.12s 2.55s, awF1 0.18s 3.1s;
+  }
+  @keyframes awF1 { 0%,100%{opacity:0;} 50%{opacity:1;} }
+  .aw-text-wrap {
+    position: relative; z-index: 2; text-align: center;
+    padding: 0 24px 90px; display: flex;
+    flex-direction: column; align-items: center; gap: 10px;
+  }
+  .aw-eyebrow {
+    font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 5px; color: rgba(255,80,80,0.65); text-transform: uppercase;
+    opacity: 0; animation: awFadeUp 0.8s ease forwards 1.6s;
+  }
+  .aw-main-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(38px, 11vw, 62px); font-weight: 900;
+    color: #cc0000; text-transform: uppercase; letter-spacing: 4px; line-height: 1.05;
+    text-shadow: 0 0 40px rgba(200,0,0,0.9), 0 0 100px rgba(200,0,0,0.4);
+    opacity: 0; animation: awTitleIn 1s cubic-bezier(0.16,1,0.3,1) forwards 2.1s;
+  }
+  @keyframes awTitleIn {
+    from { opacity:0; transform:scale(1.4); letter-spacing:14px; filter:blur(4px); }
+    to   { opacity:1; transform:scale(1);   letter-spacing:4px;  filter:blur(0); }
+  }
+  .aw-sub {
+    font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600;
+    color: rgba(255,180,180,0.6); letter-spacing: 3px;
+    opacity: 0; animation: awFadeUp 0.8s ease forwards 3s;
+  }
+  .aw-tap-hint {
+    font-size: 11px; color: rgba(255,255,255,0.25); letter-spacing: 2px; margin-top: 14px;
+    opacity: 0; animation: awFadeUp 0.6s ease forwards 3.8s;
+  }
+  @keyframes awFadeUp {
+    from { opacity:0; transform:translateY(12px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .aw-progress {
+    position: absolute; bottom: 0; left: 0;
+    height: 3px; width: 0%;
+    background: linear-gradient(90deg, #880000, #ff3333);
+    box-shadow: 0 0 10px #cc0000;
+    animation: awProg 4.5s linear forwards 0.2s;
+  }
+  @keyframes awProg { from{width:0%} to{width:100%} }
+
+  /* ── Boss image avatar trong battle ── */
+  .boss-avatar-img {
+    width: 84px; height: 100px;
+    object-fit: contain; object-position: top center;
+    border-radius: 8px; display: block;
+  }
+  .boss-portrait-mini {
+    width: 20px; height: 20px; border-radius: 50%;
+    object-fit: cover; border: 1px solid var(--secondary);
+    flex-shrink: 0; vertical-align: middle;
+  }
+  .boss .avatar { padding: 5px !important; }
+  /* Player avatar ảnh thật */
+  .player-avatar-img {
+    width: 72px; height: 90px;
+    object-fit: cover; object-position: top center;
+    border-radius: 8px; display: block;
+  }
+
 </style>
 </head>
 <body>
 
 
+
+<!-- ── Boss Awakening Cinematic ── -->
+<div id="awakeningOverlay" class="awakening-overlay" onclick="skipAwakening()">
+  <div class="aw-bg-glow"></div>
+  <div class="aw-flash"></div>
+  <img id="awBossImg" class="aw-boss-img"
+       src="/content/lop3/bai01/assets/boss_awakening.png"
+       alt="Số Thần tỉnh giấc"
+       onerror="this.style.display='none'">
+  <div class="aw-red-pulse"></div>
+  <div class="aw-text-wrap">
+    <div class="aw-eyebrow">⚠ Kẻ thù xuất hiện</div>
+    <div class="aw-main-title">SỐ THẦN<br>TỈNH GIẤC</div>
+    <div class="aw-sub">Hắc ám bắt đầu lan rộng...</div>
+    <div class="aw-tap-hint">Chạm để bắt đầu chiến đấu ▶</div>
+  </div>
+  <div class="aw-progress"></div>
+</div>
 
 <!-- Battle Arena -->
 <div class="battle-arena">
@@ -893,15 +1011,24 @@
     <div class="fighter player">
       <div class="fighter-name">Chiến Binh</div>
       <div class="hp-bar-container"><div class="hp-bar-fill" id="playerHp"></div></div>
-      <div class="avatar" id="playerAvatar">🧙‍♂️</div>
+      <div class="avatar" id="playerAvatar">⚔️</div>
     </div>
 
     <div style="font-size:36px; font-weight:900; color:var(--primary); text-shadow:0 0 15px var(--primary-glow); opacity:0.9; font-family:'Rajdhani', sans-serif">VS</div>
 
     <div class="fighter boss">
-      <div class="fighter-name">Số Thần</div>
+      <div class="fighter-name" style="display:flex;align-items:center;justify-content:center;gap:5px">
+        <img src="/content/lop3/bai01/assets/boss_portrait.png"
+             class="boss-portrait-mini" alt=""
+             onerror="this.style.display='none'">
+        Số Thần
+      </div>
       <div class="hp-bar-container"><div class="hp-bar-fill" id="bossHp"></div></div>
-      <div class="avatar" id="bossAvatar">🤖</div>
+      <div class="avatar" id="bossAvatar">
+        <img src="/content/lop3/bai01/assets/boss_full.png"
+             class="boss-avatar-img" alt="Số Thần"
+             onerror="this.outerHTML='🤖'">
+      </div>
     </div>
   </div>
 
@@ -1741,11 +1868,52 @@ function closeMomo() {
   }
 }
 
-// Override playerAvatar logic with localStorage
+// ── Boss Awakening Cinematic ──────────────────────────────────────────────
+(function () {
+  var aw = document.getElementById('awakeningOverlay');
+  if (!aw) return;
+  // Skip nếu đã xem trong session này
+  if (sessionStorage.getItem('cbToan_aw_bai1')) {
+    aw.style.display = 'none'; return;
+  }
+  // Đèn sáng boss sau 2s
+  setTimeout(function () {
+    var img = document.getElementById('awBossImg');
+    if (img) img.classList.add('lit');
+  }, 2000);
+  // Tự dismiss sau 4.8s
+  setTimeout(skipAwakening, 4800);
+})();
+
+function skipAwakening() {
+  var aw = document.getElementById('awakeningOverlay');
+  if (!aw || aw.style.display === 'none') return;
+  sessionStorage.setItem('cbToan_aw_bai1', '1');
+  aw.style.transition = 'opacity 0.5s ease';
+  aw.style.opacity = '0';
+  setTimeout(function () { aw.style.display = 'none'; }, 500);
+}
+// ─────────────────────────────────────────────────────────────────────────
+
+// Player avatar: dùng ảnh thật từ vsUser (sessionStorage) hoặc emoji nhân vật
 document.addEventListener('DOMContentLoaded', () => {
-  const savedAvatar = localStorage.getItem('cbToan_avatar');
-  if (savedAvatar) {
-    document.getElementById('playerAvatar').textContent = savedAvatar;
+  var playerEl = document.getElementById('playerAvatar');
+  if (!playerEl) return;
+  try {
+    var vsUser = JSON.parse(sessionStorage.getItem('vsUser') || 'null');
+    if (vsUser && vsUser.avatar_final) {
+      playerEl.innerHTML =
+        '<img src="' + vsUser.avatar_final + '" class="player-avatar-img" alt="Avatar"'
+        + ' onerror="this.outerHTML=\'⚔️\'">';
+      return;
+    }
+    // Fallback: emoji theo character_type
+    var emojiMap = { chien_binh:'⚔️', phu_thuy:'🔮', xa_thu:'🏹', hiep_si:'🛡️' };
+    if (vsUser && vsUser.character_type) {
+      playerEl.textContent = emojiMap[vsUser.character_type] || '⚔️';
+    }
+  } catch(e) {
+    // Giữ nguyên default emoji
   }
 });
 
