@@ -44,6 +44,12 @@ if content_path.exists():
 else:
     logger.error(f"❌ Content dir NOT found: {content_path}")
 
+# Serve assets folder
+assets_path = BASE_DIR / "assets"
+if assets_path.exists():
+    app.mount("/assets", StaticFiles(directory=str(assets_path)), name="assets")
+    logger.info(f"✅ Assets mounted: {assets_path}")
+
 # ── Routers ─────────────────────────────────────────────────────────────
 app.include_router(auth_router,    prefix="/auth")
 app.include_router(student_router, prefix="/api/student")
