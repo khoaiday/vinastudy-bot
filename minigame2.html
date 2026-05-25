@@ -637,16 +637,39 @@
                 sl.style.height = (r.height + pad * 2) + 'px';
                 sl.style.opacity = '1';
 
-                // Position tooltip
+                // Position tooltip – auto-flip if not enough space below
                 const tt = document.getElementById('tourTooltip');
-                const margin = 20;
+                const margin = 16;
+                const ttH = 260; // estimated tooltip height
+                const ttW = 290;
+                const centerX = Math.max(margin, Math.min(window.innerWidth - ttW - margin, r.left + r.width / 2 - ttW / 2));
+
+                // Try preferred side, fall back if off-screen
+                let topPos;
                 if (step.tooltipPos === 'bottom') {
-                    tt.style.top  = (r.bottom + pad + margin) + 'px';
-                    tt.style.left = Math.max(margin, Math.min(window.innerWidth - 310 - margin, r.left + r.width / 2 - 145)) + 'px';
+                    const belowTop = r.bottom + pad + margin;
+                    if (belowTop + ttH < window.innerHeight - margin) {
+                        topPos = belowTop;
+                    } else {
+                        // Not enough space below → put above
+                        topPos = Math.max(margin, r.top - pad - margin - ttH);
+                    }
                 } else {
-                    tt.style.top  = Math.max(margin, r.top - pad - margin - 220) + 'px';
-                    tt.style.left = Math.max(margin, Math.min(window.innerWidth - 310 - margin, r.left + r.width / 2 - 145)) + 'px';
+                    const aboveTop = r.top - pad - margin - ttH;
+                    if (aboveTop > margin) {
+                        topPos = aboveTop;
+                    } else {
+                        // Not enough space above → put below
+                        topPos = r.bottom + pad + margin;
+                    }
                 }
+                // Final clamp so it never escapes viewport
+                topPos = Math.max(margin, Math.min(window.innerHeight - ttH - margin, topPos));
+
+                tt.style.top  = topPos + 'px';
+                tt.style.left = centerX + 'px';
+                tt.style.width = ttW + 'px';
+
             }
         }
 
