@@ -398,7 +398,7 @@
         }
 
         #tourSpotlight {
-            position: absolute;
+            position: fixed;
             border-radius: 20px;
             box-shadow:
                 0 0 0 3px var(--primary),
@@ -416,7 +416,7 @@
         }
 
         #tourTooltip {
-            position: absolute;
+            position: fixed;
             background: linear-gradient(135deg, #0f172a, #1e293b);
             border: 2px solid var(--primary);
             border-radius: 18px;
@@ -554,7 +554,7 @@
                 <button class="tour-next-btn" id="tourNextBtn" onclick="tourNext()">Tiếp theo →</button>
             </div>
         </div>
-        <button onclick="skipTour()" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(5,11,20,0.6); border: 1px solid rgba(255,0,85,0.4); color: #ff0055; font-family: 'Chakra Petch', sans-serif; font-size: 0.9rem; font-weight: bold; padding: 8px 24px; border-radius: 20px; cursor: pointer; pointer-events: all; transition: all 0.3s; z-index: 180; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,0,85,0.2);">✕ Bỏ qua Hướng dẫn</button>
+        <button onclick="skipTour()" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(5,11,20,0.6); border: 1px solid rgba(255,0,85,0.4); color: #ff0055; font-family: 'Chakra Petch', sans-serif; font-size: 0.9rem; font-weight: bold; padding: 8px 24px; border-radius: 20px; cursor: pointer; pointer-events: all; transition: all 0.3s; z-index: 180; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,0,85,0.2);">✕ Bỏ qua Hướng dẫn</button>
     </div>
 
     <!-- Countdown -->
