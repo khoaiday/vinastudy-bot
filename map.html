@@ -418,7 +418,7 @@
     </div>
     
     <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()">🔥 RÈN TUYỆT CHIÊU</button>
-    <button class="btn-intro btn-vao-ai" id="btnVaoAi" style="display:none" onclick="openLvSelect()">⚔️ VÀO ẢI</button>
+    <button class="btn-intro btn-vao-ai" id="btnVaoAi" onclick="openLvSelect()">⚔️ VÀO ẢI LUÔN</button>
     
     <button class="btn-intro-close" onclick="closeIntroModal()">✕ Thoát</button>
   </div>
@@ -628,12 +628,15 @@ function open_(buoi, title, path, el) {
   im.style.backgroundImage = BOSS_BG[buoi] ? `url('${BOSS_BG[buoi]}')` : 'none';
   
   const hasSkill = localStorage.getItem('cbToan_skill_bai' + buoi) === 'true';
+  
+  // Nút Vào Ải sẽ thay đổi diện mạo nếu chưa có skill
+  const btnVaoAi = document.getElementById('btnVaoAi');
   if (hasSkill) {
-    document.getElementById('btnRenTuyetChieu').style.display = 'none';
-    document.getElementById('btnVaoAi').style.display = 'block';
+    btnVaoAi.style.opacity = '1';
+    btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
   } else {
-    document.getElementById('btnRenTuyetChieu').style.display = 'block';
-    document.getElementById('btnVaoAi').style.display = 'none';
+    btnVaoAi.style.opacity = '0.5';
+    btnVaoAi.innerHTML = '🔒 VÀO ẢI LUÔN (Cần rèn)';
   }
   document.getElementById('introModal').style.display = 'flex';
 }
@@ -643,6 +646,12 @@ function closeIntroModal() {
 }
 
 function openLvSelect() {
+  const hasSkill = localStorage.getItem('cbToan_skill_bai' + currentBuoi) === 'true';
+  if (!hasSkill) {
+    alert("⚠️ Bạn chưa rèn xong Tuyệt Chiêu! Hãy nhấn 'RÈN TUYỆT CHIÊU' để thu thập đủ sức mạnh trước khi vào ải nhé!");
+    return;
+  }
+  
   closeIntroModal();
   document.getElementById('lvModalName').textContent = currentTitle;
   var best = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + currentBuoi) || '0');
@@ -665,9 +674,13 @@ function playMinigame() {
 window.addEventListener('message', function(e) {
   if (e.data === 'minigame_won') {
     close_(); 
-    document.getElementById('btnRenTuyetChieu').style.display = 'none';
-    document.getElementById('btnVaoAi').style.display = 'block';
-    // Optionally alert
+    
+    // Cập nhật lại diện mạo nút Vào Ải
+    const btnVaoAi = document.getElementById('btnVaoAi');
+    btnVaoAi.style.opacity = '1';
+    btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
+    
+    // Tùy chọn thông báo
     setTimeout(() => {
       alert("✨ Tuyệt vời! Bạn đã lĩnh ngộ tuyệt chiêu thành công! Bấm VÀO ẢI để khiêu chiến Boss!");
     }, 400);
