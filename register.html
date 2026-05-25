@@ -124,21 +124,21 @@ body {
 /* ── Character grid ── */
 .char-grid {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 12px; margin-bottom: 24px;
+  gap: 10px; margin-bottom: 24px;
 }
 .char-card {
-  padding: 16px 12px; border-radius: 12px;
-  border: 2px solid var(--border);
+  padding: 10px 8px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
   cursor: pointer; text-align: center;
   transition: all .25s; position: relative;
-  background: rgba(10,224,254,.03);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
 }
-.char-card:hover { border-color: var(--primary); transform: translateY(-3px); }
-.char-card.selected { border-width: 2px; background: rgba(10,224,254,.1); }
-.char-card .emoji { font-size: 2.2rem; display: block; margin-bottom: 6px; }
-.char-card .name { font-size: .8rem; font-weight: 700; }
-.char-card .desc { font-size: .7rem; opacity: .6; margin-top: 3px; }
-.char-card .badge {
+.char-card:hover { border-color: var(--primary); transform: translateY(-3px); background: rgba(10,224,254,.2); }
+.char-card.selected { border: 2px solid var(--primary); background: rgba(10,224,254,.3); }
+.char-card .emoji { font-size: 1.8rem; display: block; margin-bottom: 4px; }
+.char-card .name { font-size: .85rem; font-weight: 700; }
+.char-card .desc { display: none; } /* Hide description to make it smaller */
   position: absolute; top: 6px; right: 8px;
   font-size: .65rem; padding: 2px 6px;
   border-radius: 99px; font-weight: 700; display: none;
@@ -243,7 +243,12 @@ body {
     <div class="step-dot" id="dot3">✓</div>
   </div>
 
-  <div class="card">
+  <div class="card" id="mainCard" style="position:relative; overflow:hidden; border-radius:24px;">
+    <!-- Background for Step 2 -->
+    <div id="step2bg" style="position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; background-position:center; opacity:0; transition:opacity 0.4s ease; z-index:0; pointer-events:none;"></div>
+    <div id="step2Overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(10,21,53,0.6); backdrop-filter:blur(6px); opacity:0; transition:opacity 0.4s ease; z-index:0; pointer-events:none;"></div>
+
+    <div style="position:relative; z-index:1;">
 
     <!-- ── STEP 1: Info ── -->
     <div class="step active" id="step1">
@@ -287,15 +292,8 @@ body {
 
     <!-- ── STEP 2: Character ── -->
     <div class="step" id="step2">
-      <div class="card-title">⚔️ Bước 2: Chọn nhân vật</div>
-      <div class="card-sub">Chọn nhân vật sẽ đồng hành cùng em</div>
-
-      <!-- Avatar Preview based on gender -->
-      <div style="display:flex; justify-content:center; margin-bottom: 16px;">
-        <div class="preview-item final" style="width:140px; height:140px; border-radius:14px; overflow:hidden; border:2px solid var(--primary);">
-          <img id="charPreview" src="/static/avatars/chien_binh_nam.jpg" style="width:100%; height:100%; object-fit:cover; border-radius:0;">
-        </div>
-      </div>
+      <div class="card-title" style="text-shadow: 0 0 10px #000;">⚔️ Bước 2: Chọn nhân vật</div>
+      <div class="card-sub" style="text-shadow: 0 0 5px #000; color: #fff;">Chọn nhân vật sẽ đồng hành cùng em</div>
 
       <div class="char-grid">
         <div class="char-card char-chien_binh selected" data-char="chien_binh" onclick="selectChar(this)">
@@ -400,6 +398,7 @@ body {
       </div>
     </div>
 
+    </div><!-- /z-index wrapper -->
   </div><!-- /card -->
 </div><!-- /wrap -->
 
@@ -638,6 +637,17 @@ function goStep(n) {
   const el = document.getElementById('step' + n);
   if (el) el.classList.add('active');
 
+  const bg = document.getElementById('step2bg');
+  const overlay = document.getElementById('step2Overlay');
+  if (n === 2) {
+    if(bg) bg.style.opacity = '1';
+    if(overlay) overlay.style.opacity = '1';
+    updateCharPreview(); // ensure background is loaded
+  } else {
+    if(bg) bg.style.opacity = '0';
+    if(overlay) overlay.style.opacity = '0';
+  }
+
   [1,2,3].forEach(i => {
     const d = document.getElementById('dot' + i);
     if (!d) return;
@@ -652,7 +662,9 @@ function goStep(n) {
 // ── Character selection ──────────────────────────────────────────────────
 function updateCharPreview() {
   const gender_suffix = currentGender === 'nu' ? 'nu' : 'nam';
-  document.getElementById('charPreview').src = `/static/avatars/${currentChar}_${gender_suffix}.jpg`;
+  const url = `/static/avatars/${currentChar}_${gender_suffix}.jpg`;
+  const bg = document.getElementById('step2bg');
+  if (bg) bg.style.backgroundImage = `url('${url}')`;
 }
 
 function selectGender(gt) {
