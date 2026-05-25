@@ -388,6 +388,7 @@
             inset: 0;
             z-index: 150;
             pointer-events: none;
+            display: none; /* Hidden by default for the 5s overall look */
         }
 
         #tourBackdrop {
@@ -472,6 +473,27 @@
             to   { transform: translateY(-6px); }
         }
 
+        .tour-prev-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #cbd5e1;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.95rem;
+            font-weight: bold;
+            padding: 10px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            flex: 1;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: none;
+        }
+        .tour-prev-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+        .tour-prev-btn:active { transform: scale(0.95); }
+
         .tour-next-btn {
             background: linear-gradient(45deg, var(--primary), #0077ff);
             border: none;
@@ -482,7 +504,7 @@
             padding: 10px 24px;
             border-radius: 30px;
             cursor: pointer;
-            width: 100%;
+            flex: 1;
             text-transform: uppercase;
             box-shadow: 0 0 12px var(--primary-glow);
             transition: transform 0.1s;
@@ -522,12 +544,17 @@
         <div id="tourBackdrop"></div>
         <div id="tourSpotlight"></div>
         <div id="tourTooltip">
+            <div style="font-size: 0.8rem; font-weight: bold; color: var(--secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">📖 HƯỚNG DẪN CHƠI</div>
             <div class="tour-step-label" id="tourLabel"></div>
             <div class="tour-anim" id="tourAnim"></div>
             <div class="tour-title" id="tourTitle"></div>
             <div class="tour-desc" id="tourDesc"></div>
-            <button class="tour-next-btn" id="tourNextBtn" onclick="tourNext()">Tiếp theo →</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="tour-prev-btn" id="tourPrevBtn" onclick="tourPrev()" style="display: none;">← Quay lại</button>
+                <button class="tour-next-btn" id="tourNextBtn" onclick="tourNext()">Tiếp theo →</button>
+            </div>
         </div>
+        <button onclick="skipTour()" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(5,11,20,0.6); border: 1px solid rgba(255,0,85,0.4); color: #ff0055; font-family: 'Chakra Petch', sans-serif; font-size: 0.9rem; font-weight: bold; padding: 8px 24px; border-radius: 20px; cursor: pointer; pointer-events: all; transition: all 0.3s; z-index: 180; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,0,85,0.2);">✕ Bỏ qua Hướng dẫn</button>
     </div>
 
     <!-- Countdown -->
@@ -618,12 +645,21 @@
         let tourActive = true;
 
         function tourInit() {
-            // Pre-populate number display for demo
+            // Initially hide the tour overlay
+            document.getElementById('tourOverlay').style.display = 'none';
+
+            // Pre-populate number display for demo during the 5s overall look
             document.getElementById('mainNumberDisplay').innerText = '472';
             document.getElementById('targetLeft').innerText = '7';
             document.getElementById('targetRight').innerText = '4';
             renderDeck();
-            showTourStep(0);
+
+            // Dừng 5s cho xem tổng thể trước khi hiện hướng dẫn và đóng băng game
+            setTimeout(() => {
+                if (!tourActive) return; // If skipped already
+                document.getElementById('tourOverlay').style.display = 'block';
+                showTourStep(0);
+            }, 5000);
         }
 
         let lastHighlightedEl = null;
@@ -641,6 +677,7 @@
         }
 
         function showTourStep(idx) {
+            tourStep = idx;
             const step = TOUR_STEPS[idx];
             document.getElementById('tourLabel').textContent = step.label;
             
@@ -654,6 +691,16 @@
 
             document.getElementById('tourTitle').textContent = step.title;
             document.getElementById('tourDesc').textContent  = step.desc;
+
+            // Toggle Back/Quay lại button (only show from step 2 / index 1)
+            const prevBtn = document.getElementById('tourPrevBtn');
+            if (prevBtn) {
+                if (idx > 0) {
+                    prevBtn.style.display = 'block';
+                } else {
+                    prevBtn.style.display = 'none';
+                }
+            }
 
             const isLast = idx === TOUR_STEPS.length - 1;
             document.getElementById('tourNextBtn').textContent = isLast ? '🚀 BẮT ĐẦU CHƠI' : 'Tiếp theo →';
@@ -681,7 +728,7 @@
                 // Position tooltip – auto-flip if not enough space below
                 const tt = document.getElementById('tourTooltip');
                 const margin = 16;
-                const ttH = 260; // estimated tooltip height
+                const ttH = 280; // estimated tooltip height with back button
                 const ttW = 290;
                 const centerX = Math.max(margin, Math.min(window.innerWidth - ttW - margin, r.left + r.width / 2 - ttW / 2));
 
@@ -720,10 +767,25 @@
                 // Hide tour, start countdown
                 document.getElementById('tourOverlay').style.display = 'none';
                 highlightElement(null);
+                tourActive = false;
                 startCountdown();
             } else {
                 showTourStep(tourStep);
             }
+        }
+
+        function tourPrev() {
+            if (tourStep > 0) {
+                tourStep--;
+                showTourStep(tourStep);
+            }
+        }
+
+        function skipTour() {
+            document.getElementById('tourOverlay').style.display = 'none';
+            highlightElement(null);
+            tourActive = false;
+            startCountdown();
         }
 
         function startCountdown() {
