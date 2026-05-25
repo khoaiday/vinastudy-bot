@@ -417,7 +417,8 @@
       🎯 Trước khi vào đánh Boss bạn cần<br>Rèn Tuyệt Chiêu "Phân biệt Số & Chữ số"
     </div>
     
-    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()">🔥 RÈN TUYỆT CHIÊU</button>
+    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()">🔥 RÈN SỐ & CHỮ SỐ</button>
+    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu2" onclick="playMinigame2()" style="margin-top: 10px; background: linear-gradient(45deg, #ff0055, #fbbf24); box-shadow: 0 0 15px rgba(255, 0, 85, 0.6);">🔥 RÈN CẤU TẠO SỐ</button>
     <button class="btn-intro btn-vao-ai" id="btnVaoAi" onclick="openLvSelect()">⚔️ VÀO ẢI LUÔN</button>
     
     <button class="btn-intro-close" onclick="closeIntroModal()">✕ Thoát</button>
@@ -667,6 +668,15 @@ function playMinigame() {
   document.getElementById('pgSub').textContent   = 'Phân Biệt Số & Chữ Số';
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('frame').src = `${BASE}/minigame.html?buoi=${currentBuoi}&v=${Date.now()}`;
+  requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
+  if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
+}
+
+function playMinigame2() {
+  document.getElementById('pgTitle').textContent = 'Tuyệt Chiêu Cấu Tạo Số';
+  document.getElementById('pgSub').textContent   = 'Rèn Cấu Tạo Số';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('frame').src = `${BASE}/minigame2.html?buoi=${currentBuoi}&v=${Date.now()}`;
   requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
   if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
 }
