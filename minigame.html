@@ -82,7 +82,7 @@
         /* Swipe indicator behind the card or at the top */
         .swipe-indicator-container {
             position: absolute;
-            bottom: 80px;
+            top: 20px;
             left: 0;
             right: 0;
             display: flex;
@@ -280,12 +280,11 @@
         <div class="progress-text">Câu: <span id="questionCountDisplay">1</span>/12</div>
     </div>
     
-    <div class="swipe-indicator-container">
-        <div class="swipe-indicator indicator-left" id="indLeft">CHỮ SỐ 👈</div>
-        <div class="swipe-indicator indicator-right" id="indRight">👉 SỐ</div>
-    </div>
-
     <div class="game-area">
+        <div class="swipe-indicator-container">
+            <div class="swipe-indicator indicator-left" id="indLeft">CHỮ SỐ 👈</div>
+            <div class="swipe-indicator indicator-right" id="indRight">👉 SỐ</div>
+        </div>
         <div class="card-container" id="cardContainer">
             <!-- Cards will be generated here -->
         </div>
