@@ -82,7 +82,7 @@
         /* Swipe indicator behind the card or at the top */
         .swipe-indicator-container {
             position: absolute;
-            top: 20px;
+            top: -10px;
             left: 0;
             right: 0;
             display: flex;
@@ -405,11 +405,12 @@
             currentCard = card;
             
             if (isTrick) {
-                const trickArrow = (currentCardValue < 10) ? '➡️' : '⬅️';
+                const trickText = (currentCardValue < 10) ? '👉 SỐ' : 'CHỮ SỐ 👈';
                 const arrowColor = (currentCardValue < 10) ? 'var(--primary)' : 'var(--secondary)';
+                const rotation = (currentCardValue < 10) ? 'rotate(15deg)' : 'rotate(-15deg)';
                 
                 card.innerHTML = `
-                    <div class="pulse" style="font-size: 5rem; margin-bottom: 20px; text-shadow: 0 0 20px ${arrowColor}; color: ${arrowColor}; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));">${trickArrow}</div>
+                    <div class="pulse" style="font-family: 'Chakra Petch', sans-serif; font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px ${arrowColor}; color: ${arrowColor}; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: ${rotation}; text-transform: uppercase;">${trickText}</div>
                     <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
                 `;
             } else {
