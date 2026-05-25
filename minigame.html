@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Phân Biệt Số & Chữ Số</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #0ae0fe;
@@ -46,7 +46,7 @@
 
         .header h1 {
             margin: 0;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Chakra Petch', sans-serif;
             font-size: 28px;
             font-weight: 900;
             color: var(--primary);
@@ -61,13 +61,13 @@
             padding: 0 40px;
             margin-top: 10px;
             font-size: 16px;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Chakra Petch', sans-serif;
             font-weight: 700;
         }
 
         .score-text { color: var(--success); text-shadow: 0 0 10px rgba(78, 255, 159, 0.5); }
         .time-text { color: var(--danger); text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
-        .progress-text { color: var(--primary); text-align: center; margin-top: 5px; font-weight: bold; font-family: 'Rajdhani', sans-serif; font-size: 16px;}
+        .progress-text { color: var(--primary); text-align: center; margin-top: 5px; font-weight: bold; font-family: 'Chakra Petch', sans-serif; font-size: 16px;}
 
         .game-area {
             flex: 1;
@@ -92,7 +92,7 @@
         }
         
         .swipe-indicator {
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Chakra Petch', sans-serif;
             font-size: 55px;
             font-weight: 900;
             text-transform: uppercase;
@@ -152,7 +152,7 @@
 
         .number-display {
             font-size: 160px;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Chakra Petch', sans-serif;
             font-weight: 900;
             color: #fff;
             text-shadow: 0 0 20px rgba(10,224,254,0.8);
@@ -164,7 +164,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 3rem;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Chakra Petch', sans-serif;
             font-weight: 900;
             opacity: 0;
             pointer-events: none;
@@ -202,7 +202,7 @@
             border: none;
             padding: 15px 40px;
             font-size: 1.5rem;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Chakra Petch', sans-serif;
             border-radius: 30px;
             color: #fff;
             font-weight: 900;
@@ -244,7 +244,7 @@
 
     <!-- Start Screen -->
     <div id="startScreen" class="overlay">
-        <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 20px; text-align: center; font-family: 'Rajdhani', sans-serif; text-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
+        <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 20px; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
         <div class="instructions">
             <p style="margin-bottom: 10px; font-weight: bold; color: var(--text-main);">LUẬT CHƠI:</p>
             <p style="color: var(--primary); font-weight: bold; margin-bottom: 5px;">👉 Vuốt sang Phải nếu là SỐ (> 9)</p>
@@ -256,7 +256,7 @@
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-        <h1 style="color: var(--danger); font-size: 3rem; font-family: 'Rajdhani', sans-serif;">HẾT GIỜ!</h1>
+        <h1 style="color: var(--danger); font-size: 3rem; font-family: 'Chakra Petch', sans-serif;">HẾT GIỜ!</h1>
         <h2 style="font-size: 1.5rem; font-weight: 400;">Điểm của bạn: <span id="finalScore" style="color: var(--primary); font-weight: bold;">0</span></h2>
         <button class="start-btn" onclick="startGame()">CHƠI LẠI</button>
     </div>
@@ -341,14 +341,14 @@
                 localStorage.setItem('cbToan_skill_bai' + buoi, 'true');
                 
                 document.getElementById('gameOverScreen').innerHTML = `
-                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: 'Rajdhani', sans-serif; text-shadow: 0 0 20px rgba(78,255,159,0.5);">TUYỆT VỜI!</h1>
+                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(78,255,159,0.5);">TUYỆT VỜI!</h1>
                     <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; margin-top: 10px;">Bạn đã trả lời đúng ${score}/10 câu.</h2>
                     <h2 style="font-size: 1.5rem; text-align: center; color: var(--primary); margin-bottom: 20px;">Bạn đã lĩnh ngộ TUYỆT CHIÊU!</h2>
                     <button class="start-btn" onclick="returnToMap()">QUAY LẠI ẢI</button>
                 `;
             } else {
                 document.getElementById('gameOverScreen').innerHTML = `
-                    <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Rajdhani', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
+                    <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
                     <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ trả lời đúng ${score}/10 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần ít nhất 8 câu đúng để qua ải.</h2>
                     <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
                 `;
@@ -569,3 +569,4 @@
     </script>
 </body>
 </html>
+
