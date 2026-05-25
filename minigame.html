@@ -81,27 +81,27 @@
         /* Swipe indicator behind the card or at the top */
         .swipe-indicator-container {
             position: absolute;
-            top: 20px;
+            bottom: 80px;
             left: 0;
             right: 0;
             display: flex;
             justify-content: space-between;
-            padding: 0 30px;
+            padding: 0 20px;
             pointer-events: none;
             z-index: 10;
         }
         
         .swipe-indicator {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 32px;
+            font-size: 55px;
             font-weight: 900;
             text-transform: uppercase;
             opacity: 0;
-            transition: opacity 0.1s;
+            transition: opacity 0.1s, transform 0.1s;
         }
 
-        .indicator-left { color: var(--secondary); text-shadow: 0 0 15px var(--secondary-glow); transform: rotate(-15deg); }
-        .indicator-right { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); transform: rotate(15deg); }
+        .indicator-left { color: var(--secondary); text-shadow: 0 0 15px var(--secondary-glow); transform: scale(0.5) rotate(-15deg); }
+        .indicator-right { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); transform: scale(0.5) rotate(15deg); }
 
         .card-container {
             position: relative;
@@ -443,13 +443,16 @@
                 
                 // Show indicators based on direction
                 const opacity = Math.min(Math.abs(deltaX) / 100, 1);
+                const scale = 0.5 + (opacity * 0.5);
                 if (deltaX < 0) {
                     indLeft.style.opacity = opacity;
+                    indLeft.style.transform = `scale(${scale}) rotate(-15deg)`;
                     indRight.style.opacity = 0;
                     card.style.borderColor = 'var(--secondary)';
                     card.style.boxShadow = '0 0 30px var(--secondary-glow)';
                 } else if (deltaX > 0) {
                     indRight.style.opacity = opacity;
+                    indRight.style.transform = `scale(${scale}) rotate(15deg)`;
                     indLeft.style.opacity = 0;
                     card.style.borderColor = 'var(--primary)';
                     card.style.boxShadow = '0 0 30px var(--primary-glow)';
@@ -467,6 +470,8 @@
                 // Reset indicators
                 indLeft.style.opacity = 0;
                 indRight.style.opacity = 0;
+                indLeft.style.transform = `scale(0.5) rotate(-15deg)`;
+                indRight.style.transform = `scale(0.5) rotate(15deg)`;
                 card.style.borderColor = 'var(--primary)';
                 card.style.boxShadow = '0 0 30px var(--primary-glow), inset 0 0 20px rgba(10,224,254,0.1)';
                 
@@ -544,11 +549,19 @@
                 if (e.key === 'ArrowLeft') {
                     // Show indicator briefly
                     indLeft.style.opacity = 1;
-                    setTimeout(() => indLeft.style.opacity = 0, 300);
+                    indLeft.style.transform = `scale(1) rotate(-15deg)`;
+                    setTimeout(() => {
+                        indLeft.style.opacity = 0;
+                        indLeft.style.transform = `scale(0.5) rotate(-15deg)`;
+                    }, 300);
                     checkAnswer('CHU_SO');
                 } else if (e.key === 'ArrowRight') {
                     indRight.style.opacity = 1;
-                    setTimeout(() => indRight.style.opacity = 0, 300);
+                    indRight.style.transform = `scale(1) rotate(15deg)`;
+                    setTimeout(() => {
+                        indRight.style.opacity = 0;
+                        indRight.style.transform = `scale(0.5) rotate(15deg)`;
+                    }, 300);
                     checkAnswer('SO');
                 }
             }
