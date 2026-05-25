@@ -393,16 +393,27 @@
         #tourBackdrop {
             position: absolute;
             inset: 0;
-            background: rgba(5, 11, 20, 0.82);
-            transition: opacity 0.3s;
+            background: rgba(5, 11, 20, 0.85);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         #tourSpotlight {
             position: absolute;
             border-radius: 20px;
-            box-shadow: 0 0 0 9999px rgba(5, 11, 20, 0.82), 0 0 0 3px var(--primary), 0 0 20px 6px var(--primary-glow);
+            box-shadow:
+                0 0 0 3px var(--primary),
+                0 0 0 6px rgba(10, 224, 254, 0.3),
+                0 0 30px 8px var(--primary-glow);
             transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
+            animation: spotlightPulse 1.8s ease-in-out infinite;
+            z-index: 155;
+        }
+
+        @keyframes spotlightPulse {
+            0%, 100% { box-shadow: 0 0 0 3px var(--primary), 0 0 0 6px rgba(10, 224, 254, 0.3), 0 0 30px 8px var(--primary-glow); }
+            50%       { box-shadow: 0 0 0 3px var(--primary), 0 0 0 10px rgba(10, 224, 254, 0.5), 0 0 50px 15px var(--primary-glow); }
         }
 
         #tourTooltip {
@@ -416,6 +427,12 @@
             font-family: 'Roboto', sans-serif;
             transition: all 0.35s ease;
             pointer-events: all;
+            z-index: 170;
+        }
+
+        .tour-highlighted {
+            position: relative !important;
+            z-index: 160 !important;
         }
 
         .tour-step-label {
@@ -565,7 +582,7 @@
         const TOUR_STEPS = [
             {
                 label: 'Bước 1 / 4',
-                anim: '🔢',
+                anim: '',
                 title: 'Số 3 Chữ Số',
                 desc: 'Mỗi lượt, 1 số có 3 chữ số sẽ hiện to ở đây. Nhiệm vụ của bạn là quan sát nhanh phân tích số đó!',
                 target: 'numberDisplayContainer',
@@ -609,10 +626,32 @@
             showTourStep(0);
         }
 
+        let lastHighlightedEl = null;
+
+        function highlightElement(el) {
+            if (lastHighlightedEl) {
+                lastHighlightedEl.classList.remove('tour-highlighted');
+            }
+            if (el) {
+                el.classList.add('tour-highlighted');
+                lastHighlightedEl = el;
+            } else {
+                lastHighlightedEl = null;
+            }
+        }
+
         function showTourStep(idx) {
             const step = TOUR_STEPS[idx];
             document.getElementById('tourLabel').textContent = step.label;
-            document.getElementById('tourAnim').textContent  = step.anim;
+            
+            const animEl = document.getElementById('tourAnim');
+            if (step.anim) {
+                animEl.textContent = step.anim;
+                animEl.style.display = 'block';
+            } else {
+                animEl.style.display = 'none';
+            }
+
             document.getElementById('tourTitle').textContent = step.title;
             document.getElementById('tourDesc').textContent  = step.desc;
 
@@ -626,6 +665,8 @@
             } else {
                 targetEl = document.getElementById(step.target);
             }
+
+            highlightElement(targetEl);
 
             if (targetEl) {
                 const r = targetEl.getBoundingClientRect();
@@ -678,6 +719,7 @@
             if (tourStep >= TOUR_STEPS.length) {
                 // Hide tour, start countdown
                 document.getElementById('tourOverlay').style.display = 'none';
+                highlightElement(null);
                 startCountdown();
             } else {
                 showTourStep(tourStep);
