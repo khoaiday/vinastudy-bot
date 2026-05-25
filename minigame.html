@@ -247,12 +247,154 @@
             font-weight: 500;
             padding-bottom: 30px;
         }
+
+        /* ── Quick Tour ── */
+        #tourOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 150;
+            pointer-events: none;
+        }
+
+        #tourBackdrop {
+            position: absolute;
+            inset: 0;
+            background: transparent;
+        }
+
+        #tourSpotlight {
+            position: absolute;
+            border-radius: 20px;
+            box-shadow:
+                0 0 0 9999px rgba(5, 11, 20, 0.88),
+                0 0 0 3px var(--primary),
+                0 0 0 6px rgba(10, 224, 254, 0.3),
+                0 0 30px 8px var(--primary-glow);
+            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            animation: spotlightPulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes spotlightPulse {
+            0%, 100% { box-shadow: 0 0 0 9999px rgba(5, 11, 20, 0.88), 0 0 0 3px var(--primary), 0 0 0 6px rgba(10, 224, 254, 0.3), 0 0 30px 8px var(--primary-glow); }
+            50%       { box-shadow: 0 0 0 9999px rgba(5, 11, 20, 0.88), 0 0 0 3px var(--primary), 0 0 0 10px rgba(10, 224, 254, 0.5), 0 0 50px 15px var(--primary-glow); }
+        }
+
+        #tourTooltip {
+            position: absolute;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border: 2px solid var(--primary);
+            border-radius: 18px;
+            padding: 18px 22px;
+            max-width: 290px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px var(--primary-glow);
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.35s ease;
+            pointer-events: all;
+        }
+
+        .tour-step-label {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.75rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .tour-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .tour-desc {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .tour-anim {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            animation: tourBounce 0.8s infinite alternate;
+        }
+
+        @keyframes tourBounce {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-6px); }
+        }
+
+        .tour-next-btn {
+            background: linear-gradient(45deg, var(--primary), #0077ff);
+            border: none;
+            color: #fff;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 0 12px var(--primary-glow);
+            transition: transform 0.1s;
+        }
+
+        .tour-next-btn:active { transform: scale(0.95); }
+
+        #tourCountdown {
+            position: fixed;
+            inset: 0;
+            z-index: 160;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(5,11,20,0.7);
+        }
+
+        #countdownNum {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 10rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 40px var(--primary-glow), 0 0 80px var(--primary-glow);
+            animation: cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes cdPop {
+            from { transform: scale(2); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- Tour Overlay -->
+    <div id="tourOverlay">
+        <div id="tourBackdrop"></div>
+        <div id="tourSpotlight"></div>
+        <div id="tourTooltip">
+            <div class="tour-step-label" id="tourLabel"></div>
+            <div class="tour-anim" id="tourAnim"></div>
+            <div class="tour-title" id="tourTitle"></div>
+            <div class="tour-desc" id="tourDesc"></div>
+            <button class="tour-next-btn" id="tourNextBtn" onclick="tourNext()">Tiếp theo →</button>
+        </div>
+    </div>
+
+    <!-- Countdown -->
+    <div id="tourCountdown">
+        <div id="countdownNum">3</div>
+    </div>
+
     <!-- Start Screen -->
-    <div id="startScreen" class="overlay">
+    <div id="startScreen" class="overlay hidden">
         <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 20px; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
         <div class="instructions">
             <p style="margin-bottom: 10px; font-weight: bold; color: var(--text-main);">LUẬT CHƠI:</p>
@@ -313,6 +455,8 @@
         let gameInterval;
         let currentCardValue = 0;
         let isTrick = false;
+        let tourActive = true;
+        let tourStep = 0;
 
         const cardContainer = document.getElementById('cardContainer');
         const scoreDisplay = document.getElementById('scoreDisplay');
@@ -473,6 +617,7 @@
             document.addEventListener('touchend', dragEnd);
             
             function dragStart(e) {
+                if (tourActive) return;
                 if (e.type === 'touchstart') {
                     startX = e.touches[0].clientX;
                 } else {
@@ -597,7 +742,8 @@
 
         // Keyboard support
         document.addEventListener('keydown', (e) => {
-            if (document.getElementById('startScreen').classList.contains('hidden') && 
+            if (!tourActive &&
+                document.getElementById('startScreen').classList.contains('hidden') && 
                 document.getElementById('gameOverScreen').classList.contains('hidden')) {
                 if (e.key === 'ArrowLeft') {
                     // Show indicator briefly
@@ -619,6 +765,185 @@
                 }
             }
         });
+
+        // ─── QUICK TOUR SYSTEM ───────────────────────────────────────────
+        const TOUR_STEPS = [
+            {
+                label: 'Bước 1 / 4',
+                anim: '🔢',
+                title: 'Thẻ Bài Số',
+                desc: 'Mỗi lượt, 1 thẻ bài mang một giá trị sẽ xuất hiện ở đây. Nhiệm vụ của bạn là quan sát nhanh phân tích số hoặc chữ số đó!',
+                target: 'cardContainer',
+                tooltipPos: 'bottom',
+            },
+            {
+                label: 'Bước 2 / 4',
+                anim: '👈',
+                title: 'CHỮ SỐ (0-9) → Vuốt Trái',
+                desc: 'Nếu thẻ bài mang giá trị là một **CHỮ SỐ** (chỉ có duy nhất một chữ số từ 0 đến 9), hãy **vuốt thẻ sang bên TRÁI**!',
+                target: 'indLeft',
+                tooltipPos: 'bottom',
+            },
+            {
+                label: 'Bước 3 / 4',
+                anim: '👉',
+                title: 'SỐ (>9) → Vuốt Phải',
+                desc: 'Nếu thẻ bài mang giá trị là một **SỐ** (gồm nhiều chữ số ghép lại, lớn hơn 9), hãy **vuốt thẻ sang bên PHẢI**!',
+                target: 'indRight',
+                tooltipPos: 'bottom',
+            },
+            {
+                label: 'Bước 4 / 4',
+                anim: '⚠️',
+                title: 'Cảnh Giác Đánh Lừa!',
+                desc: 'Tuyệt đối cẩn thận! Một số thẻ sẽ có bẫy chữ "👉 SỐ" hoặc "CHỮ SỐ 👈" màu sắc rực rỡ dụ bạn vuốt sai hướng. Chỉ tin vào con số thực tế!',
+                target: 'cardContainer',
+                tooltipPos: 'top',
+            },
+        ];
+
+        function tourInit() {
+            // Pre-populate container with a normal digit card for demo
+            currentCardValue = 7;
+            isTrick = false;
+            spawnCard();
+            showTourStep(0);
+        }
+
+        function showTourStep(idx) {
+            const step = TOUR_STEPS[idx];
+            document.getElementById('tourLabel').textContent = step.label;
+            document.getElementById('tourAnim').textContent  = step.anim;
+            document.getElementById('tourTitle').textContent = step.title;
+            document.getElementById('tourDesc').textContent  = step.desc;
+
+            const isLast = idx === TOUR_STEPS.length - 1;
+            document.getElementById('tourNextBtn').textContent = isLast ? '🚀 BẮT ĐẦU CHƠI' : 'Tiếp theo →';
+
+            // Custom side-effects for each step
+            const card = document.getElementById('activeCard');
+            if (idx === 0) {
+                // Show standard card
+                if (card) {
+                    currentCardValue = 7;
+                    isTrick = false;
+                    card.innerHTML = `<div class="number-display">${currentCardValue}</div>`;
+                }
+                indLeft.style.opacity = 0;
+                indRight.style.opacity = 0;
+            } else if (idx === 1) {
+                // Highlight Left indicator
+                indLeft.style.opacity = 1;
+                indLeft.style.transform = `scale(1) rotate(-15deg)`;
+                indRight.style.opacity = 0;
+            } else if (idx === 2) {
+                // Highlight Right indicator
+                if (card) {
+                    currentCardValue = 23;
+                    isTrick = false;
+                    card.innerHTML = `<div class="number-display">${currentCardValue}</div>`;
+                }
+                indLeft.style.opacity = 0;
+                indRight.style.opacity = 1;
+                indRight.style.transform = `scale(1) rotate(15deg)`;
+            } else if (idx === 3) {
+                // Show trick card
+                if (card) {
+                    currentCardValue = 23;
+                    isTrick = true;
+                    card.innerHTML = `
+                        <div class="pulse" style="font-family: 'Chakra Petch', sans-serif; font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px var(--secondary-glow); color: var(--secondary); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: rotate(-15deg); text-transform: uppercase;">CHỮ SỐ 👈</div>
+                        <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
+                    `;
+                }
+                indLeft.style.opacity = 0;
+                indRight.style.opacity = 0;
+            }
+
+            // Spotlight target
+            let targetEl = document.getElementById(step.target);
+            if (targetEl) {
+                const r = targetEl.getBoundingClientRect();
+                const pad = 14;
+                const sl = document.getElementById('tourSpotlight');
+                sl.style.left   = (r.left - pad) + 'px';
+                sl.style.top    = (r.top  - pad) + 'px';
+                sl.style.width  = (r.width  + pad * 2) + 'px';
+                sl.style.height = (r.height + pad * 2) + 'px';
+                sl.style.opacity = '1';
+
+                // Position tooltip – auto-flip if not enough space below
+                const tt = document.getElementById('tourTooltip');
+                const margin = 16;
+                const ttH = 260; // estimated tooltip height
+                const ttW = 290;
+                const centerX = Math.max(margin, Math.min(window.innerWidth - ttW - margin, r.left + r.width / 2 - ttW / 2));
+
+                // Try preferred side, fall back if off-screen
+                let topPos;
+                if (step.tooltipPos === 'bottom') {
+                    const belowTop = r.bottom + pad + margin;
+                    if (belowTop + ttH < window.innerHeight - margin) {
+                        topPos = belowTop;
+                    } else {
+                        topPos = Math.max(margin, r.top - pad - margin - ttH);
+                    }
+                } else {
+                    const aboveTop = r.top - pad - margin - ttH;
+                    if (aboveTop > margin) {
+                        topPos = aboveTop;
+                    } else {
+                        topPos = r.bottom + pad + margin;
+                    }
+                }
+                // Final clamp so it never escapes viewport
+                topPos = Math.max(margin, Math.min(window.innerHeight - ttH - margin, topPos));
+
+                tt.style.top  = topPos + 'px';
+                tt.style.left = centerX + 'px';
+                tt.style.width = ttW + 'px';
+            }
+        }
+
+        function tourNext() {
+            tourStep++;
+            if (tourStep >= TOUR_STEPS.length) {
+                // Hide tour, start countdown
+                document.getElementById('tourOverlay').style.display = 'none';
+                tourActive = false;
+                startCountdown();
+            } else {
+                showTourStep(tourStep);
+            }
+        }
+
+        function startCountdown() {
+            const cdEl = document.getElementById('tourCountdown');
+            const numEl = document.getElementById('countdownNum');
+            cdEl.style.display = 'flex';
+
+            let n = 3;
+            numEl.textContent = n;
+            numEl.style.animation = 'none';
+            void numEl.offsetWidth;
+            numEl.style.animation = 'cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            const iv = setInterval(() => {
+                n--;
+                if (n <= 0) {
+                    clearInterval(iv);
+                    cdEl.style.display = 'none';
+                    startGame();
+                } else {
+                    numEl.textContent = n;
+                    numEl.style.animation = 'none';
+                    void numEl.offsetWidth;
+                    numEl.style.animation = 'cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                }
+            }, 1000);
+        }
+
+        window.addEventListener('load', tourInit);
     </script>
 </body>
 </html>
