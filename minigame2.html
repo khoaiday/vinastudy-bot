@@ -483,13 +483,12 @@
         }
 
         function setupInteraction(card) {
-            card.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', dragMove);
-            document.addEventListener('mouseup', dragEnd);
+            // Remove old listeners to prevent duplicates if called multiple times
+            card.removeEventListener('mousedown', dragStart);
+            card.removeEventListener('touchstart', dragStart);
             
+            card.addEventListener('mousedown', dragStart);
             card.addEventListener('touchstart', dragStart, {passive: false});
-            document.addEventListener('touchmove', dragMove, {passive: false});
-            document.addEventListener('touchend', dragEnd);
         }
 
         function removeInteraction() {
@@ -510,6 +509,12 @@
             }
             isDragging = true;
             hasMoved = false;
+            
+            // Add listeners dynamically on drag start
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchmove', dragMove, {passive: false});
+            document.addEventListener('touchend', dragEnd);
         }
 
         function dragMove(e) {
