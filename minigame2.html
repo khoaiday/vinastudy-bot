@@ -381,23 +381,142 @@
             font-family: 'Chakra Petch', sans-serif;
             cursor: pointer;
         }
+
+        /* ── Quick Tour ── */
+        #tourOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 150;
+            pointer-events: none;
+        }
+
+        #tourBackdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 11, 20, 0.82);
+            transition: opacity 0.3s;
+        }
+
+        #tourSpotlight {
+            position: absolute;
+            border-radius: 20px;
+            box-shadow: 0 0 0 9999px rgba(5, 11, 20, 0.82), 0 0 0 3px var(--primary), 0 0 20px 6px var(--primary-glow);
+            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        #tourTooltip {
+            position: absolute;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border: 2px solid var(--primary);
+            border-radius: 18px;
+            padding: 18px 22px;
+            max-width: 290px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px var(--primary-glow);
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.35s ease;
+            pointer-events: all;
+        }
+
+        .tour-step-label {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.75rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .tour-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .tour-desc {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .tour-anim {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            animation: tourBounce 0.8s infinite alternate;
+        }
+
+        @keyframes tourBounce {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-6px); }
+        }
+
+        .tour-next-btn {
+            background: linear-gradient(45deg, var(--primary), #0077ff);
+            border: none;
+            color: #fff;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 0 12px var(--primary-glow);
+            transition: transform 0.1s;
+        }
+
+        .tour-next-btn:active { transform: scale(0.95); }
+
+        #tourCountdown {
+            position: fixed;
+            inset: 0;
+            z-index: 160;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(5,11,20,0.7);
+        }
+
+        #countdownNum {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 10rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 40px var(--primary-glow), 0 0 80px var(--primary-glow);
+            animation: cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes cdPop {
+            from { transform: scale(2); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Intro Screen -->
-    <div id="introScreen" class="overlay">
-        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Tuyệt Chiêu<br><span style="color: #fbbf24">Cấu Tạo Số</span></h1>
-        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid var(--primary); text-align: left; max-width: 350px; margin-bottom: 20px;">
-            <p style="color: var(--primary); font-weight: bold; margin-top: 0;">📜 LUẬT CHƠI MỚI:</p>
-            <ul style="padding-left: 20px; margin-bottom: 0; line-height: 1.6;">
-                <li>Trên màn hình hiện 1 số có 3 chữ số.</li>
-                <li>2 bên trái phải là 2 chữ số mục tiêu được tách ra.</li>
-                <li><strong>Chạm (Tap)</strong> vào bộ bài để tráo thẻ "Hàng Trăm / Chục / Đơn vị" lên trên cùng.</li>
-                <li><strong>Vuốt (Swipe)</strong> thẻ trên cùng về đúng phía chữ số tương ứng với hàng đó.</li>
-            </ul>
+    <!-- Tour Overlay -->
+    <div id="tourOverlay">
+        <div id="tourBackdrop"></div>
+        <div id="tourSpotlight"></div>
+        <div id="tourTooltip">
+            <div class="tour-step-label" id="tourLabel"></div>
+            <div class="tour-anim" id="tourAnim"></div>
+            <div class="tour-title" id="tourTitle"></div>
+            <div class="tour-desc" id="tourDesc"></div>
+            <button class="tour-next-btn" id="tourNextBtn" onclick="tourNext()">Tiếp theo →</button>
         </div>
-        <button class="start-btn" onclick="startGame()">BẮT ĐẦU</button>
+    </div>
+
+    <!-- Countdown -->
+    <div id="tourCountdown">
+        <div id="countdownNum">3</div>
+    </div>
     </div>
 
     <!-- Game Over Screen -->
@@ -442,6 +561,134 @@
     </div>
 
     <script>
+        // ─── QUICK TOUR SYSTEM ───────────────────────────────────────────
+        const TOUR_STEPS = [
+            {
+                label: 'Bước 1 / 4',
+                anim: '🔢',
+                title: 'Số 3 Chữ Số',
+                desc: 'Mỗi lượt, 1 số có 3 chữ số sẽ hiện to ở đây. Nhiệm vụ của bạn là phân tích số đó!',
+                target: 'mainNumberDisplay',
+                tooltipPos: 'bottom',
+            },
+            {
+                label: 'Bước 2 / 4',
+                anim: '👈👉',
+                title: 'Hai Mục Tiêu',
+                desc: '2 chữ số được tách từ số đó và đặt sang 2 bên. Bạn phải xác định chúng thuộc Hàng nào.',
+                target: 'targets-container',
+                tooltipPos: 'bottom',
+            },
+            {
+                label: 'Bước 3 / 4',
+                anim: '👆',
+                title: 'Chạm để Tráo Bài',
+                desc: 'Chạm vào xếp bài để đổi thẻ Hàng lên trên: HÀNG TRĂM → HÀNG CHỤC → HÀNG ĐƠN VỊ.',
+                target: 'deckContainer',
+                tooltipPos: 'top',
+            },
+            {
+                label: 'Bước 4 / 4',
+                anim: '⬅️➡️',
+                title: 'Vuốt để Trả Lời',
+                desc: 'Khi thẻ Hàng đúng ở trên cùng, hãy VUỐT thẻ đó sang phía chứa chữ số tương ứng!',
+                target: 'deckContainer',
+                tooltipPos: 'top',
+            },
+        ];
+
+        let tourStep = 0;
+        let tourActive = true;
+
+        function tourInit() {
+            // Pre-populate number display for demo
+            document.getElementById('mainNumberDisplay').innerText = '472';
+            document.getElementById('targetLeft').innerText = '7';
+            document.getElementById('targetRight').innerText = '4';
+            renderDeck();
+            showTourStep(0);
+        }
+
+        function showTourStep(idx) {
+            const step = TOUR_STEPS[idx];
+            document.getElementById('tourLabel').textContent = step.label;
+            document.getElementById('tourAnim').textContent  = step.anim;
+            document.getElementById('tourTitle').textContent = step.title;
+            document.getElementById('tourDesc').textContent  = step.desc;
+
+            const isLast = idx === TOUR_STEPS.length - 1;
+            document.getElementById('tourNextBtn').textContent = isLast ? '🚀 BẮT ĐẦU CHƠI' : 'Tiếp theo →';
+
+            // Spotlight target
+            let targetEl;
+            if (step.target === 'targets-container') {
+                targetEl = document.querySelector('.targets-container');
+            } else {
+                targetEl = document.getElementById(step.target);
+            }
+
+            if (targetEl) {
+                const r = targetEl.getBoundingClientRect();
+                const pad = 14;
+                const sl = document.getElementById('tourSpotlight');
+                sl.style.left   = (r.left - pad) + 'px';
+                sl.style.top    = (r.top  - pad) + 'px';
+                sl.style.width  = (r.width  + pad * 2) + 'px';
+                sl.style.height = (r.height + pad * 2) + 'px';
+                sl.style.opacity = '1';
+
+                // Position tooltip
+                const tt = document.getElementById('tourTooltip');
+                const margin = 20;
+                if (step.tooltipPos === 'bottom') {
+                    tt.style.top  = (r.bottom + pad + margin) + 'px';
+                    tt.style.left = Math.max(margin, Math.min(window.innerWidth - 310 - margin, r.left + r.width / 2 - 145)) + 'px';
+                } else {
+                    tt.style.top  = Math.max(margin, r.top - pad - margin - 220) + 'px';
+                    tt.style.left = Math.max(margin, Math.min(window.innerWidth - 310 - margin, r.left + r.width / 2 - 145)) + 'px';
+                }
+            }
+        }
+
+        function tourNext() {
+            tourStep++;
+            if (tourStep >= TOUR_STEPS.length) {
+                // Hide tour, start countdown
+                document.getElementById('tourOverlay').style.display = 'none';
+                startCountdown();
+            } else {
+                showTourStep(tourStep);
+            }
+        }
+
+        function startCountdown() {
+            const cdEl = document.getElementById('tourCountdown');
+            const numEl = document.getElementById('countdownNum');
+            cdEl.style.display = 'flex';
+
+            let n = 3;
+            numEl.textContent = n;
+            numEl.style.animation = 'none';
+            void numEl.offsetWidth;
+            numEl.style.animation = 'cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            const iv = setInterval(() => {
+                n--;
+                if (n <= 0) {
+                    clearInterval(iv);
+                    cdEl.style.display = 'none';
+                    startGame();
+                } else {
+                    numEl.textContent = n;
+                    numEl.style.animation = 'none';
+                    void numEl.offsetWidth;
+                    numEl.style.animation = 'cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                }
+            }, 900);
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+
         // Game variables
         const TOTAL_QUESTIONS = 12;
         let score = 0;
@@ -470,7 +717,9 @@
         const feedbackEl = document.getElementById('feedback');
 
         function startGame() {
-            document.getElementById('introScreen').classList.add('hidden');
+            // Hide any overlays from tour or game-over
+            document.getElementById('tourOverlay').style.display = 'none';
+            document.getElementById('tourCountdown').style.display = 'none';
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.remove('win-bg', 'lose-bg');
             
@@ -762,6 +1011,13 @@
                 `;
             }
         }
+    </script>
+
+    <script>
+        // Start the quick tour when page is ready
+        window.addEventListener('load', () => {
+            setTimeout(tourInit, 200); // slight delay so layout is settled
+        });
     </script>
 </body>
 </html>
