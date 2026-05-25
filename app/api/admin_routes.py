@@ -69,10 +69,10 @@ async def _notify_deleted_user(user: dict):
     try:
         import httpx
         base     = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
-        reg_url  = f"{base}/register?tg_id={tg_id}"
+        reg_url      = f"{base}/register?tg_id={tg_id}"
         reg_keyboard = {
             "keyboard": [
-                [{"text": "📝 Tạo tài khoản", "web_app": {"url": reg_url}}]
+                [{"text": "🎮 Chơi game", "web_app": {"url": reg_url}}]
             ],
             "resize_keyboard": True,
         }
@@ -83,7 +83,7 @@ async def _notify_deleted_user(user: dict):
                     "chat_id":      tg_id,
                     "text": (
                         f"🗑️ Tài khoản *{user.get('ho_ten', 'của em')}* đã bị xóa.\n\n"
-                        "Nếu muốn tham gia lại, em nhấn *Tạo tài khoản* bên dưới để đăng ký mới nhé! 👇"
+                        "Nếu muốn tham gia lại, em nhấn *🎮 Chơi game* bên dưới để đăng ký mới nhé! 👇"
                     ),
                     "parse_mode":   "Markdown",
                     "reply_markup": reg_keyboard,
@@ -99,13 +99,11 @@ async def _notify_approved_user(user: dict):
         return
     try:
         import httpx
-        base = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
-        main_menu = {
+        base    = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
+        tg_id   = user["telegram_id"]
+        game_kb = {
             "keyboard": [
-                [{"text": "🎮 Chơi game", "web_app": {"url": f"{base}/game"}}],
-                [{"text": "🏆 Xếp hạng",  "web_app": {"url": f"{base}/leaderboard"}},
-                 {"text": "🧑‍🎖️ Hồ sơ",   "web_app": {"url": f"{base}/profile"}}],
-                [{"text": "🚪 Thoát"}],
+                [{"text": "🎮 Chơi game", "web_app": {"url": f"{base}/game?tg_id={tg_id}"}}],
             ],
             "resize_keyboard": True,
         }
@@ -113,14 +111,14 @@ async def _notify_approved_user(user: dict):
             await client.post(
                 f"https://api.telegram.org/bot{tg_token}/sendMessage",
                 json={
-                    "chat_id":      user["telegram_id"],
+                    "chat_id":      tg_id,
                     "text": (
                         f"🎉 *Chào mừng {user['ho_ten']}!*\n\n"
                         "✅ Tài khoản *Chiến Binh Toán* của em đã được duyệt!\n\n"
-                        "👇 Nhấn *Chơi game* bên dưới để vào Bản đồ Chiến Dịch và bắt đầu hành trình 🚀"
+                        "👇 Nhấn *🎮 Chơi game* bên dưới để vào Bản đồ Chiến Dịch và bắt đầu hành trình 🚀"
                     ),
                     "parse_mode":   "Markdown",
-                    "reply_markup": main_menu,
+                    "reply_markup": game_kb,
                 }
             )
     except Exception as e:

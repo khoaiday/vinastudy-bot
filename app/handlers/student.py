@@ -35,37 +35,27 @@ async def check_web_status(telegram_id: int) -> str:
 
 
 async def send_login_required(update: Update):
-    """Gửi màn hình yêu cầu đăng ký — nút WebApp 'Bắt đầu game'."""
+    """Gửi màn hình yêu cầu đăng ký — nút Chơi game mở trang tạo tài khoản."""
     uid = update.effective_user.id
     first_name = update.effective_user.first_name or "Chiến Binh"
-    reg_url = f"{BASE_DOMAIN}/register?tg_id={uid}"
-    keyboard = ReplyKeyboardMarkup(
-        [[KeyboardButton("🎮 Bắt đầu game", web_app=WebAppInfo(url=reg_url))]],
-        resize_keyboard=True,
-    )
     await update.message.reply_text(
         f"👋 Chào *{first_name}*!\n\n"
-        "Nhấn *Bắt đầu game* bên dưới để tạo tài khoản và tham gia Chiến Binh Toán! 🚀",
+        "Nhấn *🎮 Chơi game* bên dưới để tạo tài khoản và tham gia Chiến Binh Toán! 🚀",
         parse_mode="Markdown",
-        reply_markup=keyboard,
+        reply_markup=game_kb_register(uid),
     )
 
 
 async def send_pending(update: Update):
-    """Gửi thông báo đang chờ duyệt — nút 'Xem hồ sơ' mở lại register."""
+    """Gửi thông báo đang chờ duyệt."""
     uid = update.effective_user.id
     first_name = update.effective_user.first_name or "Chiến Binh"
-    reg_url = f"{BASE_DOMAIN}/register?tg_id={uid}"
-    keyboard = ReplyKeyboardMarkup(
-        [[KeyboardButton("📋 Xem hồ sơ", web_app=WebAppInfo(url=reg_url))]],
-        resize_keyboard=True,
-    )
     await update.message.reply_text(
         f"⏳ Chào *{first_name}*!\n\n"
         "Hồ sơ đang *chờ thầy duyệt* ⚙️\n"
         "Thầy sẽ thông báo ngay khi xong — thường trong *24 giờ* 🚀",
         parse_mode="Markdown",
-        reply_markup=keyboard,
+        reply_markup=game_kb_pending(uid),
     )
 
 
@@ -99,21 +89,28 @@ def luu_ket_qua(user_id: int, buoi: int, diem: int, tong: int, chi_tiet: dict):
 def lich_su_hs(user_id: int) -> list:
     return ket_qua_hs.get(user_id, [])
 
-def make_main_menu() -> ReplyKeyboardMarkup:
-    webapp_url  = f"{BASE_DOMAIN}/game"
-    lb_url      = f"{BASE_DOMAIN}/leaderboard"
-    profile_url = f"{BASE_DOMAIN}/profile"
+# ── Keyboard builders ──────────────────────────────────────────────────────
+
+def game_kb_approved(uid: int) -> ReplyKeyboardMarkup:
+    """Học sinh đã được duyệt → nút Chơi game mở map."""
     return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton("🎮 Chơi game",  web_app=WebAppInfo(url=webapp_url))],
-            [KeyboardButton("🏆 Xếp hạng",   web_app=WebAppInfo(url=lb_url)),
-             KeyboardButton("🧑‍🎖️ Hồ sơ",    web_app=WebAppInfo(url=profile_url))],
-            [KeyboardButton("🚪 Thoát")],
-        ],
+        [[KeyboardButton("🎮 Chơi game", web_app=WebAppInfo(url=f"{BASE_DOMAIN}/game?tg_id={uid}"))]],
         resize_keyboard=True,
     )
 
-MAIN_MENU = make_main_menu()
+def game_kb_pending(uid: int) -> ReplyKeyboardMarkup:
+    """Học sinh chờ duyệt → nút text thuần (nhắn vào bot để nhận thông báo chờ)."""
+    return ReplyKeyboardMarkup(
+        [[KeyboardButton("🎮 Chơi game")]],
+        resize_keyboard=True,
+    )
+
+def game_kb_register(uid: int) -> ReplyKeyboardMarkup:
+    """User chưa đăng ký → nút Chơi game mở trang tạo tài khoản."""
+    return ReplyKeyboardMarkup(
+        [[KeyboardButton("🎮 Chơi game", web_app=WebAppInfo(url=f"{BASE_DOMAIN}/register?tg_id={uid}"))]],
+        resize_keyboard=True,
+    )
 
 async def dangky(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Redirect sang web registration thay vì đăng ký cũ."""
@@ -121,8 +118,9 @@ async def dangky(update: Update, context: ContextTypes.DEFAULT_TYPE):
     status = await check_web_status(uid)
     if status == "approved":
         await update.message.reply_text(
-            "✅ Em đã có tài khoản và được duyệt rồi!\n\nChọn chức năng bên dưới để bắt đầu nhé! 👇",
-            reply_markup=MAIN_MENU,
+            "✅ Em đã có tài khoản và được duyệt rồi!\n\nNhấn *🎮 Chơi game* để bắt đầu nhé! 👇",
+            parse_mode="Markdown",
+            reply_markup=game_kb_approved(uid),
         )
     elif status == "pending":
         await send_pending(update)
@@ -139,7 +137,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"👑 Chào *Thầy*! Menu quản lý đang chạy trên bot admin.\n\n"
             "Đây là bot học sinh — dùng để test giao diện.",
-            parse_mode="Markdown", reply_markup=MAIN_MENU,
+            parse_mode="Markdown", reply_markup=game_kb_approved(uid),
         )
         return
 
@@ -154,8 +152,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ten = update.effective_user.first_name
 
         await update.message.reply_text(
-            f"⚔️ Chào *{ten}*! Sẵn sàng chiến đấu chưa? 💪\n\nChọn hành động bên dưới 👇",
-            parse_mode="Markdown", reply_markup=MAIN_MENU,
+            f"⚔️ Chào *{ten}*! Sẵn sàng chiến đấu chưa? 💪\n\nNhấn *🎮 Chơi game* để vào chiến dịch 👇",
+            parse_mode="Markdown", reply_markup=game_kb_approved(uid),
         )
     elif status == "pending":
         await send_pending(update)
@@ -179,20 +177,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     state = get_state(uid)
 
-    if text == "🔙 Về menu chính":
-        state["mode"] = "menu"
-        await update.message.reply_text("🏠 Menu chính!", reply_markup=MAIN_MENU)
-        return
-
-    if text == "🚪 Thoát":
-        state["mode"] = "menu"
-        await update.message.reply_text("Hẹn gặp lại! 👋", reply_markup=ReplyKeyboardRemove())
+    # Nút "Chơi game" ở trạng thái pending gửi text → xử lý tại đây
+    if text == "🎮 Chơi game":
+        status2 = await check_web_status(uid)
+        if status2 == "approved":
+            await update.message.reply_text(
+                "👇 Nhấn nút *Chơi game* bên dưới để vào chiến dịch!",
+                parse_mode="Markdown", reply_markup=game_kb_approved(uid),
+            )
+        elif status2 == "pending":
+            await send_pending(update)
+        else:
+            await send_login_required(update)
         return
 
     # AI chat fallback — học sinh nhắn bất cứ gì đều được trả lời
     await update.message.chat.send_action("typing")
     reply = await ask_claude(state["history"], text, state.get("buoi", DEFAULT_BUOI))
-    await update.message.reply_text(reply, reply_markup=MAIN_MENU)
+    await update.message.reply_text(reply, reply_markup=game_kb_approved(uid))
 
 
 async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -214,7 +216,7 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
             level = 1
     except Exception as e:
         logger.error(f"Web app data error: {e}")
-        await update.message.reply_text("❌ Lỗi nhận kết quả, em thử lại nhé!", reply_markup=MAIN_MENU)
+        await update.message.reply_text("❌ Lỗi nhận kết quả, em thử lại nhé!", reply_markup=game_kb_approved(uid))
         return
 
     phan_tram = round(diem / tong * 100) if tong else 0
@@ -226,7 +228,7 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
     except Exception as e:
         logger.warning(f"DB save result: {e}")
 
-    await update.message.reply_text(f"✅ *Hoàn thành Chiến dịch — Ải {buoi}*\n\n📊 Đã tiêu diệt: *{diem}/{tong}* quái vật ({phan_tram}%)\n\n⏳ Đang thu thập chiến lợi phẩm...", parse_mode="Markdown")
+    await update.message.reply_text(f"✅ *Hoàn thành Chiến dịch — Ải {buoi}*\n\n📊 Đã tiêu diệt: *{diem}/{tong}* quái vật ({phan_tram}%)\n\n⏳ Đang thu thập chiến lợi phẩm...", parse_mode="Markdown", reply_markup=game_kb_approved(uid))
 
     lich_su = lich_su_hs(uid)
     tong_buoi = len(set(r["buoi"] for r in lich_su))
@@ -240,7 +242,7 @@ async def xu_ly_ket_qua_webapp(update: Update, context: ContextTypes.DEFAULT_TYP
     await update.message.chat.send_action("typing")
     danh_gia = await danh_gia_nang_luc(diem, tong, chi_tiet, buoi, lich_su[:-1],
                                         checkpoints=checkpoints, level=level)
-    await update.message.reply_text(f"🎓 *Đánh giá năng lực*\n\n{danh_gia}\n\n📹 Xem lại: {BUOI_CONFIG.get(buoi, {}).get('video', '')}", parse_mode="Markdown", reply_markup=MAIN_MENU)
+    await update.message.reply_text(f"🎓 *Đánh giá năng lực*\n\n{danh_gia}\n\n📹 Xem lại: {BUOI_CONFIG.get(buoi, {}).get('video', '')}", parse_mode="Markdown", reply_markup=game_kb_approved(uid))
 
     # ── Kiểm tra thách đấu đang chờ ────────────────────────────────────
     try:
@@ -412,27 +414,27 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_text = f"Em gửi ảnh bài toán.{' Ghi chú: ' + caption if caption else ''}"
         
         reply = await ask_claude_with_image(state["history"], user_text, img_b64, state.get("buoi", DEFAULT_BUOI))
-        await update.message.reply_text(reply, reply_markup=MAIN_MENU)
+        await update.message.reply_text(reply, reply_markup=game_kb_approved(uid))
     except Exception as e:
         logger.error(f"Photo error: {e}")
-        await update.message.reply_text("Chưa đọc được ảnh, em thử lại nhé!", reply_markup=MAIN_MENU)
+        await update.message.reply_text("Chưa đọc được ảnh, em thử lại nhé!", reply_markup=game_kb_approved(uid))
 
 async def xoa_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clear_history(update.effective_user.id)
-    await update.message.reply_text("🗑️ Đã xoá lịch sử!", reply_markup=MAIN_MENU)
+    await update.message.reply_text("🗑️ Đã xoá lịch sử!", reply_markup=game_kb_approved(uid))
 
 async def btvn_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Chuyển sang map.html để chọn bài tập."""
     await update.message.reply_text(
         "🗺️ Chọn bài tập trực tiếp trên *Bản đồ Chiến Dịch* nhé!\n\nNhấn *🎮 Chơi game* để vào map 👇",
-        parse_mode="Markdown", reply_markup=MAIN_MENU,
+        parse_mode="Markdown", reply_markup=game_kb_approved(uid),
     )
 
 async def chonbuoi_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Chuyển sang map.html để chọn buổi."""
     await update.message.reply_text(
         "🗺️ Chọn buổi học trực tiếp trên *Bản đồ Chiến Dịch* nhé!\n\nNhấn *🎮 Chơi game* để vào map 👇",
-        parse_mode="Markdown", reply_markup=MAIN_MENU,
+        parse_mode="Markdown", reply_markup=game_kb_approved(uid),
     )
 
 async def bangdiem_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -446,7 +448,7 @@ async def bangdiem_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
             lvl = "🏆" if ls["phan_tram"]>=80 else ("⭐" if ls["phan_tram"]>=60 else ("📖" if ls["phan_tram"]>=40 else "🌱"))
             lines.append(f"{i}. {lvl} Buổi {ls['buoi']} — {ls['diem']}/{ls['tong']} ({ls['phan_tram']}%) | {ls['thoi_gian']}")
         msg = "\n".join(lines)
-    await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=MAIN_MENU)
+    await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=game_kb_approved(uid))
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Error: {context.error}", exc_info=context.error)
