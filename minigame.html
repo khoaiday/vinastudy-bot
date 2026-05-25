@@ -250,19 +250,17 @@
 
         /* ── Quick Tour ── */
         #tourOverlay {
-            position: fixed;
-            inset: 0;
-            z-index: 150;
-            pointer-events: none;
-            display: none; /* Hidden by default for the 5s overall look */
+            display: none; /* Container has no position/z-index to avoid stacking context traps */
         }
 
         #tourBackdrop {
-            position: absolute;
+            position: fixed;
             inset: 0;
             background: rgba(5, 11, 20, 0.85);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
+            z-index: 150;
+            pointer-events: all;
         }
 
         #tourSpotlight {
