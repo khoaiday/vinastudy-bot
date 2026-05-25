@@ -284,9 +284,9 @@
   .intro-modal {
     display: none; position: fixed; inset: 0; z-index: 9998;
     background-color: #050a1f;
-    background-image: url('/static/images/boss_ai_1.jpg');
-    background-size: cover; background-position: center;
+    background-size: cover; background-position: top center;
     flex-direction: column; justify-content: flex-end;
+    transition: background-image 0.3s;
   }
   .intro-overlay {
     position: absolute; inset: 0;
@@ -331,12 +331,16 @@
 
     <div class="cyber-box" data-lesson="1" onclick="open_(1,'Số Thần Tỉnh Giấc','content/lop3/bai01/bai-tap.html',this)">
       <div class="card-content">
-        <div class="card-icon">ẢI 1</div>
+        <div class="card-icon" style="padding:0;overflow:hidden;background:rgba(180,0,0,0.15);border-color:#cc0000;box-shadow:inset 0 0 10px rgba(180,0,0,0.4),0 0 8px rgba(180,0,0,0.3)">
+          <img src="/content/lop3/bai01/assets/boss_so_than_portrait.jpg"
+               style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:6px;display:block"
+               onerror="this.parentElement.innerHTML='ẢI 1';this.parentElement.style.cssText=''">
+        </div>
         <div class="card-body">
-          <div class="card-level">MISSION 01</div>
+          <div class="card-level" style="color:#ff4444">MISSION 01 — BOSS</div>
           <div class="card-title">Số Thần Tỉnh Giấc</div>
         </div>
-        <div class="card-arrow">⚔️</div>
+        <div class="card-arrow" style="color:#ff4444;filter:drop-shadow(0 0 6px rgba(255,0,0,0.6))">⚔️</div>
       </div>
     </div>
 
@@ -614,6 +618,14 @@ function open_(buoi, title, path, el) {
 
   /* Mở màn Intro thay vì mở Level Modal */
   document.getElementById('introTitle').textContent = `ẢI ${buoi}: ${title}`;
+
+  /* Boss background image theo từng bài */
+  const BOSS_BG = {
+    1: '/content/lop3/bai01/assets/boss_so_than_full.jpg',
+    // Thêm boss mới ở đây: 2: '/content/lop3/bai02/assets/boss_xxx_full.jpg',
+  };
+  const im = document.getElementById('introModal');
+  im.style.backgroundImage = BOSS_BG[buoi] ? `url('${BOSS_BG[buoi]}')` : 'none';
   
   const hasSkill = localStorage.getItem('cbToan_skill_bai' + buoi) === 'true';
   if (hasSkill) {
