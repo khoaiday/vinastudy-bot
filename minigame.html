@@ -2,47 +2,57 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chiến Binh Toán: Trạm Kiểm Soát Hỗn Loạn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Phân Biệt Số & Chữ Số</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: #1a2235;
-            --neon-blue: #00f3ff;
-            --neon-red: #ff003c;
-            --neon-green: #00ff66;
-            --text-main: #ffffff;
+            --primary: #0ae0fe;
+            --primary-glow: rgba(10, 224, 254, 0.5);
+            --secondary: #ea0eed;
+            --secondary-glow: rgba(234, 14, 237, 0.5);
+            --success: #4eff9f;
+            --danger: #ff0055;
+            --bg-base: #050a1f;
+            --bg-card: rgba(11, 19, 43, 0.85);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(10, 224, 254, 0.4);
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color);
-            background-image: linear-gradient(rgba(11, 15, 25, 0.4), rgba(11, 15, 25, 0.8)), url('/static/images/boss_so_than__awakening.jpg');
+            background-color: var(--bg-base);
+            background-image: linear-gradient(rgba(5, 10, 31, 0.5), rgba(5, 10, 31, 0.9)), url('/static/images/boss_so_than__awakening.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Roboto', sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .header {
             text-align: center;
             padding: 20px;
-            background: linear-gradient(180deg, rgba(26,34,53,1) 0%, rgba(11,15,25,0) 100%);
+            background: linear-gradient(180deg, rgba(5,10,31,0.9) 0%, rgba(5,10,31,0) 100%);
         }
 
         .header h1 {
             margin: 0;
-            font-size: 1.5rem;
-            color: var(--neon-blue);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--primary);
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+            text-shadow: 0 0 15px var(--primary-glow);
         }
 
         .stats {
@@ -50,13 +60,14 @@
             justify-content: space-between;
             padding: 0 40px;
             margin-top: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
         }
 
-        .score-text { color: var(--neon-green); }
-        .time-text { color: var(--neon-red); }
-        .progress-text { color: var(--neon-blue); text-align: center; margin-top: 5px; font-weight: bold; }
+        .score-text { color: var(--success); text-shadow: 0 0 10px rgba(78, 255, 159, 0.5); }
+        .time-text { color: var(--danger); text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
+        .progress-text { color: var(--primary); text-align: center; margin-top: 5px; font-weight: bold; font-family: 'Rajdhani', sans-serif; font-size: 16px;}
 
         .game-area {
             flex: 1;
@@ -64,92 +75,93 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            overflow: hidden;
         }
+
+        /* Swipe indicator behind the card or at the top */
+        .swipe-indicator-container {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .swipe-indicator {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        .indicator-left { color: var(--secondary); text-shadow: 0 0 15px var(--secondary-glow); transform: rotate(-15deg); }
+        .indicator-right { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); transform: rotate(15deg); }
 
         .card-container {
             position: relative;
-            width: 250px;
-            height: 350px;
+            width: 320px;
+            height: 440px;
             perspective: 1000px;
+            touch-action: none; /* Prevent scroll while dragging */
         }
 
         .card {
             width: 100%;
             height: 100%;
-            background-color: var(--card-bg);
-            border: 2px solid #3a4a6b;
+            background-color: var(--bg-card);
+            border: 2px solid var(--primary);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            box-shadow: 0 0 30px var(--primary-glow), inset 0 0 20px rgba(10,224,254,0.1);
             position: absolute;
+            cursor: grab;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            will-change: transform;
+        }
+        
+        .card.dragging {
+            transition: none; /* Remove transition during drag */
+            cursor: grabbing;
         }
 
         .card.swipe-left {
-            transform: translateX(-200px) rotate(-15deg);
+            transform: translateX(-300px) rotate(-20deg) !important;
             opacity: 0;
         }
 
         .card.swipe-right {
-            transform: translateX(200px) rotate(15deg);
+            transform: translateX(300px) rotate(20deg) !important;
             opacity: 0;
+        }
+        
+        .card::before {
+            content: ""; position: absolute; inset: 0; padding: 2px;
+            border-radius: inherit; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
         }
 
         .monster-icon {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+            font-size: 100px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));
         }
 
         .number-display {
-            font-size: 4rem;
+            font-size: 70px;
+            font-family: 'Rajdhani', sans-serif;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 15px rgba(255,255,255,0.8);
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-around;
-            padding: 30px;
-            padding-bottom: 50px;
-        }
-
-        .btn {
-            background: none;
-            border: 2px solid;
-            border-radius: 15px;
-            padding: 15px 25px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            width: 40%;
-        }
-
-        .btn-left {
-            border-color: var(--neon-red);
-            box-shadow: 0 0 15px rgba(255, 0, 60, 0.2) inset, 0 0 15px rgba(255, 0, 60, 0.2);
-        }
-
-        .btn-left:hover, .btn-left:active {
-            background-color: var(--neon-red);
-            box-shadow: 0 0 30px rgba(255, 0, 60, 0.6);
-        }
-
-        .btn-right {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset, 0 0 15px rgba(0, 243, 255, 0.2);
-        }
-
-        .btn-right:hover, .btn-right:active {
-            background-color: var(--neon-blue);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+            text-shadow: 0 0 20px rgba(10,224,254,0.8);
         }
 
         .feedback {
@@ -158,10 +170,11 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 3rem;
-            font-weight: bold;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 900;
             opacity: 0;
             pointer-events: none;
-            z-index: 10;
+            z-index: 20;
         }
 
         .feedback.show {
@@ -176,8 +189,9 @@
 
         .overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9);
+            inset: 0;
+            background: rgba(5,10,31,0.95);
+            backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -190,20 +204,25 @@
         }
 
         .start-btn {
-            background-color: var(--neon-blue);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
             border: none;
             padding: 15px 40px;
             font-size: 1.5rem;
+            font-family: 'Rajdhani', sans-serif;
             border-radius: 30px;
-            color: #000;
-            font-weight: bold;
+            color: #fff;
+            font-weight: 900;
             cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+            margin-top: 30px;
+            box-shadow: 0 0 20px var(--primary-glow);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
         }
         
         .start-btn:hover {
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.8);
+            box-shadow: 0 0 40px var(--secondary-glow);
+            transform: scale(1.05);
         }
 
         .instructions {
@@ -211,6 +230,19 @@
             max-width: 400px;
             line-height: 1.6;
             font-size: 1.1rem;
+            background: rgba(10,224,254,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        .bottom-hint {
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            padding-bottom: 30px;
         }
     </style>
 </head>
@@ -218,31 +250,36 @@
 
     <!-- Start Screen -->
     <div id="startScreen" class="overlay">
-        <h1 style="color: var(--neon-blue); font-size: 2.5rem; margin-bottom: 10px; text-align: center;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
+        <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 20px; text-align: center; font-family: 'Rajdhani', sans-serif; text-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
         <div class="instructions">
-            <p>Luật chơi rất đơn giản:</p>
-            <p style="color: var(--neon-blue); font-weight: bold;">👉 Vuốt sang Phải nếu là Số</p>
-            <p style="color: var(--neon-red); font-weight: bold;">👈 Vuốt sang Trái nếu là Chữ Số</p>
-            <p>Phân loại thật nhanh trước khi hết giờ!</p>
+            <p style="margin-bottom: 10px; font-weight: bold; color: var(--text-main);">LUẬT CHƠI:</p>
+            <p style="color: var(--primary); font-weight: bold; margin-bottom: 5px;">👉 Vuốt sang Phải nếu là SỐ (> 9)</p>
+            <p style="color: var(--secondary); font-weight: bold; margin-bottom: 15px;">👈 Vuốt sang Trái nếu là CHỮ SỐ (0-9)</p>
+            <p style="font-size: 0.95rem;">(Có thể dùng chuột kéo hoặc vuốt trên màn hình)</p>
         </div>
         <button class="start-btn" onclick="startGame()">BẮT ĐẦU</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-        <h1 style="color: var(--neon-green); font-size: 3rem;">HẾT GIỜ!</h1>
-        <h2 style="font-size: 2rem;">Điểm của bạn: <span id="finalScore" style="color: var(--neon-blue);">0</span></h2>
+        <h1 style="color: var(--danger); font-size: 3rem; font-family: 'Rajdhani', sans-serif;">HẾT GIỜ!</h1>
+        <h2 style="font-size: 1.5rem; font-weight: 400;">Điểm của bạn: <span id="finalScore" style="color: var(--primary); font-weight: bold;">0</span></h2>
         <button class="start-btn" onclick="startGame()">CHƠI LẠI</button>
     </div>
 
     <!-- Main Game -->
     <div class="header">
-        <h1>An Ninh Không Gian</h1>
+        <h1>Phân biệt Số & Chữ Số</h1>
         <div class="stats">
             <div class="score-text">ĐÚNG: <span id="scoreDisplay">0</span>/10</div>
             <div class="time-text">THỜI GIAN: <span id="timeDisplay">30</span>s</div>
         </div>
         <div class="progress-text">Câu: <span id="questionCountDisplay">1</span>/10</div>
+    </div>
+    
+    <div class="swipe-indicator-container">
+        <div class="swipe-indicator indicator-left" id="indLeft">CHỮ SỐ 👈</div>
+        <div class="swipe-indicator indicator-right" id="indRight">👉 SỐ</div>
     </div>
 
     <div class="game-area">
@@ -251,10 +288,9 @@
         </div>
         <div id="feedback" class="feedback"></div>
     </div>
-
-    <div class="controls">
-        <button class="btn btn-left" onclick="checkAnswer('CHU_SO')">👈 CHỮ SỐ<br><span style="font-size: 0.8rem; font-weight: normal;">(Từ 0 đến 9)</span></button>
-        <button class="btn btn-right" onclick="checkAnswer('SO')">LÀ SỐ 👉<br><span style="font-size: 0.8rem; font-weight: normal;">(Lớn hơn 9)</span></button>
+    
+    <div class="bottom-hint">
+        Kéo thẻ bài sang trái hoặc phải để trả lời
     </div>
 
     <script>
@@ -273,8 +309,10 @@
         const timeDisplay = document.getElementById('timeDisplay');
         const questionCountDisplay = document.getElementById('questionCountDisplay');
         const feedbackEl = document.getElementById('feedback');
+        const indLeft = document.getElementById('indLeft');
+        const indRight = document.getElementById('indRight');
         
-        const monsters = ['👾', '👽', '🤖', '👻', '👹'];
+        const monsters = ['👾', '👽', '🤖', '👻', '👹', '💀', '🎃', '😈'];
 
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
@@ -309,15 +347,15 @@
                 localStorage.setItem('cbToan_skill_bai' + buoi, 'true');
                 
                 document.getElementById('gameOverScreen').innerHTML = `
-                    <h1 style="color: var(--neon-green); font-size: 2.5rem; text-align: center;">TUYỆT VỜI!</h1>
-                    <h2 style="font-size: 1.5rem; text-align: center; color: #fff;">Bạn đã trả lời đúng ${score}/10 câu.</h2>
-                    <h2 style="font-size: 1.5rem; text-align: center; color: var(--neon-blue); margin-bottom: 20px;">Bạn đã lĩnh ngộ TUYỆT CHIÊU!</h2>
+                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: 'Rajdhani', sans-serif; text-shadow: 0 0 20px rgba(78,255,159,0.5);">TUYỆT VỜI!</h1>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; margin-top: 10px;">Bạn đã trả lời đúng ${score}/10 câu.</h2>
+                    <h2 style="font-size: 1.5rem; text-align: center; color: var(--primary); margin-bottom: 20px;">Bạn đã lĩnh ngộ TUYỆT CHIÊU!</h2>
                     <button class="start-btn" onclick="returnToMap()">QUAY LẠI ẢI</button>
                 `;
             } else {
                 document.getElementById('gameOverScreen').innerHTML = `
-                    <h1 style="color: var(--neon-red); font-size: 3rem;">THẤT BẠI</h1>
-                    <h2 style="font-size: 1.5rem; text-align: center; color: #fff;">Bạn chỉ trả lời đúng ${score}/10 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần ít nhất 8 câu đúng để qua ải.</h2>
+                    <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Rajdhani', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ trả lời đúng ${score}/10 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần ít nhất 8 câu đúng để qua ải.</h2>
                     <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
                 `;
             }
@@ -327,12 +365,11 @@
             window.parent.postMessage('minigame_won', '*');
         }
 
+        let currentCard;
+
         function spawnCard() {
-            // Remove old cards
             cardContainer.innerHTML = '';
             
-            // Determine if next is a digit (0-9) or a number (10-999)
-            // 40% chance digit, 50% chance number, 10% chance trick
             const rand = Math.random();
             isTrick = false;
             
@@ -341,7 +378,6 @@
             } else if (rand < 0.9) {
                 currentCardValue = Math.floor(Math.random() * 990) + 10; // 10-999
             } else {
-                // Trick: A monster claiming to be a digit but it's a number
                 currentCardValue = Math.floor(Math.random() * 89) + 11; // 11-99
                 isTrick = true;
             }
@@ -349,14 +385,15 @@
             const card = document.createElement('div');
             card.className = 'card';
             card.id = 'activeCard';
+            currentCard = card;
             
             const icon = monsters[Math.floor(Math.random() * monsters.length)];
             
             if (isTrick) {
                 card.innerHTML = `
-                    <div style="color: #ff003c; font-weight: bold; font-size: 1.2rem; text-align: center; margin-bottom: 10px;">"Ta là<br>CHỮ SỐ ${currentCardValue}!"</div>
+                    <div style="color: var(--danger); font-weight: bold; font-size: 1.2rem; text-align: center; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255,0,85,0.5);">"Ta là<br>CHỮ SỐ ${currentCardValue}!"</div>
                     <div class="monster-icon">${icon}</div>
-                    <div class="number-display" style="font-size: 2.5rem;">${currentCardValue}</div>
+                    <div class="number-display" style="font-size: 60px;">${currentCardValue}</div>
                 `;
             } else {
                 card.innerHTML = `
@@ -366,11 +403,99 @@
             }
             
             cardContainer.appendChild(card);
+            
+            // Setup swipe events
+            setupSwipe(card);
+        }
+        
+        function setupSwipe(card) {
+            let isDragging = false;
+            let startX = 0;
+            let currentX = 0;
+            
+            // Mouse events
+            card.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+            
+            // Touch events
+            card.addEventListener('touchstart', dragStart, {passive: false});
+            document.addEventListener('touchmove', dragMove, {passive: false});
+            document.addEventListener('touchend', dragEnd);
+            
+            function dragStart(e) {
+                if (e.type === 'touchstart') {
+                    startX = e.touches[0].clientX;
+                } else {
+                    startX = e.clientX;
+                    e.preventDefault();
+                }
+                isDragging = true;
+                card.classList.add('dragging');
+            }
+            
+            function dragMove(e) {
+                if (!isDragging) return;
+                
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX;
+                    e.preventDefault(); // Prevent scrolling
+                } else {
+                    currentX = e.clientX;
+                }
+                
+                const deltaX = currentX - startX;
+                
+                // Move card and rotate slightly
+                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.05}deg)`;
+                
+                // Show indicators based on direction
+                const opacity = Math.min(Math.abs(deltaX) / 100, 1);
+                if (deltaX < 0) {
+                    indLeft.style.opacity = opacity;
+                    indRight.style.opacity = 0;
+                    card.style.borderColor = 'var(--secondary)';
+                    card.style.boxShadow = '0 0 30px var(--secondary-glow)';
+                } else if (deltaX > 0) {
+                    indRight.style.opacity = opacity;
+                    indLeft.style.opacity = 0;
+                    card.style.borderColor = 'var(--primary)';
+                    card.style.boxShadow = '0 0 30px var(--primary-glow)';
+                }
+            }
+            
+            function dragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                card.classList.remove('dragging');
+                
+                const deltaX = currentX - startX;
+                const threshold = 80;
+                
+                // Reset indicators
+                indLeft.style.opacity = 0;
+                indRight.style.opacity = 0;
+                card.style.borderColor = 'var(--primary)';
+                card.style.boxShadow = '0 0 30px var(--primary-glow), inset 0 0 20px rgba(10,224,254,0.1)';
+                
+                if (Math.abs(deltaX) > threshold && currentX !== 0) {
+                    // Swiped far enough
+                    if (deltaX < 0) {
+                        checkAnswer('CHU_SO');
+                    } else {
+                        checkAnswer('SO');
+                    }
+                } else {
+                    // Snap back
+                    card.style.transform = '';
+                }
+            }
         }
 
         function checkAnswer(userChoice) {
-            const card = document.getElementById('activeCard');
-            if (!card) return;
+            if (!currentCard) return;
+            const card = currentCard;
+            currentCard = null; // Prevent double trigger
 
             let isCorrect = false;
             let expectedType = currentCardValue < 10 ? 'CHU_SO' : 'SO';
@@ -379,7 +504,8 @@
                 isCorrect = true;
             }
 
-            // Animate card
+            // Animate card completely off screen
+            card.style.transform = ''; // Clear inline transform to allow class to take over
             if (userChoice === 'CHU_SO') {
                 card.classList.add('swipe-left');
             } else {
@@ -393,22 +519,21 @@
             if (isCorrect) {
                 score += 1;
                 feedbackEl.innerText = "CHÍNH XÁC!";
-                feedbackEl.style.color = "var(--neon-green)";
-                feedbackEl.style.textShadow = "0 0 20px #00ff66";
+                feedbackEl.style.color = "var(--success)";
+                feedbackEl.style.textShadow = "0 0 20px rgba(78,255,159,0.8)";
             } else {
                 if (isTrick && userChoice === 'CHU_SO') {
                     feedbackEl.innerHTML = "SAI RỒI!<br><span style='font-size:1.5rem'>Đó là 1 SỐ!</span>";
                 } else {
                     feedbackEl.innerText = "SAI RỒI!";
                 }
-                feedbackEl.style.color = "var(--neon-red)";
-                feedbackEl.style.textShadow = "0 0 20px #ff003c";
+                feedbackEl.style.color = "var(--danger)";
+                feedbackEl.style.textShadow = "0 0 20px rgba(255,0,85,0.8)";
             }
             
             feedbackEl.classList.add('show');
             scoreDisplay.innerText = score;
 
-            // Spawn next card immediately or end game
             setTimeout(() => {
                 if (questionCount >= 10) {
                     endGame(false);
@@ -417,7 +542,7 @@
                     questionCountDisplay.innerText = questionCount;
                     spawnCard();
                 }
-            }, 200);
+            }, 300);
         }
 
         // Keyboard support
@@ -425,8 +550,13 @@
             if (document.getElementById('startScreen').classList.contains('hidden') && 
                 document.getElementById('gameOverScreen').classList.contains('hidden')) {
                 if (e.key === 'ArrowLeft') {
+                    // Show indicator briefly
+                    indLeft.style.opacity = 1;
+                    setTimeout(() => indLeft.style.opacity = 0, 300);
                     checkAnswer('CHU_SO');
                 } else if (e.key === 'ArrowRight') {
+                    indRight.style.opacity = 1;
+                    setTimeout(() => indRight.style.opacity = 0, 300);
                     checkAnswer('SO');
                 }
             }
