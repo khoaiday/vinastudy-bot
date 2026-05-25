@@ -90,6 +90,15 @@ async def map_html():
     return await map_page()
 
 
+@app.get("/minigame.html", response_class=HTMLResponse)
+async def minigame_page():
+    """Trang mini game rèn tuyệt chiêu."""
+    p = BASE_DIR / "minigame.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page():
     """Trang chỉnh sửa hồ sơ học sinh."""
