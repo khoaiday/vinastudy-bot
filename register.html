@@ -234,19 +234,21 @@ body {
   <div class="logo">⚔️ CHIẾN BINH <span>TOÁN</span></div>
   <div class="subtitle">Hành trình chinh phục Toán Học bắt đầu từ đây</div>
 
-  <!-- Step indicator (2 bước: Thông tin → Chờ duyệt) -->
+  <!-- Step indicator -->
   <div class="steps">
-    <div class="step-dot active" id="dot2">1</div>
+    <div class="step-dot active" id="dot1">1</div>
     <div class="step-line"></div>
-    <div class="step-dot" id="dot4">✓</div>
+    <div class="step-dot" id="dot2">2</div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="dot3">✓</div>
   </div>
 
   <div class="card">
 
-    <!-- ── STEP 2: Name + Character ── -->
-    <div class="step active" id="step2">
-      <div class="card-title">⚔️ Đăng ký & chọn nhân vật</div>
-      <div class="card-sub">Đặt tên và chọn nhân vật sẽ đồng hành cùng em</div>
+    <!-- ── STEP 1: Info ── -->
+    <div class="step active" id="step1">
+      <div class="card-title">📝 Bước 1: Đăng ký</div>
+      <div class="card-sub">Điền thông tin cá nhân của em</div>
 
       <div class="field">
         <label>Họ và tên của em</label>
@@ -280,7 +282,21 @@ body {
         </select>
       </div>
 
-      <label style="font-size:.82rem; color:rgba(200,230,255,.7); display:block; margin-bottom:10px;">Chọn nhân vật</label>
+      <button class="btn btn-primary btn-full" onclick="goStep2()">Xác nhận →</button>
+    </div>
+
+    <!-- ── STEP 2: Character ── -->
+    <div class="step" id="step2">
+      <div class="card-title">⚔️ Bước 2: Chọn nhân vật</div>
+      <div class="card-sub">Chọn nhân vật sẽ đồng hành cùng em</div>
+
+      <!-- Avatar Preview based on gender -->
+      <div style="display:flex; justify-content:center; margin-bottom: 16px;">
+        <div class="preview-item final" style="width:140px; height:140px; border-radius:14px; overflow:hidden; border:2px solid var(--primary);">
+          <img id="charPreview" src="/static/avatars/chien_binh_nam.jpg" style="width:100%; height:100%; object-fit:cover; border-radius:0;">
+        </div>
+      </div>
+
       <div class="char-grid">
         <div class="char-card char-chien_binh selected" data-char="chien_binh" onclick="selectChar(this)">
           <span class="emoji">⚔️</span>
@@ -308,11 +324,14 @@ body {
         </div>
       </div>
 
-      <button class="btn btn-primary btn-full" onclick="_submitProfile()">Hoàn tất Đăng ký →</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-full" onclick="goStep(1)" style="flex:1; background:transparent; border:1px solid var(--border); color:rgba(200,230,255,.5); font-size:.9rem;">← Quay lại</button>
+        <button class="btn btn-primary btn-full" onclick="_submitProfile()" style="flex:2;">Hoàn tất Đăng ký →</button>
+      </div>
     </div>
 
-    <!-- ── STEP 4: Pending ── -->
-    <div class="step" id="step4">
+    <!-- ── STEP 3: Pending ── -->
+    <div class="step" id="step3">
       <div class="pending-box">
         <div class="pending-icon">⏳</div>
         <div class="pending-title">Đã gửi hồ sơ!</div>
@@ -535,15 +554,15 @@ function showToast(msg, ok=false) {
     if (user.status === 'pending') {
       document.getElementById('pendingAvatar').src = user.avatar_final || '';
       document.getElementById('pendingName').textContent = user.ho_ten || '';
-      goStep(4);
+      goStep(3);
       startPendingPoll();
       return;
     }
 
-    // not_found → bắt đầu đăng ký từ step 2
-    goStep(2);
+    // Default: step 1 (đăng ký)
+    goStep(1);
   } catch(e) {
-    goStep(2); // lỗi mạng → cho đăng ký bình thường
+    goStep(1); // lỗi mạng → cho đăng ký bình thường
   }
 })();
 
@@ -609,17 +628,17 @@ function startPendingPoll() {
 
 // ── Đăng ký lại sau khi bị từ chối ─────────────────────────────────────
 function reRegister() {
-  goStep(2);
+  goStep(1);
 }
 
 // ── Step navigation ──────────────────────────────────────────────────────
 function goStep(n) {
-  if (n !== 4) stopPendingPoll();
+  if (n !== 3) stopPendingPoll();
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('step' + n);
   if (el) el.classList.add('active');
 
-  [2,4].forEach(i => {
+  [1,2,3].forEach(i => {
     const d = document.getElementById('dot' + i);
     if (!d) return;
     d.classList.remove('active','done');
@@ -631,10 +650,32 @@ function goStep(n) {
 }
 
 // ── Character selection ──────────────────────────────────────────────────
+function updateCharPreview() {
+  const gender_suffix = currentGender === 'nu' ? 'nu' : 'nam';
+  document.getElementById('charPreview').src = `/static/avatars/${currentChar}_${gender_suffix}.jpg`;
+}
+
+function selectGender(gt) {
+  currentGender = gt;
+  const activeStyle = 'border:2px solid var(--secondary);background:rgba(234,14,237,0.25);color:var(--secondary)';
+  const inactiveStyle = 'border:2px solid var(--border);background:rgba(10,224,254,0.08);color:var(--text)';
+  document.getElementById('btnNam').style.cssText = (gt === 'nam' ? activeStyle : inactiveStyle) + ';flex:1;padding:10px;border-radius:10px;font-size:1.1rem;cursor:pointer;font-weight:700;transition:.2s';
+  document.getElementById('btnNu').style.cssText  = (gt === 'nu'  ? activeStyle : inactiveStyle) + ';flex:1;padding:10px;border-radius:10px;font-size:1.1rem;cursor:pointer;font-weight:700;transition:.2s';
+  updateCharPreview();
+}
+
 function selectChar(el) {
   document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   currentChar = el.dataset.char;
+  updateCharPreview();
+}
+
+function goStep2() {
+  const name = document.getElementById('inputName').value.trim();
+  if (!name) { showToast('Em chưa nhập tên!'); return; }
+  goStep(2);
+  updateCharPreview(); // Ensure preview is correct based on selected gender
 }
 
 // ── Submit Profile ────────────────────────────────────────────────────────
@@ -677,7 +718,7 @@ async function _submitProfile() {
     document.getElementById('pendingAvatar').src = data.avatar_final;
     document.getElementById('pendingName').textContent = name;
 
-    goStep(4);
+    goStep(3);
     startPendingPoll();
 
   } catch(e) {
