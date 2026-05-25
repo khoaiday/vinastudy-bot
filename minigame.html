@@ -150,14 +150,8 @@
             -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
         }
 
-        .monster-icon {
-            font-size: 100px;
-            margin-bottom: 30px;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));
-        }
-
         .number-display {
-            font-size: 70px;
+            font-size: 160px;
             font-family: 'Rajdhani', sans-serif;
             font-weight: 900;
             color: #fff;
@@ -391,13 +385,11 @@
             
             if (isTrick) {
                 card.innerHTML = `
-                    <div style="color: var(--danger); font-weight: bold; font-size: 1.2rem; text-align: center; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255,0,85,0.5);">"Ta là<br>CHỮ SỐ ${currentCardValue}!"</div>
-                    <div class="monster-icon">${icon}</div>
-                    <div class="number-display" style="font-size: 60px;">${currentCardValue}</div>
+                    <div style="color: var(--danger); font-weight: bold; font-size: 1.2rem; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,0,85,0.5);">"Ta là<br>CHỮ SỐ ${currentCardValue}!"</div>
+                    <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
                 `;
             } else {
                 card.innerHTML = `
-                    <div class="monster-icon">${icon}</div>
                     <div class="number-display">${currentCardValue}</div>
                 `;
             }
