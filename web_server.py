@@ -105,6 +105,15 @@ async def minigame_page():
     return HTMLResponse("...", status_code=503)
 
 
+@app.get("/minigame2.html", response_class=HTMLResponse)
+async def minigame2_page():
+    """Trang mini game cấu tạo số."""
+    p = BASE_DIR / "minigame2.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page():
     """Trang chỉnh sửa hồ sơ học sinh."""
