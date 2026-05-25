@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Phân Biệt Số & Chữ Số</title>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --primary: #0ae0fe;
@@ -181,6 +182,14 @@
             100% { opacity: 0; transform: translate(-50%, -100%) scale(1); }
         }
 
+        .pulse {
+            animation: pulse 0.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
         .overlay {
             position: fixed;
             inset: 0;
@@ -265,10 +274,10 @@
     <div class="header">
         <h1>Phân biệt Số & Chữ Số</h1>
         <div class="stats">
-            <div class="score-text">ĐÚNG: <span id="scoreDisplay">0</span>/10</div>
+            <div class="score-text">ĐÚNG: <span id="scoreDisplay">0</span>/12</div>
             <div class="time-text">THỜI GIAN: <span id="timeDisplay">30</span>s</div>
         </div>
-        <div class="progress-text">Câu: <span id="questionCountDisplay">1</span>/10</div>
+        <div class="progress-text">Câu: <span id="questionCountDisplay">1</span>/12</div>
     </div>
     
     <div class="swipe-indicator-container">
@@ -334,22 +343,31 @@
             clearInterval(gameInterval);
             document.getElementById('gameOverScreen').classList.remove('hidden');
             
-            const isWin = score >= 8;
+            const isWin = score >= 11;
             
             if (isWin) {
                 // Save progress
                 localStorage.setItem('cbToan_skill_bai' + buoi, 'true');
                 
+                // Bắn pháo hoa
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+                
                 document.getElementById('gameOverScreen').innerHTML = `
                     <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(78,255,159,0.5);">TUYỆT VỜI!</h1>
-                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; margin-top: 10px;">Bạn đã trả lời đúng ${score}/10 câu.</h2>
-                    <h2 style="font-size: 1.5rem; text-align: center; color: var(--primary); margin-bottom: 20px;">Bạn đã lĩnh ngộ TUYỆT CHIÊU!</h2>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; margin-top: 10px;">Chúc mừng bạn đã lĩnh hội được tuyệt chiêu!</h2>
+                    <div style="background: rgba(10,224,254,0.1); border: 1px solid var(--primary); border-radius: 10px; padding: 15px; margin: 15px; font-size: 1rem; line-height: 1.5; color: var(--primary);">
+                        <strong>👨‍🏫 Thầy Long dặn:</strong><br>"Các em nhớ nhé, <strong>CHỮ SỐ</strong> chỉ có 10 chữ số từ 0 đến 9. Còn <strong>SỐ</strong> thì được ghép từ các chữ số và có <strong>VÔ HẠN</strong> số!"
+                    </div>
                     <button class="start-btn" onclick="returnToMap()">QUAY LẠI ẢI</button>
                 `;
             } else {
                 document.getElementById('gameOverScreen').innerHTML = `
                     <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
-                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ trả lời đúng ${score}/10 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần ít nhất 8 câu đúng để qua ải.</h2>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ trả lời đúng ${score}/12 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần ít nhất 11 câu đúng để qua ải.</h2>
                     <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
                 `;
             }
@@ -364,16 +382,22 @@
         function spawnCard() {
             cardContainer.innerHTML = '';
             
-            const rand = Math.random();
-            isTrick = false;
+            isTrick = (questionCount === 7 || questionCount === 11);
             
-            if (rand < 0.4) {
-                currentCardValue = Math.floor(Math.random() * 10); // 0-9
-            } else if (rand < 0.9) {
-                currentCardValue = Math.floor(Math.random() * 990) + 10; // 10-999
+            if (isTrick) {
+                if (Math.random() > 0.5) {
+                    currentCardValue = Math.floor(Math.random() * 10); // 0-9
+                } else {
+                    currentCardValue = Math.floor(Math.random() * 89) + 11; // 11-99
+                }
             } else {
-                currentCardValue = Math.floor(Math.random() * 89) + 11; // 11-99
-                isTrick = true;
+                if (Math.random() < 0.4) {
+                    currentCardValue = Math.floor(Math.random() * 10); // 0-9
+                } else if (Math.random() < 0.9) {
+                    currentCardValue = Math.floor(Math.random() * 990) + 10; // 10-999
+                } else {
+                    currentCardValue = Math.floor(Math.random() * 89) + 11; // 11-99
+                }
             }
 
             const card = document.createElement('div');
@@ -381,11 +405,12 @@
             card.id = 'activeCard';
             currentCard = card;
             
-            const icon = monsters[Math.floor(Math.random() * monsters.length)];
-            
             if (isTrick) {
+                const trickArrow = (currentCardValue < 10) ? '➡️' : '⬅️';
+                const arrowColor = (currentCardValue < 10) ? 'var(--primary)' : 'var(--secondary)';
+                
                 card.innerHTML = `
-                    <div style="color: var(--danger); font-weight: bold; font-size: 1.2rem; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,0,85,0.5);">"Ta là<br>CHỮ SỐ ${currentCardValue}!"</div>
+                    <div class="pulse" style="font-size: 5rem; margin-bottom: 20px; text-shadow: 0 0 20px ${arrowColor}; color: ${arrowColor}; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));">${trickArrow}</div>
                     <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
                 `;
             } else {
@@ -519,11 +544,7 @@
                 feedbackEl.style.color = "var(--success)";
                 feedbackEl.style.textShadow = "0 0 20px rgba(78,255,159,0.8)";
             } else {
-                if (isTrick && userChoice === 'CHU_SO') {
-                    feedbackEl.innerHTML = "SAI RỒI!<br><span style='font-size:1.5rem'>Đó là 1 SỐ!</span>";
-                } else {
-                    feedbackEl.innerText = "SAI RỒI!";
-                }
+                feedbackEl.innerText = "SAI RỒI!";
                 feedbackEl.style.color = "var(--danger)";
                 feedbackEl.style.textShadow = "0 0 20px rgba(255,0,85,0.8)";
             }
@@ -532,7 +553,7 @@
             scoreDisplay.innerText = score;
 
             setTimeout(() => {
-                if (questionCount >= 10) {
+                if (questionCount >= 12) {
                     endGame(false);
                 } else {
                     questionCount++;
