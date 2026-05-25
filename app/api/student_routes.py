@@ -57,7 +57,7 @@ class CompleteProfileBody(BaseModel):
     lop:             str = "3"
     gioi_tinh:       str = "nam"
     character_type:  str = "chien_binh"
-    avatar_face_b64: str
+    avatar_face_b64: str | None = None
     telegram_id:     int | None = None
 
 
@@ -192,18 +192,16 @@ async def update_tg_profile(body: TgProfileBody):
     if body.gioi_tinh:      updates["gioi_tinh"]      = body.gioi_tinh
     if body.character_type: updates["character_type"] = body.character_type
 
-    avatar_final = None
-    if body.avatar_face_b64:
-        char = body.character_type or user["character_type"]
-        gt   = body.gioi_tinh or user.get("gioi_tinh", "nam")
-        res  = generate_avatar_pipeline(body.avatar_face_b64, char, gt)
-        if res["ok"]:
-            updates["avatar_original"] = body.avatar_face_b64
-            updates["avatar_cartoon"]  = res["cartoon_b64"]
-            updates["avatar_final"]    = res["final_b64"]
-            avatar_final = res["final_b64"]
-        else:
-            raise HTTPException(500, f"Lỗi tạo avatar: {res['error']}")
+    # Set static avatar URL
+    char = body.character_type or user["character_type"]
+    gt   = body.gioi_tinh or user.get("gioi_tinh", "nam")
+    gender_suffix = "nu" if gt.lower() in ("nu", "nữ", "female") else "nam"
+    avatar_url = f"/static/avatars/{char}_{gender_suffix}.jpg"
+    
+    updates["avatar_original"] = None
+    updates["avatar_cartoon"]  = None
+    updates["avatar_final"]    = avatar_url
+    avatar_final = avatar_url
 
     if updates:
         await crud.patch_web_user(user["google_id"], updates)
@@ -240,7 +238,7 @@ class TgCompleteProfileBody(BaseModel):
     lop:             str = "3"
     gioi_tinh:       str = "nam"
     character_type:  str = "chien_binh"
-    avatar_face_b64: str
+    avatar_face_b64: str | None = None
 
 
 @router.post("/tg-complete-profile")
@@ -262,22 +260,18 @@ async def tg_complete_profile(body: TgCompleteProfileBody):
             user["id"], {"status": "pending", "rejection_reason": None}
         )
 
-    # Tạo avatar (chạy trong threadpool để không block event loop)
-    from fastapi.concurrency import run_in_threadpool
-    avatar_result = await run_in_threadpool(
-        generate_avatar_pipeline, body.avatar_face_b64, body.character_type, body.gioi_tinh
-    )
-    if not avatar_result["ok"]:
-        raise HTTPException(500, f"Lỗi tạo avatar: {avatar_result['error']}")
+    # Generate static avatar path based on character type and gender
+    gender_suffix = "nu" if body.gioi_tinh.lower() in ("nu", "nữ", "female") else "nam"
+    avatar_url = f"/static/avatars/{body.character_type}_{gender_suffix}.jpg"
 
     await crud.update_web_user_profile(
         google_id       = google_id,
         ho_ten          = body.ho_ten,
         lop             = body.lop,
         character_type  = body.character_type,
-        avatar_original = body.avatar_face_b64,
-        avatar_cartoon  = avatar_result["cartoon_b64"],
-        avatar_final    = avatar_result["final_b64"],
+        avatar_original = None,
+        avatar_cartoon  = None,
+        avatar_final    = avatar_url,
         gioi_tinh       = body.gioi_tinh,
     )
 
@@ -294,8 +288,8 @@ async def tg_complete_profile(body: TgCompleteProfileBody):
     )
 
     return JSONResponse({"ok": True, "status": "pending",
-                         "cartoon_b64":  avatar_result["cartoon_b64"],
-                         "avatar_final": avatar_result["final_b64"]})
+                         "cartoon_b64":  None,
+                         "avatar_final": avatar_url})
 
 
 @router.get("/profile")
