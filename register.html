@@ -93,6 +93,8 @@ body {
 /* ── Steps ── */
 .step { display: none; }
 .step.active { display: block; }
+#step2 { min-height: 480px; display: none; flex-direction: column; }
+#step2.active { display: flex; }
 
 /* ── Generic button ── */
 .btn {
@@ -125,21 +127,30 @@ body {
 .char-grid {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 8px; margin-bottom: 24px;
-  padding: 0 10px; /* Thêm chút margin 2 bên cho grid nhỏ lại */
+  padding: 0 4px;
+  margin-top: auto; /* Push down */
 }
 .char-card {
-  padding: 8px 6px; border-radius: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 
+    "emoji name"
+    "emoji desc";
+  align-items: center;
+  text-align: left;
+  column-gap: 8px;
+  padding: 8px 10px; border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.2);
-  cursor: pointer; text-align: center;
+  cursor: pointer;
   transition: all .25s; position: relative;
   background: rgba(0,0,0,0.5);
   backdrop-filter: blur(2px);
 }
 .char-card:hover { border-color: var(--primary); transform: translateY(-3px); background: rgba(10,224,254,.3); }
 .char-card.selected { border: 2px solid var(--primary); background: rgba(10,224,254,.4); }
-.char-card .emoji { font-size: 1.4rem; display: block; margin-bottom: 2px; }
-.char-card .name { font-size: .75rem; font-weight: 700; }
-.char-card .desc { display: block; font-size: .6rem; opacity: 0.8; margin-top: 2px; }
+.char-card .emoji { grid-area: emoji; font-size: 1.5rem; margin-bottom: 0; }
+.char-card .name { grid-area: name; font-size: .75rem; font-weight: 700; align-self: end; margin: 0; }
+.char-card .desc { grid-area: desc; font-size: .65rem; opacity: 0.8; align-self: start; margin: 0; }
 .char-card .badge {
   position: absolute; top: -5px; right: -5px;
   font-size: .7rem; width: 18px; height: 18px;
