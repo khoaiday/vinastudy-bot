@@ -6,7 +6,6 @@
 <title>Hồ Sơ Chiến Binh</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <style>
 :root {
   --primary:   #0ae0fe;
@@ -113,18 +112,16 @@ body::before {
   margin-bottom: 16px;
 }
 
-/* ── Avatar hero ── */
-.avatar-hero { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-
+/* ── Avatar ring ── */
 .avatar-ring {
   position: relative;
-  width: 98px; height: 130px;
-  border-radius: 18px;
+  width: 120px; height: 120px;
+  border-radius: 20px; margin: 0 auto;
 }
 .avatar-ring::before {
   content: '';
   position: absolute; inset: -3px;
-  border-radius: 21px;
+  border-radius: 23px;
   background: linear-gradient(135deg, var(--primary), var(--secondary), var(--success));
   background-size: 200% 200%;
   animation: gradShift 3s ease infinite;
@@ -136,76 +133,11 @@ body::before {
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-.avatar-ph {
-  position: relative; z-index: 1;
-  width: 98px; height: 130px; border-radius: 16px;
-  background: #0a1428;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 3.5rem;
-}
 #avatarImg {
   position: relative; z-index: 1;
-  width: 98px; height: 130px; border-radius: 16px;
-  object-fit: cover; object-position: top center; display: none;
+  width: 120px; height: 120px; border-radius: 18px;
+  object-fit: cover; display: block; background: #0a1428;
 }
-
-.avatar-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.btn-av {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 14px; border-radius: 9px;
-  border: 1px solid var(--border);
-  background: rgba(10,224,254,.06);
-  color: var(--primary); font-size: .82rem; font-weight: 700;
-  cursor: pointer; white-space: nowrap; transition: all .18s;
-}
-.btn-av:active { transform: scale(.95); background: rgba(10,224,254,.14); }
-.btn-av.cam-active { border-color: var(--secondary); color: var(--secondary); }
-
-/* ── Camera ── */
-.cam-wrap {
-  margin-top: 14px; border-radius: 12px; overflow: hidden;
-  background: #000; border: 1px solid var(--border);
-  position: relative; aspect-ratio: 4/3; display: none;
-}
-.cam-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.face-guide {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%);
-  width: 52%; aspect-ratio: 1;
-  border: 2px dashed rgba(10,224,254,.8); border-radius: 50%;
-  pointer-events: none;
-  box-shadow: 0 0 0 9999px rgba(0,0,0,.35), 0 0 20px rgba(10,224,254,.3);
-}
-canvas#snap { display: none; }
-.cam-actions { display: flex; gap: 8px; margin-top: 10px; }
-.cam-actions .btn-av { flex: 1; justify-content: center; }
-.btn-snap {
-  background: rgba(10,224,254,.18) !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 12px rgba(10,224,254,.3);
-}
-
-/* ── Preview strip ── */
-.preview-strip {
-  display: none; gap: 12px; justify-content: center;
-  margin-top: 16px; padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-.pv-item { text-align: center; }
-.pv-item img {
-  width: 72px; height: 72px; border-radius: 10px;
-  object-fit: cover; border: 1px solid var(--border); display: block;
-  background: #0a1428;
-}
-.pv-final img {
-  width: 72px; height: 96px;
-  border-color: var(--primary);
-  box-shadow: 0 0 16px rgba(10,224,254,.4);
-  object-position: top center;
-}
-.pv-item p { font-size: .62rem; color: rgba(200,230,255,.35); margin-top: 5px; }
-
-.gen-spinner { display: none; text-align: center; padding: 20px; }
-.gen-spinner p { font-size: .8rem; color: rgba(200,230,255,.45); margin-top: 8px; }
 
 /* ── Fields ── */
 .field { margin-bottom: 14px; }
@@ -250,25 +182,48 @@ canvas#snap { display: none; }
 }
 
 /* ── Character grid ── */
-.char-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.char-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
 .char-card {
-  padding: 16px 10px; border-radius: 12px;
-  border: 1.5px solid var(--border);
-  cursor: pointer; text-align: center;
-  transition: all .2s;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 
+    "emoji name"
+    "emoji desc";
+  align-items: center;
+  text-align: left;
+  column-gap: 8px;
+  padding: 8px 10px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all .25s; position: relative;
   background: rgba(10,224,254,.02);
 }
 .char-card:active { transform: scale(.95); }
-.char-card .em { font-size: 2rem; display: block; margin-bottom: 5px; }
-.char-card .nm { font-size: .8rem; font-weight: 700; letter-spacing: .5px; }
-.char-chien_binh.selected { border-color: var(--primary); background: rgba(10,224,254,.08); box-shadow: 0 0 14px rgba(10,224,254,.3); }
-.char-phu_thuy.selected   { border-color: var(--secondary); background: rgba(234,14,237,.08); box-shadow: 0 0 14px rgba(234,14,237,.3); }
-.char-xa_thu.selected     { border-color: var(--success); background: rgba(78,255,159,.08); box-shadow: 0 0 14px rgba(78,255,159,.3); }
-.char-hiep_si.selected    { border-color: var(--gold); background: rgba(255,215,0,.08); box-shadow: 0 0 14px rgba(255,215,0,.3); }
-.char-chien_binh .nm { color: var(--primary); }
-.char-phu_thuy   .nm { color: var(--secondary); }
-.char-xa_thu     .nm { color: var(--success); }
-.char-hiep_si    .nm { color: var(--gold); }
+.char-card .em { grid-area: emoji; font-size: 1.5rem; margin-bottom: 0; }
+.char-card .nm { grid-area: name; font-size: .75rem; font-weight: 700; align-self: end; margin: 0; }
+.char-card .desc { grid-area: desc; font-size: .65rem; opacity: 0.8; align-self: start; margin: 0; }
+.char-card .badge {
+  position: absolute; top: -5px; right: -5px;
+  font-size: .7rem; width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-weight: 700; display: none;
+  background: var(--c); color: #000;
+}
+.char-card.selected .badge { display: flex; }
+
+.char-chien_binh { --c: #0ae0fe; }
+.char-phu_thuy   { --c: #ea0eed; }
+.char-xa_thu     { --c: #4eff9f; }
+.char-hiep_si    { --c: #ffd700; }
+
+.char-card.selected { border-color: var(--c); background: rgba(10,224,254,.08); box-shadow: 0 0 14px color-mix(in srgb, var(--c) 40%, transparent); }
+.char-chien_binh .nm { color: var(--c); }
+.char-phu_thuy   .nm { color: var(--c); }
+.char-xa_thu     .nm { color: var(--c); }
+.char-hiep_si    .nm { color: var(--c); }
 
 /* ── Save bar ── */
 .save-bar {
@@ -376,24 +331,6 @@ canvas#snap { display: none; }
   <div class="load-txt">ĐANG TẢI HỒ SƠ...</div>
 </div>
 
-<!-- ════════════ CROP MODAL ════════════ -->
-<div id="cropModal">
-  <div class="crop-header">
-    <h3>✂️ CẮT ẢNH ĐẠI DIỆN</h3>
-    <p>Kéo ảnh để căn chỉnh · Thu/phóng bằng 2 ngón tay</p>
-  </div>
-  <div class="crop-container">
-    <img id="cropImg" src="" alt="">
-  </div>
-  <div class="crop-footer">
-    <button class="btn-crop-cancel" onclick="cancelCrop()">✕ Huỷ</button>
-    <button class="btn-crop-ok"     onclick="confirmCrop()">✅ Dùng ảnh này</button>
-  </div>
-</div>
-
-<!-- ════════════ MAIN CONTENT ════════════ -->
-<div class="wrap" id="mainContent" style="display:none">
-
   <!-- Header -->
   <div class="hdr">
     <div class="hdr-icon">🏅</div>
@@ -401,59 +338,13 @@ canvas#snap { display: none; }
       <div class="hdr-title">Hồ Sơ Chiến Binh</div>
       <div class="hdr-sub">VINASTUDY · CẬP NHẬT THÔNG TIN</div>
     </div>
-    <button class="btn-logout" onclick="logOut()">🚪 Thoát</button>
   </div>
 
   <!-- ── Avatar card ── -->
-  <div class="cyber-card">
-    <div class="sec-label">Ảnh đại diện</div>
-    <div class="avatar-hero">
-
-      <!-- Avatar display -->
-      <div class="avatar-ring">
-        <div class="avatar-ph" id="avatarPh">⚔️</div>
-        <img id="avatarImg" src="" alt="Avatar">
-      </div>
-
-      <!-- Buttons -->
-      <div class="avatar-btns">
-        <button class="btn-av" id="btnOpenCam" onclick="openCamera()">📷 Chụp ảnh</button>
-        <button class="btn-av" onclick="document.getElementById('fileInput').click()">📁 Tải lên &amp; Cắt</button>
-        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="onFileSelect(event)">
-      </div>
-    </div>
-
-    <!-- Camera -->
-    <div class="cam-wrap" id="camWrap">
-      <video id="video" autoplay playsinline muted></video>
-      <div class="face-guide"></div>
-    </div>
-    <canvas id="snap"></canvas>
-    <div class="cam-actions" id="camActions" style="display:none">
-      <button class="btn-av" onclick="stopCamera()">✕ Huỷ</button>
-      <button class="btn-av btn-snap" onclick="snapPhoto()">📸 Chụp ngay</button>
-    </div>
-
-    <!-- Preview -->
-    <div class="preview-strip" id="previewStrip">
-      <div class="pv-item">
-        <img id="pvFace" src="" alt="">
-        <p>Ảnh gốc</p>
-      </div>
-      <div class="pv-item">
-        <img id="pvCartoon" src="" alt="">
-        <p>Hoạt hình</p>
-      </div>
-      <div class="pv-item pv-final">
-        <img id="pvFinal" src="" alt="">
-        <p>Avatar</p>
-      </div>
-    </div>
-
-    <!-- Gen spinner -->
-    <div class="gen-spinner" id="genSpinner">
-      <div class="spinner" style="margin:0 auto"></div>
-      <p>🎨 Đang tạo avatar hoạt hình...</p>
+  <div class="cyber-card" style="text-align: center;">
+    <div class="sec-label">Nhân vật của em</div>
+    <div class="avatar-ring">
+      <img id="avatarImg" src="/static/avatars/chien_binh_nam.jpg" alt="Avatar">
     </div>
   </div>
 
@@ -486,16 +377,28 @@ canvas#snap { display: none; }
     <div class="sec-label">Nhân vật</div>
     <div class="char-grid">
       <div class="char-card char-chien_binh" data-char="chien_binh" onclick="selectChar(this)">
-        <span class="em">⚔️</span><div class="nm">Chiến Binh</div>
+        <span class="em">⚔️</span>
+        <div class="nm">Chiến Binh</div>
+        <div class="desc">Mạnh mẽ, kiên định</div>
+        <span class="badge">✓</span>
       </div>
       <div class="char-card char-phu_thuy" data-char="phu_thuy" onclick="selectChar(this)">
-        <span class="em">🔮</span><div class="nm">Phù Thủy</div>
+        <span class="em">🔮</span>
+        <div class="nm">Phù Thủy</div>
+        <div class="desc">Thông minh, sáng tạo</div>
+        <span class="badge">✓</span>
       </div>
       <div class="char-card char-xa_thu" data-char="xa_thu" onclick="selectChar(this)">
-        <span class="em">🏹</span><div class="nm">Xạ Thủ</div>
+        <span class="em">🏹</span>
+        <div class="nm">Xạ Thủ</div>
+        <div class="desc">Nhanh nhẹn, chính xác</div>
+        <span class="badge">✓</span>
       </div>
       <div class="char-card char-hiep_si" data-char="hiep_si" onclick="selectChar(this)">
-        <span class="em">🛡️</span><div class="nm">Hiệp Sĩ</div>
+        <span class="em">🛡️</span>
+        <div class="nm">Hiệp Sĩ</div>
+        <div class="desc">Dũng cảm, bảo vệ</div>
+        <span class="badge">✓</span>
       </div>
     </div>
   </div>
@@ -509,9 +412,6 @@ canvas#snap { display: none; }
 </div>
 
 <div class="toast" id="toast"></div>
-
-<!-- Cropper.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
 /* ── Telegram init ─────────────────────────────────────────────────────── */
@@ -528,9 +428,6 @@ const CHARS = {
 let tgId          = null;
 let currentChar   = 'chien_binh';
 let currentGender = 'nam';
-let newFaceB64    = null;
-let stream        = null;
-let cropper       = null;
 
 /* ── Resolve tgId — 3 fallbacks ─────────────────────────────────────── */
 function resolveTgId() {
@@ -587,6 +484,11 @@ function showError(msg) {
        color:var(--danger);line-height:1.8">${msg}</div>`;
 }
 
+function updateAvatarPreview() {
+  const gender_suffix = currentGender === 'nu' ? 'nu' : 'nam';
+  document.getElementById('avatarImg').src = `/static/avatars/${currentChar}_${gender_suffix}.jpg`;
+}
+
 function fillForm(data) {
   document.getElementById('inputName').value = data.ho_ten || '';
   document.getElementById('inputLop').value  = data.lop   || '3';
@@ -594,18 +496,10 @@ function fillForm(data) {
   currentGender = data.gioi_tinh      || 'nam';
   selectGender(currentGender);
 
-  // Avatar
-  if (data.avatar_final) {
-    document.getElementById('avatarImg').src          = data.avatar_final;
-    document.getElementById('avatarImg').style.display = '';
-    document.getElementById('avatarPh').style.display  = 'none';
-  } else {
-    document.getElementById('avatarPh').textContent = CHARS[data.character_type]?.emoji || '⚔️';
-  }
-
   // Character
   document.querySelectorAll('.char-card').forEach(c =>
     c.classList.toggle('selected', c.dataset.char === currentChar));
+  updateAvatarPreview();
 }
 
 /* ── Gender ──────────────────────────────────────────────────────────── */
@@ -613,6 +507,7 @@ function selectGender(gt) {
   currentGender = gt;
   document.getElementById('btnNam').className = 'gender-btn' + (gt === 'nam' ? ' active-nam' : '');
   document.getElementById('btnNu').className  = 'gender-btn' + (gt === 'nu'  ? ' active-nu'  : '');
+  updateAvatarPreview();
 }
 
 /* ── Character ───────────────────────────────────────────────────────── */
@@ -620,99 +515,7 @@ function selectChar(el) {
   document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   currentChar = el.dataset.char;
-}
-
-/* ── Camera ──────────────────────────────────────────────────────────── */
-async function openCamera() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-    document.getElementById('video').srcObject = stream;
-    document.getElementById('camWrap').style.display    = '';
-    document.getElementById('camActions').style.display = 'flex';
-    document.getElementById('btnOpenCam').style.display = 'none';
-    document.getElementById('previewStrip').style.display = 'none';
-  } catch(e) {
-    showToast('Không mở được camera!', false);
-  }
-}
-
-function snapPhoto() {
-  const video  = document.getElementById('video');
-  const canvas = document.getElementById('snap');
-  const SIZE   = 512;
-  canvas.width = canvas.height = SIZE;
-  const ctx = canvas.getContext('2d');
-  const vw = video.videoWidth, vh = video.videoHeight;
-  const side = Math.min(vw, vh);
-  ctx.drawImage(video, (vw - side) / 2, (vh - side) / 2, side, side, 0, 0, SIZE, SIZE);
-  newFaceB64 = canvas.toDataURL('image/jpeg', .88);
-  stopCamera();
-  showPreview();
-}
-
-function stopCamera() {
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  document.getElementById('camWrap').style.display    = 'none';
-  document.getElementById('camActions').style.display = 'none';
-  document.getElementById('btnOpenCam').style.display = '';
-}
-
-/* ── File Upload + Crop ──────────────────────────────────────────────── */
-function onFileSelect(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  e.target.value = ''; // reset để chọn lại cùng file được
-  const reader = new FileReader();
-  reader.onload = ev => openCropModal(ev.target.result);
-  reader.readAsDataURL(file);
-}
-
-function openCropModal(src) {
-  const img = document.getElementById('cropImg');
-  document.getElementById('cropModal').style.display = 'flex';
-
-  // Destroy cropper cũ
-  if (cropper) { cropper.destroy(); cropper = null; }
-
-  img.src = '';
-  img.onload = function() {
-    cropper = new Cropper(img, {
-      aspectRatio: 1,        // vuông
-      viewMode: 1,           // không crop ra ngoài ảnh
-      dragMode: 'move',      // kéo ảnh, crop box cố định
-      autoCropArea: 0.85,
-      restore: false,
-      guides: false,
-      center: false,
-      highlight: false,
-      cropBoxMovable: false,   // crop box không di chuyển
-      cropBoxResizable: false, // crop box không resize
-      toggleDragModeOnDblclick: false,
-    });
-  };
-  img.src = src;
-}
-
-function confirmCrop() {
-  if (!cropper) return;
-  const canvas = cropper.getCroppedCanvas({ width: 512, height: 512 });
-  newFaceB64 = canvas.toDataURL('image/jpeg', .88);
-  cropper.destroy(); cropper = null;
-  document.getElementById('cropModal').style.display = 'none';
-  showPreview();
-}
-
-function cancelCrop() {
-  if (cropper) { cropper.destroy(); cropper = null; }
-  document.getElementById('cropModal').style.display = 'none';
-}
-
-/* ── Preview ─────────────────────────────────────────────────────────── */
-function showPreview() {
-  document.getElementById('pvFace').src    = newFaceB64;
-  document.getElementById('pvCartoon').src = '';
-  document.getElementById('pvFinal').src   = '';
-  document.getElementById('previewStrip').style.display = 'flex';
+  updateAvatarPreview();
 }
 
 /* ── Save ────────────────────────────────────────────────────────────── */
@@ -724,11 +527,6 @@ async function saveProfile() {
   btn.disabled = true;
   btn.innerHTML = '<div class="spin-sm"></div>&nbsp;ĐANG LƯU...';
 
-  if (newFaceB64) {
-    document.getElementById('genSpinner').style.display  = '';
-    document.getElementById('previewStrip').style.display = 'none';
-  }
-
   const body = {
     tg_id:          tgId,
     ho_ten:         name,
@@ -736,7 +534,6 @@ async function saveProfile() {
     gioi_tinh:      currentGender,
     character_type: currentChar,
   };
-  if (newFaceB64) body.avatar_face_b64 = newFaceB64;
 
   try {
     const res  = await fetch('/api/student/tg-profile', {
@@ -745,7 +542,6 @@ async function saveProfile() {
       body:    JSON.stringify(body),
     });
     const data = await res.json();
-    document.getElementById('genSpinner').style.display = 'none';
 
     if (!res.ok) {
       showToast(data.detail || 'Lỗi lưu hồ sơ!', false);
@@ -753,21 +549,10 @@ async function saveProfile() {
       return;
     }
 
-    // Cập nhật avatar hiển thị
-    if (data.avatar_final) {
-      document.getElementById('avatarImg').src           = data.avatar_final;
-      document.getElementById('avatarImg').style.display = '';
-      document.getElementById('avatarPh').style.display  = 'none';
-      document.getElementById('pvFinal').src = data.avatar_final;
-      if (data.avatar_cartoon) document.getElementById('pvCartoon').src = data.avatar_cartoon;
-      document.getElementById('previewStrip').style.display = 'flex';
-    }
-    newFaceB64 = null;
     showToast('✅ Đã lưu hồ sơ!', true);
     btn.disabled = false; btn.innerHTML = '💾 LƯU HỒ SƠ';
 
   } catch(e) {
-    document.getElementById('genSpinner').style.display = 'none';
     showToast('🔌 Lỗi kết nối!', false);
     btn.disabled = false; btn.innerHTML = '💾 LƯU HỒ SƠ';
   }
