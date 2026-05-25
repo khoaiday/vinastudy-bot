@@ -657,7 +657,7 @@ function playMinigame() {
   document.getElementById('pgTitle').textContent = 'Rèn Tuyệt Chiêu';
   document.getElementById('pgSub').textContent   = 'Phân Biệt Số & Chữ Số';
   document.getElementById('loading').style.display = 'flex';
-  document.getElementById('frame').src = `${BASE}/minigame.html?buoi=${currentBuoi}`;
+  document.getElementById('frame').src = `${BASE}/minigame.html?buoi=${currentBuoi}&v=${Date.now()}`;
   requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
   if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
 }
