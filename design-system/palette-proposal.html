@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 Palette Proposal v5 — Chiến Binh Toán Học</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   CHIẾN BINH TOÁN HỌC — Palette Proposal v5
+   Lấy cảm hứng từ sắc độ vector gốc Hoa Văn Đại Việt
+   ═══════════════════════════════════════════════════════ */
+:root {
+  /* ── Nền (Background Stack) ── */
+  --bg-void:      #07040A;  /* Mực ấn — thẳm sâu nhất */
+  --bg-deep:      #0F0A14;  /* Tím đêm — panel lớn */
+  --bg-panel:     #160E1C;  /* Nâu-tím — panel card */
+  --bg-card:      #1E1327;  /* Tím nhạt — card nội dung */
+  --bg-lift:      #261A30;  /* Lifted surface */
+
+  /* ── Đỏ Son (Red Vermillion — Đình làng, Vạn Phúc) ── */
+  --red-900:      #4A0A0A;
+  --red-800:      #6B1010;
+  --red-700:      #8B1A1A;  /* Đỏ son cổng đình */
+  --red-600:      #A52424;
+  --red-500:      #C0332E;  /* Chủ đạo button CTA */
+  --red-400:      #D9514A;
+  --red-glow:     rgba(192, 51, 46, 0.4);
+
+  /* ── Vàng Nghệ (Gold Ochre — Gốm Lý-Trần, Hoa cúc dây) ── */
+  --gold-900:     #4A3100;
+  --gold-800:     #6B4800;
+  --gold-700:     #8B6000;
+  --gold-600:     #A87D0A;
+  --gold-500:     #C8960C;  /* Vàng nghệ thuần — XP, tiêu đề */
+  --gold-400:     #DFB030;
+  --gold-300:     #F0CC6A;  /* Sáng — highlight text */
+  --gold-glow:    rgba(200, 150, 12, 0.45);
+
+  /* ── Đồng Đông Sơn (Copper — Trống đồng, Chim Lạc) ── */
+  --copper-900:   #3D1F00;
+  --copper-800:   #5C2E00;
+  --copper-700:   #7A4010;
+  --copper-600:   #9B5820;
+  --copper-500:   #B87333;  /* Đồng oxy hóa — frame, border */
+  --copper-400:   #CD9050;
+  --copper-300:   #E2B070;
+  --copper-glow:  rgba(184, 115, 51, 0.35);
+
+  /* ── Lam Cổ (Indigo — Trời đêm Đại Việt, Áo Nho Sĩ) ── */
+  --lam-900:      #060D1A;
+  --lam-800:      #0C1A30;
+  --lam-700:      #122646;
+  --lam-600:      #1A3A5C;  /* Lam cổ chuẩn */
+  --lam-500:      #24528A;
+  --lam-400:      #3370B0;
+  --lam-300:      #5090CC;
+  --lam-glow:     rgba(36, 82, 138, 0.4);
+
+  /* ── Ngọc Lý (Jade — Nước, Rừng, Nỏ Thần) ── */
+  --jade-900:     #041A13;
+  --jade-800:     #082A1E;
+  --jade-700:     #0F3D2A;
+  --jade-600:     #1A5238;
+  --jade-500:     #246B4A;  /* Xanh ngọc Lý-Trần */
+  --jade-400:     #3A8A64;
+  --jade-300:     #58B082;
+  --jade-glow:    rgba(36, 107, 74, 0.4);
+
+  /* ── Tím Huyền (Mystic Purple — Phép thuật, Đạo Sĩ) ── */
+  --mystic-900:   #120818;
+  --mystic-800:   #200D2A;
+  --mystic-700:   #30143E;
+  --mystic-600:   #451E58;
+  --mystic-500:   #5E2A78;
+  --mystic-400:   #7B3A99;
+  --mystic-300:   #A05CC0;
+  --mystic-glow:  rgba(94, 42, 120, 0.5);
+
+  /* ── Ngà Voi (Ivory — Text trên nền tối) ── */
+  --ivory-100:    #FDFAF4;
+  --ivory-200:    #F5EED6;  /* Text chính */
+  --ivory-300:    #E8DCBA;
+  --ivory-400:    #D4C49A;
+  --ivory-muted:  #A08C70;  /* Text phụ */
+
+  /* ── Utility ── */
+  --success:      #3A8A64;
+  --danger:       #C0332E;
+  --warning:      #C8960C;
+  --radius-sm:    6px;
+  --radius-md:    10px;
+  --radius-lg:    16px;
+  --radius-xl:    24px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Lora', Georgia, serif;
+  background: var(--bg-void);
+  color: var(--ivory-200);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Background texture ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,150,12,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 120%, rgba(94,42,120,0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* SVG Pattern overlay */
+.page-grid {
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C8960C' stroke-width='1'%3E%3Cpolygon points='30,2 58,16 58,44 30,58 2,44 2,16'/%3E%3Cline x1='30' y1='2' x2='30' y2='58'/%3E%3Cline x1='2' y1='16' x2='58' y2='44'/%3E%3Cline x1='2' y1='44' x2='58' y2='16'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+/* ══════════════ HEADER ══════════════ */
+.doc-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+
+.doc-badge {
+  display: inline-block;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--copper-400);
+  border: 1px solid var(--copper-700);
+  padding: 5px 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  background: rgba(184,115,51,0.08);
+}
+
+.doc-title {
+  font-family: 'Philosopher', serif;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  color: var(--gold-300);
+  text-shadow: 0 0 40px var(--gold-glow), 0 2px 0 rgba(0,0,0,0.8);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.doc-sub {
+  font-size: 15px;
+  color: var(--ivory-muted);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+  font-style: italic;
+}
+
+/* Trống đồng SVG divider */
+.dong-son-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 20px;
+  max-width: 400px;
+  justify-content: center;
+}
+.dong-son-divider::before,
+.dong-son-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--copper-600));
+}
+.dong-son-divider::after {
+  background: linear-gradient(90deg, var(--copper-600), transparent);
+}
+
+/* ══════════════ SECTION ══════════════ */
+.section {
+  margin-bottom: 64px;
+}
+
+.section-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--copper-500);
+  margin-bottom: 6px;
+}
+
+.section-title {
+  font-family: 'Philosopher', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ivory-200);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--copper-700), transparent);
+}
+
+/* ══════════════ PALETTE GRID ══════════════ */
+.palette-cluster {
+  margin-bottom: 40px;
+}
+
+.palette-cluster-name {
+  font-family: 'Philosopher', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.palette-cluster-name::before {
+  content: '▸';
+  color: var(--copper-500);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 6px;
+}
+
+.swatch {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.swatch:hover { transform: scale(1.04); }
+
+.swatch-color {
+  height: 64px;
+  position: relative;
+}
+
+.swatch-color.has-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.swatch:hover .swatch-color.has-glow::after { opacity: 1; }
+
+.swatch-info {
+  padding: 6px 8px;
+  background: var(--bg-panel);
+}
+
+.swatch-name {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  color: var(--ivory-muted);
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+.swatch-hex {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 10px;
+  color: var(--ivory-300);
+  font-weight: 600;
+  display: block;
+  margin-top: 1px;
+}
+
+/* ── "Hero" swatch — key color with label ── */
+.swatch.is-key .swatch-color::before {
+  content: '★';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+}
+
+/* ══════════════ USAGE DEMOS ══════════════ */
+/* Background layers */
+.bg-stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 2px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.bg-layer {
+  padding: 20px 14px;
+  text-align: center;
+}
+
+.bg-layer-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+
+.bg-layer-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.bg-layer-hex {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* ══════════════ GAME UI DEMOS ══════════════ */
+.demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) { .demo-grid { grid-template-columns: 1fr; } }
+
+/* Cyber-frame box */
+.cyber-frame {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: 2px;
+  background: linear-gradient(135deg, var(--copper-600) 0%, var(--red-700) 50%, var(--copper-600) 100%);
+}
+
+.cyber-frame-inner {
+  background: var(--bg-panel);
+  border-radius: calc(var(--radius-lg) - 2px);
+  padding: 24px;
+}
+
+.cyber-frame.gold-frame {
+  background: linear-gradient(135deg, var(--gold-700) 0%, var(--gold-400) 50%, var(--gold-700) 100%);
+}
+
+.cyber-frame.jade-frame {
+  background: linear-gradient(135deg, var(--jade-700) 0%, var(--jade-400) 50%, var(--jade-700) 100%);
+}
+
+.cyber-frame.mystic-frame {
+  background: linear-gradient(135deg, var(--mystic-700) 0%, var(--mystic-400) 50%, var(--mystic-700) 100%);
+}
+
+/* HP Bar */
+.stat-bar {
+  margin-bottom: 14px;
+}
+
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  color: var(--ivory-muted);
+  margin-bottom: 5px;
+}
+
+.bar-track {
+  height: 10px;
+  background: var(--bg-void);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 20px;
+  position: relative;
+  transition: width 0.8s ease;
+}
+
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+  border-radius: 0 20px 20px 0;
+}
+
+.hp-bar .bar-fill { background: linear-gradient(90deg, var(--red-800), var(--red-500)); box-shadow: 0 0 10px var(--red-glow); }
+.mp-bar .bar-fill { background: linear-gradient(90deg, var(--lam-700), var(--lam-400)); box-shadow: 0 0 10px var(--lam-glow); }
+.xp-bar .bar-fill { background: linear-gradient(90deg, var(--gold-700), var(--gold-400)); box-shadow: 0 0 8px var(--gold-glow); }
+
+/* Character name */
+.char-name {
+  font-family: 'Philosopher', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold-300);
+  margin-bottom: 4px;
+}
+
+.char-class {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--copper-400);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* Class cards */
+.class-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.class-card {
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.class-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--card-bg, rgba(0,0,0,0.4));
+  backdrop-filter: blur(2px);
+}
+
+.class-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px var(--card-glow, rgba(0,0,0,0.3));
+}
+
+.class-card > * { position: relative; z-index: 1; }
+
+.class-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 8px var(--card-glow, rgba(255,255,255,0.3)));
+}
+
+.class-title {
+  font-family: 'Philosopher', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ivory-100);
+  margin-bottom: 2px;
+}
+
+.class-viet {
+  font-size: 12px;
+  color: var(--ivory-muted);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.class-desc {
+  font-size: 11px;
+  color: var(--ivory-300);
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.class-tag {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: var(--card-tag-bg, rgba(255,255,255,0.1));
+  color: var(--card-tag-color, var(--ivory-200));
+}
+
+/* Card — Lạc Tướng (Red) */
+.card-lac {
+  background: linear-gradient(135deg, var(--red-900) 0%, var(--red-800) 50%, #1E0A0A 100%);
+  border: 1px solid var(--red-700);
+  --card-glow: var(--red-glow);
+  --card-tag-bg: rgba(192,51,46,0.2);
+  --card-tag-color: var(--red-400);
+}
+
+/* Card — Đạo Sĩ (Mystic) */
+.card-dao {
+  background: linear-gradient(135deg, var(--mystic-900) 0%, var(--mystic-800) 50%, #0E0614 100%);
+  border: 1px solid var(--mystic-600);
+  --card-glow: var(--mystic-glow);
+  --card-tag-bg: rgba(94,42,120,0.2);
+  --card-tag-color: var(--mystic-300);
+}
+
+/* Card — Nỏ Thần (Copper/Jade) */
+.card-no {
+  background: linear-gradient(135deg, var(--jade-900) 0%, var(--jade-800) 50%, #04100A 100%);
+  border: 1px solid var(--jade-600);
+  --card-glow: var(--jade-glow);
+  --card-tag-bg: rgba(36,107,74,0.2);
+  --card-tag-color: var(--jade-300);
+}
+
+/* Card — Thần Tướng (Lam) */
+.card-than {
+  background: linear-gradient(135deg, var(--lam-900) 0%, var(--lam-800) 50%, #04080E 100%);
+  border: 1px solid var(--lam-600);
+  --card-glow: var(--lam-glow);
+  --card-tag-bg: rgba(36,82,138,0.2);
+  --card-tag-color: var(--lam-300);
+}
+
+/* ══════════════ BOSS CARD ══════════════ */
+.boss-card {
+  background: linear-gradient(160deg, #1A0404 0%, #0D0010 50%, #04040A 100%);
+  border: 1px solid var(--red-800);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.boss-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(139,26,26,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.boss-name {
+  font-family: 'Philosopher', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--red-400);
+  text-shadow: 0 0 20px var(--red-glow);
+  margin-bottom: 2px;
+}
+
+.boss-sub {
+  font-size: 12px;
+  color: var(--copper-400);
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.boss-stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.boss-stat {
+  text-align: center;
+}
+
+.boss-stat-num {
+  font-family: 'Philosopher', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold-300);
+  display: block;
+  line-height: 1;
+}
+
+.boss-stat-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  color: var(--ivory-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Đuôi hồ Tinh chip */
+.tail-chips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.tail-chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--red-700);
+  background: var(--red-900);
+  color: var(--red-300, #F08080);
+}
+
+/* ══════════════ BUTTONS ══════════════ */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.btn {
+  padding: 10px 24px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-family: 'Philosopher', serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.4s;
+}
+
+.btn:hover::before { left: 150%; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--red-700), var(--red-500));
+  color: var(--ivory-100);
+  box-shadow: 0 4px 20px var(--red-glow);
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--red-glow); }
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-700), var(--gold-500));
+  color: var(--bg-void);
+  box-shadow: 0 4px 20px var(--gold-glow);
+}
+
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--gold-glow); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--copper-300);
+  border: 1.5px solid var(--copper-600);
+  box-shadow: inset 0 0 0 0 var(--copper-glow);
+}
+
+.btn-outline:hover {
+  background: rgba(184,115,51,0.1);
+  border-color: var(--copper-400);
+  box-shadow: 0 0 16px var(--copper-glow);
+}
+
+.btn-ghost {
+  background: rgba(245,238,214,0.06);
+  color: var(--ivory-muted);
+  border: 1px solid rgba(245,238,214,0.12);
+}
+
+.btn-ghost:hover { background: rgba(245,238,214,0.1); color: var(--ivory-200); }
+
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-lg { padding: 14px 36px; font-size: 16px; }
+
+/* ══════════════ TYPOGRAPHY ══════════════ */
+.type-row {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(200,150,12,0.1);
+}
+
+.type-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--copper-500);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.type-h1 { font-family: 'Philosopher', serif; font-size: 36px; font-weight: 700; color: var(--gold-300); line-height: 1.15; text-shadow: 0 0 30px var(--gold-glow); }
+.type-h2 { font-family: 'Philosopher', serif; font-size: 26px; font-weight: 700; color: var(--ivory-200); line-height: 1.25; }
+.type-h3 { font-family: 'Philosopher', serif; font-size: 18px; font-weight: 700; color: var(--ivory-300); line-height: 1.35; }
+.type-body { font-family: 'Lora', serif; font-size: 15px; color: var(--ivory-200); line-height: 1.8; }
+.type-caption { font-family: 'Lora', serif; font-size: 12px; color: var(--ivory-muted); line-height: 1.6; font-style: italic; }
+.type-mono { font-family: 'Roboto Mono', monospace; font-size: 12px; color: var(--copper-300); line-height: 1.6; }
+
+/* ══════════════ BATTLE UI PREVIEW ══════════════ */
+.battle-arena {
+  background: linear-gradient(160deg, #0C0610 0%, #08040A 100%);
+  border: 1px solid var(--bg-lift);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.battle-arena::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 30% at 25% 50%, rgba(139,26,26,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 30% at 75% 50%, rgba(36,82,138,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.vs-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.vs-badge {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--red-800), var(--red-600));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Philosopher', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ivory-100);
+  box-shadow: 0 0 20px var(--red-glow);
+  margin: 0 auto;
+  border: 2px solid var(--red-500);
+}
+
+.combatant {
+  text-align: center;
+}
+
+.combatant-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  position: relative;
+}
+
+.player-avatar {
+  background: radial-gradient(circle, rgba(200,150,12,0.3), rgba(200,150,12,0.05));
+  border: 2px solid var(--gold-600);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+.boss-avatar {
+  background: radial-gradient(circle, rgba(139,26,26,0.4), rgba(139,26,26,0.05));
+  border: 2px solid var(--red-700);
+  box-shadow: 0 0 20px var(--red-glow);
+}
+
+.combatant-name {
+  font-family: 'Philosopher', serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.combatant-lv {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--ivory-muted);
+  margin-bottom: 10px;
+}
+
+/* Question box */
+.question-box {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-lift);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  text-align: center;
+  position: relative;
+}
+
+.question-box::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-lg);
+  padding: 1px;
+  background: linear-gradient(135deg, var(--copper-700), transparent 60%, var(--copper-700));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.question-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--copper-400);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.question-text {
+  font-family: 'Philosopher', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ivory-100);
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.answer-btn {
+  padding: 12px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-lift);
+  border-radius: var(--radius-md);
+  font-family: 'Philosopher', serif;
+  font-size: 15px;
+  color: var(--ivory-200);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.answer-btn:hover {
+  background: rgba(200,150,12,0.1);
+  border-color: var(--gold-700);
+  color: var(--gold-300);
+}
+
+.answer-btn.correct {
+  background: rgba(36,107,74,0.2);
+  border-color: var(--jade-500);
+  color: var(--jade-300);
+}
+
+.answer-btn.wrong {
+  background: rgba(192,51,46,0.2);
+  border-color: var(--red-600);
+  color: var(--red-400);
+}
+
+/* ══════════════ SVG ORNAMENTS ══════════════ */
+.ornament-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding: 24px 0;
+}
+
+.ornament-item {
+  text-align: center;
+}
+
+.ornament-caption {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--ivory-muted);
+  text-transform: uppercase;
+  margin-top: 8px;
+  display: block;
+}
+
+/* ══════════════ MAP NODE ══════════════ */
+.map-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.map-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.map-node-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  position: relative;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.map-node-circle:hover { transform: scale(1.1); }
+
+.map-node.done .map-node-circle {
+  background: radial-gradient(circle, rgba(200,150,12,0.3), rgba(200,150,12,0.05));
+  border: 2px solid var(--gold-500);
+  box-shadow: 0 0 16px var(--gold-glow);
+}
+
+.map-node.active .map-node-circle {
+  background: radial-gradient(circle, rgba(192,51,46,0.3), rgba(192,51,46,0.05));
+  border: 2px solid var(--red-500);
+  box-shadow: 0 0 20px var(--red-glow);
+  animation: pulse-active 2s ease-in-out infinite;
+}
+
+.map-node.locked .map-node-circle {
+  background: var(--bg-panel);
+  border: 2px solid var(--bg-lift);
+  opacity: 0.5;
+}
+
+@keyframes pulse-active {
+  0%, 100% { box-shadow: 0 0 15px var(--red-glow); }
+  50% { box-shadow: 0 0 30px var(--red-glow), 0 0 50px rgba(139,26,26,0.2); }
+}
+
+.map-connector {
+  width: 40px;
+  height: 2px;
+  flex-shrink: 0;
+}
+
+.connector-done { background: linear-gradient(90deg, var(--gold-700), var(--gold-600)); }
+.connector-future { background: var(--bg-lift); }
+
+.map-node-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--ivory-muted);
+  margin-top: 6px;
+  text-align: center;
+  max-width: 60px;
+  text-transform: uppercase;
+}
+
+/* ══════════════ TOKEN TABLE ══════════════ */
+.token-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.token-table th {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ivory-muted);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--bg-lift);
+}
+
+.token-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  vertical-align: middle;
+}
+
+.token-table tr:hover td { background: rgba(200,150,12,0.03); }
+
+.token-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.token-name { font-family: 'Roboto Mono', monospace; font-size: 11px; color: var(--copper-300); }
+.token-hex { font-family: 'Roboto Mono', monospace; font-size: 11px; color: var(--ivory-muted); }
+.token-use { font-size: 11px; color: var(--ivory-300); }
+
+/* ══════════════ COLOR MEANING ══════════════ */
+.meaning-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.meaning-card {
+  border-radius: var(--radius-md);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.meaning-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.meaning-name {
+  font-family: 'Philosopher', serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.meaning-viet {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.meaning-desc {
+  font-size: 11px;
+  line-height: 1.6;
+  opacity: 0.75;
+}
+
+/* ══════════════ COMPARE OLD vs NEW ══════════════ */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.compare-panel {
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.compare-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compare-label::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.compare-old {
+  background: #080a1f;
+  border: 1px solid rgba(10,224,254,0.3);
+  color: #94a3b8;
+}
+
+.compare-old .compare-label { color: #0ae0fe; }
+.compare-new { background: var(--bg-panel); border: 1px solid var(--copper-700); }
+.compare-new .compare-label { color: var(--copper-400); }
+
+.mini-card-old {
+  background: rgba(11,19,43,0.85);
+  border: 1px solid rgba(10,224,254,0.3);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+
+.mini-card-old .title { font-size: 14px; color: #0ae0fe; font-weight: 700; text-shadow: 0 0 8px rgba(10,224,254,0.5); }
+.mini-card-old .sub { font-size: 11px; color: #64748b; margin-top: 3px; }
+
+.mini-card-new {
+  background: var(--bg-card);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.mini-card-new::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 11px;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--copper-700), transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.mini-card-new .title { font-size: 14px; color: var(--gold-300); font-weight: 700; text-shadow: 0 0 8px var(--gold-glow); font-family: 'Philosopher', serif; }
+.mini-card-new .sub { font-size: 11px; color: var(--ivory-muted); margin-top: 3px; font-style: italic; }
+
+/* ══════════════ FOOTER NOTE ══════════════ */
+.footer-note {
+  text-align: center;
+  padding: 32px;
+  border-top: 1px solid var(--bg-lift);
+  margin-top: 64px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--ivory-muted);
+  line-height: 2;
+}
+
+/* ══════════════ SCROLL ANIMATIONS ══════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section { animation: fadeUp 0.5s ease both; }
+.section:nth-child(2) { animation-delay: 0.05s; }
+.section:nth-child(3) { animation-delay: 0.1s; }
+.section:nth-child(4) { animation-delay: 0.15s; }
+.section:nth-child(5) { animation-delay: 0.2s; }
+.section:nth-child(6) { animation-delay: 0.25s; }
+.section:nth-child(7) { animation-delay: 0.3s; }
+.section:nth-child(8) { animation-delay: 0.35s; }
+
+</style>
+</head>
+<body>
+
+<div class="page-grid"></div>
+
+<div class="container">
+
+  <!-- ══════════ HEADER ══════════ -->
+  <div class="doc-header">
+    <div class="doc-badge">Palette Proposal · Version 5.0 · 2026</div>
+    <h1 class="doc-title">🎨 Đề xuất Palette Game Mới</h1>
+    <div class="dong-son-divider">
+      <!-- Chim Lạc mini SVG -->
+      <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+        <path d="M4 14 Q8 6 14 8 Q18 9 20 6 Q24 2 28 4" stroke="#B87333" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M14 8 Q12 12 10 16" stroke="#B87333" stroke-width="1" fill="none"/>
+        <path d="M28 4 Q30 8 26 14" stroke="#B87333" stroke-width="1" fill="none"/>
+        <circle cx="26" cy="4" r="2" fill="#B87333" opacity="0.6"/>
+      </svg>
+    </div>
+    <p class="doc-sub">
+      Lấy cảm hứng từ bộ vector gốc <em>Hoa Văn Đại Việt 2021</em> —
+      sắc độ được trích xuất từ hiện vật thật: gốm Lý-Trần, trống đồng Đông Sơn,
+      sơn mài cung đình Nguyễn, áo bào Nho Sĩ.
+    </p>
+  </div>
+
+  <!-- ══════════ 1. PALETTE TỔNG THỂ ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 01</div>
+    <h2 class="section-title">Bảng màu tổng thể</h2>
+
+    <!-- Background Stack -->
+    <div class="palette-cluster">
+      <div class="palette-cluster-name">Nền (Background Stack) — Mực Tàu → Tím Đêm</div>
+      <div class="bg-stack">
+        <div class="bg-layer" style="background:#07040A">
+          <div class="bg-layer-label">DEEPEST</div>
+          <div class="bg-layer-name" style="color:#555">--bg-void</div>
+          <div class="bg-layer-hex" style="color:#444">#07040A</div>
+        </div>
+        <div class="bg-layer" style="background:#0F0A14">
+          <div class="bg-layer-label" style="color:#666">DEEP</div>
+          <div class="bg-layer-name" style="color:#777">--bg-deep</div>
+          <div class="bg-layer-hex" style="color:#555">#0F0A14</div>
+        </div>
+        <div class="bg-layer" style="background:#160E1C">
+          <div class="bg-layer-label" style="color:#888">PANEL</div>
+          <div class="bg-layer-name" style="color:#999">--bg-panel</div>
+          <div class="bg-layer-hex" style="color:#777">#160E1C</div>
+        </div>
+        <div class="bg-layer" style="background:#1E1327">
+          <div class="bg-layer-label" style="color:#aaa">CARD</div>
+          <div class="bg-layer-name" style="color:#bbb">--bg-card</div>
+          <div class="bg-layer-hex" style="color:#999">#1E1327</div>
+        </div>
+        <div class="bg-layer" style="background:#261A30">
+          <div class="bg-layer-label" style="color:#ccc">LIFT</div>
+          <div class="bg-layer-name" style="color:#ccc">--bg-lift</div>
+          <div class="bg-layer-hex" style="color:#aaa">#261A30</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--ivory-muted);font-style:italic;">
+        ↑ Nền tổng thể chuyển từ Mực tàu (nâu-đen) → Tím đêm (tím-sẫm), tạo cảm giác chiều sâu hơn Cyberpunk xanh lam
+      </p>
+    </div>
+
+    <!-- Red -->
+    <div class="palette-cluster">
+      <div class="palette-cluster-name" style="color:var(--red-400)">Đỏ Son — Cổng đình làng, Vạn Phúc</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#4A0A0A"></div><div class="swatch-info"><span class="swatch-name">red-900</span><span class="swatch-hex">#4A0A0A</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6B1010"></div><div class="swatch-info"><span class="swatch-name">red-800</span><span class="swatch-hex">#6B1010</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#8B1A1A"></div><div class="swatch-info"><span class="swatch-name">red-700</span><span class="swatch-hex">#8B1A1A</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#A52424"></div><div class="swatch-info"><span class="swatch-name">red-600</span><span class="swatch-hex">#A52424</span></div></div>
+        <div class="swatch is-key"><div class="swatch-color" style="background:#C0332E"></div><div class="swatch-info"><span class="swatch-name">red-500 ★</span><span class="swatch-hex">#C0332E</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#D9514A"></div><div class="swatch-info"><span class="swatch-name">red-400</span><span class="swatch-hex">#D9514A</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F08080"></div><div class="swatch-info"><span class="swatch-name">red-300</span><span class="swatch-hex">#F08080</span></div></div>
+      </div>
+    </div>
+
+    <!-- Gold -->
+    <div class="palette-cluster">
+      <div class="palette-cluster-name" style="color:var(--gold-400)">Vàng Nghệ — Gốm Lý-Trần, Hoa cúc dây</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#4A3100"></div><div class="swatch-info"><span class="swatch-name">gold-900</span><span class="swatch-hex">#4A3100</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6B4800"></div><div class="swatch-info"><span class="swatch-name">gold-800</span><span class="swatch-hex">#6B4800</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#8B6000"></div><div class="swatch-info"><span class="swatch-name">gold-700</span><span class="swatch-hex">#8B6000</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#A87D0A"></div><div class="swatch-info"><span class="swatch-name">gold-600</span><span class="swatch-hex">#A87D0A</span></div></div>
+        <div class="swatch is-key"><div class="swatch-color" style="background:#C8960C"></div><div class="swatch-info"><span class="swatch-name">gold-500 ★</span><span class="swatch-hex">#C8960C</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#DFB030"></div><div class="swatch-info"><span class="swatch-name">gold-400</span><span class="swatch-hex">#DFB030</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0CC6A"></div><div class="swatch-info"><span class="swatch-name">gold-300</span><span class="swatch-hex">#F0CC6A</span></div></div>
+      </div>
+    </div>
+
+    <!-- Copper -->
+    <div class="palette-cluster">
+      <div class="palette-cluster-name" style="color:var(--copper-400)">Đồng Đông Sơn — Trống đồng, Chim Lạc</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#3D1F00"></div><div class="swatch-info"><span class="swatch-name">copper-900</span><span class="swatch-hex">#3D1F00</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#5C2E00"></div><div class="swatch-info"><span class="swatch-name">copper-800</span><span class="swatch-hex">#5C2E00</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#7A4010"></div><div class="swatch-info"><span class="swatch-name">copper-700</span><span class="swatch-hex">#7A4010</span></div></div>
+        <div class="swatch is-key"><div class="swatch-color" style="background:#B87333"></div><div class="swatch-info"><span class="swatch-name">copper-500 ★</span><span class="swatch-hex">#B87333</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#CD9050"></div><div class="swatch-info"><span class="swatch-name">copper-400</span><span class="swatch-hex">#CD9050</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E2B070"></div><div class="swatch-info"><span class="swatch-name">copper-300</span><span class="swatch-hex">#E2B070</span></div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <!-- Lam -->
+      <div class="palette-cluster">
+        <div class="palette-cluster-name" style="color:var(--lam-300)">Lam Cổ — Áo Nho Sĩ, Trời đêm</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background:#0C1A30"></div><div class="swatch-info"><span class="swatch-name">lam-800</span><span class="swatch-hex">#0C1A30</span></div></div>
+          <div class="swatch is-key"><div class="swatch-color" style="background:#1A3A5C"></div><div class="swatch-info"><span class="swatch-name">lam-600 ★</span><span class="swatch-hex">#1A3A5C</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#24528A"></div><div class="swatch-info"><span class="swatch-name">lam-500</span><span class="swatch-hex">#24528A</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#5090CC"></div><div class="swatch-info"><span class="swatch-name">lam-300</span><span class="swatch-hex">#5090CC</span></div></div>
+        </div>
+      </div>
+      <!-- Jade -->
+      <div class="palette-cluster">
+        <div class="palette-cluster-name" style="color:var(--jade-300)">Ngọc Lý — Rừng, Nỏ Thần</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background:#082A1E"></div><div class="swatch-info"><span class="swatch-name">jade-800</span><span class="swatch-hex">#082A1E</span></div></div>
+          <div class="swatch is-key"><div class="swatch-color" style="background:#246B4A"></div><div class="swatch-info"><span class="swatch-name">jade-500 ★</span><span class="swatch-hex">#246B4A</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#3A8A64"></div><div class="swatch-info"><span class="swatch-name">jade-400</span><span class="swatch-hex">#3A8A64</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#58B082"></div><div class="swatch-info"><span class="swatch-name">jade-300</span><span class="swatch-hex">#58B082</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ivory text scale -->
+    <div class="palette-cluster">
+      <div class="palette-cluster-name" style="color:var(--ivory-300)">Ngà Voi — Thang text trên nền tối</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#FDFAF4"><div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#111;font-weight:600">Aa</div></div><div class="swatch-info"><span class="swatch-name">ivory-100</span><span class="swatch-hex">#FDFAF4</span></div></div>
+        <div class="swatch is-key"><div class="swatch-color" style="background:#F5EED6"><div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#222;font-weight:600">Aa ★</div></div><div class="swatch-info"><span class="swatch-name">ivory-200</span><span class="swatch-hex">#F5EED6</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E8DCBA"><div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#333;font-weight:600">Aa</div></div><div class="swatch-info"><span class="swatch-name">ivory-300</span><span class="swatch-hex">#E8DCBA</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#D4C49A"></div><div class="swatch-info"><span class="swatch-name">ivory-400</span><span class="swatch-hex">#D4C49A</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#A08C70"></div><div class="swatch-info"><span class="swatch-name">muted</span><span class="swatch-hex">#A08C70</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 2. Ý NGHĨA VĂN HÓA ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 02</div>
+    <h2 class="section-title">Ý nghĩa văn hóa từng màu</h2>
+    <div class="meaning-grid">
+      <div class="meaning-card" style="background:var(--bg-panel);border:1px solid var(--red-800)">
+        <div class="meaning-swatch" style="background:rgba(139,26,26,0.3);color:var(--red-500)">🏛️</div>
+        <div class="meaning-name" style="color:var(--red-400)">Đỏ Son</div>
+        <div class="meaning-viet">Vermillion — Đình làng VN</div>
+        <div class="meaning-desc" style="color:var(--ivory-300)">Màu son cổng đình, cột chùa, hộp sơn mài. Tượng trưng phúc lộc, may mắn. Khác đỏ Trung Hoa vì đậm hơn, ít neon hơn.</div>
+      </div>
+      <div class="meaning-card" style="background:var(--bg-panel);border:1px solid var(--gold-700)">
+        <div class="meaning-swatch" style="background:rgba(200,150,12,0.2);color:var(--gold-400)">🏺</div>
+        <div class="meaning-name" style="color:var(--gold-300)">Vàng Nghệ</div>
+        <div class="meaning-viet">Ochre Gold — Gốm Lý-Trần</div>
+        <div class="meaning-desc" style="color:var(--ivory-300)">Màu nghệ của đất nung gốm Lý-Trần, không phải vàng chói. Tượng trưng trí tuệ, học vấn, XP và thành tích.</div>
+      </div>
+      <div class="meaning-card" style="background:var(--bg-panel);border:1px solid var(--copper-700)">
+        <div class="meaning-swatch" style="background:rgba(184,115,51,0.2);color:var(--copper-400)">🥁</div>
+        <div class="meaning-name" style="color:var(--copper-300)">Đồng Đông Sơn</div>
+        <div class="meaning-viet">Patina Copper — Trống đồng</div>
+        <div class="meaning-desc" style="color:var(--ivory-300)">Đồng oxy hóa của trống đồng 2000 TCN. Màu frame và border — nền tảng văn hóa không thể thiếu.</div>
+      </div>
+      <div class="meaning-card" style="background:var(--bg-panel);border:1px solid var(--lam-600)">
+        <div class="meaning-swatch" style="background:rgba(26,58,92,0.4);color:var(--lam-300)">👘</div>
+        <div class="meaning-name" style="color:var(--lam-300)">Lam Cổ</div>
+        <div class="meaning-viet">Indigo Night — Áo Nho Sĩ</div>
+        <div class="meaning-desc" style="color:var(--ivory-300)">Màu áo dài thụng Nho Sĩ, trời đêm Đại Việt. Thần Tướng class. Sâu, uy nghiêm, truyền thống.</div>
+      </div>
+      <div class="meaning-card" style="background:var(--bg-panel);border:1px solid var(--jade-600)">
+        <div class="meaning-swatch" style="background:rgba(36,107,74,0.2);color:var(--jade-400)">🏹</div>
+        <div class="meaning-name" style="color:var(--jade-300)">Ngọc Lý</div>
+        <div class="meaning-viet">Jade — Rừng Văn Lang</div>
+        <div class="meaning-desc" style="color:var(--ivory-300)">Xanh ngọc bích của đá quý, nước sông Hồng, rừng núi Văn Lang. Nỏ Thần class. Tươi, dứt khoát.</div>
+      </div>
+      <div class="meaning-card" style="background:var(--bg-panel);border:1px solid var(--mystic-600)">
+        <div class="meaning-swatch" style="background:rgba(94,42,120,0.3);color:var(--mystic-300)">🔮</div>
+        <div class="meaning-name" style="color:var(--mystic-300)">Tím Huyền</div>
+        <div class="meaning-viet">Mystic Purple — Đạo Sĩ</div>
+        <div class="meaning-desc" style="color:var(--ivory-300)">Màu phép thuật, Đạo giáo, Kalavinka. Đạo Sĩ class. Bí ẩn, linh thiêng, không xuất hiện trong tự nhiên VN cổ.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 3. SO SÁNH OLD vs NEW ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 03</div>
+    <h2 class="section-title">So sánh Cyberpunk cũ → Đại Việt mới</h2>
+    <div class="compare-grid">
+      <div class="compare-panel compare-old">
+        <div class="compare-label" style="color:#0ae0fe">Cyberpunk cũ (bai02 hiện tại)</div>
+        <div class="mini-card-old">
+          <div class="title">Bài 2 — Dãy số cách đều</div>
+          <div class="sub">❌ Cyan #0ae0fe trên nền #050a1f — "Sci-fi generic"</div>
+        </div>
+        <div class="mini-card-old" style="border-color:rgba(234,14,237,0.3)">
+          <div class="title" style="color:#ea0eed">Boss: HỒ TINH</div>
+          <div class="sub">❌ Magenta #ea0eed — không liên quan VN</div>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:rgba(10,224,254,0.05);border-radius:8px;border:1px solid rgba(10,224,254,0.15)">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="width:24px;height:24px;border-radius:4px;background:#050a1f"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#0ae0fe"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#ea0eed"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#4eff9f"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#ff0055"></div>
+          </div>
+          <p style="font-size:10px;color:#64748b;margin-top:8px">→ Không có tham chiếu VN nào. Nhìn = "VN muốn trở thành game Hàn"</p>
+        </div>
+      </div>
+      <div class="compare-panel compare-new">
+        <div class="compare-label">Đại Việt mới (đề xuất)</div>
+        <div class="mini-card-new">
+          <div class="title">Bài 2 — Dãy số cách đều</div>
+          <div class="sub">✅ Vàng nghệ + Đồng Đông Sơn — nhận ra ngay</div>
+        </div>
+        <div class="mini-card-new" style="--gradient: linear-gradient(135deg, var(--red-900), var(--red-800))">
+          <div class="title" style="color:var(--red-400)">Boss: HỒ TINH 🦊</div>
+          <div class="sub">✅ Đỏ son #C0332E — cổng đình làng, truyền thống VN</div>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:rgba(200,150,12,0.05);border-radius:8px;border:1px solid var(--copper-800)">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="width:24px;height:24px;border-radius:4px;background:#07040A"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#C8960C"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#C0332E"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#B87333"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#246B4A"></div>
+            <div style="width:24px;height:24px;border-radius:4px;background:#1A3A5C"></div>
+          </div>
+          <p style="font-size:10px;color:var(--ivory-muted);margin-top:8px">→ 100% màu trích từ hiện vật VN. Nhìn = "Đây là game Việt Nam thật sự"</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 4. TYPOGRAPHY ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 04</div>
+    <h2 class="section-title">Typography system</h2>
+
+    <div class="type-row">
+      <div class="type-label">H1 — Philosopher 700 — Tiêu đề màn hình, Boss name</div>
+      <div class="type-h1">Chiến Binh Toán Học</div>
+    </div>
+    <div class="type-row">
+      <div class="type-label">H2 — Philosopher 700 — Section title</div>
+      <div class="type-h2">Bài 6 — Tổng Dãy Số Ghép Cặp</div>
+    </div>
+    <div class="type-row">
+      <div class="type-label">H3 — Philosopher 700 — Card title</div>
+      <div class="type-h3">Phương pháp ghép cặp (3 bước)</div>
+    </div>
+    <div class="type-row">
+      <div class="type-label">Body — Lora 400 — Câu hỏi, hướng dẫn</div>
+      <div class="type-body">Cho dãy số: <strong style="color:var(--gold-300)">2, 4, 6, ……, 38, 40</strong><br>Tính tổng bằng phương pháp ghép cặp.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-label">Caption — Lora Italic — Gợi ý, chú thích</div>
+      <div class="type-caption">💡 Gợi ý: Số hạng = (Cuối − Đầu) ÷ KC + 1, sau đó chia đôi thành các cặp có tổng bằng nhau.</div>
+    </div>
+    <div class="type-row" style="border:none">
+      <div class="type-label">Mono — Roboto Mono — Mã số, VinaID, token</div>
+      <div class="type-mono">VinaID: 133420 · LV.06 · XP: 2480/3000 · ẢI-06 · HOA_VAN_CODE: HVDV-LYTRAN-021</div>
+    </div>
+  </div>
+
+  <!-- ══════════ 5. GAME UI COMPONENTS ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 05</div>
+    <h2 class="section-title">UI Components — Chiến trường</h2>
+
+    <div class="demo-grid" style="margin-bottom:24px">
+      <!-- Player card -->
+      <div class="cyber-frame gold-frame">
+        <div class="cyber-frame-inner">
+          <div class="char-name">Nguyễn Minh Khôi</div>
+          <div class="char-class">⚔️ Lạc Tướng · Cấp 12</div>
+          <div class="stat-bar hp-bar">
+            <div class="stat-label"><span>❤️ HP</span><span>78/100</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:78%"></div></div>
+          </div>
+          <div class="stat-bar mp-bar">
+            <div class="stat-label"><span>💧 MP</span><span>45/60</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:75%"></div></div>
+          </div>
+          <div class="stat-bar xp-bar">
+            <div class="stat-label"><span>⭐ XP</span><span>2480/3000</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:82%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boss card -->
+      <div class="boss-card">
+        <!-- Trống đồng ring SVG -->
+        <svg style="position:absolute;top:12px;right:12px;opacity:0.08" width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="38" fill="none" stroke="#C0332E" stroke-width="1"/>
+          <circle cx="40" cy="40" r="30" fill="none" stroke="#C0332E" stroke-width="1"/>
+          <circle cx="40" cy="40" r="22" fill="none" stroke="#C0332E" stroke-width="1"/>
+          <circle cx="40" cy="40" r="5" fill="#C0332E"/>
+          <line x1="40" y1="2" x2="40" y2="14" stroke="#C0332E" stroke-width="1"/>
+          <line x1="40" y1="66" x2="40" y2="78" stroke="#C0332E" stroke-width="1"/>
+          <line x1="2" y1="40" x2="14" y2="40" stroke="#C0332E" stroke-width="1"/>
+          <line x1="66" y1="40" x2="78" y2="40" stroke="#C0332E" stroke-width="1"/>
+        </svg>
+        <div class="boss-name">🦊 Hồ Tinh</div>
+        <div class="boss-sub">YÊU THẦN · ẢI 01 · LĨNH NAM CHÍCH QUÁI</div>
+        <div class="boss-stats">
+          <div class="boss-stat">
+            <span class="boss-stat-num">300</span>
+            <span class="boss-stat-label">HP</span>
+          </div>
+          <div class="boss-stat">
+            <span class="boss-stat-num">9</span>
+            <span class="boss-stat-label">Đuôi</span>
+          </div>
+          <div class="boss-stat">
+            <span class="boss-stat-num">40</span>
+            <span class="boss-stat-label">ATK</span>
+          </div>
+        </div>
+        <div class="stat-bar hp-bar">
+          <div class="stat-label"><span>❤️ Boss HP</span><span>210/300</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:70%"></div></div>
+        </div>
+        <div class="tail-chips" style="margin-top:8px">
+          <div class="tail-chip">🔥</div>
+          <div class="tail-chip">🔥</div>
+          <div class="tail-chip">🔥</div>
+          <div class="tail-chip" style="opacity:0.3">💀</div>
+          <div class="tail-chip" style="opacity:0.3">💀</div>
+          <div class="tail-chip" style="opacity:0.2">💀</div>
+          <div class="tail-chip" style="opacity:0.2">💀</div>
+          <div class="tail-chip" style="opacity:0.1">💀</div>
+          <div class="tail-chip" style="opacity:0.1">💀</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div style="background:var(--bg-panel);border:1px solid var(--bg-lift);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px">
+      <div class="type-label" style="margin-bottom:16px">Buttons</div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-lg">⚔️ Tấn công!</button>
+        <button class="btn btn-gold">✓ Kiểm tra</button>
+        <button class="btn btn-outline">📜 Gợi ý</button>
+        <button class="btn btn-ghost btn-sm">Bỏ qua</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" style="background:linear-gradient(135deg,var(--jade-700),var(--jade-500));box-shadow:0 4px 20px var(--jade-glow)">🏹 Nỏ Thần</button>
+        <button class="btn btn-primary" style="background:linear-gradient(135deg,var(--mystic-700),var(--mystic-500));box-shadow:0 4px 20px var(--mystic-glow)">🔮 Đạo Sĩ</button>
+        <button class="btn btn-primary" style="background:linear-gradient(135deg,var(--lam-700),var(--lam-500));box-shadow:0 4px 20px var(--lam-glow)">🛡️ Thần Tướng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 6. CLASS CARDS ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 06</div>
+    <h2 class="section-title">4 Class — Chiến Binh Đại Việt</h2>
+    <div class="class-cards">
+      <div class="class-card card-lac">
+        <!-- Rồng ổ mini SVG -->
+        <svg style="position:absolute;top:10px;right:10px;opacity:0.15" width="50" height="50" viewBox="0 0 50 50">
+          <path d="M25,5 Q40,8 42,20 Q44,32 35,38 Q25,44 15,38 Q5,32 8,20 Q10,8 25,5" fill="none" stroke="#D9514A" stroke-width="2"/>
+          <path d="M25,12 Q35,14 36,24 Q37,34 28,38 Q18,42 12,34" fill="none" stroke="#D9514A" stroke-width="1.5"/>
+          <circle cx="25" cy="25" r="4" fill="none" stroke="#D9514A" stroke-width="1.5"/>
+        </svg>
+        <span class="class-icon">⚔️</span>
+        <div class="class-title" style="color:var(--red-300)">Lạc Tướng</div>
+        <div class="class-viet">Warrior · Triều Lý-Trần</div>
+        <div class="class-desc">Giáp vảy cá chồng lớp, rồng ổ Lý trên ngực. Mạnh nhất về ATK vật lý.</div>
+        <span class="class-tag">Họa tiết HVDV-LYTRAN-021</span>
+      </div>
+      <div class="class-card card-dao">
+        <svg style="position:absolute;top:10px;right:10px;opacity:0.15" width="50" height="50" viewBox="0 0 50 50">
+          <path d="M25,8 L28,20 L40,20 L30,28 L34,42 L25,34 L16,42 L20,28 L10,20 L22,20 Z" fill="none" stroke="#A05CC0" stroke-width="1.5"/>
+        </svg>
+        <span class="class-icon">🔮</span>
+        <div class="class-title" style="color:var(--mystic-300)">Đạo Sĩ</div>
+        <div class="class-viet">Mage · Triều Lý-Trần</div>
+        <div class="class-desc">Áo dài thụng, phượng bay trên choàng. Phép thuật mạnh, HP thấp.</div>
+        <span class="class-tag" style="--card-tag-bg: rgba(94,42,120,0.2);--card-tag-color:var(--mystic-300)">Họa tiết HVDV-LYTRAN-007</span>
+      </div>
+      <div class="class-card card-no">
+        <svg style="position:absolute;top:10px;right:10px;opacity:0.15" width="50" height="50" viewBox="0 0 50 50">
+          <ellipse cx="25" cy="25" rx="18" ry="10" fill="none" stroke="#58B082" stroke-width="1.5"/>
+          <circle cx="25" cy="12" r="4" fill="none" stroke="#58B082" stroke-width="1.5"/>
+          <circle cx="25" cy="38" r="4" fill="none" stroke="#58B082" stroke-width="1.5"/>
+          <line x1="7" y1="25" x2="43" y2="25" stroke="#58B082" stroke-width="1"/>
+        </svg>
+        <span class="class-icon">🏹</span>
+        <div class="class-title" style="color:var(--jade-300)">Nỏ Thần</div>
+        <div class="class-viet">Archer · Đông Sơn</div>
+        <div class="class-desc">Chim Lạc trên ống tên, hoa văn trống đồng. Tấn công từ xa, speed cao.</div>
+        <span class="class-tag">Họa tiết HVDV-DS-LA</span>
+      </div>
+      <div class="class-card card-than">
+        <svg style="position:absolute;top:10px;right:10px;opacity:0.15" width="50" height="50" viewBox="0 0 50 50">
+          <rect x="12" y="8" width="26" height="34" rx="4" fill="none" stroke="#5090CC" stroke-width="1.5"/>
+          <rect x="17" y="13" width="16" height="14" rx="2" fill="none" stroke="#5090CC" stroke-width="1"/>
+          <line x1="12" y1="30" x2="38" y2="30" stroke="#5090CC" stroke-width="1"/>
+          <line x1="25" y1="30" x2="25" y2="42" stroke="#5090CC" stroke-width="1"/>
+        </svg>
+        <span class="class-icon">🛡️</span>
+        <div class="class-title" style="color:var(--lam-300)">Thần Tướng</div>
+        <div class="class-viet">Knight · Lê-Nguyễn</div>
+        <div class="class-desc">Lưỡng Long chầu nhật trên ngực giáp. HP cao nhất, tank frontline.</div>
+        <span class="class-tag">Họa tiết HVDV-NGN-DO-006</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 7. BATTLE ARENA PREVIEW ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 07</div>
+    <h2 class="section-title">Battle Arena Preview</h2>
+    <div class="battle-arena">
+      <div class="vs-row">
+        <div class="combatant">
+          <div class="combatant-avatar player-avatar">⚔️</div>
+          <div class="combatant-name" style="color:var(--gold-300)">Lạc Tướng</div>
+          <div class="combatant-lv">LV.12 · HP 78/100</div>
+          <div class="bar-track" style="max-width:120px;margin:0 auto">
+            <div class="bar-fill hp-bar" style="width:78%;height:100%"></div>
+          </div>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="combatant">
+          <div class="combatant-avatar boss-avatar">🦊</div>
+          <div class="combatant-name" style="color:var(--red-400)">Hồ Tinh</div>
+          <div class="combatant-lv">YÊU THẦN · HP 210/300</div>
+          <div class="bar-track" style="max-width:120px;margin:0 auto">
+            <div class="bar-fill" style="width:70%;height:100%;background:linear-gradient(90deg,var(--red-800),var(--red-500));box-shadow:0 0 10px var(--red-glow)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="question-box">
+        <div class="question-label">⚔️ Phong Ấn Toán Học — Giải để tấn công!</div>
+        <div class="question-text">2 + 4 + 6 + … + 40 = ?</div>
+      </div>
+      <div class="answer-grid">
+        <div class="answer-btn correct">420 ✓</div>
+        <div class="answer-btn wrong">400 ✗</div>
+        <div class="answer-btn">380</div>
+        <div class="answer-btn">450</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 8. MAP JOURNEY ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 08</div>
+    <h2 class="section-title">Map hành trình — Văn Lang → Thăng Long</h2>
+    <div style="background:var(--bg-panel);border:1px solid var(--bg-lift);border-radius:var(--radius-xl);overflow:hidden">
+      <div class="map-row">
+        <div class="map-node done">
+          <div class="map-node-circle">🥁</div>
+          <div class="map-node-label">Ải 1<br>Hồ Tinh</div>
+        </div>
+        <div class="map-connector connector-done"></div>
+        <div class="map-node done">
+          <div class="map-node-circle">🌿</div>
+          <div class="map-node-label">Ải 2<br>Mộc Tinh</div>
+        </div>
+        <div class="map-connector connector-done"></div>
+        <div class="map-node done">
+          <div class="map-node-circle">🐍</div>
+          <div class="map-node-label">Ải 3<br>Xà Tinh</div>
+        </div>
+        <div class="map-connector connector-done"></div>
+        <div class="map-node active">
+          <div class="map-node-circle">🐟</div>
+          <div class="map-node-label">Ải 4<br>Ngư Tinh</div>
+        </div>
+        <div class="map-connector connector-future"></div>
+        <div class="map-node locked">
+          <div class="map-node-circle">🐍</div>
+          <div class="map-node-label">Ải 5<br>Bạch Xà</div>
+        </div>
+        <div class="map-connector connector-future"></div>
+        <div class="map-node locked">
+          <div class="map-node-circle">👹</div>
+          <div class="map-node-label">Ải 6<br>Quỷ Môn</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 9. SVG ORNAMENTS ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 09</div>
+    <h2 class="section-title">Họa tiết SVG — Dùng làm UI ornament</h2>
+    <div style="background:var(--bg-panel);border:1px solid var(--bg-lift);border-radius:var(--radius-xl);padding:32px">
+      <div class="ornament-row">
+
+        <!-- Trống đồng -->
+        <div class="ornament-item">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="38" stroke="#B87333" stroke-width="1.5"/>
+            <circle cx="40" cy="40" r="30" stroke="#B87333" stroke-width="1"/>
+            <circle cx="40" cy="40" r="22" stroke="#B87333" stroke-width="1"/>
+            <circle cx="40" cy="40" r="14" stroke="#B87333" stroke-width="1"/>
+            <circle cx="40" cy="40" r="6" fill="#B87333" opacity="0.5"/>
+            <!-- 12 tia mặt trời -->
+            <line x1="40" y1="2" x2="40" y2="12" stroke="#C8960C" stroke-width="2"/>
+            <line x1="40" y1="68" x2="40" y2="78" stroke="#C8960C" stroke-width="2"/>
+            <line x1="2" y1="40" x2="12" y2="40" stroke="#C8960C" stroke-width="2"/>
+            <line x1="68" y1="40" x2="78" y2="40" stroke="#C8960C" stroke-width="2"/>
+            <line x1="10" y1="10" x2="17" y2="17" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="63" y1="63" x2="70" y2="70" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="70" y1="10" x2="63" y2="17" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="10" y1="70" x2="17" y2="63" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="40" y1="2" x2="56" y2="7" stroke="#C8960C" stroke-width="1" opacity="0.5"/>
+            <line x1="40" y1="2" x2="24" y2="7" stroke="#C8960C" stroke-width="1" opacity="0.5"/>
+            <line x1="40" y1="78" x2="56" y2="73" stroke="#C8960C" stroke-width="1" opacity="0.5"/>
+            <line x1="40" y1="78" x2="24" y2="73" stroke="#C8960C" stroke-width="1" opacity="0.5"/>
+            <!-- 4 chim Lạc -->
+            <path d="M40,28 Q44,24 48,26 Q44,30 40,28Z" fill="#C8960C" opacity="0.7"/>
+            <path d="M52,40 Q48,44 50,48 Q54,44 52,40Z" fill="#C8960C" opacity="0.7"/>
+            <path d="M40,52 Q36,56 32,54 Q36,50 40,52Z" fill="#C8960C" opacity="0.7"/>
+            <path d="M28,40 Q32,36 30,32 Q26,36 28,40Z" fill="#C8960C" opacity="0.7"/>
+          </svg>
+          <span class="ornament-caption">Trống Đồng<br>Đông Sơn</span>
+        </div>
+
+        <!-- Rồng ổ Lý -->
+        <div class="ornament-item">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <!-- Vòng ngoài -->
+            <circle cx="40" cy="40" r="36" stroke="#C8960C" stroke-width="1" opacity="0.3"/>
+            <!-- Thân rồng uốn tròn -->
+            <path d="M40,12 Q58,16 62,32 Q66,50 54,60 Q42,70 28,64 Q14,58 12,44 Q8,28 20,20 Q30,12 40,12"
+                  fill="none" stroke="#C8960C" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Đầu rồng -->
+            <ellipse cx="42" cy="15" rx="6" ry="4" fill="none" stroke="#C8960C" stroke-width="1.5"/>
+            <!-- Vòi voi -->
+            <path d="M42,13 Q44,9 46,10" stroke="#C8960C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <!-- Mắt -->
+            <circle cx="39" cy="14" r="1.5" fill="#C8960C"/>
+            <!-- Vảy lưng -->
+            <path d="M38,22 Q40,18 42,22" stroke="#C8960C" stroke-width="1" fill="none" opacity="0.5"/>
+            <path d="M48,30 Q50,26 52,30" stroke="#C8960C" stroke-width="1" fill="none" opacity="0.5"/>
+            <path d="M55,42 Q57,38 59,42" stroke="#C8960C" stroke-width="1" fill="none" opacity="0.5"/>
+            <!-- Ngọc -->
+            <circle cx="40" cy="40" r="4" fill="none" stroke="#C8960C" stroke-width="1" opacity="0.4"/>
+            <circle cx="40" cy="40" r="2" fill="#C8960C" opacity="0.3"/>
+          </svg>
+          <span class="ornament-caption">Rồng Ổ Lý<br>HVDV-LT-021</span>
+        </div>
+
+        <!-- Hoa cúc dây border -->
+        <div class="ornament-item">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <rect x="4" y="4" width="72" height="72" rx="6" stroke="#B87333" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+            <!-- Hoa cúc dây -->
+            <path d="M10,40 Q20,28 30,40 Q40,52 50,40 Q60,28 70,40" fill="none" stroke="#B87333" stroke-width="2" stroke-linecap="round"/>
+            <!-- Hoa cúc 1 -->
+            <circle cx="30" cy="40" r="5" fill="none" stroke="#C8960C" stroke-width="1.5"/>
+            <circle cx="30" cy="40" r="2" fill="#C8960C" opacity="0.5"/>
+            <line x1="30" y1="33" x2="30" y2="35" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="30" y1="45" x2="30" y2="47" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="23" y1="40" x2="25" y2="40" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="35" y1="40" x2="37" y2="40" stroke="#C8960C" stroke-width="1.5"/>
+            <!-- Hoa cúc 2 -->
+            <circle cx="50" cy="40" r="5" fill="none" stroke="#C8960C" stroke-width="1.5"/>
+            <circle cx="50" cy="40" r="2" fill="#C8960C" opacity="0.5"/>
+            <line x1="50" y1="33" x2="50" y2="35" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="50" y1="45" x2="50" y2="47" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="43" y1="40" x2="45" y2="40" stroke="#C8960C" stroke-width="1.5"/>
+            <line x1="55" y1="40" x2="57" y2="40" stroke="#C8960C" stroke-width="1.5"/>
+            <!-- Lá -->
+            <path d="M18,36 Q20,32 24,36" fill="none" stroke="#246B4A" stroke-width="1"/>
+            <path d="M38,44 Q40,48 44,44" fill="none" stroke="#246B4A" stroke-width="1"/>
+            <path d="M58,36 Q60,32 64,36" fill="none" stroke="#246B4A" stroke-width="1"/>
+          </svg>
+          <span class="ornament-caption">Hoa Cúc Dây<br>HVDV-LT-022</span>
+        </div>
+
+        <!-- Hoa sen đơn -->
+        <div class="ornament-item">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <!-- Lá sen -->
+            <path d="M40,65 Q30,58 28,48 Q26,38 35,35" fill="none" stroke="#246B4A" stroke-width="1.5"/>
+            <path d="M40,65 Q50,58 52,48 Q54,38 45,35" fill="none" stroke="#246B4A" stroke-width="1.5"/>
+            <!-- Cánh sen tầng 3 -->
+            <path d="M40,50 Q32,44 34,36 Q37,30 40,32 Q43,30 46,36 Q48,44 40,50Z" fill="none" stroke="#C8960C" stroke-width="1.5" opacity="0.4"/>
+            <!-- Cánh sen tầng 2 -->
+            <path d="M40,46 Q30,38 33,28 Q36,20 40,22 Q44,20 47,28 Q50,38 40,46Z" fill="none" stroke="#C8960C" stroke-width="1.5" opacity="0.65"/>
+            <!-- Cánh sen tầng 1 -->
+            <path d="M40,42 Q28,32 32,20 Q35,12 40,14 Q45,12 48,20 Q52,32 40,42Z" fill="none" stroke="#C8960C" stroke-width="2"/>
+            <!-- Nhụy -->
+            <circle cx="40" cy="26" r="4" fill="none" stroke="#DFB030" stroke-width="1.5"/>
+            <circle cx="40" cy="26" r="2" fill="#DFB030" opacity="0.6"/>
+          </svg>
+          <span class="ornament-caption">Hoa Sen<br>Lý-Trần</span>
+        </div>
+
+        <!-- Chim Lạc -->
+        <div class="ornament-item">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <!-- Chim Lạc profile -->
+            <!-- Thân -->
+            <ellipse cx="38" cy="44" rx="14" ry="8" fill="none" stroke="#B87333" stroke-width="1.5" transform="rotate(-15 38 44)"/>
+            <!-- Đầu -->
+            <circle cx="24" cy="36" r="7" fill="none" stroke="#B87333" stroke-width="1.5"/>
+            <!-- Mỏ -->
+            <path d="M18,35 L12,32 L18,33" fill="none" stroke="#B87333" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Mắt -->
+            <circle cx="22" cy="35" r="1.5" fill="#B87333"/>
+            <!-- Cánh lớn -->
+            <path d="M32,40 Q42,28 56,32 Q50,40 42,44Z" fill="none" stroke="#B87333" stroke-width="2"/>
+            <path d="M32,44 Q44,36 60,38 Q54,46 42,48Z" fill="none" stroke="#B87333" stroke-width="1.5" opacity="0.6"/>
+            <!-- Đuôi cong ngược -->
+            <path d="M50,46 Q62,46 64,38 Q66,30 60,28" stroke="#B87333" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M50,50 Q64,52 68,42" stroke="#B87333" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+            <!-- Chân -->
+            <path d="M36,52 L34,62 L30,66" stroke="#B87333" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M40,54 L38,62 L34,66" stroke="#B87333" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+            <!-- Mào lông -->
+            <path d="M24,29 Q22,22 18,20" stroke="#C8960C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M26,28 Q25,21 22,18" stroke="#C8960C" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+          <span class="ornament-caption">Chim Lạc<br>Đông Sơn</span>
+        </div>
+
+      </div>
+
+      <!-- Hoa văn border band -->
+      <div style="margin-top:24px;padding:16px 0;border-top:1px solid var(--bg-lift)">
+        <div class="ornament-caption" style="text-align:center;margin-bottom:12px">Hoa Văn Dây — dùng làm border chính</div>
+        <svg width="100%" height="30" viewBox="0 0 600 30" preserveAspectRatio="xMidYMid meet" fill="none">
+          <defs>
+            <pattern id="hoa-van" x="0" y="0" width="60" height="30" patternUnits="userSpaceOnUse">
+              <!-- Sen dây lặp lại -->
+              <path d="M0,15 Q15,5 30,15 Q45,25 60,15" stroke="#B87333" stroke-width="1.5" fill="none"/>
+              <circle cx="30" cy="15" r="4" fill="none" stroke="#C8960C" stroke-width="1.2"/>
+              <circle cx="30" cy="15" r="1.5" fill="#C8960C" opacity="0.6"/>
+              <path d="M25,14 Q28,10 31,14" fill="none" stroke="#246B4A" stroke-width="0.8"/>
+              <path d="M29,16 Q32,20 35,16" fill="none" stroke="#246B4A" stroke-width="0.8"/>
+            </pattern>
+          </defs>
+          <rect width="600" height="30" fill="url(#hoa-van)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 10. TOKEN TABLE ══════════ -->
+  <div class="section">
+    <div class="section-label">Section 10</div>
+    <h2 class="section-title">CSS Design Tokens — Copy & Paste</h2>
+    <div style="background:var(--bg-panel);border:1px solid var(--bg-lift);border-radius:var(--radius-lg);padding:24px">
+      <table class="token-table">
+        <thead>
+          <tr>
+            <th>Token</th><th>Hex</th><th>Nguồn gốc / Ý nghĩa</th><th>Dùng cho</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="token-dot" style="background:#07040A"></span><span class="token-name">--bg-void</span></td><td class="token-hex">#07040A</td><td class="token-use">Mực tàu — thẳm sâu nhất</td><td class="token-use">Nền body</td></tr>
+          <tr><td><span class="token-dot" style="background:#160E1C"></span><span class="token-name">--bg-panel</span></td><td class="token-hex">#160E1C</td><td class="token-use">Nâu-tím đêm</td><td class="token-use">Panel lớn</td></tr>
+          <tr><td><span class="token-dot" style="background:#1E1327"></span><span class="token-name">--bg-card</span></td><td class="token-hex">#1E1327</td><td class="token-use">Tím nhạt lifted</td><td class="token-use">Card nội dung</td></tr>
+          <tr><td><span class="token-dot" style="background:#C0332E;border:1px solid #C0332E"></span><span class="token-name">--red-500</span></td><td class="token-hex">#C0332E</td><td class="token-use">Đỏ son cổng đình</td><td class="token-use">Button CTA, Boss HP</td></tr>
+          <tr><td><span class="token-dot" style="background:#8B1A1A"></span><span class="token-name">--red-700</span></td><td class="token-hex">#8B1A1A</td><td class="token-use">Đỏ sẫm — danger</td><td class="token-use">Border danger, bg</td></tr>
+          <tr><td><span class="token-dot" style="background:#C8960C"></span><span class="token-name">--gold-500</span></td><td class="token-hex">#C8960C</td><td class="token-use">Vàng nghệ Lý-Trần</td><td class="token-use">XP, tiêu đề, icon chính</td></tr>
+          <tr><td><span class="token-dot" style="background:#F0CC6A"></span><span class="token-name">--gold-300</span></td><td class="token-hex">#F0CC6A</td><td class="token-use">Vàng sáng</td><td class="token-use">H1, text highlight</td></tr>
+          <tr><td><span class="token-dot" style="background:#B87333"></span><span class="token-name">--copper-500</span></td><td class="token-hex">#B87333</td><td class="token-use">Đồng Đông Sơn</td><td class="token-use">Border, frame, divider</td></tr>
+          <tr><td><span class="token-dot" style="background:#1A3A5C"></span><span class="token-name">--lam-600</span></td><td class="token-hex">#1A3A5C</td><td class="token-use">Lam cổ áo Nho Sĩ</td><td class="token-use">Thần Tướng, overlay</td></tr>
+          <tr><td><span class="token-dot" style="background:#246B4A"></span><span class="token-name">--jade-500</span></td><td class="token-hex">#246B4A</td><td class="token-use">Ngọc bích Lý</td><td class="token-use">Nỏ Thần, success</td></tr>
+          <tr><td><span class="token-dot" style="background:#5E2A78"></span><span class="token-name">--mystic-500</span></td><td class="token-hex">#5E2A78</td><td class="token-use">Tím Đạo giáo</td><td class="token-use">Đạo Sĩ, magic effects</td></tr>
+          <tr><td><span class="token-dot" style="background:#F5EED6"></span><span class="token-name">--ivory-200</span></td><td class="token-hex">#F5EED6</td><td class="token-use">Ngà voi</td><td class="token-use">Text chính</td></tr>
+          <tr><td><span class="token-dot" style="background:#A08C70"></span><span class="token-name">--ivory-muted</span></td><td class="token-hex">#A08C70</td><td class="token-use">Ngà mờ</td><td class="token-use">Text phụ, caption</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CSS code block -->
+    <div style="margin-top:16px;background:#0C0810;border:1px solid var(--bg-lift);border-radius:var(--radius-lg);padding:20px;font-family:'Roboto Mono',monospace;font-size:11px;line-height:1.8;color:var(--ivory-muted);overflow-x:auto">
+      <span style="color:var(--copper-400)">/* Paste vào :root {} trong cyberpunk-base.css */</span><br>
+      <span style="color:var(--lam-300)">--bg-void:</span> <span style="color:var(--gold-300)">#07040A</span>; <span style="color:var(--ivory-muted)">/* Mực tàu */</span><br>
+      <span style="color:var(--lam-300)">--bg-panel:</span> <span style="color:var(--gold-300)">#160E1C</span>; <span style="color:var(--ivory-muted)">/* Nâu-tím đêm */</span><br>
+      <span style="color:var(--lam-300)">--red-son:</span> <span style="color:var(--gold-300)">#C0332E</span>; <span style="color:var(--ivory-muted)">/* Đỏ son cổng đình */</span><br>
+      <span style="color:var(--lam-300)">--gold:</span> <span style="color:var(--gold-300)">#C8960C</span>; <span style="color:var(--ivory-muted)">/* Vàng nghệ Lý-Trần */</span><br>
+      <span style="color:var(--lam-300)">--copper:</span> <span style="color:var(--gold-300)">#B87333</span>; <span style="color:var(--ivory-muted)">/* Đồng Đông Sơn */</span><br>
+      <span style="color:var(--lam-300)">--lam-co:</span> <span style="color:var(--gold-300)">#1A3A5C</span>; <span style="color:var(--ivory-muted)">/* Lam cổ */</span><br>
+      <span style="color:var(--lam-300)">--jade:</span> <span style="color:var(--gold-300)">#246B4A</span>; <span style="color:var(--ivory-muted)">/* Ngọc Lý */</span><br>
+      <span style="color:var(--lam-300)">--ivory:</span> <span style="color:var(--gold-300)">#F5EED6</span>; <span style="color:var(--ivory-muted)">/* Ngà voi */</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-note">
+    <div style="margin-bottom:8px">
+      <svg style="display:inline-block;vertical-align:middle;margin-right:8px" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="9" stroke="#B87333" stroke-width="1"/>
+        <circle cx="10" cy="10" r="6" stroke="#B87333" stroke-width="0.8"/>
+        <circle cx="10" cy="10" r="3" stroke="#B87333" stroke-width="0.8"/>
+        <circle cx="10" cy="10" r="1" fill="#C8960C"/>
+      </svg>
+      Chiến Binh Toán Học · Palette Proposal v5.0
+    </div>
+    <div>Nguồn màu: Hoa Văn Đại Việt 2021 · hoavandaiviet.vn · Việt Sử Kiêu Hùng</div>
+    <div style="margin-top:4px;color:#4A3A28">Mọi màu sắc có nguồn gốc từ hiện vật Việt Nam thực tế · Không phải "generic Asian"</div>
+  </div>
+
+</div>
+</body>
+</html>

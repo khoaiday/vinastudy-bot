@@ -1,0 +1,123 @@
+═══════════════════════════════════════════════════════════════════════
+  CHARACTER IMAGE GENERATION PROGRESS TRACKER
+  VInaStudy Bot — Ready to Generate
+═══════════════════════════════════════════════════════════════════════
+
+📋 GENERATION CHECKLIST (10 CHARACTERS)
+
+PLAYABLE CHARACTERS (8):
+─────────────────────────────────────────────────────────────────────
+[ ] 1. Lạc Tướng Nam (Warrior - Male)
+       File: lac-tuong-male-avatar.png
+       Folder: playable/lac-tuong/
+       Colors: #FF5555 (red), #C8960C (gold)
+
+[ ] 2. Lạc Tướng Nữ (Warrior - Female)
+       File: lac-tuong-female-avatar.png
+       Folder: playable/lac-tuong/
+       Colors: #FF5555 (red), #C8960C (gold)
+
+[ ] 3. Đạo Sĩ Nam (Mage - Male)
+       File: dao-si-male-avatar.png
+       Folder: playable/dao-si/
+       Colors: #EA0EED (magenta), #C8960C (gold)
+
+[ ] 4. Đạo Sĩ Nữ (Mage - Female)
+       File: dao-si-female-avatar.png
+       Folder: playable/dao-si/
+       Colors: #EA0EED (magenta), #C8960C (gold)
+
+[ ] 5. Nỏ Thần Nam (Archer - Male)
+       File: no-than-male-avatar.png
+       Folder: playable/no-than/
+       Colors: #0AE0FE (cyan), #4eff9f (green)
+
+[ ] 6. Nỏ Thần Nữ (Archer - Female)
+       File: no-than-female-avatar.png
+       Folder: playable/no-than/
+       Colors: #0AE0FE (cyan), #4eff9f (green)
+
+[ ] 7. Thần Tướng Nam (Knight - Male)
+       File: than-tuong-male-avatar.png
+       Folder: playable/than-tuong/
+       Colors: #4eff9f (green), #C8960C (gold)
+
+[ ] 8. Thần Tướng Nữ (Knight - Female)
+       File: than-tuong-female-avatar.png
+       Folder: playable/than-tuong/
+       Colors: #4eff9f (green), #C8960C (gold)
+
+BOSS CHARACTER (1):
+─────────────────────────────────────────────────────────────────────
+[ ] 9. Hồ Tinh (Nine-Tailed Fox Spirit - Boss)
+       File: ho-tinh-portrait.png
+       Folder: boss/
+       Colors: #FF5555 (red), #C8960C (gold)
+       Special: 9 golden tails numbered 1-9, cold proud expression
+
+NPC CHARACTER (1):
+─────────────────────────────────────────────────────────────────────
+[ ] 10. Thầy Long (Teacher NPC)
+        File: thay-long-portrait.png
+        Folder: npc/thay-long/
+        Colors: #F5EED6 (cream), #C8960C (gold sash)
+        Tone: Warm, friendly, approachable
+
+═══════════════════════════════════════════════════════════════════════
+
+GENERATION WORKFLOW:
+
+1. Open: CHARACTER_GENERATION_PROMPTS.md
+2. Copy prompt for character 1
+3. Paste into image generation tool (GPT-4, Midjourney, etc.)
+4. Generate image
+5. Review against quality checklist:
+   ✓ Math symbols visible (+, −, ×, ÷, =, √, ½, △, ∑)
+   ✓ Correct colors
+   ✓ Kingdom Rush 2D art style
+   ✓ 1024x1024 resolution
+   ✓ PNG format
+   ✓ Proper orientation (M=RIGHT, F=LEFT)
+
+6. Save with exact filename
+7. Place in correct folder (see paths above)
+8. Repeat for characters 2-10
+9. Test: Run index.html → check character-select.html displays images
+
+═══════════════════════════════════════════════════════════════════════
+
+QUICK REFERENCE - FOLDER PATHS:
+
+Playable Characters (1-8):
+  design-system/characters/playable/lac-tuong/
+  design-system/characters/playable/dao-si/
+  design-system/characters/playable/no-than/
+  design-system/characters/playable/than-tuong/
+
+Boss (9):
+  design-system/characters/boss/
+
+NPC (10):
+  design-system/characters/npc/thay-long/
+
+═══════════════════════════════════════════════════════════════════════
+
+GENERATION TIME ESTIMATE:
+  • 5-10 min per image = 50-100 min total
+  • 10-15 min testing = 60-115 min total
+  • Full integration: 1-2 hours with generation
+
+═══════════════════════════════════════════════════════════════════════
+
+NOTES:
+• All prompts are child-safe and educational
+• Character orientation matters: Males RIGHT-facing, Females LEFT-facing
+• Math symbols MUST appear in every image (key theme identifier)
+• Kingdom Rush art style reference: 2D stylized, NOT photorealistic
+• After generation: simply place PNGs in correct folders
+  character-select.html will automatically load them
+
+═══════════════════════════════════════════════════════════════════════
+
+START GENERATION: Character 1 (Lạc Tướng Nam)
+Ready to proceed? ⚡

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 36 — Bài Toán Tìm Quy Luật (Tiếp)</title>
+<style>
+  :root {
+    --teal:   #0f766e; --teal2: #14b8a6; --amber: #d97706; --amber2: #fbbf24;
+    --bg: #f0fdfa; --card: #ffffff; --text: #134e4a; --muted: #5eead4;
+    --border: #ccfbf1; --green: #10b981; --red: #ef4444; --radius: 20px;
+    --shadow: 0 8px 32px rgba(15,118,110,0.12);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Times New Roman',Times,serif; background:var(--bg); color:var(--text); min-height:100vh;
+    background-image: radial-gradient(circle at 15% 15%,rgba(20,184,166,0.15) 0%,transparent 50%), radial-gradient(circle at 85% 85%,rgba(217,119,6,0.10) 0%,transparent 50%); }
+
+  .header { background:linear-gradient(135deg,var(--teal) 0%,#0d9488 100%); color:white; padding:28px 20px 24px; text-align:center; position:relative; overflow:hidden; }
+  .header::before { content:""; position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:rgba(255,255,255,0.06); border-radius:50%; }
+  .header::after  { content:""; position:absolute; bottom:-70px; left:-40px; width:240px; height:240px; background:rgba(251,191,36,0.08); border-radius:50%; }
+  .header-badge { display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:20px; padding:4px 14px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+  .header h1 { font-size:clamp(20px,5vw,28px); font-weight:900; line-height:1.2; margin-bottom:8px; }
+  .header p  { font-size:14px; opacity:0.8; margin-bottom:20px; }
+  .progress-wrap { max-width:500px; margin:0 auto; }
+  .progress-info { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:8px; opacity:0.9; }
+  .progress-bar  { height:10px; background:rgba(255,255,255,0.2); border-radius:10px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--amber2),#fde68a); border-radius:10px; transition:width 0.5s cubic-bezier(.4,0,.2,1); width:0%; }
+
+  .score-bar { display:flex; justify-content:center; gap:20px; padding:14px 20px; background:white; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(15,118,110,0.08); }
+  .score-item { display:flex; align-items:center; gap:7px; font-weight:700; font-size:14px; }
+  .score-dot { width:10px; height:10px; border-radius:50%; }
+
+  .main { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+
+  .method-box { background:linear-gradient(135deg,#f0fdfa,#ccfbf1); border:2px solid var(--teal2); border-radius:16px; padding:16px 18px; margin-bottom:24px; font-size:13px; line-height:1.8; color:var(--teal); }
+  .method-box strong { font-weight:800; color:var(--teal); }
+
+  .section-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--teal); margin:32px 0 14px; display:flex; align-items:center; gap:8px; }
+  .section-title::after { content:""; flex:1; height:2px; background:linear-gradient(90deg,var(--border),transparent); border-radius:2px; }
+
+  .q-card { background:var(--card); border-radius:var(--radius); padding:22px 22px 18px; margin-bottom:14px; box-shadow:var(--shadow); border:1.5px solid var(--border); transition:border-color 0.3s,box-shadow 0.3s; animation:fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .q-card.correct { border-color:var(--green); background:#f0fdf9; }
+  .q-card.wrong   { border-color:var(--red);   background:#fff5f5; }
+  .q-num { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--teal); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .q-num-badge { background:var(--teal); color:white; border-radius:8px; padding:2px 8px; font-size:11px; }
+  .q-text { font-size:15px; font-weight:600; line-height:1.65; margin-bottom:14px; color:var(--text); }
+  .q-text strong { color:var(--teal); }
+
+  /* Bảng 2x2 */
+  .grid2x2 { display:inline-grid; grid-template-columns:1fr 1fr; border:2px solid var(--teal); border-radius:10px; overflow:hidden; font-size:14px; font-weight:700; margin:4px; }
+  .grid2x2 div { padding:8px 12px; text-align:center; border:1px solid var(--border); background:white; min-width:40px; }
+  .grid2x2 .top-row { background:#f0fdfa; }
+  .shapes-row { display:flex; flex-wrap:wrap; gap:14px; margin:12px 0 16px; align-items:center; }
+
+  /* Tam giác */
+  .tri-box { text-align:center; }
+  .tri-top  { font-size:14px; font-weight:700; color:var(--teal); margin-bottom:2px; }
+  .tri-mid  { font-size:13px; font-weight:700; color:var(--amber); margin:2px 0; }
+  .tri-bot  { display:flex; justify-content:center; gap:16px; font-size:13px; font-weight:700; }
+  .tri-outline { border:2px solid var(--teal); border-radius:6px; padding:3px 8px; }
+
+  .ans-input { border:2px solid var(--border); border-radius:12px; padding:9px 14px; font-size:15px; font-family:'Times New Roman',Times,serif; font-weight:700; outline:none; transition:border 0.2s,box-shadow 0.2s; background:white; color:var(--text); min-width:100px; }
+  .ans-input:focus { border-color:var(--teal2); box-shadow:0 0 0 3px rgba(20,184,166,0.15); }
+  .ans-input.correct-input { border-color:var(--green); background:#f0fdf9; }
+  .ans-input.wrong-input   { border-color:var(--red);   background:#fff5f5; }
+  .ans-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:8px; font-size:14px; font-weight:600; }
+
+  .choices { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .choice-btn { padding:9px 18px; border:2px solid var(--border); border-radius:12px; background:white; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; color:var(--text); }
+  .choice-btn:hover:not(:disabled) { border-color:var(--teal2); background:#f0fdfa; color:var(--teal); }
+  .choice-btn.selected { border-color:var(--teal2); background:#f0fdfa; color:var(--teal); }
+  .choice-btn.correct  { border-color:var(--green); background:#f0fdf9; color:var(--green); }
+  .choice-btn.wrong    { border-color:var(--red);   background:#fff5f5; color:var(--red); }
+
+  .feedback { margin-top:12px; padding:10px 14px; border-radius:12px; font-size:14px; font-weight:600; display:none; animation:fadeUp 0.3s ease; }
+  .feedback.show { display:flex; align-items:flex-start; gap:8px; }
+  .feedback.correct-fb { background:#dcfce7; color:#166534; }
+  .feedback.wrong-fb   { background:#fee2e2; color:#991b1b; }
+
+  .check-btn { margin-top:14px; padding:10px 22px; background:var(--teal); color:white; border:none; border-radius:12px; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:7px; }
+  .check-btn:hover:not(:disabled) { background:var(--teal2); transform:translateY(-1px); }
+  .check-btn:disabled { background:var(--border); color:#94a3b8; cursor:not-allowed; transform:none; }
+
+  .submit-wrap { text-align:center; margin-top:36px; }
+  .submit-btn { padding:16px 48px; background:linear-gradient(135deg,var(--teal),#0d9488); color:white; border:none; border-radius:16px; font-family:'Times New Roman',Times,serif; font-size:16px; font-weight:900; cursor:pointer; box-shadow:0 8px 24px rgba(15,118,110,0.3); transition:all 0.2s; }
+  .submit-btn:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(15,118,110,0.4); }
+
+  .result-overlay { display:none; position:fixed; inset:0; background:rgba(15,118,110,0.7); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; padding:20px; }
+  .result-overlay.show { display:flex; }
+  .result-card { background:white; border-radius:24px; padding:36px 28px; max-width:360px; width:100%; text-align:center; box-shadow:0 24px 64px rgba(0,0,0,0.2); animation:fadeUp 0.4s ease; }
+  .result-emoji { font-size:56px; display:block; margin-bottom:12px; }
+  .result-title { font-size:24px; font-weight:900; color:var(--teal); margin-bottom:6px; }
+  .result-score { font-size:40px; font-weight:900; color:var(--text); margin:8px 0; }
+  .result-level { display:inline-block; padding:6px 16px; border-radius:12px; font-weight:700; font-size:14px; margin-bottom:20px; }
+  .result-detail { display:flex; justify-content:center; gap:24px; margin-bottom:24px; }
+  .result-detail-num { font-size:28px; font-weight:900; }
+  .result-detail-label { font-size:12px; color:#64748b; margin-top:2px; }
+  .result-btn { padding:12px 24px; border:none; border-radius:12px; font-family:'Times New Roman',Times,serif; font-size:14px; font-weight:800; cursor:pointer; margin:0 6px; transition:all 0.2s; }
+  .btn-retry  { background:var(--teal); color:white; }
+  .btn-review { background:var(--border); color:var(--teal); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Buổi 36 • VInaStudy</div>
+  <h1>🔢 Bài Toán Tìm Quy Luật (Tiếp)</h1>
+  <p>Thầy Nguyễn Thành Long • 10 câu bài tập</p>
+  <div class="progress-wrap">
+    <div class="progress-info"><span id="progressText">0 / 10 câu</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="score-bar">
+  <div class="score-item"><div class="score-dot" style="background:var(--green)"></div><span id="scoreCorrect">0</span> Đúng</div>
+  <div class="score-item"><div class="score-dot" style="background:var(--red)"></div><span id="scoreWrong">0</span> Sai</div>
+  <div class="score-item"><div class="score-dot" style="background:#cbd5e1"></div><span id="scoreLeft">10</span> Chưa làm</div>
+</div>
+
+<div class="main">
+
+  <div class="method-box">
+    💡 <strong>Nhớ phương pháp thầy Long:</strong><br>
+    • <strong>Quy luật bảng 2×2</strong>: tìm mối quan hệ giữa 4 ô (nhân, cộng, trừ)<br>
+    • <strong>Quy luật hình kim cương</strong>: (trái + dưới) × phải = kết quả giữa<br>
+    • <strong>Quy luật hình tam giác</strong>: đỉnh ÷ cạnh trái × cạnh phải = giữa<br>
+    • <strong>Quy luật hình tròn/vuông/tam giác lồng nhau</strong>: mỗi hình áp dụng phép tính khác nhau<br>
+    • <strong>Quy luật chu kỳ màu sắc</strong>: chia số thứ tự cho số hạt trong 1 nhóm, xem số dư
+  </div>
+
+  <!-- Phần 1 -->
+  <div class="section-title">🟦 Phần 1 — Quy Luật Bảng 2×2</div>
+
+  <!-- Câu 1: 137785 — 3 bảng 2×2, trên trái ×4=trên phải, dưới trái −5=dưới phải -->
+  <div class="q-card" id="q1">
+    <div class="q-num"><span class="q-num-badge">Câu 1</span> Mã VinaID 137785</div>
+    <div class="q-text">Tìm số còn thiếu <strong>A</strong> và <strong>B</strong> trong hình sau:</div>
+    <svg viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:10px 0 14px;display:block">
+      <!-- Hình 1: 3|12 / 11|6 -->
+      <rect x="10" y="10" width="55" height="42" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="65" y="10" width="55" height="42" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="10" y="52" width="55" height="42" rx="0" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <rect x="65" y="52" width="55" height="42" rx="0" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="37" y="38" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">3</text>
+      <text x="92" y="38" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">12</text>
+      <text x="37" y="80" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">11</text>
+      <text x="92" y="80" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">6</text>
+      <!-- Hình 2: 7|28 / 14|9 -->
+      <rect x="155" y="10" width="55" height="42" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="210" y="10" width="55" height="42" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="155" y="52" width="55" height="42" rx="0" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <rect x="210" y="52" width="55" height="42" rx="0" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="182" y="38" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">7</text>
+      <text x="237" y="38" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">28</text>
+      <text x="182" y="80" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">14</text>
+      <text x="237" y="80" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">9</text>
+      <!-- Hình 3: 6|A / 12|B -->
+      <rect x="300" y="10" width="55" height="42" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <rect x="355" y="10" width="55" height="42" rx="0" fill="#fff7ed" stroke="#d97706" stroke-width="2.5"/>
+      <rect x="300" y="52" width="55" height="42" rx="0" fill="white" stroke="#0f766e" stroke-width="2.5"/>
+      <rect x="355" y="52" width="55" height="42" rx="0" fill="#fff7ed" stroke="#d97706" stroke-width="2.5"/>
+      <text x="327" y="38" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">6</text>
+      <text x="382" y="38" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">A</text>
+      <text x="327" y="80" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">12</text>
+      <text x="382" y="80" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">B</text>
+    </svg>
+    <div class="ans-row">A = <input class="ans-input" id="iq1a" style="width:80px"> &nbsp; B = <input class="ans-input" id="iq1b" style="width:80px"></div>
+    <button class="check-btn" id="btnq1" disabled onclick="checkDouble('q1','iq1a','iq1b','24','7','Quy luật: trên phải = trên trái×4 (3×4=12✓; 7×4=28✓) → A=6×4=24. Dưới phải = dưới trái−5 (11−5=6✓; 14−5=9✓) → B=12−5=7')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq1"></div>
+  </div>
+
+  <!-- Câu 2: 137786 — 4 bảng 2×2 -->
+  <div class="q-card" id="q2">
+    <div class="q-num"><span class="q-num-badge">Câu 2</span> Mã VinaID 137786</div>
+    <div class="q-text">Điền số thích hợp vào dấu <strong>?</strong> trong hình (biết mỗi hình tuân theo cùng một quy luật):</div>
+    <svg viewBox="0 0 440 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;margin:10px 0 14px;display:block">
+      <!-- Hình 1: 4|2 / 26|18 -->
+      <rect x="5"   y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="53"  y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="5"   y="50" width="48" height="40" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="53"  y="50" width="48" height="40" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <text x="29"  y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">4</text>
+      <text x="77"  y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">2</text>
+      <text x="29"  y="75" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">26</text>
+      <text x="77"  y="75" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">18</text>
+      <!-- Hình 2: 2|8 / 58|42 -->
+      <rect x="115" y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="163" y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="115" y="50" width="48" height="40" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="163" y="50" width="48" height="40" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <text x="139" y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">2</text>
+      <text x="187" y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">8</text>
+      <text x="139" y="75" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">58</text>
+      <text x="187" y="75" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">42</text>
+      <!-- Hình 3: 5|3 / 32|17 -->
+      <rect x="225" y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="273" y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="225" y="50" width="48" height="40" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="273" y="50" width="48" height="40" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <text x="249" y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">5</text>
+      <text x="297" y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">3</text>
+      <text x="249" y="75" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">32</text>
+      <text x="297" y="75" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">17</text>
+      <!-- Hình 4: 7|6 / 43|? -->
+      <rect x="335" y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="383" y="10" width="48" height="40" rx="0" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="335" y="50" width="48" height="40" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="383" y="50" width="48" height="40" rx="0" fill="#fff7ed"  stroke="#d97706" stroke-width="2.2"/>
+      <text x="359" y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">7</text>
+      <text x="407" y="35" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">6</text>
+      <text x="359" y="75" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">43</text>
+      <text x="407" y="75" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">?</text>
+    </svg>
+    <div class="choices" id="q2choices">
+      <button class="choice-btn" onclick="selectChoice('q2','1',this)">A. 1</button>
+      <button class="choice-btn" onclick="selectChoice('q2','2',this)">B. 2</button>
+      <button class="choice-btn" onclick="selectChoice('q2','3',this)">C. 3</button>
+      <button class="choice-btn" onclick="selectChoice('q2','4',this)">D. 4</button>
+      <button class="choice-btn" onclick="selectChoice('q2','5',this)">E. 5</button>
+    </div>
+    <button class="check-btn" disabled onclick="checkChoice('q2','1','Quy luật: dưới trái = dưới phải + trên trái×trên phải. 26=18+4×2✓; 58=42+2×8✓; 32=17+5×3✓ → ?=43−7×6=43−42=1')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq2"></div>
+  </div>
+
+  <!-- Phần 2 -->
+  <div class="section-title">🔷 Phần 2 — Quy Luật Hình Đặc Biệt</div>
+
+  <!-- Câu 3: 131237 — hình kim cương 3 bộ -->
+  <div class="q-card" id="q3">
+    <div class="q-num"><span class="q-num-badge">Câu 3</span> Mã VinaID 131237</div>
+    <div class="q-text">Tìm số điền vào hình tròn chứa chữ <strong>a</strong>. Biết mỗi hình tuân theo cùng một quy luật:</div>
+    <svg viewBox="0 0 420 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:10px 0 14px;display:block">
+      <!-- Hình 1: trên=3, trái=4, phải=35, dưới=5 -->
+      <circle cx="65" cy="20" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="65" y="26" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">3</text>
+      <circle cx="28" cy="65" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="28" y="71" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">4</text>
+      <circle cx="102" cy="65" r="16" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <text x="102" y="71" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#0f766e">35</text>
+      <circle cx="65" cy="110" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="65" y="116" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">5</text>
+      <line x1="65" y1="36" x2="40" y2="50" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="65" y1="36" x2="90" y2="50" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="40" y1="80" x2="65" y2="94" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="90" y1="80" x2="65" y2="94" stroke="#0f766e" stroke-width="1.5"/>
+      <!-- Hình 2: trên=4, trái=5, phải=54, dưới=6 -->
+      <circle cx="210" cy="20" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="210" y="26" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">4</text>
+      <circle cx="173" cy="65" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="173" y="71" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">5</text>
+      <circle cx="247" cy="65" r="16" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <text x="247" y="71" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#0f766e">54</text>
+      <circle cx="210" cy="110" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="210" y="116" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">6</text>
+      <line x1="210" y1="36" x2="185" y2="50" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="210" y1="36" x2="235" y2="50" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="185" y1="80" x2="210" y2="94" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="235" y1="80" x2="210" y2="94" stroke="#0f766e" stroke-width="1.5"/>
+      <!-- Hình 3: trên=5, trái=6, phải=a, dưới=7 -->
+      <circle cx="355" cy="20" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="355" y="26" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">5</text>
+      <circle cx="318" cy="65" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="318" y="71" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">6</text>
+      <circle cx="392" cy="65" r="18" fill="#fff7ed" stroke="#d97706" stroke-width="2.5"/>
+      <text x="392" y="71" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="800" fill="#d97706">a</text>
+      <circle cx="355" cy="110" r="16" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="355" y="116" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">7</text>
+      <line x1="355" y1="36" x2="330" y2="50" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="355" y1="36" x2="380" y2="50" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="330" y1="80" x2="355" y2="94" stroke="#0f766e" stroke-width="1.5"/>
+      <line x1="380" y1="80" x2="355" y2="94" stroke="#0f766e" stroke-width="1.5"/>
+    </svg>
+    <div class="ans-row">a = <input class="ans-input" id="iq3" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q3','iq3',['77'],'Quy luật: phải = (trên + trái) × dưới. (3+4)×5=35✓; (4+5)×6=54✓ → a=(5+6)×7=77')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq3"></div>
+  </div>
+
+  <!-- Câu 4: 133031 — 4 hộp chữ nhật trên/dưới -->
+  <div class="q-card" id="q4">
+    <div class="q-num"><span class="q-num-badge">Câu 4</span> Mã VinaID 133031 — Đề thi vào 6 NTL 2024–2025</div>
+    <div class="q-text">Điền số thích hợp vào dấu <strong>?</strong>:</div>
+    <svg viewBox="0 0 430 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:430px;margin:10px 0 14px;display:block">
+      <!-- Hình 1: trên=274, dưới=24|34 -->
+      <rect x="5"   y="5"  width="90" height="38" rx="6" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="5"   y="48" width="44" height="35" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="51"  y="48" width="44" height="35" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <text x="50"  y="29" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">274</text>
+      <text x="27"  y="71" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">24</text>
+      <text x="73"  y="71" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">34</text>
+      <!-- Hình 2: trên=376, dưới=33|46 -->
+      <rect x="115" y="5"  width="90" height="38" rx="6" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="115" y="48" width="44" height="35" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="161" y="48" width="44" height="35" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <text x="160" y="29" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">376</text>
+      <text x="137" y="71" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">33</text>
+      <text x="183" y="71" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">46</text>
+      <!-- Hình 3: trên=165, dưới=13|35 -->
+      <rect x="225" y="5"  width="90" height="38" rx="6" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="225" y="48" width="44" height="35" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="271" y="48" width="44" height="35" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <text x="270" y="29" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">165</text>
+      <text x="247" y="71" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">13</text>
+      <text x="293" y="71" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">35</text>
+      <!-- Hình 4: trên=364, dưới=31|? -->
+      <rect x="335" y="5"  width="90" height="38" rx="6" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+      <rect x="335" y="48" width="44" height="35" rx="0" fill="white"   stroke="#0f766e" stroke-width="1.8"/>
+      <rect x="381" y="48" width="44" height="35" rx="0" fill="#fff7ed"  stroke="#d97706" stroke-width="2.2"/>
+      <text x="380" y="29" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="700" fill="#134e4a">364</text>
+      <text x="357" y="71" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">31</text>
+      <text x="403" y="71" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">?</text>
+    </svg>
+    <div class="ans-row">? = <input class="ans-input" id="iq4" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q4','iq4',['54'],'Quy luật: trên = dưới trái×10 + dưới phải. 24×10+34=274✓; 33×10+46=376✓; 13×10+35=165✓ → 31×10+?=364 → 310+?=364 → ?=54')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq4"></div>
+  </div>
+
+  <!-- Câu 5: 135397 — 3 tam giác chia 4 phần -->
+  <div class="q-card" id="q5">
+    <div class="q-num"><span class="q-num-badge">Câu 5</span> Mã VinaID 135397</div>
+    <div class="q-text">Tìm giá trị <strong>a</strong> và <strong>b</strong> thỏa mãn quy luật:</div>
+    <svg viewBox="0 0 420 135" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:10px 0 14px;display:block">
+      <!-- Tam giác 1: top=(65,8) trái=(10,118) phải=(120,118) -->
+      <!-- TĐ: A=(37.5,63) B=(92.5,63) C=(65,118) -->
+      <!-- Vùng đỉnh centroid=(65,44.7) | Vùng trái=(37.5,99.7) | Vùng phải=(92.5,99.7) | Vùng giữa=(65,81.3) -->
+      <polygon points="65,8 10,118 120,118" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <polygon points="37.5,63 92.5,63 65,118" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="65"   y="50"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">9</text>
+      <text x="65"   y="82"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#0f766e">30</text>
+      <text x="37.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">4</text>
+      <text x="92.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">6</text>
+
+      <!-- Tam giác 2: top=(210,8) trái=(155,118) phải=(265,118) -->
+      <!-- TĐ: A=(182.5,63) B=(237.5,63) C=(210,118) -->
+      <!-- Vùng đỉnh=(210,44.7) | Vùng trái=(182.5,99.7) | Vùng phải=(237.5,99.7) | Vùng giữa=(210,81.3) -->
+      <polygon points="210,8 155,118 265,118" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <polygon points="182.5,63 237.5,63 210,118" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="210"   y="50"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">7</text>
+      <text x="210"   y="82"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#0f766e">29</text>
+      <text x="182.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">5</text>
+      <text x="237.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="800" fill="#d97706">a</text>
+
+      <!-- Tam giác 3: top=(355,8) trái=(300,118) phải=(410,118) -->
+      <!-- TĐ: A=(327.5,63) B=(382.5,63) C=(355,118) -->
+      <!-- Vùng đỉnh=(355,44.7) | Vùng trái=(327.5,99.7) | Vùng phải=(382.5,99.7) | Vùng giữa=(355,81.3) -->
+      <polygon points="355,8 300,118 410,118" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <polygon points="327.5,63 382.5,63 355,118" fill="#fff7ed" stroke="#d97706" stroke-width="1.8"/>
+      <text x="355"   y="50"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">8</text>
+      <text x="355"   y="82"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="800" fill="#d97706">b</text>
+      <text x="327.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">3</text>
+      <text x="382.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">19</text>
+    </svg>
+    <div class="ans-row">a = <input class="ans-input" id="iq5a" style="width:80px"> &nbsp; b = <input class="ans-input" id="iq5b" style="width:80px"></div>
+    <button class="check-btn" id="btnq5" disabled onclick="checkDouble('q5','iq5a','iq5b','6','5','Quy luật: giữa = đỉnh×trái−phải. 9×4−6=30✓. a: 7×5−a=29→35−a=29→a=6. b: 8×3−19=24−19=5')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq5"></div>
+  </div>
+
+  <!-- Câu 6: 137787 — hình tròn/vuông/tam giác lồng nhau -->
+  <div class="q-card" id="q6">
+    <div class="q-num"><span class="q-num-badge">Câu 6</span> Mã VinaID 137787</div>
+    <div class="q-text">Hãy xem quy luật của các hình dưới đây và tìm giá trị dấu <strong>?</strong>:</div>
+    <svg viewBox="0 0 420 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:10px 0 14px;display:block">
+      <!-- Hàng 1: O=6, []=4, △=32 -->
+      <!-- Hình tròn đơn: 3→6 -->
+      <circle cx="28" cy="28" r="22" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="28" y="34" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">3</text>
+      <text x="68" y="34" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">= 6</text>
+      <!-- Hình vuông đơn: 2→4 -->
+      <rect x="130" y="8" width="40" height="40" rx="4" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="150" y="34" text-anchor="middle" font-family="Times New Roman" font-size="15" font-weight="700" fill="#134e4a">2</text>
+      <text x="190" y="34" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">= 4</text>
+      <!-- Hình tam giác đơn: 23→32 -->
+      <polygon points="290,8 265,52 315,52" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <text x="290" y="38" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">23</text>
+      <text x="340" y="38" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">= 32</text>
+      <!-- Hàng 2: O[]=14, O△=21 -->
+      <!-- Tròn trong vuông: 6→14 -->
+      <rect x="10" y="78" width="46" height="46" rx="4" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <circle cx="33" cy="101" r="18" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="33" y="107" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">6</text>
+      <text x="80" y="107" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">= 14</text>
+      <!-- Tròn trong tam giác: 10→21 -->
+      <polygon points="200,75 165,135 235,135" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <circle cx="200" cy="113" r="16" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="200" y="119" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">10</text>
+      <text x="256" y="113" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">= 21</text>
+      <!-- Hàng 3: Tìm ?  — Tròn trong tam giác: 24→? -->
+      <polygon points="350,75 315,135 385,135" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <circle cx="350" cy="113" r="16" fill="#fff7ed" stroke="#d97706" stroke-width="1.8"/>
+      <text x="350" y="119" text-anchor="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">24</text>
+      <text x="406" y="113" text-anchor="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">= ?</text>
+    </svg>
+    <div class="ans-row">? = <input class="ans-input" id="iq6" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q6','iq6',['84'],'Quy luật: ○ số×2; □ số+2; △ đảo 2 chữ số (AB→BA). 24 trong △○: △ đảo 24→42; ○ nhân 2: 42×2=84')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq6"></div>
+  </div>
+
+  <!-- Câu 7: 137788 — 3 tam giác đỉnh/giữa/trái/phải -->
+  <div class="q-card" id="q7">
+    <div class="q-num"><span class="q-num-badge">Câu 7</span> Mã VinaID 137788</div>
+    <div class="q-text">Tìm quy luật và điền số <strong>?</strong>:</div>
+    <svg viewBox="0 0 420 135" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:10px 0 14px;display:block">
+      <!-- Tam giác 1 -->
+      <polygon points="65,8 10,118 120,118" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <polygon points="37.5,63 92.5,63 65,118" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="65"   y="50"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">24</text>
+      <text x="65"   y="82"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#0f766e">32</text>
+      <text x="37.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">8</text>
+      <text x="92.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">6</text>
+      <!-- Tam giác 2 -->
+      <polygon points="210,8 155,118 265,118" fill="white" stroke="#0f766e" stroke-width="2"/>
+      <polygon points="182.5,63 237.5,63 210,118" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="210"   y="50"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">28</text>
+      <text x="210"   y="82"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#0f766e">42</text>
+      <text x="182.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">6</text>
+      <text x="237.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">4</text>
+      <!-- Tam giác 3 -->
+      <polygon points="355,8 300,118 410,118" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+      <polygon points="327.5,63 382.5,63 355,118" fill="#fff7ed" stroke="#d97706" stroke-width="1.8"/>
+      <text x="355"   y="50"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">64</text>
+      <text x="355"   y="82"  text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="16" font-weight="800" fill="#d97706">?</text>
+      <text x="327.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">7</text>
+      <text x="382.5" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Times New Roman" font-size="14" font-weight="700" fill="#134e4a">8</text>
+    </svg>
+    <div class="ans-row">? = <input class="ans-input" id="iq7" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q7','iq7',['56'],'Quy luật: giữa = đỉnh÷phải×trái. 24÷6×8=32✓; 28÷4×6=42✓ → ?=64÷8×7=56')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq7"></div>
+  </div>
+
+  <!-- Phần 3 -->
+  <div class="section-title">🌈 Phần 3 — Quy Luật Chu Kỳ & Hình Chấm</div>
+
+  <!-- Câu 8 -->
+  <div class="q-card" id="q8">
+    <div class="q-num"><span class="q-num-badge">Câu 8</span> Mã VinaID 129846</div>
+    <div class="q-text">
+      An xâu chuỗi hạt: cứ <strong>2 hạt xanh, 3 hạt đỏ, 1 hạt tím</strong> rồi lặp lại.
+    </div>
+    <!-- Minh hoạ chuỗi hạt -->
+    <svg viewBox="0 0 310 50" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:310px;margin:8px 0 14px;display:block">
+      <line x1="10" y1="25" x2="300" y2="25" stroke="#cbd5e1" stroke-width="2"/>
+      <circle cx="30"  cy="25" r="14" fill="#16a34a" stroke="white" stroke-width="2"/><text x="30"  y="30" text-anchor="middle" font-family="Times New Roman" font-size="10" font-weight="700" fill="white">X</text>
+      <circle cx="65"  cy="25" r="14" fill="#16a34a" stroke="white" stroke-width="2"/><text x="65"  y="30" text-anchor="middle" font-family="Times New Roman" font-size="10" font-weight="700" fill="white">X</text>
+      <circle cx="100" cy="25" r="14" fill="#ef4444" stroke="white" stroke-width="2"/><text x="100" y="30" text-anchor="middle" font-family="Times New Roman" font-size="10" font-weight="700" fill="white">Đ</text>
+      <circle cx="135" cy="25" r="14" fill="#ef4444" stroke="white" stroke-width="2"/><text x="135" y="30" text-anchor="middle" font-family="Times New Roman" font-size="10" font-weight="700" fill="white">Đ</text>
+      <circle cx="170" cy="25" r="14" fill="#ef4444" stroke="white" stroke-width="2"/><text x="170" y="30" text-anchor="middle" font-family="Times New Roman" font-size="10" font-weight="700" fill="white">Đ</text>
+      <circle cx="205" cy="25" r="14" fill="#7c3aed" stroke="white" stroke-width="2"/><text x="205" y="30" text-anchor="middle" font-family="Times New Roman" font-size="10" font-weight="700" fill="white">T</text>
+      <circle cx="240" cy="25" r="14" fill="#16a34a" stroke="white" stroke-width="2"/><text x="240" y="30" text-anchor="middle" font-family="Times New Roman" font-size="10" font-weight="700" fill="white">X</text>
+      <text x="275" y="30" text-anchor="middle" font-family="Times New Roman" font-size="18" font-weight="700" fill="#94a3b8">…</text>
+    </svg>
+    <div class="q-text">Hỏi hạt thứ <strong>2021</strong> có màu gì?</div>
+    <div class="choices" id="q8choices" style="margin-top:10px">
+      <button class="choice-btn" onclick="selectChoice('q8','xanh',this)">🟢 Xanh lá</button>
+      <button class="choice-btn" onclick="selectChoice('q8','đỏ',this)">🔴 Đỏ</button>
+      <button class="choice-btn" onclick="selectChoice('q8','tím',this)">🟣 Tím</button>
+    </div>
+    <button class="check-btn" disabled onclick="checkChoice('q8','đỏ','1 nhóm = 2+3+1 = 6 hạt. 2021÷6 = 336 dư 5. Vị trí 5 trong nhóm: X(1),X(2),Đ(3),Đ(4),Đ(5) → màu ĐỎ ✓')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq8"></div>
+  </div>
+
+  <!-- Câu 9 -->
+  <div class="q-card" id="q9">
+    <div class="q-num"><span class="q-num-badge">Câu 9</span> Mã VinaID 129848</div>
+    <div class="q-text">Cho hình vẽ các chữ <strong>V</strong> được tạo thành từ các dấu chấm. Hỏi chữ V thứ <strong>10</strong> có bao nhiêu dấu chấm?</div>
+    <svg viewBox="0 0 310 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;max-width:310px;height:auto;margin:8px 0 14px;display:block">
+      <!-- V1: 3 chấm — bước 10px, đáy y=48 -->
+      <circle cx="18" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="26" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="34" cy="38" r="4" fill="#0f766e"/>
+      <text x="26" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">V1=3</text>
+
+      <!-- V2: 5 chấm — bước 10px, đáy y=48 -->
+      <circle cx="62" cy="28" r="4" fill="#0f766e"/>
+      <circle cx="70" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="78" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="86" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="94" cy="28" r="4" fill="#0f766e"/>
+      <text x="78" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">V2=5</text>
+
+      <!-- V3: 9 chấm — đáy y=48, đỉnh y=8 -->
+      <circle cx="114" cy="8"  r="4" fill="#0f766e"/>
+      <circle cx="122" cy="18" r="4" fill="#0f766e"/>
+      <circle cx="130" cy="28" r="4" fill="#0f766e"/>
+      <circle cx="138" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="146" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="154" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="162" cy="28" r="4" fill="#0f766e"/>
+      <circle cx="170" cy="18" r="4" fill="#0f766e"/>
+      <circle cx="178" cy="8"  r="4" fill="#0f766e"/>
+      <text x="146" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">V3=9</text>
+
+      <!-- … V10=? -->
+      <text x="250" y="50" text-anchor="middle" font-family="Times New Roman" font-size="22" font-weight="700" fill="#94a3b8">…</text>
+      <text x="250" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">V10=?</text>
+    </svg>
+    <div class="ans-row">V10 = <input class="ans-input" id="iq9" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q9','iq9',['93'],'Bước nhảy tăng +2: V1=3; +2=5; +4=9; +6=15; +8=23; +10=33; +12=45; +14=59; +16=75; +18=93')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq9"></div>
+  </div>
+
+  <!-- Câu 10 -->
+  <div class="q-card" id="q10">
+    <div class="q-num"><span class="q-num-badge">Câu 10</span> Mã VinaID 137789</div>
+    <div class="q-text">Cho hình vẽ các chữ <strong>L</strong> được tạo thành từ các dấu chấm. Hỏi chữ L thứ <strong>10</strong> có bao nhiêu dấu chấm?</div>
+    <svg viewBox="0 0 310 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;max-width:310px;height:auto;margin:8px 0 14px;display:block">
+      <!-- L1: 4 chấm — cột 2 dọc + hàng 2 ngang, bước 10px, đáy y=48 -->
+      <circle cx="18" cy="28" r="4" fill="#0f766e"/>
+      <circle cx="18" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="18" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="28" cy="48" r="4" fill="#0f766e"/>
+      <text x="23" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">L1=4</text>
+
+      <!-- L2: 6 chấm — cột 3 dọc + hàng 3 ngang, bước 10px, đáy y=48 -->
+      <circle cx="66" cy="28" r="4" fill="#0f766e"/>
+      <circle cx="66" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="66" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="76" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="86" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="96" cy="48" r="4" fill="#0f766e"/>
+      <text x="81" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">L2=6</text>
+
+      <!-- L3: 10 chấm — cột 5 dọc + hàng 5 ngang, bước 10px, đáy y=48 -->
+      <circle cx="132" cy="8"  r="4" fill="#0f766e"/>
+      <circle cx="132" cy="18" r="4" fill="#0f766e"/>
+      <circle cx="132" cy="28" r="4" fill="#0f766e"/>
+      <circle cx="132" cy="38" r="4" fill="#0f766e"/>
+      <circle cx="132" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="142" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="152" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="162" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="172" cy="48" r="4" fill="#0f766e"/>
+      <circle cx="182" cy="48" r="4" fill="#0f766e"/>
+      <text x="157" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">L3=10</text>
+
+      <!-- … L10=? -->
+      <text x="255" y="50" text-anchor="middle" font-family="Times New Roman" font-size="22" font-weight="700" fill="#94a3b8">…</text>
+      <text x="255" y="64" text-anchor="middle" font-family="Times New Roman" font-size="11" fill="#64748b">L10=?</text>
+    </svg>
+    <div class="ans-row">L10 = <input class="ans-input" id="iq10" style="width:100px"></div>
+    <button class="check-btn" disabled onclick="checkText('q10','iq10',['94'],'L1=4; +2=6; +4=10; +6=16; +8=24; +10=34; +12=46; +14=60; +16=76; +18=94')">✓ Kiểm tra</button>
+    <div class="feedback" id="fbq10"></div>
+  </div>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitAll()">🎯 Nộp bài & Xem kết quả</button>
+  </div>
+
+  <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:2;text-align:center">
+    <div>BẢN QUYỀN BÀI GIẢNG THUỘC VỀ</div>
+    <div>CÔNG TY TNHH GIÁO DỤC TRỰC TUYẾN VINASTUDY</div>
+    <div>Website: <a href="https://www.vinastudy.vn" style="color:inherit;font-weight:700">www.vinastudy.vn</a> – Hotline: 0932.39.39.56 – 0832.64.64.64</div>
+  </div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">Kết quả</div>
+    <div class="result-score" id="resultScore">0/10</div>
+    <div class="result-level" id="resultLevel"></div>
+    <div class="result-detail">
+      <div class="result-detail-item"><div class="result-detail-num" id="rdCorrect" style="color:var(--green)">0</div><div class="result-detail-label">✅ Đúng</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdWrong"   style="color:var(--red)">0</div><div class="result-detail-label">❌ Sai</div></div>
+      <div class="result-detail-item"><div class="result-detail-num" id="rdSkip"    style="color:#94a3b8">0</div><div class="result-detail-label">⬜ Bỏ qua</div></div>
+    </div>
+    <div>
+      <button class="result-btn btn-retry"  onclick="location.reload()">🔄 Làm lại</button>
+      <button class="result-btn btn-review" onclick="document.getElementById('resultOverlay').classList.remove('show')">📖 Xem lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL=10; window._TOTAL=10; window._BUOI=36;
+let answered={}; window._answered=answered; let selected={};
+
+function updateScore(){
+  const c=Object.values(answered).filter(v=>v===true).length;
+  const w=Object.values(answered).filter(v=>v===false).length;
+  const done=c+w;
+  document.getElementById('scoreCorrect').textContent=c;
+  document.getElementById('scoreWrong').textContent=w;
+  document.getElementById('scoreLeft').textContent=TOTAL-done;
+  document.getElementById('progressText').textContent=`${done} / ${TOTAL} câu`;
+  const pct=Math.round(done/TOTAL*100);
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+function showFeedback(id,correct,msg){
+  const fb=document.getElementById(id);
+  fb.className='feedback show '+(correct?'correct-fb':'wrong-fb');
+  fb.innerHTML=(correct?'✅ ':'❌ ')+msg;
+  const card=fb.closest('.q-card');
+  card.classList.remove('correct','wrong');
+  card.classList.add(correct?'correct':'wrong');
+}
+function checkText(qId,inputId,correctList,explanation){
+  const input=document.getElementById(inputId);
+  const val=input.value.trim().toLowerCase().replace(/\s/g,'');
+  if(!val){input.style.borderColor='var(--amber)';input.placeholder='Nhập đáp án!';input.focus();return;}
+  input.style.borderColor='';
+  const isCorrect=correctList.some(c=>c.toLowerCase().replace(/\s/g,'')==val);
+  answered[qId]=isCorrect; updateScore();
+  input.className='ans-input '+(isCorrect?'correct-input':'wrong-input');
+  input.disabled=true;
+  showFeedback(`fb${qId}`,isCorrect,isCorrect?explanation:`Chưa đúng. ${explanation}`);
+  document.querySelector(`#${qId} .check-btn`).disabled=true;
+}
+function checkDouble(qId,idA,idB,correctA,correctB,explanation){
+  const inA=document.getElementById(idA),inB=document.getElementById(idB);
+  const vA=inA.value.trim(),vB=inB.value.trim();
+  if(!vA||!vB){alert('Em chưa nhập đủ cả hai ô!');return;}
+  const isCorrect=vA===correctA&&vB===correctB;
+  answered[qId]=isCorrect; updateScore();
+  inA.className='ans-input '+(vA===correctA?'correct-input':'wrong-input');
+  inB.className='ans-input '+(vB===correctB?'correct-input':'wrong-input');
+  inA.disabled=inB.disabled=true;
+  showFeedback(`fb${qId}`,isCorrect,isCorrect?explanation:`Chưa đúng. ${explanation}`);
+  document.getElementById(`btn${qId}`).disabled=true;
+}
+function selectChoice(qId,val,btn){
+  if(answered[qId]!==undefined)return;
+  selected[qId]=val;
+  document.querySelectorAll(`#${qId}choices .choice-btn`).forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.querySelector(`#${qId} .check-btn`).disabled=false;
+}
+function checkChoice(qId,correct,explanation){
+  if(!selected[qId]){alert('Em chưa chọn đáp án!');return;}
+  if(answered[qId]!==undefined)return;
+  const isCorrect=selected[qId]===correct;
+  answered[qId]=isCorrect; updateScore();
+  document.querySelectorAll(`#${qId}choices .choice-btn`).forEach(b=>{
+    b.disabled=true;
+    const m=b.getAttribute('onclick').match(/selectChoice\('[^']+','([^']+)'/);
+    if(m){if(m[1]===correct)b.classList.add('correct');else if(m[1]===selected[qId]&&!isCorrect)b.classList.add('wrong');}
+  });
+  showFeedback(`fb${qId}`,isCorrect,isCorrect?explanation:`Chưa đúng. ${explanation}`);
+  document.querySelector(`#${qId} .check-btn`).disabled=true;
+}
+function submitAll(){
+  const c=Object.values(answered).filter(v=>v===true).length;
+  const w=Object.values(answered).filter(v=>v===false).length;
+  const skip=TOTAL-c-w,pct=Math.round(c/TOTAL*100);
+  let emoji,title,levelText,levelColor;
+  if(pct>=90){emoji='🏆';title='Xuất sắc!';levelText='🏆 Mức 4 — Giỏi toán';levelColor='#fef3c7';}
+  else if(pct>=70){emoji='⭐';title='Làm tốt!';levelText='⭐ Mức 3 — Làm tốt';levelColor='#dbeafe';}
+  else if(pct>=50){emoji='📖';title='Hiểu bài!';levelText='📖 Mức 2 — Hiểu bài';levelColor='#e0f2fe';}
+  else{emoji='🌱';title='Cố gắng thêm!';levelText='🌱 Mức 1 — Đang học';levelColor='#f0fdf4';}
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=`${c}/${TOTAL}`;
+  const rl=document.getElementById('resultLevel');
+  rl.textContent=levelText;rl.style.background=levelColor;rl.style.color='#1e293b';
+  document.getElementById('rdCorrect').textContent=c;
+  document.getElementById('rdWrong').textContent=w;
+  document.getElementById('rdSkip').textContent=skip;
+  document.getElementById('resultOverlay').classList.add('show');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.ans-input').forEach(input=>{
+    const card=input.closest('.q-card');if(!card)return;
+    const btn=card.querySelector('.check-btn');if(!btn)return;
+    input.addEventListener('input',()=>{
+      const all=card.querySelectorAll('.ans-input');
+      btn.disabled=Array.from(all).some(i=>i.value.trim()==='');
+    });
+    input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)btn.click();});
+  });
+});
+</script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="/static/auth.js"></script>
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+const _origSubmit=window.submitAll;
+window.submitAll=function(){
+  if(typeof _origSubmit==='function')_origSubmit();
+  const answered=window._answered||{};
+  const correct=Object.values(answered).filter(v=>v===true).length;
+  const total=window._TOTAL||Object.keys(answered).length;
+  const buoi=window._BUOI||0;
+  if(tg&&tg.sendData)tg.sendData(JSON.stringify({buoi,diem:correct,tong:total,chi_tiet:answered, checkpoints: window._checkpoints || []}));
+};
+</script>
+</body>
+</html>

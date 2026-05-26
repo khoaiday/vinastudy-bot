@@ -514,12 +514,10 @@ window.submitAll = function() {
   const total    = window._TOTAL || Object.keys(answered).length;
   const buoi     = window._BUOI || 0;
 
-  const payload = {
-    buoi:      buoi,
+  const payload = { buoi:      buoi,
     diem:      correct,
     tong:      total,
-    chi_tiet:  answered,
-  };
+    chi_tiet:  answered,, checkpoints: window._checkpoints || [] };
 
   // Gửi về Telegram bot
   if (tg && tg.sendData) {

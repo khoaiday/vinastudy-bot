@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chọn Nhân Vật — VInaStudy Bot</title>
+  <link rel="stylesheet" href="../characters/css/character-avatars.css">
+  <link rel="stylesheet" href="../characters/css/character-cards.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0F0A15 0%, #1A0F25 50%, #2A1535 100%);
+      color: #FFF;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fade-in 0.6s ease;
+    }
+
+    .page-header h1 {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: #C8960C;
+      text-shadow: 0 0 20px rgba(200, 150, 12, 0.5);
+      letter-spacing: 2px;
+    }
+
+    .page-header p {
+      font-size: 16px;
+      color: #BBB;
+      margin-bottom: 0;
+    }
+
+    /* CHARACTER CLASSES SECTION */
+    .character-classes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .class-section {
+      animation: slide-in-up 0.6s ease;
+      animation-fill-mode: both;
+    }
+
+    .class-section:nth-child(1) { animation-delay: 0.1s; }
+    .class-section:nth-child(2) { animation-delay: 0.2s; }
+    .class-section:nth-child(3) { animation-delay: 0.3s; }
+    .class-section:nth-child(4) { animation-delay: 0.4s; }
+
+    .class-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .class-icon {
+      font-size: 32px;
+    }
+
+    .class-header h2 {
+      font-size: 24px;
+      margin: 0;
+      color: var(--faction-color);
+    }
+
+    .class-header .role {
+      font-size: 12px;
+      color: var(--faction-glow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .character-variants {
+      display: flex;
+      gap: 16px;
+    }
+
+    .character-card {
+      flex: 1;
+    }
+
+    /* BATTLE TEAM DISPLAY */
+    .battle-team-section {
+      background: rgba(26, 15, 37, 0.7);
+      border: 2px solid #444;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 40px;
+      backdrop-filter: blur(8px);
+    }
+
+    .battle-team-section h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 18px;
+      color: #C8960C;
+    }
+
+    .team-avatars {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .team-avatar-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .team-avatar-label {
+      font-size: 11px;
+      color: #AAA;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .team-empty {
+      width: 84px;
+      height: 84px;
+      border: 2px dashed #555;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #555;
+    }
+
+    /* STAT COMPARISON PANEL */
+    .stat-comparison {
+      background: rgba(26, 15, 37, 0.7);
+      border: 2px solid #444;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-comparison h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 18px;
+      color: #C8960C;
+    }
+
+    .stat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .stat-table th {
+      text-align: left;
+      padding: 12px 8px;
+      border-bottom: 1px solid #444;
+      color: #AAA;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #333;
+    }
+
+    .stat-table td:first-child {
+      color: #C8960C;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      text-align: center;
+      color: var(--faction-glow);
+      font-weight: 600;
+    }
+
+    /* BUTTON STYLES */
+    .action-buttons {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 32px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-start {
+      background: #C0332E;
+      color: white;
+      box-shadow: 0 4px 12px rgba(192, 51, 46, 0.5), 0 0 20px rgba(192, 51, 46, 0.3);
+    }
+
+    .btn-start:hover {
+      background: #FF5555;
+      box-shadow: 0 6px 16px rgba(192, 51, 46, 0.7), 0 0 30px rgba(255, 85, 85, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+      background: #333;
+      color: #999;
+      border: 2px solid #555;
+    }
+
+    .btn-cancel:hover {
+      background: #444;
+      color: #CCC;
+      border-color: #777;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slide-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* CLASS-SPECIFIC COLORS */
+    .class-section.lac-tuong { --faction-color: #C0332E; --faction-glow: #FF5555; }
+    .class-section.dao-si { --faction-color: #5E2A78; --faction-glow: #9966FF; }
+    .class-section.no-than { --faction-color: #246B4A; --faction-glow: #66FFCC; }
+    .class-section.than-tuong { --faction-color: #1A3A5C; --faction-glow: #6699FF; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .character-classes {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .character-variants {
+        flex-direction: column;
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+      }
+
+      .stat-table {
+        font-size: 12px;
+      }
+
+      .stat-table th,
+      .stat-table td {
+        padding: 8px 6px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      .page-header h1 {
+        font-size: 24px;
+      }
+
+      .page-header p {
+        font-size: 14px;
+      }
+
+      .character-classes {
+        gap: 16px;
+      }
+
+      .character-card {
+        max-width: 100% !important;
+      }
+
+      .class-header h2 {
+        font-size: 18px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <h1>⚔️ Chọn Chiến Binh</h1>
+      <p>Hãy chọn nhân vật yêu thích của bạn để bắt đầu cuộc phiêu lưu toán học</p>
+    </div>
+
+    <!-- CHARACTER CLASSES GRID -->
+    <div class="character-classes">
+      <!-- LẠC TƯỚNG -->
+      <div class="class-section lac-tuong">
+        <div class="class-header">
+          <span class="class-icon">⚔️</span>
+          <div>
+            <h2>Lạc Tướng</h2>
+            <div class="role">Chiến Binh</div>
+          </div>
+        </div>
+        <div class="character-variants">
+          <!-- Male Variant -->
+          <div class="character-card lac-tuong" onclick="selectCharacter('lac-tuong-male')">
+            <div class="character-card-image">
+              <img src="../characters/playable/lac-tuong/lac-tuong-male-card.png" alt="Lạc Tướng Nam">
+            </div>
+            <div class="character-card-header">
+              <h3>Lạc Tướng</h3>
+              <div class="subtitle">Nam | ~30 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>MP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>ATK</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+
+          <!-- Female Variant -->
+          <div class="character-card lac-tuong" onclick="selectCharacter('lac-tuong-female')">
+            <div class="character-card-image">
+              <img src="../characters/playable/lac-tuong/lac-tuong-female-card.png" alt="Lạc Tướng Nữ">
+            </div>
+            <div class="character-card-header">
+              <h3>Lạc Tướng</h3>
+              <div class="subtitle">Nữ | ~30 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>MP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>ATK</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ĐẠO SĨ -->
+      <div class="class-section dao-si">
+        <div class="class-header">
+          <span class="class-icon">🔮</span>
+          <div>
+            <h2>Đạo Sĩ</h2>
+            <div class="role">Pháp Sư</div>
+          </div>
+        </div>
+        <div class="character-variants">
+          <!-- Male Variant -->
+          <div class="character-card dao-si" onclick="selectCharacter('dao-si-male')">
+            <div class="character-card-image">
+              <img src="../characters/playable/dao-si/dao-si-male-card.png" alt="Đạo Sĩ Nam">
+            </div>
+            <div class="character-card-header">
+              <h3>Đạo Sĩ</h3>
+              <div class="subtitle">Nam | ~25 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>MP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>SPL</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+
+          <!-- Female Variant -->
+          <div class="character-card dao-si" onclick="selectCharacter('dao-si-female')">
+            <div class="character-card-image">
+              <img src="../characters/playable/dao-si/dao-si-female-card.png" alt="Đạo Sĩ Nữ">
+            </div>
+            <div class="character-card-header">
+              <h3>Đạo Sĩ</h3>
+              <div class="subtitle">Nữ | ~25 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>MP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>SPL</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NỎ THẦN -->
+      <div class="class-section no-than">
+        <div class="class-header">
+          <span class="class-icon">🏹</span>
+          <div>
+            <h2>Nỏ Thần</h2>
+            <div class="role">Cung Thủ</div>
+          </div>
+        </div>
+        <div class="character-variants">
+          <!-- Male Variant -->
+          <div class="character-card no-than" onclick="selectCharacter('no-than-male')">
+            <div class="character-card-image">
+              <img src="../characters/playable/no-than/no-than-male-card.png" alt="Nỏ Thần Nam">
+            </div>
+            <div class="character-card-header">
+              <h3>Nỏ Thần</h3>
+              <div class="subtitle">Nam | ~20 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>SPD</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>DEX</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+
+          <!-- Female Variant -->
+          <div class="character-card no-than" onclick="selectCharacter('no-than-female')">
+            <div class="character-card-image">
+              <img src="../characters/playable/no-than/no-than-female-card.png" alt="Nỏ Thần Nữ">
+            </div>
+            <div class="character-card-header">
+              <h3>Nỏ Thần</h3>
+              <div class="subtitle">Nữ | ~20 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>SPD</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>DEX</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THẦN TƯỚNG -->
+      <div class="class-section than-tuong">
+        <div class="class-header">
+          <span class="class-icon">🛡️</span>
+          <div>
+            <h2>Thần Tướng</h2>
+            <div class="role">Hiệp Sĩ</div>
+          </div>
+        </div>
+        <div class="character-variants">
+          <!-- Male Variant -->
+          <div class="character-card than-tuong" onclick="selectCharacter('than-tuong-male')">
+            <div class="character-card-image">
+              <img src="../characters/playable/than-tuong/than-tuong-male-card.png" alt="Thần Tướng Nam">
+            </div>
+            <div class="character-card-header">
+              <h3>Thần Tướng</h3>
+              <div class="subtitle">Nam | ~35 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>DEF</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>ATK</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+
+          <!-- Female Variant -->
+          <div class="character-card than-tuong" onclick="selectCharacter('than-tuong-female')">
+            <div class="character-card-image">
+              <img src="../characters/playable/than-tuong/than-tuong-female-card.png" alt="Thần Tướng Nữ">
+            </div>
+            <div class="character-card-header">
+              <h3>Thần Tướng</h3>
+              <div class="subtitle">Nữ | ~30-35 tuổi</div>
+            </div>
+            <div class="character-card-footer">
+              <div class="character-card-stats">
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>HP</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤⬤</span>
+                  <span>DEF</span>
+                </div>
+                <div class="character-stat">
+                  <span class="value">⬤⬤</span>
+                  <span>ATK</span>
+                </div>
+              </div>
+              <button class="character-card-action">Chọn</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM DISPLAY -->
+    <div class="battle-team-section">
+      <h3>👥 Đội Chiến Của Bạn</h3>
+      <div class="team-avatars">
+        <div class="team-avatar-slot">
+          <div id="team-1" class="team-empty">+</div>
+          <div class="team-avatar-label">Vị trí 1</div>
+        </div>
+        <div class="team-avatar-slot">
+          <div id="team-2" class="team-empty">+</div>
+          <div class="team-avatar-label">Vị trí 2</div>
+        </div>
+        <div class="team-avatar-slot">
+          <div id="team-3" class="team-empty">+</div>
+          <div class="team-avatar-label">Vị trí 3</div>
+        </div>
+        <div class="team-avatar-slot">
+          <div id="team-4" class="team-empty">+</div>
+          <div class="team-avatar-label">Vị trí 4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAT COMPARISON -->
+    <div class="stat-comparison">
+      <h3>📊 So Sánh Chỉ Số</h3>
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th>Chỉ Số</th>
+            <th>Lạc Tướng</th>
+            <th>Đạo Sĩ</th>
+            <th>Nỏ Thần</th>
+            <th>Thần Tướng</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HP (Máu)</td>
+            <td class="stat-value">⭐⭐⭐</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐⭐⭐</td>
+          </tr>
+          <tr>
+            <td>MP (Phép)</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐⭐⭐</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐</td>
+          </tr>
+          <tr>
+            <td>ATK (Công)</td>
+            <td class="stat-value">⭐⭐⭐</td>
+            <td class="stat-value">⭐⭐⭐</td>
+            <td class="stat-value">⭐⭐⭐</td>
+            <td class="stat-value">⭐⭐</td>
+          </tr>
+          <tr>
+            <td>DEF (Phòng)</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐⭐⭐</td>
+          </tr>
+          <tr>
+            <td>SPD (Tốc)</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐⭐</td>
+            <td class="stat-value">⭐⭐⭐</td>
+            <td class="stat-value">⭐⭐</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons">
+      <button class="btn btn-start" onclick="startBattle()">🎮 Bắt Đầu Trận Chiến</button>
+      <button class="btn btn-cancel" onclick="goHome()">← Quay Lại</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedCharacter = null;
+
+    function selectCharacter(characterId) {
+      selectedCharacter = characterId;
+      console.log(`Selected character: ${characterId}`);
+
+      // Visual feedback - remove previous active state
+      document.querySelectorAll('.character-card').forEach(card => {
+        card.classList.remove('active');
+      });
+
+      // Add active state to clicked card
+      event.currentTarget.classList.add('active');
+    }
+
+    function startBattle() {
+      if (!selectedCharacter) {
+        alert('Vui lòng chọn một nhân vật trước!');
+        return;
+      }
+      // Navigate to battle screen
+      window.location.href = 'battle.html?character=' + selectedCharacter;
+    }
+
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

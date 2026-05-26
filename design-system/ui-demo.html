@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Demo — Fantasy Classic | Chiến Binh Toán</title>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   FANTASY CLASSIC COLOR PALETTE — DEMO
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Nền tảng ── */
+  --bg-void:      #080604;   /* Tối nhất — nền màn hình */
+  --bg-dark:      #100C07;   /* Nền panel chính */
+  --bg-panel:     #1A120A;   /* Card, panel */
+  --bg-card:      #241910;   /* Card nội dung */
+  --bg-highlight: #2E2010;   /* Hover state */
+
+  /* ── Viền & Frame (Vàng cổ) ── */
+  --border-bright: #E8C96A;  /* Highlight frame */
+  --border-gold:   #C4973A;  /* Frame chính */
+  --border-dim:    #7A6028;  /* Frame mờ */
+  --border-dark:   #3D2E14;  /* Separator */
+
+  /* ── Vàng — màu accent chính ── */
+  --gold-bright:  #F5D060;   /* Active, hover */
+  --gold-main:    #D4A020;   /* Primary actions */
+  --gold-dim:     #8B6815;   /* Inactive, disabled */
+  --gold-glow:    rgba(212,160,32,0.35);
+
+  /* ── Text ── */
+  --text-bright:  #F8EDD8;   /* Tiêu đề, text chính */
+  --text-main:    #D4C4A0;   /* Body text */
+  --text-dim:     #8A7A60;   /* Placeholder, phụ */
+  --text-gold:    #F5D060;   /* Nhấn mạnh */
+  --text-dark:    #100C07;   /* Text trên nền sáng */
+
+  /* ── Faction Colors ── */
+  --warrior:      #CC2200;
+  --warrior-glow: rgba(204,34,0,0.4);
+  --mage:         #7C3AED;
+  --mage-glow:    rgba(124,58,237,0.4);
+  --archer:       #15803D;
+  --archer-glow:  rgba(21,128,61,0.4);
+  --knight:       #1D4ED8;
+  --knight-glow:  rgba(29,78,216,0.4);
+
+  /* ── HP / Status ── */
+  --hp-player:    #22C55E;
+  --hp-boss:      #EF4444;
+  --xp-bar:       #D4A020;
+  --mana-bar:     #6366F1;
+
+  /* ── Effect ── */
+  --shadow-deep: 0 8px 32px rgba(0,0,0,0.8);
+  --glow-gold:   0 0 20px rgba(212,160,32,0.5);
+}
+
+/* ── Reset & Base ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg-void); }
+body {
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-main);
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(212,160,32,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(139,104,21,0.06) 0%, transparent 50%),
+    var(--bg-void);
+}
+
+/* ── Section Layout ── */
+.demo-page { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+.section { margin-bottom: 60px; }
+.section-title {
+  font-family: 'Philosopher', serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--border-dim);
+  margin-bottom: 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-dark);
+}
+
+/* ── Header ── */
+.demo-header {
+  text-align: center;
+  padding: 48px 0 40px;
+  border-bottom: 1px solid var(--border-dark);
+  margin-bottom: 48px;
+}
+.demo-header h1 {
+  font-family: 'Philosopher', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold-main);
+  text-shadow: var(--glow-gold);
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+}
+.demo-header p {
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ════════════════════════════
+   COLOR SWATCHES
+   ════════════════════════════ */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.swatch {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-dark);
+}
+.swatch-color { height: 56px; }
+.swatch-info { padding: 8px 10px; background: var(--bg-panel); }
+.swatch-name { font-size: 11px; color: var(--text-main); font-weight: 600; margin-bottom: 2px; }
+.swatch-hex  { font-size: 10px; color: var(--text-dim); font-family: monospace; }
+
+.faction-swatches { display: flex; gap: 12px; flex-wrap: wrap; }
+.faction-swatch {
+  flex: 1; min-width: 140px;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid var(--border-dark);
+  display: flex; align-items: center; gap: 12px;
+}
+.faction-dot { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+.faction-info .name { font-family: 'Philosopher', serif; font-size: 13px; color: var(--text-bright); }
+.faction-info .hex  { font-size: 11px; color: var(--text-dim); font-family: monospace; }
+
+/* ════════════════════════════
+   TYPOGRAPHY
+   ════════════════════════════ */
+.type-demo > * { margin-bottom: 16px; }
+.type-h1 {
+  font-family: 'Philosopher', serif;
+  font-size: 32px; font-weight: 700;
+  color: var(--gold-main);
+  text-shadow: 0 0 30px var(--gold-glow);
+  letter-spacing: 2px;
+}
+.type-h2 {
+  font-family: 'Philosopher', serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 1px;
+}
+.type-h3 {
+  font-family: 'Philosopher', serif;
+  font-size: 14px; font-weight: 600;
+  color: var(--gold-dim);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.type-body {
+  font-family: 'Lora', serif;
+  font-size: 17px; line-height: 1.7;
+  color: var(--text-main);
+}
+.type-ui { font-family: 'Roboto', sans-serif; font-size: 14px; color: var(--text-dim); }
+.type-label {
+  font-family: 'Philosopher', serif;
+  font-size: 10px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--border-dim);
+}
+
+/* ════════════════════════════
+   BUTTONS
+   ════════════════════════════ */
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+.btn {
+  font-family: 'Philosopher', serif;
+  font-weight: 700; letter-spacing: 0.5px;
+  border: none; cursor: pointer;
+  border-radius: 6px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+/* Primary — Gold */
+.btn-primary {
+  padding: 14px 32px;
+  font-size: 14px;
+  background: linear-gradient(145deg, #E8C96A, #C4973A 40%, #8B6815);
+  color: var(--bg-dark);
+  box-shadow: 0 4px 16px rgba(196,151,58,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  border: 1px solid #E8C96A;
+}
+.btn-primary:hover {
+  background: linear-gradient(145deg, #F5D060, #D4A020 40%, #C4973A);
+  box-shadow: 0 6px 24px rgba(212,160,32,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* Secondary — Outlined */
+.btn-secondary {
+  padding: 13px 28px;
+  font-size: 13px;
+  background: transparent;
+  color: var(--gold-main);
+  border: 1px solid var(--border-gold);
+  box-shadow: inset 0 0 12px rgba(196,151,58,0.1);
+}
+.btn-secondary:hover {
+  background: rgba(196,151,58,0.12);
+  border-color: var(--border-bright);
+  color: var(--gold-bright);
+}
+
+/* Ghost */
+.btn-ghost {
+  padding: 12px 24px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border-dark);
+}
+.btn-ghost:hover { color: var(--text-main); border-color: var(--border-dim); }
+
+/* Danger */
+.btn-danger {
+  padding: 13px 28px;
+  font-size: 13px;
+  background: linear-gradient(145deg, #8B0000, #5C0000);
+  color: #FFB3B3;
+  border: 1px solid #CC0000;
+  box-shadow: 0 4px 16px rgba(139,0,0,0.4);
+}
+.btn-danger:hover {
+  background: linear-gradient(145deg, #CC0000, #8B0000);
+  box-shadow: 0 6px 24px rgba(204,0,0,0.5);
+  transform: translateY(-1px);
+}
+
+/* Small */
+.btn-sm { padding: 8px 18px; font-size: 11px; }
+
+/* ════════════════════════════
+   PANELS & CARDS
+   ════════════════════════════ */
+
+/* Frame cổ điển */
+.fantasy-frame {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: var(--shadow-deep), inset 0 0 40px rgba(196,151,58,0.05);
+}
+.fantasy-frame::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+  border-radius: 10px 10px 0 0;
+}
+.fantasy-frame::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-dim), transparent);
+}
+
+/* Lesson card */
+.lesson-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dark);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.25s;
+}
+.lesson-card:hover {
+  border-color: var(--border-gold);
+  box-shadow: 0 0 20px rgba(196,151,58,0.2);
+  transform: translateY(-2px);
+}
+.card-header {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(196,151,58,0.15), transparent);
+  border-bottom: 1px solid var(--border-dark);
+  display: flex; align-items: center; gap: 10px;
+}
+.card-icon {
+  width: 40px; height: 40px; border-radius: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.card-title { font-family: 'Philosopher', serif; font-size: 13px; color: var(--text-bright); }
+.card-sub   { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.card-body  { padding: 14px 16px; }
+.card-grid  { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  font-family: 'Philosopher', serif;
+  font-size: 10px; letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-weight: 700;
+}
+.badge-gold   { background: rgba(212,160,32,0.15); color: var(--gold-bright); border: 1px solid rgba(212,160,32,0.4); }
+.badge-green  { background: rgba(34,197,94,0.12);  color: #4ADE80; border: 1px solid rgba(34,197,94,0.3); }
+.badge-red    { background: rgba(239,68,68,0.12);   color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+.badge-purple { background: rgba(124,58,237,0.12);  color: #A78BFA; border: 1px solid rgba(124,58,237,0.3); }
+.badge-dim    { background: rgba(138,122,96,0.1);   color: var(--text-dim); border: 1px solid var(--border-dark); }
+
+/* ════════════════════════════
+   HP / PROGRESS BARS
+   ════════════════════════════ */
+.bar-wrap { margin-bottom: 16px; }
+.bar-label {
+  display: flex; justify-content: space-between;
+  font-family: 'Philosopher', serif;
+  font-size: 10px; letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.bar-track {
+  height: 12px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 99px;
+  border: 1px solid var(--border-dark);
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  position: relative;
+  transition: width 0.5s ease;
+}
+.bar-fill::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 40%;
+  background: rgba(255,255,255,0.2);
+  border-radius: 99px 99px 0 0;
+}
+.bar-hp-player { background: linear-gradient(90deg, #15803D, #22C55E); box-shadow: 0 0 8px rgba(34,197,94,0.5); }
+.bar-hp-boss   { background: linear-gradient(90deg, #7F1D1D, #EF4444); box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+.bar-xp        { background: linear-gradient(90deg, #8B6015, #D4A020, #F5D060); box-shadow: 0 0 8px rgba(212,160,32,0.4); }
+.bar-mana      { background: linear-gradient(90deg, #3730A3, #6366F1); box-shadow: 0 0 8px rgba(99,102,241,0.5); }
+
+/* ════════════════════════════
+   BATTLE FRAME (preview)
+   ════════════════════════════ */
+.battle-demo {
+  background:
+    radial-gradient(ellipse at center, rgba(212,160,32,0.06), transparent 70%),
+    var(--bg-dark);
+  border: 1px solid var(--border-gold);
+  border-radius: 14px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.battle-demo::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C4973A' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.battle-fighters { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.fighter { flex: 1; }
+.fighter-name {
+  font-family: 'Philosopher', serif;
+  font-size: 12px; letter-spacing: 1px;
+  color: var(--text-dim); text-align: center;
+  margin-bottom: 8px; text-transform: uppercase;
+}
+.fighter-avatar {
+  width: 80px; height: 80px; margin: 0 auto 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  background: var(--bg-panel);
+}
+.fighter.player .fighter-avatar { border-color: var(--hp-player); box-shadow: 0 0 16px rgba(34,197,94,0.3); }
+.fighter.boss   .fighter-avatar { border-color: var(--hp-boss);   box-shadow: 0 0 16px rgba(239,68,68,0.3); }
+.vs-badge {
+  font-family: 'Philosopher', serif;
+  font-size: 18px; font-weight: 900;
+  color: var(--gold-dim);
+  text-align: center;
+  flex-shrink: 0;
+  padding-bottom: 30px;
+}
+
+/* ════════════════════════════
+   NOTIFICATION / MODAL
+   ════════════════════════════ */
+.modal-demo {
+  max-width: 340px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-deep), var(--glow-gold);
+}
+.modal-top {
+  padding: 20px 20px 16px;
+  background: linear-gradient(135deg, rgba(196,151,58,0.15), rgba(196,151,58,0.05));
+  border-bottom: 1px solid var(--border-dark);
+  text-align: center;
+}
+.modal-icon { font-size: 40px; margin-bottom: 8px; }
+.modal-title { font-family: 'Philosopher', serif; font-size: 16px; color: var(--text-bright); margin-bottom: 4px; }
+.modal-sub { font-family: 'Lora', serif; font-size: 14px; color: var(--text-dim); font-style: italic; }
+.modal-body { padding: 16px 20px 20px; }
+.modal-text { font-size: 14px; line-height: 1.6; color: var(--text-main); margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 8px; }
+.modal-actions .btn { flex: 1; justify-content: center; font-size: 12px; }
+
+/* ════════════════════════════
+   INPUT
+   ════════════════════════════ */
+.input-demo { max-width: 360px; }
+.input-group { margin-bottom: 16px; }
+.input-label {
+  display: block;
+  font-family: 'Philosopher', serif;
+  font-size: 10px; letter-spacing: 2px;
+  color: var(--text-dim); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.fantasy-input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  color: var(--text-bright);
+  outline: none;
+  transition: all 0.2s;
+}
+.fantasy-input::placeholder { color: var(--text-dim); }
+.fantasy-input:focus {
+  border-color: var(--border-gold);
+  box-shadow: 0 0 0 3px rgba(196,151,58,0.15);
+}
+.fantasy-select {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Philosopher', serif;
+  font-size: 13px;
+  color: var(--text-main);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%237A6028'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+
+/* ════════════════════════════
+   SCROLLBAR DECORATION
+   ════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 3px; }
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-dark), transparent);
+  margin: 32px 0;
+}
+
+.row { display: flex; gap: 16px; flex-wrap: wrap; }
+.col { flex: 1; min-width: 200px; }
+</style>
+</head>
+<body>
+<div class="demo-page">
+
+  <!-- HEADER -->
+  <div class="demo-header">
+    <h1>⚔ CHIẾN BINH TOÁN</h1>
+    <p>Fantasy Classic UI — Design Demo v1.0 · Để thầy Long duyệt</p>
+  </div>
+
+  <!-- ── 1. COLOR PALETTE ── -->
+  <div class="section">
+    <div class="section-title">01 · Bảng màu nền tảng</div>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#080604"></div>
+        <div class="swatch-info"><div class="swatch-name">bg-void</div><div class="swatch-hex">#080604</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#100C07"></div>
+        <div class="swatch-info"><div class="swatch-name">bg-dark</div><div class="swatch-hex">#100C07</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1A120A"></div>
+        <div class="swatch-info"><div class="swatch-name">bg-panel</div><div class="swatch-hex">#1A120A</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#241910"></div>
+        <div class="swatch-info"><div class="swatch-name">bg-card</div><div class="swatch-hex">#241910</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F5D060"></div>
+        <div class="swatch-info"><div class="swatch-name">gold-bright</div><div class="swatch-hex">#F5D060</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#D4A020"></div>
+        <div class="swatch-info"><div class="swatch-name">gold-main</div><div class="swatch-hex">#D4A020</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#C4973A"></div>
+        <div class="swatch-info"><div class="swatch-name">border-gold</div><div class="swatch-hex">#C4973A</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#8B6815"></div>
+        <div class="swatch-info"><div class="swatch-name">gold-dim</div><div class="swatch-hex">#8B6815</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F8EDD8"></div>
+        <div class="swatch-info"><div class="swatch-name">text-bright</div><div class="swatch-hex">#F8EDD8</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#D4C4A0"></div>
+        <div class="swatch-info"><div class="swatch-name">text-main</div><div class="swatch-hex">#D4C4A0</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#8A7A60"></div>
+        <div class="swatch-info"><div class="swatch-name">text-dim</div><div class="swatch-hex">#8A7A60</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#3D2E14"></div>
+        <div class="swatch-info"><div class="swatch-name">border-dark</div><div class="swatch-hex">#3D2E14</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <div class="section-title" style="margin-bottom:16px">Faction colors</div>
+      <div class="faction-swatches">
+        <div class="faction-swatch" style="background:rgba(204,34,0,0.08);border-color:rgba(204,34,0,0.3)">
+          <div class="faction-dot" style="background:#CC2200;box-shadow:0 0 12px rgba(204,34,0,0.5)"></div>
+          <div class="faction-info"><div class="name">⚔️ Chiến Binh</div><div class="hex">#CC2200</div></div>
+        </div>
+        <div class="faction-swatch" style="background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.3)">
+          <div class="faction-dot" style="background:#7C3AED;box-shadow:0 0 12px rgba(124,58,237,0.5)"></div>
+          <div class="faction-info"><div class="name">🔮 Phù Thủy</div><div class="hex">#7C3AED</div></div>
+        </div>
+        <div class="faction-swatch" style="background:rgba(21,128,61,0.08);border-color:rgba(21,128,61,0.3)">
+          <div class="faction-dot" style="background:#15803D;box-shadow:0 0 12px rgba(21,128,61,0.5)"></div>
+          <div class="faction-info"><div class="name">🏹 Xạ Thủ</div><div class="hex">#15803D</div></div>
+        </div>
+        <div class="faction-swatch" style="background:rgba(29,78,216,0.08);border-color:rgba(29,78,216,0.3)">
+          <div class="faction-dot" style="background:#1D4ED8;box-shadow:0 0 12px rgba(29,78,216,0.5)"></div>
+          <div class="faction-info"><div class="name">🛡️ Hiệp Sĩ</div><div class="hex">#1D4ED8</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. TYPOGRAPHY ── -->
+  <div class="section">
+    <div class="section-title">02 · Typography</div>
+    <div class="type-demo">
+      <div class="type-h1">Chiến Binh Toán</div>
+      <div class="type-h2">Ải 1 — Số Thần Tỉnh Giấc</div>
+      <div class="type-h3">Nhiệm vụ · Mission</div>
+      <div class="type-body">Sau khi tỉnh giấc, Boss Số Thần tiến hành phong ấn các con số để phá vỡ trật tự của vũ trụ Toán học. Hãy ngăn chặn nó!</div>
+      <div class="type-ui">Điểm số: 850 XP · Cấp độ: 12 · Huy hiệu: 3</div>
+      <div class="type-label">Trạng thái tài khoản · Account status</div>
+    </div>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:12px">
+      Fonts: <strong style="color:var(--text-main)">Philosopher</strong> (tiêu đề, UI) ·
+      <strong style="color:var(--text-main)">Lora</strong> (body, story) ·
+      <strong style="color:var(--text-main)">Roboto</strong> (số liệu, tech)
+    </p>
+  </div>
+
+  <!-- ── 3. BUTTONS ── -->
+  <div class="section">
+    <div class="section-title">03 · Buttons</div>
+    <div class="btn-row" style="margin-bottom:16px">
+      <button class="btn btn-primary">⚔ Vào Chiến Đấu</button>
+      <button class="btn btn-secondary">📋 Xem Hồ Sơ</button>
+      <button class="btn btn-ghost">← Quay lại</button>
+      <button class="btn btn-danger">🗑 Xóa</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-sm">✅ Duyệt</button>
+      <button class="btn btn-secondary btn-sm">📝 Sửa</button>
+      <button class="btn btn-ghost btn-sm">Bỏ qua</button>
+    </div>
+  </div>
+
+  <!-- ── 4. BADGES ── -->
+  <div class="section">
+    <div class="section-title">04 · Status Badges</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span class="badge badge-green">✅ Đã duyệt</span>
+      <span class="badge badge-gold">⏳ Chờ duyệt</span>
+      <span class="badge badge-red">❌ Từ chối</span>
+      <span class="badge badge-purple">🏆 Cấp 3</span>
+      <span class="badge badge-dim">🔒 Chưa mở khóa</span>
+      <span class="badge badge-gold">⭐ 850 XP</span>
+    </div>
+  </div>
+
+  <!-- ── 5. HP BARS ── -->
+  <div class="section">
+    <div class="section-title">05 · HP & Progress Bars</div>
+    <div style="max-width:500px">
+      <div class="bar-wrap">
+        <div class="bar-label"><span>❤️ HP Chiến Binh</span><span>320 / 400</span></div>
+        <div class="bar-track"><div class="bar-fill bar-hp-player" style="width:80%"></div></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>💀 HP Số Thần</span><span>140 / 500</span></div>
+        <div class="bar-track"><div class="bar-fill bar-hp-boss" style="width:28%"></div></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>⭐ Kinh nghiệm</span><span>850 / 1200 XP</span></div>
+        <div class="bar-track"><div class="bar-fill bar-xp" style="width:70%"></div></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>🔮 Năng lượng phép</span><span>60 / 100</span></div>
+        <div class="bar-track"><div class="bar-fill bar-mana" style="width:60%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6. CARDS ── -->
+  <div class="section">
+    <div class="section-title">06 · Lesson Cards</div>
+    <div class="card-grid">
+      <!-- Card thường -->
+      <div class="lesson-card">
+        <div class="card-header">
+          <div class="card-icon">⚔️</div>
+          <div>
+            <div class="card-title">Ải 1 — Số Thần</div>
+            <div class="card-sub">Số & Chữ số</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span class="badge badge-green">✅ Hoàn thành</span>
+            <span style="font-family:'Philosopher',serif;font-size:11px;color:var(--gold-main)">850 XP</span>
+          </div>
+          <div class="bar-track" style="height:6px">
+            <div class="bar-fill bar-xp" style="width:85%"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:6px">85% · Level 3</div>
+        </div>
+      </div>
+
+      <!-- Card locked -->
+      <div class="lesson-card" style="opacity:0.6">
+        <div class="card-header">
+          <div class="card-icon" style="filter:grayscale(1)">🔒</div>
+          <div>
+            <div class="card-title">Ải 2 — Hỏa Thần</div>
+            <div class="card-sub">Phép cộng</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-dim">🔒 Chưa mở khóa</span>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:10px">Hoàn thành Ải 1 để mở khóa</div>
+        </div>
+      </div>
+
+      <!-- Card active/boss -->
+      <div class="lesson-card" style="border-color:rgba(204,34,0,0.4);background:rgba(139,0,0,0.08)">
+        <div class="card-header" style="background:linear-gradient(135deg,rgba(204,34,0,0.2),transparent)">
+          <div class="card-icon" style="border-color:rgba(204,34,0,0.5);background:rgba(139,0,0,0.15)">💀</div>
+          <div>
+            <div class="card-title" style="color:#FF6B6B">Boss Challenge</div>
+            <div class="card-sub">Ải 1 — Số Thần · Đang thách đấu</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-red">⚔️ Đang thách đấu</span>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:10px">Nguyễn Văn A · 78%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 7. BATTLE PREVIEW ── -->
+  <div class="section">
+    <div class="section-title">07 · Battle Interface Preview</div>
+    <div class="battle-demo">
+      <!-- HP bars top -->
+      <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:center;margin-bottom:20px">
+        <div>
+          <div class="bar-label"><span>❤️ Chiến Binh</span><span>320/400</span></div>
+          <div class="bar-track" style="height:10px"><div class="bar-fill bar-hp-player" style="width:80%"></div></div>
+        </div>
+        <div style="text-align:center;font-family:'Philosopher',serif;font-size:11px;color:var(--text-dim)">VS</div>
+        <div>
+          <div class="bar-label"><span style="color:#F87171">💀 Số Thần</span><span>140/500</span></div>
+          <div class="bar-track" style="height:10px"><div class="bar-fill bar-hp-boss" style="width:28%"></div></div>
+        </div>
+      </div>
+      <!-- Fighters -->
+      <div class="battle-fighters">
+        <div class="fighter player">
+          <div class="fighter-avatar">⚔️</div>
+          <div class="fighter-name" style="color:var(--hp-player)">Chiến Binh</div>
+        </div>
+        <div class="vs-badge">⚡</div>
+        <div class="fighter boss">
+          <div class="fighter-avatar" style="border-color:var(--hp-boss)">👹</div>
+          <div class="fighter-name" style="color:var(--hp-boss)">Số Thần</div>
+        </div>
+      </div>
+      <!-- Question area -->
+      <div style="margin-top:20px">
+        <div class="fantasy-frame" style="padding:16px;text-align:center">
+          <div style="font-family:'Philosopher',serif;font-size:11px;color:var(--text-dim);letter-spacing:2px;margin-bottom:10px">CÂU HỎI</div>
+          <div style="font-family:'Lora',serif;font-size:20px;color:var(--text-bright)">Số <strong style="color:var(--gold-bright)">385</strong> có mấy chữ số?</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+          <button class="btn btn-secondary" style="justify-content:center;width:100%">2 chữ số</button>
+          <button class="btn btn-primary" style="justify-content:center;width:100%">3 chữ số</button>
+          <button class="btn btn-secondary" style="justify-content:center;width:100%">4 chữ số</button>
+          <button class="btn btn-ghost" style="justify-content:center;width:100%">1 chữ số</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. MODALS ── -->
+  <div class="section">
+    <div class="section-title">08 · Dialogs & Notifications</div>
+    <div class="row">
+      <!-- Victory modal -->
+      <div class="modal-demo">
+        <div class="modal-top">
+          <div class="modal-icon">🏆</div>
+          <div class="modal-title">Chiến Thắng!</div>
+          <div class="modal-sub">Boss Số Thần đã bị tiêu diệt</div>
+        </div>
+        <div class="modal-body">
+          <div class="modal-text">Em đã hoàn thành Ải 1 với <strong style="color:var(--gold-bright)">8/10 câu đúng (80%)</strong>. Xuất sắc! 🎉</div>
+          <div style="margin-bottom:16px">
+            <div class="bar-label"><span>⭐ XP nhận được</span><span>+120 XP</span></div>
+            <div class="bar-track"><div class="bar-fill bar-xp" style="width:70%"></div></div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-ghost btn-sm" style="justify-content:center">Chơi lại</button>
+            <button class="btn btn-primary btn-sm" style="justify-content:center">Tiếp tục ⟶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending modal -->
+      <div class="modal-demo">
+        <div class="modal-top" style="background:linear-gradient(135deg,rgba(212,160,32,0.1),transparent)">
+          <div class="modal-icon">⏳</div>
+          <div class="modal-title">Đang chờ duyệt</div>
+          <div class="modal-sub">Hồ sơ đã gửi thành công</div>
+        </div>
+        <div class="modal-body">
+          <div class="modal-text">Thầy sẽ xem xét và thông báo qua Telegram trong vòng <strong style="color:var(--gold-bright)">24 giờ</strong>.</div>
+          <div class="modal-actions">
+            <button class="btn btn-primary btn-sm" style="justify-content:center;flex:1">← Quay lại bot</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 9. FORM INPUTS ── -->
+  <div class="section">
+    <div class="section-title">09 · Form Elements</div>
+    <div class="input-demo">
+      <div class="input-group">
+        <label class="input-label">Họ và tên</label>
+        <input class="fantasy-input" type="text" placeholder="Nhập tên chiến binh của em...">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Lớp học</label>
+        <select class="fantasy-select">
+          <option>Lớp 3</option>
+          <option>Lớp 4</option>
+          <option>Lớp 5</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Chọn nhân vật</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="padding:12px;border:1px solid rgba(204,34,0,0.5);border-radius:8px;background:rgba(204,34,0,0.08);cursor:pointer">
+            <div style="font-size:20px;margin-bottom:4px">⚔️</div>
+            <div style="font-family:'Philosopher',serif;font-size:11px;color:#FF6B6B">Chiến Binh</div>
+          </div>
+          <div style="padding:12px;border:1px solid var(--border-dark);border-radius:8px;cursor:pointer">
+            <div style="font-size:20px;margin-bottom:4px">🔮</div>
+            <div style="font-family:'Philosopher',serif;font-size:11px;color:var(--text-dim)">Phù Thủy</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center">⚔ Bắt đầu hành trình</button>
+    </div>
+  </div>
+
+  <!-- ── 10. FRAME DECORATION ── -->
+  <div class="section">
+    <div class="section-title">10 · Panel & Frame Style</div>
+    <div class="fantasy-frame">
+      <div style="font-family:'Philosopher',serif;font-size:16px;color:var(--text-bright);margin-bottom:8px">📜 Nhiệm vụ hôm nay</div>
+      <div style="font-family:'Lora',serif;font-size:15px;color:var(--text-main);line-height:1.7;margin-bottom:16px">
+        Trước khi vào đánh Boss, em cần Rèn Tuyệt Chiêu <em style="color:var(--gold-bright)">"Phân biệt Số & Chữ số"</em> để tăng sức mạnh chiến đấu.
+      </div>
+      <div style="display:flex;gap:8px">
+        <span class="badge badge-gold">📖 Lý thuyết</span>
+        <span class="badge badge-green">✅ Mini game</span>
+        <span class="badge badge-red">⚔️ Boss battle</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER NOTE -->
+  <div style="text-align:center;padding:32px 0;border-top:1px solid var(--border-dark)">
+    <div style="font-family:'Philosopher',serif;font-size:11px;letter-spacing:3px;color:var(--border-dim)">
+      CHIẾN BINH TOÁN · FANTASY CLASSIC UI · DEMO v1.0
+    </div>
+    <div style="font-size:12px;color:var(--text-dim);margin-top:8px">
+      Fonts: Philosopher + Lora + Roboto · Palette: Dark Parchment & Gold
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

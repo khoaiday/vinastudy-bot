@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trận Chiến Boss — Hồ Tinh | VInaStudy Bot</title>
+  <link rel="stylesheet" href="../characters/css/boss-screen.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Prevent text selection during encounter */
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="boss-encounter animate-in">
+    <!-- BOSS TITLE -->
+    <div class="boss-encounter-header animate-in">
+      <h1>🦊 Hồ Tinh</h1>
+      <p class="subtitle">Yêu Hồ Chín Đuôi — Boss Cuối Ải 1</p>
+    </div>
+
+    <!-- BOSS PORTRAIT CONTAINER -->
+    <div class="boss-portrait-container">
+      <div class="boss-portrait">
+        <img src="../characters/boss/ho-tinh-portrait.png" alt="Hồ Tinh Boss">
+      </div>
+      <div class="boss-portrait-glow"></div>
+    </div>
+
+    <!-- DIFFICULTY INDICATOR (right side) -->
+    <div class="boss-difficulty hard">
+      <div class="boss-difficulty-label">Độ Khó</div>
+      <div class="boss-difficulty-stars">
+        <span class="star active">★</span>
+        <span class="star active">★</span>
+        <span class="star active">★</span>
+        <span class="star">★</span>
+      </div>
+    </div>
+
+    <!-- BOSS INFO PANEL (bottom) -->
+    <div class="boss-info-panel">
+      <div class="boss-info-content">
+        <!-- HP Stat -->
+        <div class="boss-stat">
+          <div class="boss-stat-label">Máu (HP)</div>
+          <div class="boss-stat-value danger">999/999</div>
+        </div>
+
+        <!-- Mana Stat -->
+        <div class="boss-stat">
+          <div class="boss-stat-label">Phép (MP)</div>
+          <div class="boss-stat-value">∞</div>
+        </div>
+
+        <!-- Attack Stat -->
+        <div class="boss-stat">
+          <div class="boss-stat-label">Công Kích</div>
+          <div class="boss-stat-value">⭐⭐⭐⭐</div>
+        </div>
+
+        <!-- Description -->
+        <div class="boss-description">
+          Cáo chín đuôi từ Lĩnh Nam Chích Quái. Hàng nghìn năm tu luyện, sử dụng phép thuật con số để gây rối trật tự toán học.
+          Mỗi đuôi phong ấn một con số từ 1 đến 9. Hãy chiến thắng cô ta để giải phóng các con số!
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="boss-action-buttons animate-in">
+      <button class="boss-btn start" onclick="startBossBattle()">⚔️ Bắt Đầu Trận Chiến</button>
+      <button class="boss-btn escape" onclick="escapeBattle()">🏃 Bỏ Cuộc</button>
+    </div>
+  </div>
+
+  <script>
+    // Play boss intro music (if available)
+    // const bossMusic = new Audio('sounds/boss-theme.mp3');
+    // bossMusic.loop = true;
+    // bossMusic.play();
+
+    function startBossBattle() {
+      console.log('Starting boss battle with Hồ Tinh...');
+      // Navigate to battle scene with boss
+      // window.location.href = 'battle.html?boss=ho-tinh';
+      alert('Trận chiến sẽ bắt đầu! Hãy chuẩn bị sẵn sàng!');
+    }
+
+    function escapeBattle() {
+      console.log('Escaping boss encounter...');
+      if (confirm('Bạn chắc chắn muốn bỏ cuộc?')) {
+        window.location.href = 'map.html';
+      }
+    }
+
+    // Add page-specific interactions
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        startBossBattle();
+      }
+      if (e.key === 'Escape') {
+        escapeBattle();
+      }
+    });
+  </script>
+</body>
+</html>

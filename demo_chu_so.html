@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiến Binh Toán: Trạm Kiểm Soát Hỗn Loạn</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #1a2235;
+            --neon-blue: #00f3ff;
+            --neon-red: #ff003c;
+            --neon-green: #00ff66;
+            --text-main: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(180deg, rgba(26,34,53,1) 0%, rgba(11,15,25,0) 100%);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score-text { color: var(--neon-green); }
+        .time-text { color: var(--neon-red); }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .card-container {
+            position: relative;
+            width: 250px;
+            height: 350px;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            border: 2px solid #3a4a6b;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            position: absolute;
+        }
+
+        .card.swipe-left {
+            transform: translateX(-200px) rotate(-15deg);
+            opacity: 0;
+        }
+
+        .card.swipe-right {
+            transform: translateX(200px) rotate(15deg);
+            opacity: 0;
+        }
+
+        .monster-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+        }
+
+        .number-display {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255,255,255,0.8);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px;
+            padding-bottom: 50px;
+        }
+
+        .btn {
+            background: none;
+            border: 2px solid;
+            border-radius: 15px;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            width: 40%;
+        }
+
+        .btn-left {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.2) inset, 0 0 15px rgba(255, 0, 60, 0.2);
+        }
+
+        .btn-left:hover, .btn-left:active {
+            background-color: var(--neon-red);
+            box-shadow: 0 0 30px rgba(255, 0, 60, 0.6);
+        }
+
+        .btn-right {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset, 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .btn-right:hover, .btn-right:active {
+            background-color: var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+        }
+
+        .feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .feedback.show {
+            animation: popOut 0.8s forwards;
+        }
+
+        @keyframes popOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -100%) scale(1); }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .start-btn {
+            background-color: var(--neon-blue);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 30px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+        
+        .start-btn:hover {
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.8);
+        }
+
+        .instructions {
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="overlay">
+        <h1 style="color: var(--neon-blue); font-size: 2.5rem; margin-bottom: 10px; text-align: center;">TRẠM KIỂM SOÁT<br>HỖN LOẠN</h1>
+        <div class="instructions">
+            <p>Luật chơi rất đơn giản:</p>
+            <p style="color: var(--neon-blue); font-weight: bold;">👉 CHỮ SỐ (0 đến 9) -> Đi Cổng VIP (Phải)</p>
+            <p style="color: var(--neon-red); font-weight: bold;">👈 SỐ TỰ NHIÊN (> 9) -> Đi Cổng Thường (Trái)</p>
+            <p>Phân loại thật nhanh trước khi hết giờ!</p>
+        </div>
+        <button class="start-btn" onclick="startGame()">BẮT ĐẦU</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="overlay hidden">
+        <h1 style="color: var(--neon-green); font-size: 3rem;">HẾT GIỜ!</h1>
+        <h2 style="font-size: 2rem;">Điểm của bạn: <span id="finalScore" style="color: var(--neon-blue);">0</span></h2>
+        <button class="start-btn" onclick="startGame()">CHƠI LẠI</button>
+    </div>
+
+    <!-- Main Game -->
+    <div class="header">
+        <h1>An Ninh Không Gian</h1>
+        <div class="stats">
+            <div class="score-text">ĐIỂM: <span id="scoreDisplay">0</span></div>
+            <div class="time-text">THỜI GIAN: <span id="timeDisplay">30</span>s</div>
+        </div>
+    </div>
+
+    <div class="game-area">
+        <div class="card-container" id="cardContainer">
+            <!-- Cards will be generated here -->
+        </div>
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-left" onclick="checkAnswer('SO')">👈 LÀ SỐ (>9)<br><span style="font-size: 0.8rem; font-weight: normal;">(Gồm nhiều chữ số)</span></button>
+        <button class="btn btn-right" onclick="checkAnswer('CHU_SO')">LÀ CHỮ SỐ 👉<br><span style="font-size: 0.8rem; font-weight: normal;">(Từ 0 đến 9)</span></button>
+    </div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 30;
+        let gameInterval;
+        let currentCardValue = 0;
+        let isTrick = false;
+
+        const cardContainer = document.getElementById('cardContainer');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const feedbackEl = document.getElementById('feedback');
+        
+        const monsters = ['👾', '👽', '🤖', '👻', '👹'];
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.innerText = score;
+            timeDisplay.innerText = timeLeft;
+            
+            spawnCard();
+
+            clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timeDisplay.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('finalScore').innerText = score;
+        }
+
+        function spawnCard() {
+            // Remove old cards
+            cardContainer.innerHTML = '';
+            
+            // Determine if next is a digit (0-9) or a number (10-999)
+            // 40% chance digit, 50% chance number, 10% chance trick
+            const rand = Math.random();
+            isTrick = false;
+            
+            if (rand < 0.4) {
+                currentCardValue = Math.floor(Math.random() * 10); // 0-9
+            } else if (rand < 0.9) {
+                currentCardValue = Math.floor(Math.random() * 990) + 10; // 10-999
+            } else {
+                // Trick: A monster claiming to be a digit but it's a number
+                currentCardValue = Math.floor(Math.random() * 89) + 11; // 11-99
+                isTrick = true;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = 'activeCard';
+            
+            const icon = monsters[Math.floor(Math.random() * monsters.length)];
+            
+            if (isTrick) {
+                card.innerHTML = `
+                    <div style="color: #ff003c; font-weight: bold; font-size: 1.2rem; text-align: center; margin-bottom: 10px;">"Ta là<br>CHỮ SỐ ${currentCardValue}!"</div>
+                    <div class="monster-icon">${icon}</div>
+                    <div class="number-display" style="font-size: 2.5rem;">${currentCardValue}</div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="monster-icon">${icon}</div>
+                    <div class="number-display">${currentCardValue}</div>
+                `;
+            }
+            
+            cardContainer.appendChild(card);
+        }
+
+        function checkAnswer(userChoice) {
+            const card = document.getElementById('activeCard');
+            if (!card) return;
+
+            let isCorrect = false;
+            let expectedType = currentCardValue < 10 ? 'CHU_SO' : 'SO';
+
+            if (userChoice === expectedType) {
+                isCorrect = true;
+            }
+
+            // Animate card
+            if (userChoice === 'SO') {
+                card.classList.add('swipe-left');
+            } else {
+                card.classList.add('swipe-right');
+            }
+
+            // Feedback
+            feedbackEl.classList.remove('show');
+            void feedbackEl.offsetWidth; // trigger reflow
+
+            if (isCorrect) {
+                score += 10;
+                feedbackEl.innerText = "CHÍNH XÁC!";
+                feedbackEl.style.color = "var(--neon-green)";
+                feedbackEl.style.textShadow = "0 0 20px #00ff66";
+            } else {
+                score = Math.max(0, score - 5);
+                if (isTrick && userChoice === 'CHU_SO') {
+                    feedbackEl.innerHTML = "SAI RỒI!<br><span style='font-size:1.5rem'>Đó là 1 SỐ!</span>";
+                } else {
+                    feedbackEl.innerText = "SAI RỒI!";
+                }
+                feedbackEl.style.color = "var(--neon-red)";
+                feedbackEl.style.textShadow = "0 0 20px #ff003c";
+            }
+            
+            feedbackEl.classList.add('show');
+            scoreDisplay.innerText = score;
+
+            // Spawn next card immediately
+            setTimeout(spawnCard, 200);
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('startScreen').classList.contains('hidden') && 
+                document.getElementById('gameOverScreen').classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft') {
+                    checkAnswer('SO');
+                } else if (e.key === 'ArrowRight') {
+                    checkAnswer('CHU_SO');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
