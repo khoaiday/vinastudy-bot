@@ -50,6 +50,12 @@ if assets_path.exists():
     app.mount("/assets", StaticFiles(directory=str(assets_path)), name="assets")
     logger.info(f"✅ Assets mounted: {assets_path}")
 
+# Serve design-system folder (character images, CSS)
+design_path = BASE_DIR / "design-system"
+if design_path.exists():
+    app.mount("/design-system", StaticFiles(directory=str(design_path)), name="design-system")
+    logger.info(f"✅ Design-system mounted: {design_path}")
+
 # ── Routers ─────────────────────────────────────────────────────────────
 app.include_router(auth_router,    prefix="/auth")
 app.include_router(student_router, prefix="/api/student")
@@ -341,6 +347,26 @@ async def ping_avatar_upload_form(character: str = "chien_binh", gioi_tinh: str 
   </button>
 </form>
 </body></html>""")
+
+
+@app.get("/character-select", response_class=HTMLResponse)
+@app.get("/character-select.html", response_class=HTMLResponse)
+async def character_select_page():
+    """Màn hình chọn nhân vật — character-select.html."""
+    p = BASE_DIR / "character-select.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
+@app.get("/boss-encounter", response_class=HTMLResponse)
+@app.get("/boss-encounter.html", response_class=HTMLResponse)
+async def boss_encounter_page():
+    """Màn hình boss encounter — boss-encounter.html."""
+    p = BASE_DIR / "boss-encounter.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
 
 
 @app.get("/leaderboard", response_class=HTMLResponse)
