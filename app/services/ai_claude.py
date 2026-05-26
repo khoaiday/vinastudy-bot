@@ -5,6 +5,23 @@ from app.config import ANTHROPIC_KEY, BUOI_CONFIG, DANG_BAI, CONTENT_DIR
 logger = logging.getLogger(__name__)
 client = AsyncAnthropic(api_key=ANTHROPIC_KEY)
 
+# ── System prompt cho bot support (chat trong Telegram) ───────────────────
+GAME_BOT_SYSTEM = """Bạn là trợ lý của game "Chiến Binh Toán" — trò chơi học Toán lớp 3 do thầy Long VInaStudy tạo ra.
+
+NHIỆM VỤ DUY NHẤT: hỗ trợ học sinh & phụ huynh về các vấn đề sau:
+• Cách đăng ký / tạo tài khoản, trạng thái chờ duyệt
+• Cách chơi game: Ải, Boss, mini game, thanh HP, cấp độ
+• Nội dung Toán trong game (số, chữ số, dạng bài theo từng Ải)
+• Điểm số, thành tích, bảng xếp hạng, huy hiệu
+• Lỗi kỹ thuật khi mở game, không vào được, màn hình trắng
+
+NẾU câu hỏi KHÔNG liên quan đến game "Chiến Binh Toán":
+→ Từ chối lịch sự bằng 1 câu ngắn.
+→ Nhắc: nhấn nút "🎮 Chơi game" để bắt đầu chơi.
+→ KHÔNG trả lời toán đại cương, bài tập bên ngoài game, hay bất kỳ chủ đề khác.
+
+Luôn dùng tiếng Việt, thân thiện với học sinh lớp 3, tối đa 120 chữ mỗi tin nhắn."""
+
 _prompt_cache: dict = {}
 
 def load_system_prompt(so_buoi: int) -> str:
@@ -20,6 +37,22 @@ def load_system_prompt(so_buoi: int) -> str:
             except Exception as e:
                 logger.error(f"Lỗi đọc prompt: {e}")
     return "Bạn là thầy Long Vinastudy - trợ lý dạy Toán lớp 3. Giải từng bước bằng tiếng Việt."
+
+async def ask_claude_support(history: list, user_msg: str) -> str:
+    """Chat support trong Telegram — chỉ trả lời về game Chiến Binh Toán."""
+    history.append({"role": "user", "content": user_msg})
+    try:
+        resp = await client.messages.create(
+            model="claude-haiku-4-5", max_tokens=300,
+            system=GAME_BOT_SYSTEM, messages=history,
+        )
+        reply = resp.content[0].text
+        history.append({"role": "assistant", "content": reply})
+        return reply
+    except Exception as e:
+        logger.error(f"Claude support error: {e}")
+        return "❌ Có lỗi, em thử lại sau nhé!"
+
 
 async def ask_claude(history: list, user_msg: str, buoi: int) -> str:
     history.append({"role": "user", "content": user_msg})

@@ -7,7 +7,7 @@ from telegram.ext import ContextTypes, CallbackQueryHandler
 
 import app.database.crud as crud
 from app.config import BASE_URL, BASE_DOMAIN, BUOI_CONFIG, BTVN_CONFIG, DEFAULT_BUOI, ADMIN_ID
-from app.services.ai_claude import ask_claude, ask_claude_with_image, danh_gia_nang_luc
+from app.services.ai_claude import ask_claude, ask_claude_support, ask_claude_with_image, danh_gia_nang_luc
 from app.services.gamification import cap_nhat_gamification, hien_thi_profile, thong_bao_ket_qua_game, bang_xep_hang
 
 logger = logging.getLogger(__name__)
@@ -199,9 +199,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     state = get_state(uid)
 
-    # AI chat fallback — học sinh nhắn bất cứ gì đều được trả lời
+    # Bot chỉ hỗ trợ các vấn đề liên quan game Chiến Binh Toán
     await update.message.chat.send_action("typing")
-    reply = await ask_claude(state["history"], text, state.get("buoi", DEFAULT_BUOI))
+    reply = await ask_claude_support(state["history"], text)
     await update.message.reply_text(reply, reply_markup=game_kb())
 
 
