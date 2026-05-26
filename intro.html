@@ -95,24 +95,25 @@ html, body {
   margin-top: 5px;
 }
 
-/* CTA — dưới cùng */
+/* CTA — giữa màn hình */
 .splash-bottom {
-  position: relative; z-index: 2;
-  width: 100%; padding: 0 28px 52px;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  position: absolute; z-index: 2;
+  top: 50%; left: 0; right: 0;
+  transform: translateY(calc(-50% + 16px));
+  padding: 0 36px;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
   opacity: 0;
-  transform: translateY(16px);
   transition: opacity 1s ease 1.4s, transform 1s ease 1.4s;
 }
-.splash-bottom.show { opacity: 1; transform: translateY(0); }
+.splash-bottom.show { opacity: 1; transform: translateY(-50%); }
 
 .splash-tagline {
   font-family: var(--font-body);
-  font-size: .88rem;
+  font-size: 1rem;
   font-style: italic;
   color: var(--text-muted);
   text-align: center;
-  line-height: 1.7;
+  line-height: 1.9;
 }
 .splash-tagline strong { color: var(--text-main); font-style: normal; }
 
@@ -143,18 +144,20 @@ html, body {
 .btn-start:active { transform: scale(.97); box-shadow: 0 2px 12px rgba(200,150,12,0.25); }
 
 .btn-prologue {
-  background: transparent;
-  border: 1px solid var(--border);
+  background: none;
+  border: none;
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: .72rem;
-  letter-spacing: 1.5px;
-  padding: 10px 22px;
-  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: .88rem;
+  font-style: italic;
   cursor: pointer;
-  transition: color .2s, border-color .2s;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-decoration-color: rgba(160,140,112,0.4);
+  text-underline-offset: 4px;
+  transition: color .2s;
 }
-.btn-prologue:active { color: var(--text-main); border-color: var(--copper); }
+.btn-prologue:active { color: var(--text-main); }
 
 /* ══════════════════════════════════════════
    PROLOGUE OVERLAY
@@ -328,9 +331,7 @@ html, body {
       Năm 2026 — <strong>Cỗ máy Liên Châu</strong> thức giấc.<br>
       Lịch sử Đại Việt cần được bảo vệ.
     </p>
-    <button class="btn-start" onclick="goRegister()">
-      ⚔ &nbsp;BẮT ĐẦU HÀNH TRÌNH
-    </button>
+    <button class="btn-prologue" onclick="openPrologue()">xem lời mở đầu</button>
   </div>
 </div>
 
