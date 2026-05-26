@@ -4,33 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Phân Biệt Số & Chữ Số</title>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --primary: #0ae0fe;
-            --primary-glow: rgba(10, 224, 254, 0.5);
-            --secondary: #ea0eed;
-            --secondary-glow: rgba(234, 14, 237, 0.5);
-            --success: #4eff9f;
-            --danger: #ff0055;
-            --bg-base: #050a1f;
-            --bg-card: rgba(11, 19, 43, 0.85);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: rgba(10, 224, 254, 0.4);
+            --primary:        #C8960C;
+            --primary-glow:   rgba(200,150,12,0.40);
+            --secondary:      #C0332E;
+            --secondary-glow: rgba(192,51,46,0.35);
+            --success:        #5ABCAA;
+            --success-glow:   rgba(90,188,170,0.30);
+            --danger:         #C0332E;
+            --copper:         #B87333;
+            --copper-glow:    rgba(184,115,51,0.30);
+            --bg-void:        #07040A;
+            --bg-deep:        #0F0A14;
+            --bg-panel:       #160E1C;
+            --bg-card:        #1E1327;
+            --bg-lift:        #261A30;
+            --bg-base:        #07040A;
+            --text-main:      #F5EED6;
+            --text-muted:     #A08C70;
+            --border:         rgba(184,115,51,0.40);
+            --font-title:     'Philosopher', serif;
+            --font-body:      'Lora', serif;
+            --font-mono:      'Roboto Mono', monospace;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-base);
-            background-image: linear-gradient(rgba(5, 10, 31, 0.5), rgba(5, 10, 31, 0.9)), url('/static/images/boss_so_than__awakening.jpg');
+            background-color: var(--bg-void);
+            background-image:
+                linear-gradient(rgba(7,4,10,0.45) 0%, rgba(7,4,10,0.82) 60%, rgba(7,4,10,0.97) 100%),
+                url('design-system/characters/boss/ho-tinh-portrait.jpg');
             background-size: cover;
-            background-position: center;
+            background-position: top center;
             background-attachment: fixed;
             color: var(--text-main);
-            font-family: 'Roboto', sans-serif;
+            font-family: var(--font-body);
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -41,19 +53,18 @@
 
         .header {
             text-align: center;
-            padding: 20px;
-            background: linear-gradient(180deg, rgba(5,10,31,0.9) 0%, rgba(5,10,31,0) 100%);
+            padding: 18px 20px 14px;
+            background: linear-gradient(180deg, rgba(7,4,10,0.85) 0%, rgba(7,4,10,0) 100%);
         }
 
         .header h1 {
             margin: 0;
-            font-family: 'Chakra Petch', sans-serif;
-            font-size: 28px;
-            font-weight: 900;
+            font-family: var(--font-title);
+            font-size: 24px;
+            font-weight: 700;
             color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px var(--primary-glow);
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px var(--primary-glow);
         }
 
         .stats {
@@ -62,13 +73,13 @@
             padding: 0 40px;
             margin-top: 10px;
             font-size: 16px;
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-weight: 700;
         }
 
-        .score-text { color: var(--success); text-shadow: 0 0 10px rgba(78, 255, 159, 0.5); }
-        .time-text { color: var(--danger); text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
-        .progress-text { color: var(--primary); text-align: center; margin-top: 5px; font-weight: bold; font-family: 'Chakra Petch', sans-serif; font-size: 16px;}
+        .score-text { color: var(--success); text-shadow: 0 0 10px var(--success-glow); }
+        .time-text { color: var(--secondary); text-shadow: 0 0 10px var(--secondary-glow); }
+        .progress-text { color: var(--primary); text-align: center; margin-top: 5px; font-weight: bold; font-family: var(--font-mono); font-size: 16px;}
 
         .game-area {
             flex: 1;
@@ -93,7 +104,7 @@
         }
         
         .swipe-indicator {
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-size: 55px;
             font-weight: 900;
             text-transform: uppercase;
@@ -116,13 +127,13 @@
             width: 100%;
             height: 100%;
             background-color: var(--bg-card);
-            border: 2px solid var(--primary);
+            border: 2px solid var(--copper);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 30px var(--primary-glow), inset 0 0 20px rgba(10,224,254,0.1);
+            box-shadow: 0 0 30px var(--copper-glow), inset 0 0 20px rgba(200,150,12,0.08);
             position: absolute;
             cursor: grab;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
@@ -153,10 +164,10 @@
 
         .number-display {
             font-size: 160px;
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 20px rgba(10,224,254,0.8);
+            text-shadow: 0 0 20px var(--primary-glow);
         }
 
         .feedback {
@@ -165,7 +176,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 3rem;
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-weight: 900;
             opacity: 0;
             pointer-events: none;
@@ -193,7 +204,7 @@
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(5,10,31,0.95);
+            background: rgba(7,4,10,0.95);
             backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
@@ -211,7 +222,7 @@
             border: none;
             padding: 15px 40px;
             font-size: 1.5rem;
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             border-radius: 30px;
             color: #fff;
             font-weight: 900;
@@ -233,7 +244,7 @@
             max-width: 400px;
             line-height: 1.6;
             font-size: 1.1rem;
-            background: rgba(10,224,254,0.1);
+            background: rgba(184,115,51,0.08);
             padding: 20px;
             border-radius: 12px;
             border: 1px solid var(--border);
@@ -256,7 +267,7 @@
         #tourBackdrop {
             position: fixed;
             inset: 0;
-            background: rgba(5, 11, 20, 0.85);
+            background: rgba(7, 4, 10, 0.85);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             z-index: 150;
@@ -268,7 +279,7 @@
             border-radius: 20px;
             box-shadow:
                 0 0 0 3px var(--primary),
-                0 0 0 6px rgba(10, 224, 254, 0.3),
+                0 0 0 6px rgba(200,150,12,0.3),
                 0 0 30px 8px var(--primary-glow);
             transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
@@ -277,19 +288,19 @@
         }
 
         @keyframes spotlightPulse {
-            0%, 100% { box-shadow: 0 0 0 3px var(--primary), 0 0 0 6px rgba(10, 224, 254, 0.3), 0 0 30px 8px var(--primary-glow); }
-            50%       { box-shadow: 0 0 0 3px var(--primary), 0 0 0 10px rgba(10, 224, 254, 0.5), 0 0 50px 15px var(--primary-glow); }
+            0%, 100% { box-shadow: 0 0 0 3px var(--primary), 0 0 0 6px rgba(200,150,12,0.3), 0 0 30px 8px var(--primary-glow); }
+            50%       { box-shadow: 0 0 0 3px var(--primary), 0 0 0 10px rgba(200,150,12,0.5), 0 0 50px 15px var(--primary-glow); }
         }
 
         #tourTooltip {
             position: fixed;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(135deg, var(--bg-panel), var(--bg-lift));
             border: 2px solid var(--primary);
             border-radius: 18px;
             padding: 18px 22px;
             max-width: 290px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px var(--primary-glow);
-            font-family: 'Roboto', sans-serif;
+            font-family: var(--font-body);
             transition: all 0.35s ease;
             pointer-events: all;
             z-index: 170;
@@ -301,7 +312,7 @@
         }
 
         .tour-step-label {
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-size: 0.75rem;
             color: var(--primary);
             text-transform: uppercase;
@@ -310,7 +321,7 @@
         }
 
         .tour-title {
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-size: 1.2rem;
             font-weight: 900;
             color: #fff;
@@ -320,7 +331,7 @@
 
         .tour-desc {
             font-size: 0.95rem;
-            color: #cbd5e1;
+            color: var(--text-muted);
             line-height: 1.5;
             margin-bottom: 14px;
         }
@@ -340,8 +351,8 @@
         .tour-prev-btn {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #cbd5e1;
-            font-family: 'Chakra Petch', sans-serif;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
             font-size: 0.8rem;
             font-weight: bold;
             padding: 10px 8px;
@@ -360,10 +371,10 @@
         .tour-prev-btn:active { transform: scale(0.95); }
 
         .tour-next-btn {
-            background: linear-gradient(45deg, var(--primary), #0077ff);
+            background: linear-gradient(45deg, var(--copper), var(--primary));
             border: none;
             color: #fff;
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-size: 0.8rem;
             font-weight: bold;
             padding: 10px 8px;
@@ -385,11 +396,11 @@
             display: none;
             justify-content: center;
             align-items: center;
-            background: rgba(5,11,20,0.7);
+            background: rgba(7,4,10,0.7);
         }
 
         #countdownNum {
-            font-family: 'Chakra Petch', sans-serif;
+            font-family: var(--font-mono);
             font-size: 10rem;
             font-weight: 900;
             color: var(--primary);
@@ -420,7 +431,7 @@
                 <button class="tour-next-btn" id="tourNextBtn" onclick="tourNext()">Tiếp theo →</button>
             </div>
         </div>
-        <button onclick="skipTour()" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(5,11,20,0.6); border: 1px solid rgba(255,0,85,0.4); color: #ff0055; font-family: 'Chakra Petch', sans-serif; font-size: 0.9rem; font-weight: bold; padding: 8px 24px; border-radius: 20px; cursor: pointer; pointer-events: all; transition: all 0.3s; z-index: 180; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,0,85,0.2);">✕ Bỏ qua hướng dẫn</button>
+        <button onclick="skipTour()" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(7,4,10,0.7); border: 1px solid rgba(192,51,46,0.5); color: var(--secondary); font-family: var(--font-mono); font-size: 0.9rem; font-weight: bold; padding: 8px 24px; border-radius: 20px; cursor: pointer; pointer-events: all; transition: all 0.3s; z-index: 180; text-transform: uppercase; box-shadow: 0 0 10px var(--secondary-glow);">✕ Bỏ qua hướng dẫn</button>
     </div>
 
     <!-- Countdown -->
@@ -430,7 +441,7 @@
 
     <!-- Start Screen -->
     <div id="startScreen" class="overlay hidden">
-        <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 20px; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
+        <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 20px; text-align: center; font-family: var(--font-mono); text-shadow: 0 0 20px var(--primary-glow); text-transform: uppercase;">PHÂN BIỆT<br>SỐ & CHỮ SỐ</h1>
         <div class="instructions">
             <p style="margin-bottom: 10px; font-weight: bold; color: var(--text-main);">LUẬT CHƠI:</p>
             <p style="color: var(--primary); font-weight: bold; margin-bottom: 5px;">👉 Vuốt sang Phải nếu là SỐ (> 9)</p>
@@ -442,17 +453,17 @@
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-        <h1 style="color: var(--danger); font-size: 3rem; font-family: 'Chakra Petch', sans-serif;">HẾT GIỜ!</h1>
+        <h1 style="color: var(--danger); font-size: 3rem; font-family: var(--font-mono);">HẾT GIỜ!</h1>
         <h2 style="font-size: 1.5rem; font-weight: 400;">Điểm của bạn: <span id="finalScore" style="color: var(--primary); font-weight: bold;">0</span></h2>
         <button class="start-btn" onclick="startGame()">CHƠI LẠI</button>
     </div>
 
     <!-- Video Modal -->
     <div id="videoModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:200;display:none;flex-direction:column;justify-content:center;align-items:center;padding:20px;">
-        <div style="width:100%;max-width:600px;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 0 25px rgba(255,0,85,0.5);">
+        <div style="width:100%;max-width:600px;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 0 25px var(--secondary-glow);">
             <iframe id="ytIframe" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
-        <button onclick="closeVideo()" style="margin-top:15px;background:#333;border:none;color:#fff;padding:10px 30px;border-radius:20px;font-size:1.1rem;font-family:'Chakra Petch',sans-serif;cursor:pointer;">✕ ĐÓNG VIDEO</button>
+        <button onclick="closeVideo()" style="margin-top:15px;background:#333;border:none;color:#fff;padding:10px 30px;border-radius:20px;font-size:1.1rem;font-family:var(--font-mono);cursor:pointer;">✕ ĐÓNG VIDEO</button>
     </div>
 
     <!-- Main Game -->
@@ -535,7 +546,7 @@
                 // Save progress
                 localStorage.setItem('cbToan_skill_bai' + buoi, 'true');
                 
-                document.getElementById('gameOverScreen').style.background = "linear-gradient(rgba(10, 15, 30, 0.55), rgba(10, 15, 30, 0.88)), url('design-system/characters/npc/thay-long/thay-long-portrait.jpg')";
+                document.getElementById('gameOverScreen').style.background = "linear-gradient(rgba(7,4,10,0.45), rgba(7,4,10,0.88)), url('design-system/characters/npc/thay-long/thay-long-portrait.jpg')";
                 document.getElementById('gameOverScreen').style.backgroundSize = "cover";
                 document.getElementById('gameOverScreen').style.backgroundPosition = "center top";
                 
@@ -547,23 +558,23 @@
                 });
                 
                 document.getElementById('gameOverScreen').innerHTML = `
-                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(78,255,159,0.5);">TUYỆT VỜI!</h1>
+                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: var(--font-mono); text-shadow: 0 0 20px rgba(78,255,159,0.5);">TUYỆT VỜI!</h1>
                     <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; margin-top: 10px;">Chúc mừng bạn đã lĩnh hội được tuyệt chiêu!</h2>
-                    <div style="background: rgba(10,224,254,0.1); border: 1px solid var(--primary); border-radius: 10px; padding: 15px; margin: 15px; font-size: 1rem; line-height: 1.5; color: var(--primary); backdrop-filter: blur(5px);">
+                    <div style="background: rgba(184,115,51,0.1); border: 1px solid var(--copper); border-radius: 10px; padding: 15px; margin: 15px; font-size: 1rem; line-height: 1.5; color: var(--primary); backdrop-filter: blur(5px);">
                         <strong>👨‍🏫 Thầy Long dặn:</strong><br>"Các em nhớ nhé, <strong>CHỮ SỐ</strong> chỉ có 10 chữ số từ 0 đến 9. Còn <strong>SỐ</strong> thì được ghép từ các chữ số và có <strong>VÔ HẠN</strong> số!"
                     </div>
                     <button class="start-btn" onclick="returnToMap()">QUAY LẠI ẢI</button>
                 `;
         } else {
                 const goScreen = document.getElementById('gameOverScreen');
-                goScreen.style.background = "linear-gradient(rgba(10, 15, 30, 0.65), rgba(10, 15, 30, 0.95)), url('assets/boss_so_than_portrait.jpg')";
+                goScreen.style.background = "linear-gradient(rgba(7,4,10,0.55), rgba(7,4,10,0.95)), url('design-system/characters/boss/ho-tinh-portrait.jpg')";
                 goScreen.style.backgroundSize = "cover";
                 goScreen.style.backgroundPosition = "center top";
                 goScreen.innerHTML = `
-                    <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
+                    <h1 style="color: var(--danger); font-size: 3.5rem; font-family: var(--font-mono); text-shadow: 0 0 20px var(--secondary-glow);">THẤT BẠI</h1>
                     <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ trả lời đúng ${score}/12 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần ít nhất 11 câu đúng để qua ải.</h2>
                     <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
-                    <button onclick="openVideo()" style="background:#ff0000;border:none;padding:10px 20px;font-size:1.2rem;font-family:'Chakra Petch',sans-serif;font-weight:bold;color:white;border-radius:30px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 15px rgba(255,0,0,0.6);display:flex;align-items:center;gap:10px;margin-top:15px;">
+                    <button onclick="openVideo()" style="background:#ff0000;border:none;padding:10px 20px;font-size:1.2rem;font-family:var(--font-mono);font-weight:bold;color:white;border-radius:30px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 15px rgba(255,0,0,0.6);display:flex;align-items:center;gap:10px;margin-top:15px;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M21.582 6.186a2.506 2.506 0 0 0-1.762-1.766C18.265 4 12 4 12 4s-6.264 0-7.82.42a2.506 2.506 0 0 0-1.76 1.766C2 7.74 2 12 2 12s0 4.26.42 5.814a2.506 2.506 0 0 0 1.76 1.766C5.736 20 12 20 12 20s6.265 0 7.82-.42a2.506 2.506 0 0 0 1.762-1.766C22 16.26 22 12 22 12s0-4.26-.418-5.814zM9.99 15.47V8.529L16 12l-6.01 3.47z"/></svg>
                         XEM BÀI GIẢNG
                     </button>
@@ -621,7 +632,7 @@
                 const rotation = (currentCardValue < 10) ? 'rotate(15deg)' : 'rotate(-15deg)';
                 
                 card.innerHTML = `
-                    <div class="pulse" style="font-family: 'Chakra Petch', sans-serif; font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px ${arrowColor}; color: ${arrowColor}; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: ${rotation}; text-transform: uppercase;">${trickText}</div>
+                    <div class="pulse" style="font-family: var(--font-mono); font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px ${arrowColor}; color: ${arrowColor}; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: ${rotation}; text-transform: uppercase;">${trickText}</div>
                     <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
                 `;
             } else {
@@ -710,7 +721,7 @@
                 indLeft.style.transform = `scale(0.5) rotate(-15deg)`;
                 indRight.style.transform = `scale(0.5) rotate(15deg)`;
                 card.style.borderColor = 'var(--primary)';
-                card.style.boxShadow = '0 0 30px var(--primary-glow), inset 0 0 20px rgba(10,224,254,0.1)';
+                card.style.boxShadow = '0 0 30px var(--primary-glow), inset 0 0 20px rgba(200,150,12,0.08)';
                 
                 if (Math.abs(deltaX) > threshold && currentX !== 0) {
                     // Swiped far enough
@@ -758,7 +769,7 @@
             } else {
                 feedbackEl.innerText = "SAI RỒI!";
                 feedbackEl.style.color = "var(--danger)";
-                feedbackEl.style.textShadow = "0 0 20px rgba(255,0,85,0.8)";
+                feedbackEl.style.textShadow = "0 0 20px var(--secondary-glow)";
             }
             
             feedbackEl.classList.add('show');
@@ -929,7 +940,7 @@
                     currentCardValue = 23;
                     isTrick = true;
                     card.innerHTML = `
-                        <div class="pulse" style="font-family: 'Chakra Petch', sans-serif; font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px var(--secondary-glow); color: var(--secondary); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: rotate(-15deg); text-transform: uppercase;">CHỮ SỐ 👈</div>
+                        <div class="pulse" style="font-family: var(--font-mono); font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px var(--secondary-glow); color: var(--secondary); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: rotate(-15deg); text-transform: uppercase;">CHỮ SỐ 👈</div>
                         <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
                     `;
                 }
