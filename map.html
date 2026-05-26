@@ -252,20 +252,20 @@
     align-items: flex-end; justify-content: center; padding-bottom: 0;
   }
   .lv-panel {
-    background: #0b132b;
-    border: 1px solid rgba(10,224,254,0.4);
+    background: var(--bg-panel);
+    border: 1px solid var(--copper);
     border-bottom: none;
-    border-radius: 20px 20px 0 0;
+    border-radius: 16px 16px 0 0;
     padding: 20px 18px 28px;
     width: 100%; max-width: 480px;
-    box-shadow: 0 -8px 40px rgba(10,224,254,0.2);
+    box-shadow: 0 -8px 40px rgba(184,115,51,0.20);
     animation: slideUp 0.28s ease;
   }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .lv-header { text-align: center; margin-bottom: 16px; }
-  .lv-drag { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 14px; }
-  .lv-title { font-family:'Chakra Petch',sans-serif; font-size: 20px; font-weight: 900; letter-spacing: 2px; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
-  .lv-mission { font-size: 13px; color: var(--secondary); font-weight: 700; margin-top: 3px; }
+  .lv-drag { width: 36px; height: 4px; background: var(--copper); border-radius: 2px; margin: 0 auto 14px; opacity: 0.4; }
+  .lv-title { font-family: var(--font-title); font-size: 20px; font-weight: 700; letter-spacing: 1px; color: var(--primary); text-shadow: 0 0 16px var(--primary-glow); }
+  .lv-mission { font-family: var(--font-mono); font-size: 12px; color: var(--copper); font-style: italic; margin-top: 3px; }
 
   /* Feature comparison table */
   .lv-table { width: 100%; margin-bottom: 18px; }
@@ -285,46 +285,73 @@
   .lv-btns { display: flex; gap: 10px; margin-bottom: 14px; }
   .lv-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
-    padding: 12px 6px; border-radius: 12px; cursor: pointer; transition: all 0.2s;
-    background: rgba(10,224,254,0.06); border: 1px solid rgba(10,224,254,0.2);
+    padding: 12px 6px; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+    background: rgba(200,150,12,0.06); border: 1px solid rgba(184,115,51,0.3);
     color: var(--text-main); font-family: inherit;
   }
-  .lv-btn:hover, .lv-btn:active { background: rgba(10,224,254,0.16); border-color: var(--primary); transform: translateY(-2px); }
-  .lv-btn.best-lv { border-color: #fbbf24; box-shadow: 0 0 14px rgba(251,191,36,0.3); background: rgba(251,191,36,0.07); }
+  .lv-btn:hover, .lv-btn:active { background: rgba(200,150,12,0.14); border-color: var(--primary); transform: translateY(-2px); }
+  .lv-btn.best-lv { border-color: var(--primary); box-shadow: 0 0 14px var(--primary-glow); background: rgba(200,150,12,0.10); }
   .lv-btn .lv-stars { font-size: 16px; }
-  .lv-btn .lv-name  { font-size: 13px; font-weight: 800; color: var(--primary); font-family:'Chakra Petch',sans-serif; letter-spacing: 1px; }
-  .lv-btn .lv-sub   { font-size: 10px; color: var(--text-muted); }
-  .lv-btn .lv-mult  { font-size: 11px; color: #fbbf24; font-weight: 700; }
+  .lv-btn .lv-name  { font-size: 13px; font-weight: 700; color: var(--primary); font-family: var(--font-title); letter-spacing: 1px; }
+  .lv-btn .lv-sub   { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+  .lv-btn .lv-mult  { font-size: 11px; color: var(--primary); font-weight: 700; }
   .lv-cancel { width: 100%; background: transparent; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 6px; margin-top: 2px; }
 
   /* ── Stage Intro Modal ── */
   .intro-modal {
     display: none; position: fixed; inset: 0; z-index: 9998;
-    background-color: #050a1f;
+    background-color: var(--bg-void);
+    background-image: url('design-system/characters/boss/ho-tinh-portrait.jpg');
     background-size: cover; background-position: top center;
     flex-direction: column; justify-content: flex-end;
     transition: background-image 0.3s;
   }
   .intro-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom, rgba(5,10,31,0.2) 0%, rgba(5,10,31,0.9) 60%, rgba(5,10,31,1) 100%);
+    background: linear-gradient(
+      to bottom,
+      rgba(7,4,10,0.15) 0%,
+      rgba(7,4,10,0.55) 45%,
+      rgba(7,4,10,0.92) 70%,
+      rgba(7,4,10,1) 100%
+    );
   }
   .intro-content {
     position: relative; z-index: 1; padding: 30px 20px 40px; text-align: center;
   }
-  .intro-title { font-family: 'Chakra Petch', sans-serif; font-size: 28px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px var(--primary-glow); margin-bottom: 12px; }
-  .intro-story { font-size: 14px; color: var(--text-main); line-height: 1.6; margin-bottom: 20px; text-align: justify; }
-  .intro-mission { font-size: 14px; color: var(--secondary); font-weight: 700; margin-bottom: 30px; background: rgba(234, 14, 237, 0.1); padding: 10px; border-radius: 8px; border: 1px solid var(--secondary); }
-  
-  .btn-intro {
-    width: 100%; padding: 16px; border-radius: 30px; border: none; font-size: 18px; font-weight: 900;
-    font-family: 'Chakra Petch', sans-serif; letter-spacing: 2px; cursor: pointer; transition: all 0.2s;
-    text-transform: uppercase; margin-bottom: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  .intro-title {
+    font-family: var(--font-title); font-size: 26px; font-weight: 700;
+    color: var(--primary); letter-spacing: 2px;
+    text-shadow: 0 0 20px var(--primary-glow), 0 2px 4px rgba(0,0,0,0.8);
+    margin-bottom: 12px;
   }
-  .btn-ren-tuyet-chieu { background: linear-gradient(90deg, #ff0055, #ff00a0); color: white; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); }
-  .btn-vao-ai { background: linear-gradient(90deg, var(--primary), var(--success)); color: #000; box-shadow: 0 0 20px var(--primary-glow); }
-  .btn-intro-close { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-muted); padding: 10px; border-radius: 20px; font-size: 14px; width: auto; min-width: 120px; cursor: pointer; transition: all 0.2s; }
-  .btn-intro-close:hover { background: rgba(255,255,255,0.1); }
+  .intro-story { font-family: var(--font-body); font-size: 14px; color: var(--text-main); line-height: 1.7; margin-bottom: 20px; text-align: justify; }
+  .intro-mission {
+    font-family: var(--font-mono); font-size: 13px; color: var(--primary); font-weight: 600;
+    margin-bottom: 30px;
+    background: rgba(200,150,12,0.10);
+    padding: 10px; border-radius: 8px;
+    border: 1px solid var(--copper);
+  }
+
+  .btn-intro {
+    width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 17px; font-weight: 800;
+    font-family: var(--font-title); letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+  .btn-ren-tuyet-chieu {
+    background: linear-gradient(135deg, var(--secondary), #8B1A1A);
+    color: var(--text-main);
+    box-shadow: 0 0 20px rgba(192,51,46,0.5);
+    border: 1px solid var(--secondary);
+  }
+  .btn-vao-ai {
+    background: linear-gradient(135deg, var(--copper), var(--primary));
+    color: var(--bg-void);
+    box-shadow: 0 0 20px var(--primary-glow);
+  }
+  .btn-intro-close { background: transparent; border: 1px solid rgba(184,115,51,0.3); color: var(--text-muted); padding: 10px; border-radius: 10px; font-size: 13px; width: auto; min-width: 120px; cursor: pointer; transition: all 0.2s; font-family: var(--font-mono); }
+  .btn-intro-close:hover { background: rgba(184,115,51,0.1); }
 </style>
 </head>
 <body>
@@ -637,13 +664,14 @@ function open_(buoi, title, path, el) {
   /* Mở màn Intro thay vì mở Level Modal */
   document.getElementById('introTitle').textContent = `ẢI ${buoi}: ${title}`;
 
-  /* Boss background image theo từng bài */
+  /* Boss background image theo từng bài — mặc định dùng Hồ Tinh */
   const BOSS_BG = {
-    1: '/content/lop3/bai01/assets/boss_so_than_full.jpg',
-    // Thêm boss mới ở đây: 2: '/content/lop3/bai02/assets/boss_xxx_full.jpg',
+    // Thêm boss riêng từng bài ở đây nếu cần:
+    // 2: '/content/lop3/bai02/assets/boss_xxx_full.jpg',
   };
   const im = document.getElementById('introModal');
-  im.style.backgroundImage = BOSS_BG[buoi] ? `url('${BOSS_BG[buoi]}')` : 'none';
+  const bgUrl = BOSS_BG[buoi] || 'design-system/characters/boss/ho-tinh-portrait.jpg';
+  im.style.backgroundImage = `url('${bgUrl}')`;
   
   const hasSkill = localStorage.getItem('cbToan_skill_bai' + buoi) === 'true';
   
