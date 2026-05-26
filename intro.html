@@ -269,6 +269,24 @@ html, body {
 }
 .prologue-footer .btn-start { width: 100%; }
 
+/* Nút bỏ qua */
+.btn-skip {
+  position: fixed;
+  bottom: 24px; right: 20px;
+  z-index: 15;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: .82rem;
+  font-style: italic;
+  cursor: pointer;
+  padding: 6px 4px;
+  opacity: 0;
+  transition: opacity 1s ease 2s, color .2s;
+}
+.btn-skip.show { opacity: 1; }
+.btn-skip:active { color: var(--text-main); }
+
 /* ══════════════════════════════════════════
    CURTAIN FADE
 ══════════════════════════════════════════ */
@@ -298,8 +316,8 @@ html, body {
   <div id="splash-bg"></div>
 
   <div class="splash-top" id="splashTop">
-    <div class="game-logo">Chiến <span>Binh</span> Toán</div>
-    <div class="game-era">ĐẠI VIỆT · HÀNH TRÌNH THỜI GIAN</div>
+    <div class="game-logo">Chiến Binh <span>Toán</span></div>
+    <div class="game-era">VINASTUDY - HÀNH TRÌNH THỜI GIAN</div>
   </div>
 
   <div class="splash-bottom" id="splashBottom">
@@ -310,11 +328,11 @@ html, body {
     <button class="btn-start" onclick="goRegister()">
       ⚔ &nbsp;BẮT ĐẦU HÀNH TRÌNH
     </button>
-    <button class="btn-prologue" onclick="openPrologue()">
-      ▶ &nbsp;XEM LỜI MỞ ĐẦU
-    </button>
   </div>
 </div>
+
+<!-- Nút bỏ qua — cố định dưới cùng bên phải -->
+<button class="btn-skip" onclick="goRegister()"><em>Bỏ qua</em></button>
 
 <!-- ═══ PROLOGUE ═══ -->
 <div id="prologue">
@@ -387,6 +405,7 @@ window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('splashTop').classList.add('show');
       document.getElementById('splashBottom').classList.add('show');
+      document.querySelector('.btn-skip').classList.add('show');
     }, 200);
   }
 
