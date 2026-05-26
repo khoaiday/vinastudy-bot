@@ -99,13 +99,13 @@ async def _notify_approved_user(user: dict):
         return
     try:
         import httpx
-        base    = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
-        tg_id   = user["telegram_id"]
-        game_kb = {
-            "keyboard": [
-                [{"text": "🎮 Chơi game", "web_app": {"url": f"{base}/game?tg_id={tg_id}"}}],
-            ],
-            "resize_keyboard": True,
+        base   = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
+        tg_id  = user["telegram_id"]
+        # Inline button mở game + ReplyKeyboard plain text để bot check status khi nhấn
+        inline_kb = {
+            "inline_keyboard": [[
+                {"text": "🎮 Vào game ngay!", "web_app": {"url": f"{base}/game?tg_id={tg_id}"}}
+            ]]
         }
         async with httpx.AsyncClient() as client:
             await client.post(
@@ -115,10 +115,10 @@ async def _notify_approved_user(user: dict):
                     "text": (
                         f"🎉 *Chào mừng {user['ho_ten']}!*\n\n"
                         "✅ Tài khoản *Chiến Binh Toán* của em đã được duyệt!\n\n"
-                        "👇 Nhấn *🎮 Chơi game* bên dưới để vào Bản đồ Chiến Dịch và bắt đầu hành trình 🚀"
+                        "👇 Nhấn bên dưới để vào Bản đồ Chiến Dịch và bắt đầu hành trình 🚀"
                     ),
                     "parse_mode":   "Markdown",
-                    "reply_markup": game_kb,
+                    "reply_markup": inline_kb,
                 }
             )
     except Exception as e:
