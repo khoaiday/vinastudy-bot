@@ -82,7 +82,11 @@ html, body {
   letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--primary);
-  text-shadow: 0 0 24px var(--primary-glow), 0 0 60px rgba(200,150,12,0.2);
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    0 0 20px var(--primary-glow),
+    0 0 40px rgba(7,4,10,0.9);
 }
 .game-logo span { color: var(--secondary); }
 .game-era {
@@ -99,13 +103,10 @@ html, body {
   position: absolute; z-index: 2;
   top: 50%; left: 0; right: 0;
   transform: translateY(calc(-50% + 16px));
-  padding: 28px 36px;
+  padding: 0 36px;
   display: flex; flex-direction: column; align-items: center; gap: 20px;
   opacity: 0;
   transition: opacity 1s ease 1.4s, transform 1s ease 1.4s;
-  background: rgba(7,4,10,0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 .splash-bottom.show { opacity: 1; transform: translateY(-50%); }
 
@@ -117,9 +118,12 @@ html, body {
   text-align: center;
   line-height: 2;
   text-shadow:
-    0 0 12px rgba(7,4,10,1),
-    0 0 24px rgba(7,4,10,1),
-    0 2px 4px rgba(7,4,10,1);
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    1px -1px 0 rgba(7,4,10,1),
+   -1px  1px 0 rgba(7,4,10,1),
+    0 0 16px rgba(7,4,10,0.95),
+    0 0 32px rgba(7,4,10,0.8);
 }
 .splash-tagline strong { color: #fff; font-style: normal; }
 
@@ -152,16 +156,19 @@ html, body {
 .btn-prologue {
   background: none;
   border: none;
-  color: #D4C4A0;
+  color: #E8D8B0;
   font-family: var(--font-body);
   font-size: .88rem;
   font-style: italic;
   cursor: pointer;
   padding: 4px 0;
   text-decoration: underline;
-  text-decoration-color: rgba(200,170,120,0.5);
+  text-decoration-color: rgba(200,170,120,0.6);
   text-underline-offset: 4px;
-  text-shadow: 0 1px 8px rgba(7,4,10,0.9);
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    0 0 12px rgba(7,4,10,0.95);
   transition: color .2s;
 }
 .btn-prologue:active { color: var(--primary); }
