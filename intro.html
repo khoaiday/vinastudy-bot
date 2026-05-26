@@ -53,9 +53,10 @@ html, body {
   background-image:
     linear-gradient(
       to bottom,
-      rgba(7,4,10,0.10) 0%,
-      rgba(7,4,10,0.20) 45%,
-      rgba(7,4,10,0.92) 80%,
+      rgba(7,4,10,0.55) 0%,
+      rgba(7,4,10,0.65) 40%,
+      rgba(7,4,10,0.75) 60%,
+      rgba(7,4,10,0.95) 85%,
       rgba(7,4,10,1.00) 100%
     ),
     url('design-system/intro/intro-splash.jpg');
@@ -90,9 +91,10 @@ html, body {
 .game-era {
   font-family: var(--font-mono);
   font-size: .62rem;
-  color: var(--text-muted);
+  color: #C8B89A;
   letter-spacing: 3px;
   margin-top: 5px;
+  text-shadow: 0 1px 6px rgba(7,4,10,0.9);
 }
 
 /* CTA — giữa màn hình */
@@ -111,9 +113,10 @@ html, body {
   font-family: var(--font-body);
   font-size: 1rem;
   font-style: italic;
-  color: var(--text-muted);
+  color: var(--text-main);
   text-align: center;
   line-height: 1.9;
+  text-shadow: 0 1px 8px rgba(7,4,10,0.9), 0 0 24px rgba(7,4,10,0.8);
 }
 .splash-tagline strong { color: var(--text-main); font-style: normal; }
 
@@ -146,18 +149,19 @@ html, body {
 .btn-prologue {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #D4C4A0;
   font-family: var(--font-body);
   font-size: .88rem;
   font-style: italic;
   cursor: pointer;
   padding: 4px 0;
   text-decoration: underline;
-  text-decoration-color: rgba(160,140,112,0.4);
+  text-decoration-color: rgba(200,170,120,0.5);
   text-underline-offset: 4px;
+  text-shadow: 0 1px 8px rgba(7,4,10,0.9);
   transition: color .2s;
 }
-.btn-prologue:active { color: var(--text-main); }
+.btn-prologue:active { color: var(--primary); }
 
 /* ══════════════════════════════════════════
    PROLOGUE OVERLAY
