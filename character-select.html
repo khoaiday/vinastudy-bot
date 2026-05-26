@@ -5,383 +5,605 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Chọn Nhân Vật — Chiến Binh Toán</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="character-avatars.css">
-  <link rel="stylesheet" href="character-cards.css">
+  <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #0ae0fe;
-      --primary-glow: rgba(10,224,254,0.5);
-      --secondary: #ea0eed;
-      --secondary-glow: rgba(234,14,237,0.5);
-      --success: #4eff9f;
-      --danger: #ff0055;
-      --bg-base: #050a1f;
-      --bg-card: rgba(11, 19, 43, 0.85);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: rgba(10, 224, 254, 0.4);
+      --primary:        #C8960C;
+      --primary-glow:   rgba(200,150,12,0.40);
+      --secondary:      #C0332E;
+      --secondary-glow: rgba(192,51,46,0.35);
+      --success:        #5ABCAA;
+      --success-glow:   rgba(90,188,170,0.30);
+      --copper:         #B87333;
+      --copper-glow:    rgba(184,115,51,0.30);
+      --bg-void:        #07040A;
+      --bg-deep:        #0F0A14;
+      --bg-panel:       #160E1C;
+      --bg-card:        #1E1327;
+      --bg-lift:        #261A30;
+      --text-main:      #F5EED6;
+      --text-muted:     #A08C70;
+      --border:         rgba(184,115,51,0.40);
+      --font-title:     'Philosopher', serif;
+      --font-body:      'Lora', serif;
+      --font-mono:      'Roboto Mono', monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; overflow: hidden; font-family: 'Roboto', sans-serif; background-color: var(--bg-base); color: var(--text-main); }
 
-    .grid-bg {
-      position: absolute; inset: 0;
-      background-image: linear-gradient(rgba(10,224,254,.07) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(10,224,254,.07) 1px, transparent 1px);
-      background-size: 40px 40px;
-      z-index: 0;
-      pointer-events: none;
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-body);
+      background-color: var(--bg-void);
+      color: var(--text-main);
     }
 
     .app {
-      display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1;
-      background: radial-gradient(circle at top right, rgba(14, 23, 58, 0.8), var(--bg-base));
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+      background-image:
+        linear-gradient(rgba(7,4,10,0.60) 0%, rgba(7,4,10,0.88) 50%, rgba(7,4,10,0.98) 100%),
+        url('design-system/characters/boss/ho-tinh-portrait.jpg');
+      background-size: cover;
+      background-position: top center;
     }
 
+    /* ── HEADER ── */
     .header {
-      padding: 30px 20px 20px;
-      text-align: center; flex-shrink: 0; position: relative; z-index: 5;
-      background: radial-gradient(circle at center top, rgba(10,224,254,0.1), transparent);
-      border-bottom: 2px solid var(--primary);
-      box-shadow: 0 5px 30px rgba(10,224,254,0.2);
+      padding: 24px 20px 16px;
+      text-align: center;
+      flex-shrink: 0;
+      background: linear-gradient(180deg, rgba(7,4,10,0.7) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
     }
 
     .header h1 {
-      font-family: 'Chakra Petch', sans-serif;
-      font-size: 32px; font-weight: 900;
-      line-height: 1.2; text-transform: uppercase;
-      letter-spacing: 3px; color: var(--primary);
-      text-shadow: 0 0 15px var(--primary-glow);
+      font-family: var(--font-title);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 20px var(--primary-glow);
+      letter-spacing: 1px;
     }
 
-    .header p { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 4px; }
+    .header p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
 
+    /* ── GENDER TOGGLE ── */
+    .gender-toggle {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px 8px;
+      flex-shrink: 0;
+    }
+
+    .gender-btn {
+      flex: 1;
+      padding: 10px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-panel);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      letter-spacing: 0.5px;
+    }
+
+    .gender-btn.active {
+      background: var(--bg-lift);
+      border-color: var(--copper);
+      color: var(--primary);
+      box-shadow: 0 0 12px var(--copper-glow);
+    }
+
+    .gender-btn:active { transform: scale(0.97); }
+
+    /* ── SCROLLABLE CONTENT ── */
     .content {
-      flex: 1; overflow-y: auto; padding: 24px 20px;
-      display: flex; flex-direction: column; gap: 24px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
     }
 
+    .content::-webkit-scrollbar { width: 3px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--copper); border-radius: 2px; }
+
+    /* ── CLASS BLOCK ── */
     .character-class {
-      background: var(--bg-card);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      transition: all 0.3s ease;
+      background: rgba(22,14,28,0.75);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      backdrop-filter: blur(6px);
+      transition: border-color 0.3s;
     }
 
-    .character-class:hover {
-      border-color: var(--primary);
-      box-shadow: 0 0 20px var(--primary-glow);
+    .character-class.has-selected {
+      border-color: var(--copper);
+      box-shadow: 0 0 16px var(--copper-glow);
     }
 
     .class-name {
-      font-family: 'Chakra Petch', sans-serif;
-      font-size: 18px; font-weight: 700;
+      font-family: var(--font-title);
+      font-size: 15px;
+      font-weight: 700;
       color: var(--primary);
-      margin-bottom: 16px;
-      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .class-icon { font-size: 24px; }
+    .class-icon { font-size: 18px; }
 
+    /* ── CHARACTER PAIR (2 columns) ── */
     .character-pair {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
 
+    /* ── INDIVIDUAL CARD ── */
     .character-option {
-      background: rgba(0, 0, 0, 0.3);
-      border: 2px solid var(--border);
+      background: var(--bg-card);
+      border: 2px solid rgba(184,115,51,0.25);
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
       text-align: center;
+      position: relative;
+    }
+
+    /* Gender dim: the non-matching gender is faded but still clickable */
+    .character-option.gender-dim {
+      opacity: 0.45;
+      filter: saturate(0.3);
+    }
+
+    .character-option.gender-match {
+      border-color: rgba(184,115,51,0.50);
     }
 
     .character-option:hover {
-      border-color: var(--primary);
-      background: rgba(10, 224, 254, 0.1);
+      border-color: var(--copper);
+      background: var(--bg-lift);
+      opacity: 1;
+      filter: none;
     }
 
     .character-option.selected {
-      border-color: var(--success);
-      background: rgba(78, 255, 159, 0.1);
-      box-shadow: 0 0 15px var(--success);
+      border-color: var(--primary);
+      background: rgba(200,150,12,0.12);
+      box-shadow: 0 0 18px var(--primary-glow);
+      opacity: 1;
+      filter: none;
     }
 
-    .character-option img {
+    .character-option.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--primary);
+      text-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    /* ── AVATAR IMAGE — 1:1 SQUARE ── */
+    .char-img-wrap {
       width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 4px;
+      aspect-ratio: 1 / 1;
+      border-radius: 6px;
+      overflow: hidden;
       margin-bottom: 8px;
+      background: var(--bg-panel);
+      position: relative;
+    }
+
+    .char-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .character-option:hover .char-img-wrap img {
+      transform: scale(1.04);
+    }
+
+    /* Faction color strip at top of image */
+    .char-img-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--faction-color, var(--copper));
+      z-index: 2;
     }
 
     .character-name {
-      font-family: 'Chakra Petch', sans-serif;
-      font-size: 13px;
+      font-family: var(--font-mono);
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-main);
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .character-variant {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 6px;
     }
 
+    /* ── STAT BARS ── */
     .stats {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 8px;
       display: flex;
-      justify-content: space-around;
-      gap: 4px;
+      gap: 3px;
     }
 
     .stat-bar {
       flex: 1;
-      height: 4px;
-      background: rgba(10, 224, 254, 0.2);
+      height: 3px;
+      background: rgba(184,115,51,0.15);
       border-radius: 2px;
       overflow: hidden;
     }
 
     .stat-fill {
       height: 100%;
-      background: var(--primary);
+      background: linear-gradient(90deg, var(--copper), var(--primary));
       border-radius: 2px;
     }
 
+    /* ── FACTION COLORS ON CARDS ── */
+    .character-class.lac-tuong  { --faction-color: #C0332E; }
+    .character-class.dao-si     { --faction-color: #7B42A0; }
+    .character-class.no-than    { --faction-color: #246B4A; }
+    .character-class.than-tuong { --faction-color: #1A5A8C; }
+
+    /* ── FOOTER ── */
     .footer {
-      padding: 20px;
+      padding: 14px 16px;
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
       display: flex;
-      gap: 12px;
-      background: rgba(0, 0, 0, 0.4);
-      border-top: 2px solid var(--border);
+      gap: 10px;
+      background: linear-gradient(0deg, rgba(7,4,10,0.95) 0%, rgba(7,4,10,0.7) 100%);
+      border-top: 1px solid var(--border);
       flex-shrink: 0;
     }
 
     .btn {
       flex: 1;
-      padding: 14px;
-      border: 2px solid var(--primary);
+      padding: 13px;
       border-radius: 8px;
-      background: transparent;
-      color: var(--primary);
-      font-family: 'Chakra Petch', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 1px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 0 15px var(--primary-glow), inset 0 0 15px rgba(10,224,254,.2);
-    }
-
-    .btn:hover { background: var(--primary); color: #000; }
-    .btn:active { transform: scale(0.98); }
-
-    .btn.secondary {
-      border-color: var(--text-muted);
+      transition: all 0.25s;
+      border: 1px solid var(--border);
+      background: var(--bg-panel);
       color: var(--text-muted);
-      box-shadow: 0 0 10px rgba(148, 163, 184, 0.3);
     }
 
-    .btn.secondary:hover {
-      background: var(--text-muted);
-      color: var(--bg-base);
+    .btn.primary {
+      background: linear-gradient(90deg, var(--copper), var(--primary));
+      border-color: var(--primary);
+      color: #07040A;
+      font-weight: 700;
+      box-shadow: 0 0 16px var(--primary-glow);
     }
 
-    @media (max-width: 640px) {
-      .header h1 { font-size: 24px; letter-spacing: 2px; }
-      .character-pair { grid-template-columns: 1fr; }
-      .character-option img { height: 100px; }
-      .class-name { font-size: 16px; }
-      .footer { flex-direction: column; }
-      .btn { padding: 12px; font-size: 13px; }
+    .btn.primary:disabled {
+      background: var(--bg-lift);
+      border-color: var(--border);
+      color: var(--text-muted);
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .btn:not(:disabled):hover { opacity: 0.85; }
+    .btn:not(:disabled):active { transform: scale(0.97); }
+
+    /* ── SELECTED CLASS INDICATOR ── */
+    .selected-preview {
+      padding: 8px 16px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+      min-height: 26px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 360px) {
+      .header h1 { font-size: 22px; }
+      .character-pair { gap: 8px; }
+      .character-option { padding: 8px; }
     }
   </style>
 </head>
 <body>
-  <div class="grid-bg"></div>
   <div class="app">
+
     <!-- HEADER -->
     <div class="header">
       <h1>⚔️ Chọn Nhân Vật</h1>
-      <p>Hãy lựa chọn chiến binh yêu thích để bắt đầu cuộc phiêu lưu</p>
+      <p>Lựa chọn chiến binh để bước vào Đại Việt</p>
     </div>
+
+    <!-- GENDER TOGGLE -->
+    <div class="gender-toggle">
+      <button class="gender-btn" id="genderMale" onclick="setGender('male')">♂ Nam</button>
+      <button class="gender-btn" id="genderFemale" onclick="setGender('female')">♀ Nữ</button>
+    </div>
+
+    <!-- SELECTION PREVIEW -->
+    <div class="selected-preview" id="selectedPreview">Chưa chọn nhân vật</div>
 
     <!-- CHARACTER SELECTION -->
     <div class="content">
+
       <!-- LẠC TƯỚNG -->
-      <div class="character-class">
-        <div class="class-name"><span class="class-icon">⚔️</span> Lạc Tướng (Chiến Binh)</div>
+      <div class="character-class lac-tuong" id="class-lac-tuong">
+        <div class="class-name"><span class="class-icon">⚔️</span> Lạc Tướng — Chiến Binh</div>
         <div class="character-pair">
-          <div class="character-option" onclick="selectCharacter('lac-tuong-male', this)">
-            <img src="design-system/characters/playable/lac-tuong/lac-tuong-male-avatar.jpg" alt="Lạc Tướng Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Lạc+Tướng+Nam'">
+          <div class="character-option" id="opt-lac-tuong-male" data-id="lac-tuong-male" data-gender="male" onclick="selectCharacter('lac-tuong-male', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/lac-tuong/lac-tuong-male-avatar.jpg" alt="Lạc Tướng Nam" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Lạc Tướng</div>
-            <div class="character-variant">Nam | ~30 tuổi</div>
+            <div class="character-variant">♂ Nam · ~30 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 80%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:80%"></div></div>
             </div>
           </div>
-          <div class="character-option" onclick="selectCharacter('lac-tuong-female', this)">
-            <img src="design-system/characters/playable/lac-tuong/lac-tuong-female-avatar.jpg" alt="Lạc Tướng Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Lạc+Tướng+Nữ'">
+          <div class="character-option" id="opt-lac-tuong-female" data-id="lac-tuong-female" data-gender="female" onclick="selectCharacter('lac-tuong-female', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/lac-tuong/lac-tuong-female-avatar.jpg" alt="Lạc Tướng Nữ" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Lạc Tướng</div>
-            <div class="character-variant">Nữ | ~30 tuổi</div>
+            <div class="character-variant">♀ Nữ · ~30 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 80%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:80%"></div></div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- ĐẠO SĨ -->
-      <div class="character-class">
-        <div class="class-name"><span class="class-icon">🔮</span> Đạo Sĩ (Pháp Sư)</div>
+      <div class="character-class dao-si" id="class-dao-si">
+        <div class="class-name"><span class="class-icon">🔮</span> Đạo Sĩ — Pháp Sư</div>
         <div class="character-pair">
-          <div class="character-option" onclick="selectCharacter('dao-si-male', this)">
-            <img src="design-system/characters/playable/dao-si/dao-si-male-avatar.jpg" alt="Đạo Sĩ Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Đạo+Sĩ+Nam'">
+          <div class="character-option" id="opt-dao-si-male" data-id="dao-si-male" data-gender="male" onclick="selectCharacter('dao-si-male', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/dao-si/dao-si-male-avatar.jpg" alt="Đạo Sĩ Nam" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Đạo Sĩ</div>
-            <div class="character-variant">Nam | ~25 tuổi</div>
+            <div class="character-variant">♂ Nam · ~25 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:90%"></div></div>
             </div>
           </div>
-          <div class="character-option" onclick="selectCharacter('dao-si-female', this)">
-            <img src="design-system/characters/playable/dao-si/dao-si-female-avatar.jpg" alt="Đạo Sĩ Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Đạo+Sĩ+Nữ'">
+          <div class="character-option" id="opt-dao-si-female" data-id="dao-si-female" data-gender="female" onclick="selectCharacter('dao-si-female', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/dao-si/dao-si-female-avatar.jpg" alt="Đạo Sĩ Nữ" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Đạo Sĩ</div>
-            <div class="character-variant">Nữ | ~25 tuổi</div>
+            <div class="character-variant">♀ Nữ · ~25 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:90%"></div></div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- NỎ THẦN -->
-      <div class="character-class">
-        <div class="class-name"><span class="class-icon">🏹</span> Nỏ Thần (Cung Thủ)</div>
+      <div class="character-class no-than" id="class-no-than">
+        <div class="class-name"><span class="class-icon">🏹</span> Nỏ Thần — Cung Thủ</div>
         <div class="character-pair">
-          <div class="character-option" onclick="selectCharacter('no-than-male', this)">
-            <img src="design-system/characters/playable/no-than/no-than-male-avatar.jpg" alt="Nỏ Thần Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Nỏ+Thần+Nam'">
+          <div class="character-option" id="opt-no-than-male" data-id="no-than-male" data-gender="male" onclick="selectCharacter('no-than-male', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/no-than/no-than-male-avatar.jpg" alt="Nỏ Thần Nam" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Nỏ Thần</div>
-            <div class="character-variant">Nam | ~20 tuổi</div>
+            <div class="character-variant">♂ Nam · ~20 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 85%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:90%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:85%"></div></div>
             </div>
           </div>
-          <div class="character-option" onclick="selectCharacter('no-than-female', this)">
-            <img src="design-system/characters/playable/no-than/no-than-female-avatar.jpg" alt="Nỏ Thần Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Nỏ+Thần+Nữ'">
+          <div class="character-option" id="opt-no-than-female" data-id="no-than-female" data-gender="female" onclick="selectCharacter('no-than-female', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/no-than/no-than-female-avatar.jpg" alt="Nỏ Thần Nữ" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Nỏ Thần</div>
-            <div class="character-variant">Nữ | ~20 tuổi</div>
+            <div class="character-variant">♀ Nữ · ~20 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 85%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:90%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:85%"></div></div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- THẦN TƯỚNG -->
-      <div class="character-class">
-        <div class="class-name"><span class="class-icon">🛡️</span> Thần Tướng (Hiệp Sĩ)</div>
+      <div class="character-class than-tuong" id="class-than-tuong">
+        <div class="class-name"><span class="class-icon">🛡️</span> Thần Tướng — Hiệp Sĩ</div>
         <div class="character-pair">
-          <div class="character-option" onclick="selectCharacter('than-tuong-male', this)">
-            <img src="design-system/characters/playable/than-tuong/than-tuong-male-avatar.jpg" alt="Thần Tướng Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Thần+Tướng+Nam'">
+          <div class="character-option" id="opt-than-tuong-male" data-id="than-tuong-male" data-gender="male" onclick="selectCharacter('than-tuong-male', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/than-tuong/than-tuong-male-avatar.jpg" alt="Thần Tướng Nam" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Thần Tướng</div>
-            <div class="character-variant">Nam | ~35 tuổi</div>
+            <div class="character-variant">♂ Nam · ~35 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 50%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:50%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
             </div>
           </div>
-          <div class="character-option" onclick="selectCharacter('than-tuong-female', this)">
-            <img src="design-system/characters/playable/than-tuong/than-tuong-female-avatar.jpg" alt="Thần Tướng Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Thần+Tướng+Nữ'">
+          <div class="character-option" id="opt-than-tuong-female" data-id="than-tuong-female" data-gender="female" onclick="selectCharacter('than-tuong-female', this)">
+            <div class="char-img-wrap">
+              <img src="design-system/characters/playable/than-tuong/than-tuong-female-avatar.jpg" alt="Thần Tướng Nữ" onerror="this.style.display='none'">
+            </div>
             <div class="character-name">Thần Tướng</div>
-            <div class="character-variant">Nữ | ~30-35 tuổi</div>
+            <div class="character-variant">♀ Nữ · ~35 tuổi</div>
             <div class="stats">
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 50%"></div></div>
-              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:50%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+    </div><!-- /content -->
 
     <!-- FOOTER -->
     <div class="footer">
-      <button class="btn secondary" onclick="goBack()">← Quay Lại</button>
-      <button class="btn" onclick="startGame()" id="startBtn" disabled>Bắt Đầu ⚡</button>
+      <button class="btn" onclick="goBack()">← Quay Lại</button>
+      <button class="btn primary" id="startBtn" onclick="startGame()" disabled>Vào Trận ⚡</button>
     </div>
-  </div>
+
+  </div><!-- /app -->
 
   <script>
+    // ─── STATE ───────────────────────────────────────────────
     let selectedCharacter = null;
+    let activeGender = 'male'; // default
 
-    function selectCharacter(charId, element) {
-      selectedCharacter = charId;
+    const CLASS_LABELS = {
+      'lac-tuong':  'Lạc Tướng',
+      'dao-si':     'Đạo Sĩ',
+      'no-than':    'Nỏ Thần',
+      'than-tuong': 'Thần Tướng',
+    };
 
-      // Remove previous selection
-      document.querySelectorAll('.character-option.selected').forEach(el => {
-        el.classList.remove('selected');
+    // ─── GENDER TOGGLE ───────────────────────────────────────
+    function setGender(gender) {
+      activeGender = gender;
+      localStorage.setItem('selectedGender', gender);
+
+      // Update button states
+      document.getElementById('genderMale').classList.toggle('active', gender === 'male');
+      document.getElementById('genderFemale').classList.toggle('active', gender === 'female');
+
+      // Apply dim/match classes to all options
+      document.querySelectorAll('.character-option').forEach(el => {
+        const elGender = el.dataset.gender;
+        el.classList.remove('gender-dim', 'gender-match');
+        if (elGender === gender) {
+          el.classList.add('gender-match');
+        } else {
+          el.classList.add('gender-dim');
+        }
       });
 
-      // Add selection to clicked element
+      // If current selection is wrong gender, auto-switch to matching class
+      if (selectedCharacter) {
+        const parts = selectedCharacter.split('-');
+        const currentGender = parts[parts.length - 1]; // 'male' or 'female'
+        if (currentGender !== gender) {
+          // Switch to same class but other gender
+          const classId = parts.slice(0, -1).join('-');
+          const newId = classId + '-' + gender;
+          const newEl = document.getElementById('opt-' + newId);
+          if (newEl) selectCharacter(newId, newEl);
+        }
+      }
+    }
+
+    // ─── CHARACTER SELECTION ─────────────────────────────────
+    function selectCharacter(charId, element) {
+      selectedCharacter = charId;
+      localStorage.setItem('selectedCharacter', charId);
+
+      // Clear previous selection
+      document.querySelectorAll('.character-option.selected').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('.character-class.has-selected').forEach(el => el.classList.remove('has-selected'));
+
+      // Apply selection
       element.classList.add('selected');
+      element.closest('.character-class').classList.add('has-selected');
 
       // Enable start button
       document.getElementById('startBtn').disabled = false;
 
-      console.log('Selected:', charId);
-
-      // Store in localStorage for later use
-      localStorage.setItem('selectedCharacter', charId);
+      // Update preview label
+      const parts = charId.split('-');
+      const gender = parts[parts.length - 1];
+      const classId = parts.slice(0, -1).join('-');
+      const className = CLASS_LABELS[classId] || classId;
+      const genderLabel = gender === 'male' ? 'Nam' : 'Nữ';
+      document.getElementById('selectedPreview').textContent = `Đã chọn: ${className} · ${genderLabel}`;
     }
 
+    // ─── NAVIGATION ──────────────────────────────────────────
     function startGame() {
-      if (!selectedCharacter) {
-        alert('Vui lòng chọn một nhân vật!');
-        return;
-      }
-
-      // Get tg_id from URL params
+      if (!selectedCharacter) return;
       const params = new URLSearchParams(window.location.search);
       const tgId = params.get('tg_id');
-
-      // Go to map with character selection
-      const mapUrl = 'map.html?character=' + selectedCharacter + (tgId ? '&tg_id=' + tgId : '');
-      window.location.href = mapUrl;
+      const url = 'map.html?character=' + selectedCharacter + (tgId ? '&tg_id=' + tgId : '');
+      window.location.href = url;
     }
 
     function goBack() {
       window.history.back();
     }
 
-    // Initialize
+    // ─── INIT ────────────────────────────────────────────────
     window.addEventListener('load', () => {
+      // 1. Read gender from localStorage (set by previous screen) or URL param
+      const params = new URLSearchParams(window.location.search);
+      const paramGender = params.get('gender');
+      const savedGender  = localStorage.getItem('selectedGender');
+      const gender = paramGender || savedGender || 'male';
+      setGender(gender);
+
+      // 2. Restore previously selected character
       const saved = localStorage.getItem('selectedCharacter');
       if (saved) {
-        selectedCharacter = saved;
-        document.getElementById('startBtn').disabled = false;
+        const el = document.getElementById('opt-' + saved);
+        if (el) {
+          selectCharacter(saved, el);
+          // Scroll into view
+          el.closest('.character-class').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     });
   </script>
