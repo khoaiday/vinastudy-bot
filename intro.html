@@ -53,11 +53,8 @@ html, body {
   background-image:
     linear-gradient(
       to bottom,
-      rgba(7,4,10,0.55) 0%,
-      rgba(7,4,10,0.65) 40%,
-      rgba(7,4,10,0.75) 60%,
-      rgba(7,4,10,0.95) 85%,
-      rgba(7,4,10,1.00) 100%
+      rgba(7,4,10,0.45) 0%,
+      rgba(7,4,10,0.50) 100%
     ),
     url('design-system/intro/intro-splash.jpg');
   background-size: cover;
@@ -102,23 +99,29 @@ html, body {
   position: absolute; z-index: 2;
   top: 50%; left: 0; right: 0;
   transform: translateY(calc(-50% + 16px));
-  padding: 0 36px;
+  padding: 28px 36px;
   display: flex; flex-direction: column; align-items: center; gap: 20px;
   opacity: 0;
   transition: opacity 1s ease 1.4s, transform 1s ease 1.4s;
+  background: rgba(7,4,10,0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .splash-bottom.show { opacity: 1; transform: translateY(-50%); }
 
 .splash-tagline {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-style: italic;
-  color: var(--text-main);
+  color: #F5EED6;
   text-align: center;
-  line-height: 1.9;
-  text-shadow: 0 1px 8px rgba(7,4,10,0.9), 0 0 24px rgba(7,4,10,0.8);
+  line-height: 2;
+  text-shadow:
+    0 0 12px rgba(7,4,10,1),
+    0 0 24px rgba(7,4,10,1),
+    0 2px 4px rgba(7,4,10,1);
 }
-.splash-tagline strong { color: var(--text-main); font-style: normal; }
+.splash-tagline strong { color: #fff; font-style: normal; }
 
 .btn-start {
   width: 100%;
