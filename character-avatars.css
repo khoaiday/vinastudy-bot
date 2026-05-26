@@ -61,36 +61,36 @@
    FACTION-SPECIFIC AVATAR STYLES
    ============================================ */
 
-/* LẠC TƯỚNG - Warrior (Red) */
+/* LẠC TƯỚNG - Warrior (Đỏ Son) */
 .avatar.lac-tuong,
 .character-avatar.lac-tuong {
-  --faction-color: #FF5555;
-  --faction-glow: #FF0033;
-  --faction-rgb: 255, 85, 85;
+  --faction-color: #C0332E;
+  --faction-glow: #D9514A;
+  --faction-rgb: 192, 51, 46;
 }
 
-/* ĐẠO SĨ - Mage (Purple/Magenta) */
+/* ĐẠO SĨ - Mage (Tím Huyền) */
 .avatar.dao-si,
 .character-avatar.dao-si {
-  --faction-color: #EA0EED;
-  --faction-glow: #FF66FF;
-  --faction-rgb: 234, 14, 237;
+  --faction-color: #5E2A78;
+  --faction-glow: #A05CC0;
+  --faction-rgb: 94, 42, 120;
 }
 
-/* NỎ THẦN - Archer (Cyan/Green) */
+/* NỎ THẦN - Archer (Ngọc Lý) */
 .avatar.no-than,
 .character-avatar.no-than {
-  --faction-color: #0AE0FE;
-  --faction-glow: #00FFFF;
-  --faction-rgb: 10, 224, 254;
+  --faction-color: #246B4A;
+  --faction-glow: #58B082;
+  --faction-rgb: 36, 107, 74;
 }
 
-/* THẦN TƯỚNG - Knight (Dark Blue) */
+/* THẦN TƯỚNG - Knight (Lam Cổ) */
 .avatar.than-tuong,
 .character-avatar.than-tuong {
-  --faction-color: #0ae0fe;
-  --faction-glow: #4eff9f;
-  --faction-rgb: 78, 255, 159;
+  --faction-color: #1A3A5C;
+  --faction-glow: #5090CC;
+  --faction-rgb: 26, 58, 92;
 }
 
 /* ============================================

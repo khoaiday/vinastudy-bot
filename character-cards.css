@@ -78,32 +78,32 @@
    FACTION-SPECIFIC CARD COLORS
    ============================================ */
 
-/* LẠC TƯỚNG - Warrior (Red) */
+/* LẠC TƯỚNG - Warrior (Đỏ Son) */
 .character-card.lac-tuong {
-  --faction-color: #FF5555;
-  --faction-glow: #FF0033;
-  --faction-light: rgba(255, 85, 85, 0.2);
+  --faction-color: #C0332E;
+  --faction-glow: #D9514A;
+  --faction-light: rgba(192, 51, 46, 0.2);
 }
 
-/* ĐẠO SĨ - Mage (Magenta) */
+/* ĐẠO SĨ - Mage (Tím Huyền) */
 .character-card.dao-si {
-  --faction-color: #EA0EED;
-  --faction-glow: #FF66FF;
-  --faction-light: rgba(234, 14, 237, 0.2);
+  --faction-color: #5E2A78;
+  --faction-glow: #A05CC0;
+  --faction-light: rgba(94, 42, 120, 0.2);
 }
 
-/* NỎ THẦN - Archer (Cyan) */
+/* NỎ THẦN - Archer (Ngọc Lý) */
 .character-card.no-than {
-  --faction-color: #0AE0FE;
-  --faction-glow: #00FFFF;
-  --faction-light: rgba(10, 224, 254, 0.2);
+  --faction-color: #246B4A;
+  --faction-glow: #58B082;
+  --faction-light: rgba(36, 107, 74, 0.2);
 }
 
-/* THẦN TƯỚNG - Knight (Green) */
+/* THẦN TƯỚNG - Knight (Lam Cổ) */
 .character-card.than-tuong {
-  --faction-color: #4eff9f;
-  --faction-glow: #00FF7F;
-  --faction-light: rgba(78, 255, 159, 0.2);
+  --faction-color: #1A3A5C;
+  --faction-glow: #5090CC;
+  --faction-light: rgba(26, 58, 92, 0.2);
 }
 
 /* ============================================

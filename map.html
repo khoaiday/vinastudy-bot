@@ -5,37 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Bản Đồ Chiến Dịch — Chiến Binh Toán</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #0ae0fe;
-    --primary-glow: rgba(10, 224, 254, 0.5);
-    --secondary: #ea0eed;
-    --secondary-glow: rgba(234, 14, 237, 0.5);
-    --success: #4eff9f;
-    --danger: #ff0055;
-    --bg-base: #050a1f;
-    --bg-card: rgba(11, 19, 43, 0.85);
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --border: rgba(10, 224, 254, 0.4);
+    /* ── Palette Đại Việt v6 ── */
+    --bg-void:    #07040A;
+    --bg-deep:    #0F0A14;
+    --bg-panel:   #160E1C;
+    --bg-card:    #1E1327;
+    --bg-lift:    #261A30;
+
+    --primary:       #C8960C;
+    --primary-glow:  rgba(200, 150, 12, 0.40);
+    --secondary:     #C0332E;
+    --secondary-glow:rgba(192, 51, 46, 0.35);
+    --success:       #5ABCAA;
+    --success-glow:  rgba(90, 188, 170, 0.30);
+    --danger:        #C0332E;
+    --copper:        #B87333;
+    --copper-glow:   rgba(184, 115, 51, 0.30);
+
+    --bg-base:    var(--bg-void);
+    --text-main:  #F5EED6;
+    --text-muted: #A08C70;
+    --border:     rgba(184, 115, 51, 0.40);
+
+    --font-title: 'Philosopher', serif;
+    --font-body:  'Lora', serif;
+    --font-mono:  'Roboto Mono', monospace;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   html, body {
     height: 100%; overflow: hidden;
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--bg-base);
+    font-family: var(--font-body);
+    background-color: var(--bg-void);
     color: var(--text-main);
   }
 
   /* ── Background Grid ── */
   .grid-bg {
     position: absolute; inset: 0;
-    background-image: 
-      linear-gradient(rgba(10, 224, 254, 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(10, 224, 254, 0.07) 1px, transparent 1px);
+    background-image:
+      linear-gradient(rgba(184, 115, 51, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184, 115, 51, 0.06) 1px, transparent 1px);
     background-size: 40px 40px;
     background-position: center top;
     z-index: 0;
@@ -44,39 +58,42 @@
 
   .app {
     display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1;
-    background: radial-gradient(circle at top right, rgba(14, 23, 58, 0.8), var(--bg-base));
+    background:
+      radial-gradient(ellipse 80% 35% at 50% 0%, rgba(180,100,20,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 20% at 20% 80%, rgba(100,40,15,0.06) 0%, transparent 60%),
+      var(--bg-void);
   }
 
   /* ── Header ── */
   .header {
-    padding: 30px 20px 20px;
+    padding: 28px 20px 18px;
     text-align: center; flex-shrink: 0;
     position: relative; z-index: 5;
-    background: radial-gradient(circle at center top, rgba(10,224,254,0.1), transparent);
-    border-bottom: 2px solid var(--primary);
-    box-shadow: 0 5px 30px rgba(10,224,254,0.2);
+    background: radial-gradient(circle at center top, rgba(200,150,12,0.08), transparent);
+    border-bottom: 2px solid var(--copper);
+    box-shadow: 0 5px 30px rgba(184,115,51,0.20);
   }
 
   .user-badge {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(10, 224, 254, 0.1);
-    border: 1px solid var(--primary);
+    background: rgba(200, 150, 12, 0.10);
+    border: 1px solid var(--copper);
     border-radius: 20px; padding: 5px 14px;
-    font-family: 'Chakra Petch', sans-serif;
-    font-size: 14px; font-weight: 700; letter-spacing: 1px;
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600; letter-spacing: 1px;
     margin-bottom: 12px; color: var(--primary);
     box-shadow: 0 0 10px var(--primary-glow);
   }
 
   .header h1 {
-    font-family: 'Chakra Petch', sans-serif;
-    font-size: 32px; font-weight: 900;
-    line-height: 1.2; text-transform: uppercase;
-    letter-spacing: 3px;
+    font-family: var(--font-title);
+    font-size: 30px; font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 2px;
     color: var(--primary);
-    text-shadow: 0 0 15px var(--primary-glow);
+    text-shadow: 0 0 30px var(--primary-glow);
   }
-  .header p { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .header p { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; letter-spacing: 1px; font-style: italic; }
 
   /* ── Scroll Area ── */
   .scroll {
@@ -86,24 +103,24 @@
   .scroll::-webkit-scrollbar { display: none; }
 
   .zone-title {
-    font-family: 'Chakra Petch', sans-serif;
-    font-size: 20px; font-weight: 900;
-    text-transform: uppercase; letter-spacing: 2px;
-    color: var(--secondary); margin: 24px 0 16px;
+    font-family: var(--font-title);
+    font-size: 18px; font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--primary); margin: 24px 0 16px;
     display: flex; align-items: center; gap: 12px;
-    text-shadow: 0 0 10px var(--secondary-glow);
+    text-shadow: 0 0 20px var(--primary-glow);
   }
   .zone-title::after {
-    content: ""; flex: 1; height: 2px;
-    background: linear-gradient(90deg, var(--secondary), transparent);
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--copper), transparent);
   }
 
   /* ── Cyber Box Style ── */
   .cyber-box {
     position: relative;
-    border-radius: 12px;
+    border-radius: 10px;
     background: transparent !important;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     cursor: pointer;
     transition: transform 0.2s;
   }
@@ -113,15 +130,15 @@
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    padding: 2px;
+    padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, var(--copper), var(--primary));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
     z-index: 10;
-    box-shadow: 0 0 10px rgba(10, 224, 254, 0.3);
+    box-shadow: 0 0 8px var(--copper-glow);
   }
   .cyber-box::after {
     content: "";
@@ -130,7 +147,6 @@
     border-radius: inherit;
     z-index: -1;
     background: var(--bg-card);
-    /* backdrop-filter: blur(8px); Removed for performance */
   }
 
   .card-content {
@@ -141,26 +157,27 @@
   .card-icon {
     flex-shrink: 0; width: 50px; height: 50px; border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Chakra Petch', sans-serif; font-size: 20px; font-weight: 900; color: #fff;
-    background: rgba(10, 224, 254, 0.1);
-    border: 2px solid var(--primary);
-    box-shadow: inset 0 0 10px var(--primary-glow);
-    text-shadow: 0 0 10px var(--primary-glow);
+    font-family: var(--font-title); font-size: 20px; font-weight: 700; color: #fff;
+    background: rgba(200, 150, 12, 0.10);
+    border: 2px solid var(--copper);
+    box-shadow: inset 0 0 10px var(--copper-glow);
+    text-shadow: 0 0 8px var(--primary-glow);
   }
-  
+
   .card-body { flex: 1; min-width: 0; }
   .card-level {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--secondary); margin-bottom: 4px;
+    font-size: 10px; font-family: var(--font-mono);
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--copper); margin-bottom: 4px;
   }
-  .card-title { 
-    font-size: 16px; font-weight: 700; line-height: 1.3; 
+  .card-title {
+    font-size: 15px; font-weight: 600; font-family: var(--font-body); line-height: 1.3;
     color: var(--text-main);
   }
 
   .card-arrow {
-    flex-shrink: 0; font-size: 24px; color: var(--primary);
-    filter: drop-shadow(0 0 5px var(--primary-glow));
+    flex-shrink: 0; font-size: 22px; color: var(--primary);
+    filter: drop-shadow(0 0 4px var(--primary-glow));
   }
 
   /* ── Slide-in Page ── */
@@ -174,25 +191,25 @@
   .page.active { transform: translateX(0); pointer-events: auto; }
 
   .page-header {
-    background: rgba(11, 19, 43, 0.95);
+    background: var(--bg-panel);
     color: white; padding: 12px 14px;
     display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-    border-bottom: 2px solid var(--primary);
-    box-shadow: 0 4px 15px rgba(10, 224, 254, 0.2);
+    border-bottom: 1px solid var(--copper);
+    box-shadow: 0 4px 15px rgba(184,115,51,0.20);
   }
-  
+
   .back-btn {
     width: 40px; height: 40px; border-radius: 8px;
-    background: rgba(10, 224, 254, 0.1); border: 2px solid var(--primary);
-    color: var(--primary); font-size: 24px; cursor: pointer;
+    background: rgba(200, 150, 12, 0.10); border: 1px solid var(--copper);
+    color: var(--primary); font-size: 22px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: inset 0 0 10px var(--primary-glow);
+    box-shadow: inset 0 0 8px var(--copper-glow);
     transition: all 0.2s;
   }
-  .back-btn:active { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary-glow); }
-  
-  .page-header-info h2 { font-family: 'Chakra Petch', sans-serif; font-size: 18px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
-  .page-header-info p  { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+  .back-btn:active { background: var(--copper); color: #000; }
+
+  .page-header-info h2 { font-family: var(--font-title); font-size: 17px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+  .page-header-info p  { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 1px; font-style: italic; }
 
   .page-body { flex: 1; position: relative; overflow: hidden; }
   .page-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
@@ -205,12 +222,12 @@
   }
   .spinner {
     width: 40px; height: 40px; border-radius: 50%;
-    border: 3px solid transparent; border-top-color: var(--primary); border-left-color: var(--secondary);
+    border: 3px solid transparent; border-top-color: var(--primary); border-left-color: var(--copper);
     animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
     box-shadow: 0 0 15px var(--primary-glow);
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading p { font-size: 14px; color: var(--primary); font-weight: 700; font-family: 'Chakra Petch', sans-serif; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--primary-glow); }
+  .loading p { font-size: 13px; color: var(--primary); font-family: var(--font-mono); letter-spacing: 2px; font-style: italic; text-shadow: 0 0 10px var(--primary-glow); }
 
 
   /* ── Passed Level Badge ── */
@@ -740,14 +757,14 @@ history.pushState({}, '');
   if (!selectedChar) return;
 
   const charCfg = {
-    'lac-tuong-male':   { color:'#FF5555', glow:'#FF0033', emoji:'⚔️', label:'LẠC TƯỚNG' },
-    'lac-tuong-female': { color:'#FF5555', glow:'#FF0033', emoji:'⚔️', label:'LẠC TƯỚNG' },
-    'dao-si-male':      { color:'#EA0EED', glow:'#FF66FF', emoji:'🔮', label:'ĐẠO SĨ' },
-    'dao-si-female':    { color:'#EA0EED', glow:'#FF66FF', emoji:'🔮', label:'ĐẠO SĨ' },
-    'no-than-male':     { color:'#0AE0FE', glow:'#00FFFF', emoji:'🏹', label:'NỎ THẦN' },
-    'no-than-female':   { color:'#0AE0FE', glow:'#00FFFF', emoji:'🏹', label:'NỎ THẦN' },
-    'than-tuong-male':  { color:'#4eff9f', glow:'#00FF7F', emoji:'🛡️', label:'THẦN TƯỚNG' },
-    'than-tuong-female':{ color:'#4eff9f', glow:'#00FF7F', emoji:'🛡️', label:'THẦN TƯỚNG' }
+    'lac-tuong-male':   { color:'#C0332E', glow:'#D9514A', emoji:'⚔️', label:'LẠC TƯỚNG' },
+    'lac-tuong-female': { color:'#C0332E', glow:'#D9514A', emoji:'⚔️', label:'LẠC TƯỚNG' },
+    'dao-si-male':      { color:'#5E2A78', glow:'#A05CC0', emoji:'🔮', label:'ĐẠO SĨ' },
+    'dao-si-female':    { color:'#5E2A78', glow:'#A05CC0', emoji:'🔮', label:'ĐẠO SĨ' },
+    'no-than-male':     { color:'#246B4A', glow:'#58B082', emoji:'🏹', label:'NỎ THẦN' },
+    'no-than-female':   { color:'#246B4A', glow:'#58B082', emoji:'🏹', label:'NỎ THẦN' },
+    'than-tuong-male':  { color:'#1A3A5C', glow:'#5090CC', emoji:'🛡️', label:'THẦN TƯỚNG' },
+    'than-tuong-female':{ color:'#1A3A5C', glow:'#5090CC', emoji:'🛡️', label:'THẦN TƯỚNG' }
   };
 
   const cfg = charCfg[selectedChar];
