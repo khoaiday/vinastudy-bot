@@ -69,7 +69,7 @@ async def _notify_deleted_user(user: dict):
     try:
         import httpx
         base     = os.getenv("BASE_DOMAIN") or BASE_DOMAIN
-        reg_url      = f"{base}/register?tg_id={tg_id}"
+        reg_url      = f"{base}/?tg_id={tg_id}"
         reg_keyboard = {
             "keyboard": [
                 [{"text": "🎮 Chơi game", "web_app": {"url": reg_url}}]
