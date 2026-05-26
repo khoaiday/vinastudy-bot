@@ -1,0 +1,291 @@
+/**
+ * CHARACTER AVATARS STYLING
+ * VInaStudy Bot — Design System v6
+ *
+ * Circular avatar displays for character selection, battle HUD, profiles
+ * Faction-specific colors from NG_HOABAO palette
+ */
+
+/* BASE AVATAR CIRCLE */
+.character-avatar {
+  width: 84px;
+  height: 84px;
+  min-width: 84px;
+  min-height: 84px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+
+  /* Border & glow */
+  border: 3px solid var(--faction-color, #999);
+  box-shadow:
+    0 0 12px var(--faction-glow, rgba(100,100,100,0.5)),
+    inset 0 0 8px rgba(0,0,0,0.3);
+
+  background: var(--bg-panel, #1a1520);
+
+  /* Animation support */
+  transition: all 0.3s ease;
+}
+
+.character-avatar:hover {
+  box-shadow:
+    0 0 20px var(--faction-glow, rgba(100,100,100,0.8)),
+    inset 0 0 12px rgba(0,0,0,0.4),
+    0 0 30px rgba(255,255,255,0.2);
+  transform: scale(1.05);
+}
+
+.character-avatar:active {
+  transform: scale(0.98);
+}
+
+.character-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* OPTIONAL: Vietnamese pattern border overlay */
+.character-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: none;
+}
+
+/* ============================================
+   FACTION-SPECIFIC AVATAR STYLES
+   ============================================ */
+
+/* LẠC TƯỚNG - Warrior (Red) */
+.avatar.lac-tuong,
+.character-avatar.lac-tuong {
+  --faction-color: #C0332E;
+  --faction-glow: #FF5555;
+  --faction-rgb: 192, 51, 46;
+}
+
+/* ĐẠO SĨ - Mage (Purple) */
+.avatar.dao-si,
+.character-avatar.dao-si {
+  --faction-color: #5E2A78;
+  --faction-glow: #9966FF;
+  --faction-rgb: 94, 42, 120;
+}
+
+/* NỎ THẦN - Archer (Jade Green) */
+.avatar.no-than,
+.character-avatar.no-than {
+  --faction-color: #246B4A;
+  --faction-glow: #66FFCC;
+  --faction-rgb: 36, 107, 74;
+}
+
+/* THẦN TƯỚNG - Knight (Indigo Blue) */
+.avatar.than-tuong,
+.character-avatar.than-tuong {
+  --faction-color: #1A3A5C;
+  --faction-glow: #6699FF;
+  --faction-rgb: 26, 58, 92;
+}
+
+/* ============================================
+   SIZE VARIANTS
+   ============================================ */
+
+/* Small avatar (48px) - for dialogs, compact UI */
+.character-avatar.sm {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  border-width: 2px;
+}
+
+/* Large avatar (120px) - for profile pages, character showcase */
+.character-avatar.lg {
+  width: 120px;
+  height: 120px;
+  min-width: 120px;
+  min-height: 120px;
+  border-width: 4px;
+}
+
+/* Extra large (160px) - for character selection screen */
+.character-avatar.xl {
+  width: 160px;
+  height: 160px;
+  min-width: 160px;
+  min-height: 160px;
+  border-width: 5px;
+}
+
+/* ============================================
+   STATE VARIATIONS
+   ============================================ */
+
+/* Selected/Active state */
+.character-avatar.active {
+  box-shadow:
+    0 0 25px var(--faction-glow),
+    inset 0 0 15px rgba(0,0,0,0.3),
+    0 0 40px rgba(255,255,255,0.3);
+  border-width: 4px;
+}
+
+/* Disabled/Locked state */
+.character-avatar.disabled {
+  opacity: 0.6;
+  filter: grayscale(100%) brightness(0.8);
+  box-shadow:
+    0 0 8px rgba(0,0,0,0.8),
+    inset 0 0 8px rgba(0,0,0,0.5);
+}
+
+.character-avatar.disabled::before {
+  content: '🔒';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  background: rgba(0,0,0,0.3);
+  z-index: 10;
+}
+
+/* Hovering over locked */
+.character-avatar.disabled:hover {
+  filter: grayscale(100%) brightness(0.9);
+  transform: scale(1.02);
+}
+
+/* Health/status indicator ring */
+.character-avatar.damaged {
+  border-color: #FF3333;
+  --faction-glow: #FF6666;
+}
+
+/* ============================================
+   LAYOUT UTILITIES
+   ============================================ */
+
+/* Avatar with name label (below) */
+.avatar-with-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-with-label .character-avatar {
+  margin: 0;
+}
+
+.avatar-with-label .label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--faction-color);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Avatar with class icon (top-right corner) */
+.character-avatar-with-class {
+  position: relative;
+}
+
+.character-avatar-with-class .class-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 28px;
+  height: 28px;
+  background: var(--faction-color);
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 5;
+}
+
+/* ============================================
+   BATTLE HUD AVATARS (smaller, optimized)
+   ============================================ */
+
+.battle-avatar-team {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.battle-avatar {
+  position: relative;
+}
+
+.battle-avatar .character-avatar {
+  width: 64px;
+  height: 64px;
+  border-width: 2px;
+}
+
+.battle-avatar .hp-bar {
+  width: 64px;
+  height: 4px;
+  background: #333;
+  margin-top: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.battle-avatar .hp-bar-fill {
+  height: 100%;
+  background: #66FF66;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 4px #66FF66;
+}
+
+.battle-avatar.low-hp .hp-bar-fill {
+  background: #FF6666;
+  box-shadow: 0 0 4px #FF6666;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .character-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .character-avatar.xl {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-avatar {
+    width: 64px;
+    height: 64px;
+    border-width: 2px;
+  }
+
+  .character-avatar.lg {
+    width: 84px;
+    height: 84px;
+  }
+
+  .avatar-with-label .label {
+    font-size: 12px;
+  }
+}

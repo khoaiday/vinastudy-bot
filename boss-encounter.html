@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Boss Encounter — Hồ Tinh</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="boss-screen.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: 'Chakra Petch', 'Roboto', sans-serif;
+    background: #0F0A15;
+    color: #f8fafc;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Scanline overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.04) 2px,
+      rgba(0,0,0,0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── HP Bar for Boss ── */
+  .boss-hp-wrap {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 12px;
+  }
+  .boss-hp-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #AAA;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .boss-hp-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,85,85,0.4);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .boss-hp-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #FF0033 0%, #FF5555 60%, #FF8888 100%);
+    box-shadow: 0 0 8px rgba(255,85,85,0.8);
+    transition: width 0.5s ease;
+  }
+
+  /* ── Countdown overlay ── */
+  #countdown-overlay {
+    position: fixed; inset: 0;
+    background: #0F0A15;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5000;
+    transition: opacity 0.5s ease;
+  }
+  #countdown-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .countdown-number {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 120px;
+    font-weight: 900;
+    color: #FF5555;
+    text-shadow:
+      0 0 40px rgba(255,85,85,0.8),
+      0 0 80px rgba(255,85,85,0.4);
+    animation: countdown-pulse 1s ease-in-out;
+  }
+  @keyframes countdown-pulse {
+    0%   { transform: scale(1.5); opacity: 0; }
+    50%  { transform: scale(1.0); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0; }
+  }
+
+  /* Floating math symbols */
+  .math-symbol {
+    position: fixed;
+    font-family: 'Chakra Petch', monospace;
+    font-size: 20px;
+    color: rgba(200, 150, 12, 0.3);
+    pointer-events: none;
+    animation: float-symbol linear infinite;
+    z-index: 1;
+    user-select: none;
+  }
+  @keyframes float-symbol {
+    0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.8; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Countdown overlay -->
+<div id="countdown-overlay">
+  <div class="countdown-number" id="countdownNum">3</div>
+</div>
+
+<!-- Floating math symbols -->
+<div id="mathSymbols"></div>
+
+<!-- ════════════════════════════════════
+     BOSS ENCOUNTER SCREEN
+     ════════════════════════════════════ -->
+<div class="boss-encounter animate-in" id="bossEncounter">
+
+  <!-- Background atmospheric -->
+  <!-- (handled by boss-screen.css ::before / ::after) -->
+
+  <!-- TOP: Boss title -->
+  <div class="boss-encounter-header animate-in">
+    <h1>⚔️ ĐỐI MẶT BOSS ⚔️</h1>
+    <p class="subtitle" id="bossSubtitle">Kẻ thù huyền thoại xuất hiện!</p>
+  </div>
+
+  <!-- CENTER: Portrait -->
+  <div class="boss-portrait-container">
+    <div class="boss-portrait">
+      <img
+        id="bossPortraitImg"
+        src="design-system/characters/boss/ho-tinh-portrait.jpg"
+        alt="Hồ Tinh"
+        onerror="this.src='';this.parentElement.style.background='linear-gradient(135deg,#2A0A0A,#4A1010)';this.parentElement.innerHTML+='<div style=\'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:80px;z-index:5\'>🦊</div>'"
+      >
+    </div>
+    <div class="boss-portrait-glow"></div>
+  </div>
+
+  <!-- BOTTOM: Info panel -->
+  <div class="boss-info-panel">
+    <div class="boss-hp-wrap">
+      <div class="boss-hp-label">
+        <span>HP HỒ TINH</span>
+        <span id="bossHpText">??? / ???</span>
+      </div>
+      <div class="boss-hp-bar">
+        <div class="boss-hp-fill" id="bossHpFill" style="width:100%"></div>
+      </div>
+    </div>
+
+    <div class="boss-info-content">
+      <div class="boss-stat">
+        <div class="boss-stat-label">Loại Boss</div>
+        <div class="boss-stat-value">HỒ TINH</div>
+      </div>
+      <div class="boss-stat">
+        <div class="boss-stat-label">Bài học</div>
+        <div class="boss-stat-value" id="bossLesson">—</div>
+      </div>
+      <div class="boss-stat">
+        <div class="boss-stat-label">Độ khó</div>
+        <div class="boss-stat-value danger" id="bossDifficulty">★★★★★</div>
+      </div>
+      <div class="boss-description" id="bossDescription">
+        Hồ Tinh — yêu hồ chín đuôi hàng ngàn năm tu luyện — đang thách thức ta bằng
+        sức mạnh của toán học! Chỉ có trí tuệ mới đánh bại được kẻ thù này!
+      </div>
+    </div>
+  </div>
+
+  <!-- Difficulty stars -->
+  <div class="boss-difficulty impossible" id="bossDifficultyStars">
+    <div class="boss-difficulty-label">Độ Khó</div>
+    <div class="boss-difficulty-stars">
+      <span class="star active">★</span>
+      <span class="star active">★</span>
+      <span class="star active">★</span>
+      <span class="star active">★</span>
+      <span class="star active">★</span>
+    </div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="boss-action-buttons animate-in">
+    <button class="boss-btn start" onclick="startBattle()">⚔️ NGHÊNH CHIẾN!</button>
+    <button class="boss-btn escape" onclick="escapeBattle()">🏃 RÚT LUI</button>
+  </div>
+
+</div><!-- /boss-encounter -->
+
+<script>
+// ── Config từ URL params ───────────────────────────────────────────────────
+const params     = new URLSearchParams(window.location.search);
+const tgId       = params.get('tg_id') || sessionStorage.getItem('vsTgId') || '';
+const lessonId   = params.get('lesson') || '?';
+const returnURL  = params.get('return') || 'map.html';
+const difficulty = params.get('diff')   || 'impossible'; // easy|normal|hard|impossible
+
+// ── Floating math symbols ──────────────────────────────────────────────────
+const MATH_SYMS = ['+','−','×','÷','=','√','½','△','∑','π','∞','%','²','³'];
+const container  = document.getElementById('mathSymbols');
+
+for (let i = 0; i < 18; i++) {
+  const el = document.createElement('div');
+  el.className = 'math-symbol';
+  el.textContent = MATH_SYMS[Math.floor(Math.random() * MATH_SYMS.length)];
+  const left  = Math.random() * 100;
+  const delay = Math.random() * 12;
+  const dur   = 10 + Math.random() * 14;
+  const size  = 14 + Math.random() * 16;
+  el.style.cssText = `left:${left}%;font-size:${size}px;animation-duration:${dur}s;animation-delay:-${delay}s`;
+  container.appendChild(el);
+}
+
+// ── Update UI from params ──────────────────────────────────────────────────
+document.getElementById('bossLesson').textContent = `BÀI ${lessonId}`;
+
+// Difficulty stars
+const diffEl = document.getElementById('bossDifficultyStars');
+diffEl.className = `boss-difficulty ${difficulty}`;
+const starCounts = { easy:1, normal:2, hard:4, impossible:5 };
+const starCount  = starCounts[difficulty] || 5;
+const starEls    = diffEl.querySelectorAll('.star');
+starEls.forEach((s, i) => {
+  if (i < starCount) s.classList.add('active');
+  else s.classList.remove('active');
+});
+
+// ── Countdown then reveal encounter ───────────────────────────────────────
+const overlay     = document.getElementById('countdown-overlay');
+const countdownEl = document.getElementById('countdownNum');
+
+let count = 3;
+function tick() {
+  countdownEl.style.animation = 'none';
+  void countdownEl.offsetWidth; // reflow to restart animation
+  countdownEl.style.animation  = 'countdown-pulse 1s ease-in-out';
+  countdownEl.textContent = count > 0 ? count : '⚔️';
+
+  if (count === 0) {
+    setTimeout(() => { overlay.classList.add('hidden'); }, 900);
+  } else {
+    count--;
+    setTimeout(tick, 1100);
+  }
+}
+
+// Start countdown after a brief delay
+setTimeout(tick, 300);
+
+// ── Roar SFX (Web Audio API synthetic) ────────────────────────────────────
+function playBossRoar() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 1.5);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 1.5);
+  } catch(e) {}
+}
+
+// Play roar when encounter appears
+setTimeout(playBossRoar, 3700);
+
+// ── Actions ────────────────────────────────────────────────────────────────
+function startBattle() {
+  // Navigate to the minigame or lesson content for boss fight
+  const lesson = params.get('lesson') || '1';
+  const gameURL = `minigame.html?lesson=${lesson}&boss=1&tg_id=${tgId}`;
+  window.location.href = gameURL;
+}
+
+function escapeBattle() {
+  // Return to map
+  window.location.href = `${returnURL}${tgId ? '?tg_id=' + tgId : ''}`;
+}
+
+// Back button support
+window.addEventListener('popstate', () => {
+  escapeBattle();
+});
+</script>
+</body>
+</html>

@@ -726,6 +726,53 @@ window.addEventListener('popstate', () => {
 history.pushState({}, '');
 
 
+// Load selected character from character-select.html
+(function loadSelectedCharacter() {
+  const charFromURL = new URLSearchParams(window.location.search).get('character');
+  if (charFromURL) {
+    sessionStorage.setItem('vsSelectedChar', charFromURL);
+    localStorage.setItem('vsSelectedChar', charFromURL);
+  }
+  const selectedChar = charFromURL
+    || sessionStorage.getItem('vsSelectedChar')
+    || localStorage.getItem('vsSelectedChar');
+
+  if (!selectedChar) return;
+
+  const charCfg = {
+    'lac-tuong-male':   { color:'#FF5555', glow:'#FF0033', emoji:'⚔️', label:'LẠC TƯỚNG' },
+    'lac-tuong-female': { color:'#FF5555', glow:'#FF0033', emoji:'⚔️', label:'LẠC TƯỚNG' },
+    'dao-si-male':      { color:'#EA0EED', glow:'#FF66FF', emoji:'🔮', label:'ĐẠO SĨ' },
+    'dao-si-female':    { color:'#EA0EED', glow:'#FF66FF', emoji:'🔮', label:'ĐẠO SĨ' },
+    'no-than-male':     { color:'#0AE0FE', glow:'#00FFFF', emoji:'🏹', label:'NỎ THẦN' },
+    'no-than-female':   { color:'#0AE0FE', glow:'#00FFFF', emoji:'🏹', label:'NỎ THẦN' },
+    'than-tuong-male':  { color:'#4eff9f', glow:'#00FF7F', emoji:'🛡️', label:'THẦN TƯỚNG' },
+    'than-tuong-female':{ color:'#4eff9f', glow:'#00FF7F', emoji:'🛡️', label:'THẦN TƯỚNG' }
+  };
+
+  const cfg = charCfg[selectedChar];
+  if (!cfg) return;
+
+  const classKey = selectedChar.replace(/-male|-female/, '');
+  const charBadge = document.getElementById('userBadge');
+  if (charBadge) {
+    charBadge.style.borderColor = cfg.color;
+    charBadge.style.color = cfg.color;
+    charBadge.style.boxShadow = `0 0 10px ${cfg.color}66`;
+  }
+
+  // Thêm avatar nhỏ vào header nếu ảnh tồn tại
+  const headerRow = document.querySelector('.header > div');
+  if (headerRow) {
+    const av = document.createElement('img');
+    av.src = `design-system/characters/playable/${classKey}/${selectedChar}-avatar.jpg`;
+    av.alt = cfg.label;
+    av.style.cssText = `width:36px;height:36px;border-radius:50%;border:2px solid ${cfg.color};object-fit:cover;box-shadow:0 0 8px ${cfg.glow}66;flex-shrink:0;display:none`;
+    av.onload = () => { av.style.display = 'block'; };
+    headerRow.insertBefore(av, headerRow.firstChild);
+  }
+})();
+
 // Load player info from Splash Screen
 const savedName = localStorage.getItem('cbToan_name');
 const savedAvatar = localStorage.getItem('cbToan_avatar');

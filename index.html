@@ -298,11 +298,11 @@ function goToMap() {
   const tgId    = tgIdWA || (tgIdURL ? parseInt(tgIdURL) : null);
   if (tgId) localStorage.setItem('vsPlayed_' + tgId, '1');
 
-  // Truyền dữ liệu thật qua sessionStorage cho map.html dùng
+  // Truyền dữ liệu thật qua sessionStorage cho character-select.html dùng
   if (vsUser) sessionStorage.setItem('vsUser', JSON.stringify(vsUser));
 
-  // Kèm tg_id vào URL để map.html có fallback khi WebApp context chưa ready
-  window.location.href = tgId ? `map.html?tg_id=${tgId}` : 'map.html';
+  // Redirect to character selection → then map.html
+  window.location.href = tgId ? `character-select.html?tg_id=${tgId}` : 'character-select.html';
 }
 </script>
 </body>

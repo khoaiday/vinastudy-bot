@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Chọn Nhân Vật — Chiến Binh Toán</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="character-avatars.css">
+  <link rel="stylesheet" href="character-cards.css">
+  <style>
+    :root {
+      --primary: #0ae0fe;
+      --primary-glow: rgba(10,224,254,0.5);
+      --secondary: #ea0eed;
+      --secondary-glow: rgba(234,14,237,0.5);
+      --success: #4eff9f;
+      --danger: #ff0055;
+      --bg-base: #050a1f;
+      --bg-card: rgba(11, 19, 43, 0.85);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(10, 224, 254, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Roboto', sans-serif; background-color: var(--bg-base); color: var(--text-main); }
+
+    .grid-bg {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(10,224,254,.07) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(10,224,254,.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .app {
+      display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1;
+      background: radial-gradient(circle at top right, rgba(14, 23, 58, 0.8), var(--bg-base));
+    }
+
+    .header {
+      padding: 30px 20px 20px;
+      text-align: center; flex-shrink: 0; position: relative; z-index: 5;
+      background: radial-gradient(circle at center top, rgba(10,224,254,0.1), transparent);
+      border-bottom: 2px solid var(--primary);
+      box-shadow: 0 5px 30px rgba(10,224,254,0.2);
+    }
+
+    .header h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 32px; font-weight: 900;
+      line-height: 1.2; text-transform: uppercase;
+      letter-spacing: 3px; color: var(--primary);
+      text-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .header p { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 4px; }
+
+    .content {
+      flex: 1; overflow-y: auto; padding: 24px 20px;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+
+    .character-class {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .character-class:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .class-name {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 18px; font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .class-icon { font-size: 24px; }
+
+    .character-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .character-option {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .character-option:hover {
+      border-color: var(--primary);
+      background: rgba(10, 224, 254, 0.1);
+    }
+
+    .character-option.selected {
+      border-color: var(--success);
+      background: rgba(78, 255, 159, 0.1);
+      box-shadow: 0 0 15px var(--success);
+    }
+
+    .character-option img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .character-name {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .character-variant {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .stats {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-around;
+      gap: 4px;
+    }
+
+    .stat-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(10, 224, 254, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .footer {
+      padding: 20px;
+      display: flex;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border-top: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--primary);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 15px var(--primary-glow), inset 0 0 15px rgba(10,224,254,.2);
+    }
+
+    .btn:hover { background: var(--primary); color: #000; }
+    .btn:active { transform: scale(0.98); }
+
+    .btn.secondary {
+      border-color: var(--text-muted);
+      color: var(--text-muted);
+      box-shadow: 0 0 10px rgba(148, 163, 184, 0.3);
+    }
+
+    .btn.secondary:hover {
+      background: var(--text-muted);
+      color: var(--bg-base);
+    }
+
+    @media (max-width: 640px) {
+      .header h1 { font-size: 24px; letter-spacing: 2px; }
+      .character-pair { grid-template-columns: 1fr; }
+      .character-option img { height: 100px; }
+      .class-name { font-size: 16px; }
+      .footer { flex-direction: column; }
+      .btn { padding: 12px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="app">
+    <!-- HEADER -->
+    <div class="header">
+      <h1>⚔️ Chọn Nhân Vật</h1>
+      <p>Hãy lựa chọn chiến binh yêu thích để bắt đầu cuộc phiêu lưu</p>
+    </div>
+
+    <!-- CHARACTER SELECTION -->
+    <div class="content">
+      <!-- LẠC TƯỚNG -->
+      <div class="character-class">
+        <div class="class-name"><span class="class-icon">⚔️</span> Lạc Tướng (Chiến Binh)</div>
+        <div class="character-pair">
+          <div class="character-option" onclick="selectCharacter('lac-tuong-male', this)">
+            <img src="design-system/characters/playable/lac-tuong/lac-tuong-male-avatar.jpg" alt="Lạc Tướng Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Lạc+Tướng+Nam'">
+            <div class="character-name">Lạc Tướng</div>
+            <div class="character-variant">Nam | ~30 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 80%"></div></div>
+            </div>
+          </div>
+          <div class="character-option" onclick="selectCharacter('lac-tuong-female', this)">
+            <img src="design-system/characters/playable/lac-tuong/lac-tuong-female-avatar.jpg" alt="Lạc Tướng Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Lạc+Tướng+Nữ'">
+            <div class="character-name">Lạc Tướng</div>
+            <div class="character-variant">Nữ | ~30 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 80%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ĐẠO SĨ -->
+      <div class="character-class">
+        <div class="class-name"><span class="class-icon">🔮</span> Đạo Sĩ (Pháp Sư)</div>
+        <div class="character-pair">
+          <div class="character-option" onclick="selectCharacter('dao-si-male', this)">
+            <img src="design-system/characters/playable/dao-si/dao-si-male-avatar.jpg" alt="Đạo Sĩ Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Đạo+Sĩ+Nam'">
+            <div class="character-name">Đạo Sĩ</div>
+            <div class="character-variant">Nam | ~25 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
+            </div>
+          </div>
+          <div class="character-option" onclick="selectCharacter('dao-si-female', this)">
+            <img src="design-system/characters/playable/dao-si/dao-si-female-avatar.jpg" alt="Đạo Sĩ Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Đạo+Sĩ+Nữ'">
+            <div class="character-name">Đạo Sĩ</div>
+            <div class="character-variant">Nữ | ~25 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NỎ THẦN -->
+      <div class="character-class">
+        <div class="class-name"><span class="class-icon">🏹</span> Nỏ Thần (Cung Thủ)</div>
+        <div class="character-pair">
+          <div class="character-option" onclick="selectCharacter('no-than-male', this)">
+            <img src="design-system/characters/playable/no-than/no-than-male-avatar.jpg" alt="Nỏ Thần Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Nỏ+Thần+Nam'">
+            <div class="character-name">Nỏ Thần</div>
+            <div class="character-variant">Nam | ~20 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 85%"></div></div>
+            </div>
+          </div>
+          <div class="character-option" onclick="selectCharacter('no-than-female', this)">
+            <img src="design-system/characters/playable/no-than/no-than-female-avatar.jpg" alt="Nỏ Thần Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Nỏ+Thần+Nữ'">
+            <div class="character-name">Nỏ Thần</div>
+            <div class="character-variant">Nữ | ~20 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 90%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 85%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THẦN TƯỚNG -->
+      <div class="character-class">
+        <div class="class-name"><span class="class-icon">🛡️</span> Thần Tướng (Hiệp Sĩ)</div>
+        <div class="character-pair">
+          <div class="character-option" onclick="selectCharacter('than-tuong-male', this)">
+            <img src="design-system/characters/playable/than-tuong/than-tuong-male-avatar.jpg" alt="Thần Tướng Nam" onerror="this.src='https://via.placeholder.com/200x120?text=Thần+Tướng+Nam'">
+            <div class="character-name">Thần Tướng</div>
+            <div class="character-variant">Nam | ~35 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 50%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+            </div>
+          </div>
+          <div class="character-option" onclick="selectCharacter('than-tuong-female', this)">
+            <img src="design-system/characters/playable/than-tuong/than-tuong-female-avatar.jpg" alt="Thần Tướng Nữ" onerror="this.src='https://via.placeholder.com/200x120?text=Thần+Tướng+Nữ'">
+            <div class="character-name">Thần Tướng</div>
+            <div class="character-variant">Nữ | ~30-35 tuổi</div>
+            <div class="stats">
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 50%"></div></div>
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <button class="btn secondary" onclick="goBack()">← Quay Lại</button>
+      <button class="btn" onclick="startGame()" id="startBtn" disabled>Bắt Đầu ⚡</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedCharacter = null;
+
+    function selectCharacter(charId, element) {
+      selectedCharacter = charId;
+
+      // Remove previous selection
+      document.querySelectorAll('.character-option.selected').forEach(el => {
+        el.classList.remove('selected');
+      });
+
+      // Add selection to clicked element
+      element.classList.add('selected');
+
+      // Enable start button
+      document.getElementById('startBtn').disabled = false;
+
+      console.log('Selected:', charId);
+
+      // Store in localStorage for later use
+      localStorage.setItem('selectedCharacter', charId);
+    }
+
+    function startGame() {
+      if (!selectedCharacter) {
+        alert('Vui lòng chọn một nhân vật!');
+        return;
+      }
+
+      // Get tg_id from URL params
+      const params = new URLSearchParams(window.location.search);
+      const tgId = params.get('tg_id');
+
+      // Go to map with character selection
+      const mapUrl = 'map.html?character=' + selectedCharacter + (tgId ? '&tg_id=' + tgId : '');
+      window.location.href = mapUrl;
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('selectedCharacter');
+      if (saved) {
+        selectedCharacter = saved;
+        document.getElementById('startBtn').disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

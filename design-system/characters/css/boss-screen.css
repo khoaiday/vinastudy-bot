@@ -1,0 +1,493 @@
+/**
+ * BOSS ENCOUNTER SCREEN STYLING
+ * VInaStudy Bot — Design System v6
+ *
+ * Cinematic boss intro screen with dramatic portrait, stats, and encounter details
+ */
+
+/* ============================================
+   BOSS ENCOUNTER MAIN CONTAINER
+   ============================================ */
+
+.boss-encounter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0F0A15 0%, #1A0F25 50%, #2A1535 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+/* Background atmospheric effects */
+.boss-encounter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(200, 150, 12, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.boss-encounter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise" seed="2"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="8"/></filter></defs><rect width="1200" height="800" fill="none" opacity="0.03" filter="url(%23noise)"/></svg>');
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================
+   BOSS TITLE/INTRO TEXT (TOP)
+   ============================================ */
+
+.boss-encounter-header {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 20;
+}
+
+.boss-encounter-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 48px;
+  font-weight: 900;
+  color: #C8960C;
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(200, 150, 12, 0.6),
+    0 0 40px rgba(200, 150, 12, 0.3);
+  letter-spacing: 2px;
+  animation: boss-title-glow 2s ease-in-out infinite;
+}
+
+@keyframes boss-title-glow {
+  0%, 100% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), 0 0 20px rgba(200, 150, 12, 0.6), 0 0 40px rgba(200, 150, 12, 0.3); }
+  50% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), 0 0 30px rgba(200, 150, 12, 0.8), 0 0 50px rgba(200, 150, 12, 0.5); }
+}
+
+.boss-encounter-header .subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #AAA;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+/* ============================================
+   BOSS PORTRAIT (CENTER)
+   ============================================ */
+
+.boss-portrait-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  z-index: 10;
+}
+
+.boss-portrait {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 600px;
+  max-height: 600px;
+  border: 12px solid #C8960C;
+  border-radius: 8px;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 40px rgba(200, 150, 12, 0.8),
+    0 0 80px rgba(200, 150, 12, 0.4),
+    inset 0 0 40px rgba(200, 150, 12, 0.2),
+    0 20px 60px rgba(0, 0, 0, 0.9);
+
+  animation: boss-portrait-float 3s ease-in-out infinite;
+}
+
+@keyframes boss-portrait-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.boss-portrait::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+.boss-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Glow effect around portrait */
+.boss-portrait-glow {
+  position: absolute;
+  inset: -20px;
+  border: 2px solid #C8960C;
+  border-radius: 12px;
+  opacity: 0.3;
+  box-shadow: 0 0 30px rgba(200, 150, 12, 0.6);
+  pointer-events: none;
+  animation: boss-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes boss-glow-pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(200, 150, 12, 0.6), inset 0 0 20px rgba(200, 150, 12, 0.1); }
+  50% { box-shadow: 0 0 50px rgba(200, 150, 12, 0.9), inset 0 0 30px rgba(200, 150, 12, 0.2); }
+}
+
+/* ============================================
+   BOSS INFORMATION PANEL (BOTTOM)
+   ============================================ */
+
+.boss-info-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  background: linear-gradient(
+    to top,
+    rgba(15, 10, 21, 0.95) 0%,
+    rgba(15, 10, 21, 0.8) 50%,
+    rgba(15, 10, 21, 0) 100%
+  );
+  backdrop-filter: blur(8px);
+  z-index: 30;
+}
+
+.boss-info-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+/* Boss stat box */
+.boss-stat {
+  text-align: center;
+}
+
+.boss-stat-label {
+  font-size: 11px;
+  color: #AAA;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.boss-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #C8960C;
+  text-shadow: 0 0 8px rgba(200, 150, 12, 0.6);
+}
+
+.boss-stat-value.danger {
+  color: #FF5555;
+  text-shadow: 0 0 8px rgba(255, 85, 85, 0.6);
+}
+
+/* Boss description/lore */
+.boss-description {
+  grid-column: 1 / -1;
+  padding-top: 16px;
+  border-top: 1px solid rgba(200, 150, 12, 0.3);
+  font-size: 13px;
+  color: #BBB;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   ACTION BUTTONS (START BATTLE)
+   ============================================ */
+
+.boss-action-buttons {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  z-index: 40;
+}
+
+.boss-btn {
+  padding: 12px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.boss-btn.start {
+  background: #C0332E;
+  color: white;
+  box-shadow: 0 4px 12px rgba(192, 51, 46, 0.5), 0 0 20px rgba(192, 51, 46, 0.3);
+}
+
+.boss-btn.start:hover {
+  background: #FF5555;
+  box-shadow: 0 6px 16px rgba(192, 51, 46, 0.7), 0 0 30px rgba(255, 85, 85, 0.5);
+  transform: translateY(-2px);
+}
+
+.boss-btn.start:active {
+  transform: translateY(0);
+}
+
+.boss-btn.escape {
+  background: #333;
+  color: #999;
+  border: 2px solid #555;
+}
+
+.boss-btn.escape:hover {
+  background: #444;
+  color: #CCC;
+  border-color: #777;
+}
+
+/* ============================================
+   DIFFICULTY INDICATOR
+   ============================================ */
+
+.boss-difficulty {
+  position: absolute;
+  top: 120px;
+  right: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+}
+
+.boss-difficulty-label {
+  font-size: 11px;
+  color: #AAA;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.boss-difficulty-stars {
+  display: flex;
+  gap: 4px;
+  font-size: 20px;
+}
+
+.boss-difficulty-stars .star {
+  color: #666;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+.boss-difficulty-stars .star.active {
+  color: #FFD700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+}
+
+/* Difficulty colors */
+.boss-difficulty.easy .star.active { color: #66FF66; text-shadow: 0 0 8px rgba(102, 255, 102, 0.8); }
+.boss-difficulty.normal .star.active { color: #FFD700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.8); }
+.boss-difficulty.hard .star.active { color: #FF6666; text-shadow: 0 0 8px rgba(255, 102, 102, 0.8); }
+.boss-difficulty.impossible .star.active { color: #FF00FF; text-shadow: 0 0 8px rgba(255, 0, 255, 0.8); }
+
+/* ============================================
+   ANIMATION: ENTRANCE
+   ============================================ */
+
+@keyframes boss-entrance {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.boss-encounter.animate-in {
+  animation: boss-entrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes boss-title-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.boss-encounter-header.animate-in {
+  animation: boss-title-entrance 0.5s ease-out 0.2s both;
+}
+
+@keyframes boss-button-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.boss-action-buttons.animate-in {
+  animation: boss-button-entrance 0.5s ease-out 0.4s both;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .boss-portrait {
+    max-width: 500px;
+    max-height: 500px;
+  }
+
+  .boss-encounter-header h1 {
+    font-size: 40px;
+  }
+
+  .boss-info-content {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .boss-stat {
+    border-bottom: 1px solid rgba(200, 150, 12, 0.2);
+    padding-bottom: 12px;
+  }
+
+  .boss-stat:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .boss-encounter {
+    padding: 20px;
+  }
+
+  .boss-encounter-header {
+    top: 20px;
+  }
+
+  .boss-encounter-header h1 {
+    font-size: 32px;
+  }
+
+  .boss-portrait {
+    max-width: 380px;
+    max-height: 380px;
+    border-width: 8px;
+  }
+
+  .boss-info-panel {
+    padding: 16px;
+  }
+
+  .boss-action-buttons {
+    flex-direction: column;
+    bottom: 16px;
+  }
+
+  .boss-btn {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  .boss-difficulty {
+    top: 100px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .boss-encounter-header h1 {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .boss-encounter-header .subtitle {
+    font-size: 12px;
+  }
+
+  .boss-portrait {
+    max-width: 280px;
+    max-height: 280px;
+    border-width: 6px;
+  }
+
+  .boss-portrait-glow {
+    inset: -12px;
+  }
+
+  .boss-info-panel {
+    padding: 12px;
+  }
+
+  .boss-stat-label {
+    font-size: 10px;
+  }
+
+  .boss-stat-value {
+    font-size: 18px;
+  }
+
+  .boss-description {
+    font-size: 12px;
+    padding-top: 8px;
+  }
+
+  .boss-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .boss-difficulty-stars {
+    font-size: 16px;
+  }
+}

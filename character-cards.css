@@ -1,0 +1,399 @@
+/**
+ * CHARACTER CARDS STYLING
+ * VInaStudy Bot — Design System v6
+ *
+ * Large character portrait cards for class selection, showcase, battle selection
+ * Features faction colors, ornate Vietnamese borders, stat displays
+ */
+
+/* ============================================
+   BASE CHARACTER CARD
+   ============================================ */
+
+.character-card {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1;
+  border: 8px solid var(--faction-color, #666);
+  border-radius: 4px;
+  overflow: hidden;
+
+  background: linear-gradient(135deg, #110A1C 0%, #2A1535 100%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.8),
+    inset 0 0 16px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(0, 0, 0, 0.6);
+
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.character-card:hover {
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.9),
+    0 0 30px var(--faction-glow, rgba(100,100,100,0.6)),
+    inset 0 0 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
+}
+
+.character-card:active {
+  transform: translateY(-2px);
+}
+
+/* Character image container */
+.character-card-image {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.character-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Overlay shine effect */
+.character-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ============================================
+   FACTION-SPECIFIC CARD COLORS
+   ============================================ */
+
+/* LẠC TƯỚNG - Warrior (Red) */
+.character-card.lac-tuong {
+  --faction-color: #FF5555;
+  --faction-glow: #FF0033;
+  --faction-light: rgba(255, 85, 85, 0.2);
+}
+
+/* ĐẠO SĨ - Mage (Magenta) */
+.character-card.dao-si {
+  --faction-color: #EA0EED;
+  --faction-glow: #FF66FF;
+  --faction-light: rgba(234, 14, 237, 0.2);
+}
+
+/* NỎ THẦN - Archer (Cyan) */
+.character-card.no-than {
+  --faction-color: #0AE0FE;
+  --faction-glow: #00FFFF;
+  --faction-light: rgba(10, 224, 254, 0.2);
+}
+
+/* THẦN TƯỚNG - Knight (Green) */
+.character-card.than-tuong {
+  --faction-color: #4eff9f;
+  --faction-glow: #00FF7F;
+  --faction-light: rgba(78, 255, 159, 0.2);
+}
+
+/* ============================================
+   CARD HEADER (CLASS NAME + TITLE)
+   ============================================ */
+
+.character-card-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  z-index: 20;
+}
+
+.character-card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--faction-color);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
+}
+
+.character-card-header .subtitle {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--faction-glow);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+  opacity: 0.9;
+}
+
+/* ============================================
+   CARD FOOTER (STATS + ACTIONS)
+   ============================================ */
+
+.character-card-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  z-index: 20;
+}
+
+.character-card-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.character-stat {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  color: #CCC;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.character-stat .value {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--faction-glow);
+  margin-bottom: 2px;
+}
+
+/* HP bar in footer */
+.character-card-hp {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(102, 255, 102, 0.3);
+}
+
+.character-card-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #66FF66 0%, #FFFF66 50%, #FF6666 100%);
+  width: 100%;
+  box-shadow: 0 0 6px rgba(102, 255, 102, 0.8);
+  transition: width 0.3s ease;
+}
+
+/* ============================================
+   CARD ACTIONS (BUTTONS)
+   ============================================ */
+
+.character-card-action {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 8px;
+  background: var(--faction-color);
+  color: white;
+  border: 1px solid var(--faction-glow);
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+.character-card-action:hover {
+  background: var(--faction-glow);
+  box-shadow: 0 0 12px var(--faction-glow), inset 0 0 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+}
+
+.character-card-action:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   CARD SIZE VARIANTS
+   ============================================ */
+
+/* Small card (240px) */
+.character-card.sm {
+  max-width: 240px;
+}
+
+.character-card.sm .character-card-header h3 {
+  font-size: 16px;
+}
+
+.character-card.sm .character-card-header .subtitle {
+  font-size: 10px;
+}
+
+.character-card.sm .character-stat {
+  font-size: 10px;
+}
+
+.character-card.sm .character-stat .value {
+  font-size: 14px;
+}
+
+/* Large card (360px) */
+.character-card.lg {
+  max-width: 360px;
+}
+
+.character-card.lg .character-card-header h3 {
+  font-size: 20px;
+}
+
+.character-card.lg .character-card-header .subtitle {
+  font-size: 13px;
+}
+
+.character-card.lg .character-stat {
+  font-size: 12px;
+}
+
+.character-card.lg .character-stat .value {
+  font-size: 18px;
+}
+
+/* ============================================
+   CARD STATE VARIATIONS
+   ============================================ */
+
+/* Selected/Active card */
+.character-card.active {
+  border-width: 12px;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 1),
+    0 0 40px var(--faction-glow),
+    inset 0 0 32px var(--faction-light);
+  transform: scale(1.05);
+}
+
+.character-card.active::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  color: var(--faction-glow);
+  font-weight: bold;
+  text-shadow: 0 0 20px var(--faction-glow);
+  z-index: 30;
+}
+
+/* Disabled card (locked) */
+.character-card.disabled {
+  opacity: 0.6;
+  filter: grayscale(100%) brightness(0.7);
+  border-color: #333;
+  --faction-glow: rgba(100,100,100,0.4);
+}
+
+.character-card.disabled:hover {
+  transform: none;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(100,100,100,0.3);
+}
+
+/* Hovered/Focused card */
+.character-card:focus-within {
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.9),
+    0 0 30px var(--faction-glow),
+    inset 0 0 24px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   ORNATE BORDER OVERLAY (SVG Pattern)
+   ============================================ */
+
+.character-card-border-ornate {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.character-card-border-ornate svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 2px rgba(200, 150, 12, 0.5));
+}
+
+/* ============================================
+   CHARACTER GRID LAYOUT
+   ============================================ */
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Tablet & Mobile */
+@media (max-width: 768px) {
+  .character-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .character-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .character-card {
+    max-width: 100%;
+  }
+
+  .character-card-header {
+    padding: 12px;
+  }
+
+  .character-card-footer {
+    padding: 12px;
+  }
+
+  .character-card-header h3 {
+    font-size: 16px;
+  }
+
+  .character-stat {
+    font-size: 10px;
+  }
+
+  .character-stat .value {
+    font-size: 14px;
+  }
+}
