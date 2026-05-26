@@ -424,7 +424,7 @@ def _row_to_web_user(row) -> dict | None:
 async def get_web_user_by_telegram_id(telegram_id: int) -> dict | None:
     pool = get_pool()
     if not pool:
-        return None
+        raise RuntimeError("Database pool chưa được khởi tạo")
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             "SELECT * FROM web_users WHERE telegram_id=$1", telegram_id)

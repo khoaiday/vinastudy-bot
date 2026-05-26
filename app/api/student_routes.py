@@ -219,7 +219,13 @@ async def update_tg_profile(body: TgProfileBody):
 @router.get("/tg-status")
 async def tg_status(tg_id: int):
     """Kiểm tra trạng thái tài khoản theo Telegram ID. Dùng bởi HTML WebApp."""
-    user = await crud.get_web_user_by_telegram_id(tg_id)
+    try:
+        user = await crud.get_web_user_by_telegram_id(tg_id)
+    except Exception as e:
+        # DB lỗi → trả 503 để frontend fail-open (không chặn học sinh đã đăng ký)
+        logger.error(f"tg_status DB error tg_id={tg_id}: {e}")
+        raise HTTPException(status_code=503, detail="Database tạm thời không khả dụng")
+
     if not user:
         return JSONResponse({"status": "not_found"})
     return JSONResponse({

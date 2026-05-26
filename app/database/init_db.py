@@ -131,8 +131,9 @@ async def init_db():
         created_at TIMESTAMPTZ DEFAULT NOW()
     );
 
-    CREATE INDEX IF NOT EXISTS idx_web_users_status   ON web_users(status);
-    CREATE INDEX IF NOT EXISTS idx_web_users_email    ON web_users(email);
+    CREATE INDEX IF NOT EXISTS idx_web_users_status     ON web_users(status);
+    CREATE INDEX IF NOT EXISTS idx_web_users_email      ON web_users(email);
+    CREATE INDEX IF NOT EXISTS idx_web_users_telegram   ON web_users(telegram_id);
     CREATE INDEX IF NOT EXISTS idx_web_sessions_gid   ON web_sessions(google_id);
     CREATE INDEX IF NOT EXISTS idx_web_sessions_exp   ON web_sessions(expires_at);
     """
