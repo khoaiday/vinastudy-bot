@@ -1,3 +1,5 @@
+## [Gemini] 2026-05-27 — Trang cá nhân và nút Thoát
+
 - `[x]` 1. Sửa lỗi giao diện và cấu trúc trong `profile.html`
   - `[x]` Thêm thẻ mở `<div class="wrap" id="mainContent" style="display:none">` để khắc phục lỗi thiếu thẻ khiến trang bị treo màn hình tải.
   - `[x]` Đồng bộ hóa hệ CSS variables sang dải màu truyền thống Đại Việt (Mực Tàu, Vàng nghệ, Đỏ son, Ngà voi, Đồng Đông Sơn).
@@ -12,3 +14,6 @@
   - `[x]` Mở trang bản đồ, click avatar xem trang profile mở ra mượt mà và tắt lớp phủ loading chuẩn xác không.
   - `[x]` Giao diện profile mang vẻ cổ kính, sang trọng của Đại Việt.
   - `[x]` Nhấn nút "THOÁT", trang profile đóng lại ngay lập tức và đưa người dùng về bản đồ.
+
+---
+---
