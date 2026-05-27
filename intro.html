@@ -85,17 +85,22 @@ html, body {
   text-shadow:
     1px  1px 0 rgba(7,4,10,1),
    -1px -1px 0 rgba(7,4,10,1),
-    0 0 20px var(--primary-glow),
-    0 0 40px rgba(7,4,10,0.9);
+    1px -1px 0 rgba(7,4,10,1),
+   -1px  1px 0 rgba(7,4,10,1),
+    0 0 24px var(--primary-glow),
+    0 0 48px rgba(7,4,10,0.8);
 }
 .game-logo span { color: var(--secondary); }
 .game-era {
   font-family: var(--font-mono);
   font-size: .62rem;
-  color: #C8B89A;
+  color: var(--text-main);
   letter-spacing: 3px;
   margin-top: 5px;
-  text-shadow: 0 1px 6px rgba(7,4,10,0.9);
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    0 0 12px rgba(7,4,10,0.95);
 }
 
 /* CTA — giữa màn hình */
@@ -354,7 +359,7 @@ html, body {
       Lịch sử Đại Việt cần được bảo vệ.
     </p>
     <button class="btn-prologue" id="btnPrologue" onclick="onPrologueClick()">
-      xem tiếp lời mở đầu &nbsp;»&nbsp; <span id="countdown" class="countdown-badge">[5]</span>
+      xem tiếp lời mở đầu &nbsp;»&nbsp; <span id="countdown" class="countdown-badge">[9]</span>
     </button>
   </div>
 </div>
@@ -449,7 +454,7 @@ window.addEventListener('load', () => {
 let countdownTimer = null;
 
 function startCountdown() {
-  let secs = 5;
+  let secs = 9;
   const badge = document.getElementById('countdown');
   countdownTimer = setInterval(() => {
     secs--;
