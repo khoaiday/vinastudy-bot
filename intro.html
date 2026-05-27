@@ -302,8 +302,19 @@ const SEGMENTS = [
 let currentSeg = 0, typingTimer = null;
 
 const COPPER_SPAN = '<span style="color:#B87333;text-shadow:0 0 8px rgba(184,115,51,0.6)">Đông Sơn</span>';
-function colorize(raw) {
-  return raw.replace(/Đông Sơn/g, COPPER_SPAN);
+
+// Tách text thành mảng tokens: ký tự thường hoặc {copper: true}
+function tokenize(text) {
+  const tokens = [];
+  const re = /Đông Sơn/g;
+  let last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    for (const ch of text.slice(last, m.index)) tokens.push(ch);
+    tokens.push({ copper: true });
+    last = m.index + 'Đông Sơn'.length;
+  }
+  for (const ch of text.slice(last)) tokens.push(ch);
+  return tokens;
 }
 
 // ── Dots ─────────────────────────────────────────────
@@ -324,22 +335,28 @@ function updateDots(idx) {
 
 // ── Typewriter ────────────────────────────────────────
 function typeSegment(idx) {
-  const text   = SEGMENTS[idx];
+  const tokens = tokenize(SEGMENTS[idx]);
   const typed  = document.getElementById('typed');
   const cursor = document.getElementById('cursor');
   const btn    = document.getElementById('btnNext');
-  let raw = '';
+  let html = '';
   typed.innerHTML = '';
   btn.className = 'btn-next';
   btn.textContent = idx === SEGMENTS.length - 1 ? 'bắt đầu »' : 'xem tiếp »';
   cursor.style.display = 'inline-block';
   let i = 0;
   function tick() {
-    if (i < text.length) {
-      raw += text[i++];
-      typed.innerHTML = colorize(raw);
-      const ch = text[i - 1];
-      typingTimer = setTimeout(tick, ch === '.' || ch === ',' ? 180 : ch === ' ' ? 28 : 32);
+    if (i < tokens.length) {
+      const tok = tokens[i++];
+      if (tok.copper) {
+        html += COPPER_SPAN;          // insert màu đồng luôn, không qua trắng
+        typed.innerHTML = html;
+        typingTimer = setTimeout(tick, 32);
+      } else {
+        html += tok === '<' ? '&lt;' : tok === '>' ? '&gt;' : tok === '&' ? '&amp;' : tok;
+        typed.innerHTML = html;
+        typingTimer = setTimeout(tick, tok === '.' || tok === ',' ? 180 : tok === ' ' ? 28 : 32);
+      }
     } else {
       cursor.style.display = 'none';
       btn.classList.add('show');
@@ -352,7 +369,11 @@ function typeSegment(idx) {
 document.getElementById('segText').addEventListener('click', () => {
   if (typingTimer) {
     clearTimeout(typingTimer); typingTimer = null;
-    document.getElementById('typed').innerHTML = colorize(SEGMENTS[currentSeg]);
+    // Build full HTML with copper color
+    const html = tokenize(SEGMENTS[currentSeg])
+      .map(t => t.copper ? COPPER_SPAN : (t === '<' ? '&lt;' : t === '>' ? '&gt;' : t === '&' ? '&amp;' : t))
+      .join('');
+    document.getElementById('typed').innerHTML = html;
     document.getElementById('cursor').style.display = 'none';
     document.getElementById('btnNext').classList.add('show');
   }
