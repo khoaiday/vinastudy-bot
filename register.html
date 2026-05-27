@@ -506,7 +506,7 @@ body {
         </div>
         <div style="margin-top:20px">
           <div class="preview-item final" style="display:inline-block;margin:0 auto">
-            <img id="pendingAvatar" src="" alt="Avatar">
+            <img id="pendingAvatar" src="" alt="Avatar" style="display:none" onerror="this.style.display='none'">
             <p id="pendingName" style="color:var(--primary);font-weight:700;font-size:.9rem;margin-top:8px"></p>
           </div>
         </div>
@@ -755,7 +755,11 @@ async function _submitProfile() {
 
     if (!res.ok) { showToast(data.detail || 'Lỗi máy chủ, thử lại!'); return; }
 
-    document.getElementById('pendingAvatar').src = data.avatar_final || '';
+    const suffix = currentGender === 'nu' ? 'female' : 'male';
+    const localAvatar = `design-system/characters/playable/${currentFolder}/${currentFolder}-${suffix}-avatar.jpg`;
+    const av = document.getElementById('pendingAvatar');
+    av.src = data.avatar_final || localAvatar;
+    av.style.display = '';
     document.getElementById('pendingName').textContent = name;
     goStep(3);
     startPendingPoll();
@@ -791,7 +795,8 @@ async function _submitProfile() {
     }
 
     if (user.status === 'pending') {
-      document.getElementById('pendingAvatar').src = user.avatar_final || '';
+      const av2 = document.getElementById('pendingAvatar');
+      if (user.avatar_final) { av2.src = user.avatar_final; av2.style.display = ''; }
       document.getElementById('pendingName').textContent = user.ho_ten || '';
       goStep(3);
       startPendingPoll();
