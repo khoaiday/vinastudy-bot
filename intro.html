@@ -301,6 +301,11 @@ const SEGMENTS = [
 
 let currentSeg = 0, typingTimer = null;
 
+const COPPER_SPAN = '<span style="color:#B87333;text-shadow:0 0 8px rgba(184,115,51,0.6)">Đông Sơn</span>';
+function colorize(raw) {
+  return raw.replace(/Đông Sơn/g, COPPER_SPAN);
+}
+
 // ── Dots ─────────────────────────────────────────────
 function buildDots() {
   const c = document.getElementById('segDots');
@@ -319,27 +324,24 @@ function updateDots(idx) {
 
 // ── Typewriter ────────────────────────────────────────
 function typeSegment(idx) {
-  const text = SEGMENTS[idx];
-  const typed = document.getElementById('typed');
+  const text   = SEGMENTS[idx];
+  const typed  = document.getElementById('typed');
   const cursor = document.getElementById('cursor');
-  const btn = document.getElementById('btnNext');
-  typed.textContent = '';
+  const btn    = document.getElementById('btnNext');
+  let raw = '';
+  typed.innerHTML = '';
   btn.className = 'btn-next';
   btn.textContent = idx === SEGMENTS.length - 1 ? 'bắt đầu »' : 'xem tiếp »';
   cursor.style.display = 'inline-block';
   let i = 0;
   function tick() {
     if (i < text.length) {
-      typed.textContent += text[i++];
+      raw += text[i++];
+      typed.innerHTML = colorize(raw);
       const ch = text[i - 1];
       typingTimer = setTimeout(tick, ch === '.' || ch === ',' ? 180 : ch === ' ' ? 28 : 32);
     } else {
       cursor.style.display = 'none';
-      // Tô màu đồng cho "Đông Sơn"
-      typed.innerHTML = typed.textContent.replace(
-        /Đông Sơn/g,
-        '<span style="color:#B87333;text-shadow:0 0 8px rgba(184,115,51,0.6)">Đông Sơn</span>'
-      );
       btn.classList.add('show');
     }
   }
@@ -350,7 +352,7 @@ function typeSegment(idx) {
 document.getElementById('segText').addEventListener('click', () => {
   if (typingTimer) {
     clearTimeout(typingTimer); typingTimer = null;
-    document.getElementById('typed').textContent = SEGMENTS[currentSeg];
+    document.getElementById('typed').innerHTML = colorize(SEGMENTS[currentSeg]);
     document.getElementById('cursor').style.display = 'none';
     document.getElementById('btnNext').classList.add('show');
   }
