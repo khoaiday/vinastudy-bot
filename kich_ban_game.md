@@ -84,7 +84,7 @@ Học sinh điều khiển Cỗ máy Đông Sơn đi dọc tiến trình lịch 
 - **Toán:** Phân biệt Số & Chữ số
 - **Bối cảnh:** Loa Thành cổ kính. An Dương Vương phân tích nhân lực xây vòng thành ốc xoắn.
 - **Cốt truyện:** Quân giặc tráo bản vẽ quy hoạch. Học sinh phải phân biệt ký hiệu "chữ số" cổ nhân và "số" lượng thực tế để xây thành đúng hạn.
-- **Boss:** Hồ Tinh (Cáo chín đuôi — mỗi đuôi phong ấn một chữ số 1-9)
+- **Boss:** 🐓 Bạch Kê Tinh (Tinh Gà Trắng — 9 lông đuôi phong ấn chữ số 0-9, tiếng gáy bình minh xóa tri thức số học)
 
 **Ải 2: Nỏ Thần Liên Châu**
 - **Toán:** Cấu tạo số 3 chữ số (hàng trăm, hàng chục, hàng đơn vị)
@@ -134,10 +134,13 @@ Học sinh điều khiển Cỗ máy Đông Sơn đi dọc tiến trình lịch 
 
 | Boss | Xuất hiện | Đặc điểm |
 |---|---|---|
-| 🦊 **Hồ Tinh** | Ải 1 | Cáo chín đuôi, mỗi đuôi phong ấn chữ số 1-9. Rối loạn trật tự số học. |
+| 🐓 **Bạch Kê Tinh** | Ải 1 | Tinh Gà Trắng — tiếng gáy bình minh xóa tri thức số học. 9 lông đuôi phong ấn 9 chữ số 0-9. Bị Kim Quy hạ. |
+| 🦊 **Hồ Tinh** | Trạm 0 (huyền sử) | Cáo chín đuôi thời Lạc Long Quân — dành cho màn huyền sử mở đầu (nếu có) |
 | (Mở rộng sau) | Ải tiếp theo | TBD |
 
-**Hồ Tinh — thiết kế:** Nữ yêu hồ hybrid người+cáo, áo thụng đỏ (modest, phù hợp trẻ em), quạt vàng, 9 đuôi cáo vàng phát sáng, ký hiệu toán học (+ − × ÷ = √) bay xung quanh. Lạnh lùng, uy nghiêm — **không** quyến rũ.
+**Bạch Kê Tinh — thiết kế:** Gà trắng mắt đỏ, 9 lông đuôi dài phát sáng xanh lạnh, mỗi lông ẩn một chữ số. Tiếng gáy tạo sóng trắng ma mị. Được Thực thể phương Bắc triệu hồi và trao quyền năng.
+
+**Hồ Tinh — thiết kế:** Nữ yêu hồ hybrid người+cáo, áo thụng đỏ (modest), quạt vàng, 9 đuôi vàng phát sáng. Thời đại: huyền sử trước Hùng Vương.
 
 ---
 
