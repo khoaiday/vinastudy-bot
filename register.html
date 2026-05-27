@@ -61,15 +61,26 @@ body {
 .logo {
   font-family: var(--font-title);
   font-size: 1.5rem; font-weight: 700; letter-spacing: 2px;
-  color: var(--primary); text-shadow: 0 0 20px var(--primary-glow);
+  color: var(--primary);
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    1px -1px 0 rgba(7,4,10,1),
+   -1px  1px 0 rgba(7,4,10,1),
+    0 0 24px var(--primary-glow),
+    0 0 48px rgba(7,4,10,0.8);
   margin-bottom: 6px; text-align: center;
 }
 .logo span { color: var(--secondary); }
 .subtitle {
   font-family: var(--font-mono);
-  font-size: .75rem; color: var(--text-muted);
+  font-size: .75rem; color: var(--text-main);
   text-align: center; margin-bottom: 28px;
   display: flex; align-items: center; gap: 6px; justify-content: center;
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    0 0 12px rgba(7,4,10,0.95);
 }
 .subtitle::before, .subtitle::after {
   content: ''; display: block;
@@ -102,14 +113,15 @@ body {
 /* ── Card ── */
 .card {
   width: 100%; max-width: 460px;
-  background: rgba(22,14,28,0.88);
+  background: rgba(22,14,28,0.55);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 28px 24px;
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  box-shadow: 0 0 40px rgba(0,0,0,0.4);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 .card::before {
   content: '';
