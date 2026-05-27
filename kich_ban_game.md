@@ -1,66 +1,207 @@
-# KỊCH BẢN GAME: CHIẾN BINH TOÁN — HÀNH TRÌNH XUYÊN KHÔNG GIẢI MÃ LỊCH SỬ ĐẠI VIỆT
+# KỊCH BẢN GAME: CHIẾN BINH TOÁN
+## VINASTUDY · HÀNH TRÌNH XUYÊN KHÔNG THỜI GIAN
+
+> Cập nhật: 2026-05-27 · Phiên bản v2.0
 
 ---
 
 ## 1. BỐI CẢNH & CỐT TRUYỆN (LORE)
 
-### Năm 2026 — Phòng Thí Nghiệm Của Sư Phụ Long
-Tại Viện Nghiên cứu Toán học Công nghệ cao Vinastudy, **Sư phụ Long** — một nhà toán học kiêm kỹ sư lỗi lạc — đã chế tạo thành công **Cỗ Máy Thời Không "Liên Châu"**. Cỗ máy này không chạy bằng xăng dầu hay điện năng thông thường, mà vận hành bằng **Năng lượng Tư duy Toán học (Math Energy)**.
+### Lời mở đầu — 3 đoạn Prologue (hiển thị khi vào game)
 
-Tuy nhiên, một vết nứt thời gian kỳ lạ xuất hiện, làm xáo trộn các sự kiện lịch sử của nước Việt. Trật tự thời gian bị đảo lộn có nguy cơ khiến những trang sử vàng của dân tộc biến mất khỏi ký ức nhân loại.
+**Đoạn 1 — Cỗ máy Đông Sơn:**
+> *"Từ ngàn năm trước, các bậc tiền nhân Đại Việt đã tiên tri được một tai ương hủy diệt. Cỗ máy Đông Sơn không chỉ đơn thuần là vũ khí thủ thành, mà là một đại trận pháp công nghệ cổ xưa được phong ấn, lưu giữ toàn bộ mã nguồn của dòng chảy lịch sử dân tộc qua mọi thời đại..."*
 
-### Nhóm Chiến Binh Toán Nhỏ Tuổi
-Để vá lại các vết nứt thời gian mà không làm ảnh hưởng đến quá khứ, Sư phụ Long cần những người có tâm hồn trong sáng, trí tuệ nhạy bén và phản xạ tư duy nhanh nhạy. Ông đã tuyển chọn và huấn luyện hai học trò xuất sắc mới tròn 10 tuổi (tương đương học sinh lớp 3/4):
+**Đoạn 2 — Kẻ thù xuất hiện:**
+> *"Năm 2026 SCN, một hiện tượng kinh hoàng ập đến. Một thực thể hắc ám vô hình từ phương Bắc bất ngờ trỗi dậy, khuấy đảo hư không. Thực thể đen tối này đang điên cuồng can thiệp vào trục thời gian, hòng xóa sổ những chiến công hiển hách và bóp méo cội nguồn dân tộc..."*
 
-*   **Minh (Chiến Binh Nỏ Thần / Giáp Xanh Hùng Dũng):** Cậu bé 10 tuổi năng động, quyết đoán. Minh sở hữu khả năng tính nhẩm thần tốc, phản xạ số học cực nhanh. Vũ khí của Minh là **Nỏ Liên Châu Công Nghệ Số** — bắn ra những tia sáng toán học dọn dẹp chướng ngại vật.
-*   **Vy (Chiến Binh Trượng Thần / Giáp Tím Trí Tuệ):** Cô bé 10 tuổi điềm tĩnh, sâu sắc. Vy có tư duy logic không gian vượt trội và trực giác hình học xuất sắc. Vũ khí của Vy là **Trượng Ngọc Khắc Hình Học** — tạo ra các lá chắn năng lượng bảo vệ nhóm.
-
-### Người Đồng Hành & Hỗ Trợ
-*   **Sư phụ Long (Mentor):** Kết nối qua bộ đàm holographic từ phòng thí nghiệm năm 2026. Sư phụ Long đóng vai trò cung cấp kiến thức lịch sử (bối cảnh của từng thời kỳ) và giảng giải các nguyên lý toán học sâu sắc.
-*   **Robot Mo-Mo:** Chú robot nhỏ xinh bay lơ lửng hình bánh dày, là trợ lý giao diện của cỗ máy thời gian. Khi các Chiến Binh gặp thử thách quá khó, Mo-Mo sẽ kích hoạt **"Hệ Thống Gợi Mở (Scaffolding)"** giúp các em tự tìm ra đáp án mà không làm hộ.
+**Đoạn 3 — Lời triệu tập:**
+> *"Trước nguy cơ lịch sử bị xóa sổ, Cỗ máy Đông Sơn chính thức thức giấc, tự động kích hoạt hệ thống phòng thủ xuyên thời không. Nó biến thành một cổng trục thời gian vĩ đại, phóng đi những hạt dữ liệu định vị vào không gian của quá khứ và kêu gọi các "Chiến binh Toán" bước vào cuộc hành trình xuyên thời không..."*
 
 ---
 
-## 2. HÀNH TRÌNH KHẢO CỔ TOÁN HỌC (THE CAMPAIGN MAP)
+### Năm 2026 — Phòng Thí Nghiệm Của Thầy Long
+Tại Viện Nghiên cứu Toán học Vinastudy, **Thầy Long** — nhà toán học kiêm kỹ sư lỗi lạc — là người giám hộ **Cỗ máy Đông Sơn**. Cỗ máy này không chạy bằng điện năng thông thường, mà vận hành bằng **Năng lượng Tư duy Toán học (Math Energy)**.
 
-Học sinh sẽ lái cỗ máy Liên Châu đi dọc theo tiến trình lịch sử oai hùng của Đại Việt. Mỗi Ải là một sự kiện lịch sử có thật, lồng ghép khéo léo bài học Toán Lớp 3:
-
-*   **Trạm 1: Thuở Sơ Khai — Dựng Nước & Giữ Nước**
-    *   **Ải 1: Bản Thiết Kế Của An Dương Vương (Toán: Phân biệt Số & Chữ số)**
-        *   **Bối cảnh:** Nhóm xuyên không về Loa Thành cổ kính. An Dương Vương đang đau đầu phân tích số lượng nhân lực xây dựng các vòng thành ốc xoắn khổng lồ.
-        *   **Cốt truyện:** Quân giặc tìm cách tráo đổi bản vẽ quy hoạch Loa Thành. Minh và Vy phải giúp nhà vua phân biệt rõ các ký hiệu "chữ số" của cổ nhân và "số" lượng thực tế để tiến hành xây thành đúng hạn.
-    *   **Ải 2: Nỏ Thần Liên Châu (Toán: Cấu tạo số 3 chữ số)**
-        *   **Bối cảnh:** Tướng Cao Lỗ đang chế tạo Nỏ Thần có thể bắn một phát ra hàng vạn mũi tên.
-        *   **Cốt truyện:** Bản đúc khuôn đồng bị hư hại một vài vị trí Hàng Trăm, Hàng Chục, Hàng Đơn Vị. Các chiến binh phải dùng "Tuyệt chiêu Cấu tạo số" để điền đúng các thông số kỹ thuật đúc mũi tên đồng, giúp Cao Lỗ hoàn thiện vũ khí hộ quốc.
-    *   **Ải 3: Đốm Đen Trên Thẻ Tre (Toán: Phép cộng/trừ trong phạm vi 1000)**
-        *   **Bối cảnh:** Quân giặc làm đổ mực lên các thẻ tre ghi chép kho lương thực Loa Thành.
-        *   **Cốt truyện:** Khôi phục số liệu lương thảo bị mất để đảm bảo quân sĩ đủ sức xây thành trì bảo vệ đất nước.
-
-*   **Trạm 2: Tiếng Trống Mê Linh — Thời Kỳ Trưng Vương**
-    *   **Ải 4: Hội Quân Mê Linh (Toán: Cộng/trừ có nhớ trong phạm vi 1000)**
-        *   **Bối cảnh:** Hai Bà Trưng (Trưng Trắc, Trưng Nhị) phất cờ khởi nghĩa tại cửa sông Hát (năm 40).
-        *   **Cốt truyện:** Các cánh quân từ khắp nơi đổ về tụ hội. Các em phải tính toán số lượng binh sĩ, lượng voi chiến gia nhập nghĩa quân từ các quận Giao Chỉ, Cửu Chân để sắp xếp doanh trại hợp lý.
-    *   **Ải 5: Chiến Thuật Voi Chiến (Toán: Nhân/Chia cơ bản, bảng cửu chương)**
-        *   **Bối cảnh:** Quân Đông Hán dàn trận mai phục hiểm hóc.
-        *   **Cốt truyện:** Tính toán chia đội hình voi chiến theo hàng lối khoa học để phá tan đội hình kỵ binh địch, giành lại 65 thành trì Bắc Bộ.
-
-*   **Trạm 3: Tiếng Sấm Sông Bạch Đằng — Thời Kỳ Tự Chủ**
-    *   **Ải 7 & 8: Trận Bạch Đằng Lịch Sử — Ngô Quyền Đại Phá Quân Nam Hán (Toán: Phép nhân/chia, đo lường & thời gian)**
-        *   **Bối cảnh:** Sông Bạch Đằng, năm 938. Quân Nam Hán do Hoằng Tháo chỉ huy đang kéo chiến thuyền vào vịnh.
-        *   **Cốt truyện:** Ngô Quyền cần cắm trận địa cọc gỗ bịt sắt xuống lòng sông Bạch Đằng. Các chiến binh phải giải toán đo lường độ dài cọc, khoảng cách giữa các cọc gỗ dựa trên chiều rộng lòng sông, đồng thời tính toán chính xác thời gian thủy triều lên xuống (Toán thời gian) để dụ địch vào trận địa và phản công đúng lúc nước rút.
-
-*   **Trạm Đặc Biệt: Thống Nhất Giang Sơn — Đinh Bộ Lĩnh dẹp loạn 12 sứ quân**
-    *   **Ải 27: Cờ Lau Tập Trận (Toán: Giải toán có lời văn tổng hợp)**
-        *   **Bối cảnh:** Hoa Lư cổ kính, cậu bé Đinh Bộ Lĩnh đang bày trận giả bằng cờ lau cùng mục đồng.
-        *   **Cốt truyện:** Các em tham gia vào trận giả, giải các câu đố phân chia lãnh địa, thu phục các sứ quân để giúp Đinh Bộ Lĩnh đặt nền móng thống nhất đất nước, lên ngôi Hoàng đế (Đinh Tiên Hoàng), đặt quốc hiệu Đại Cồ Việt.
+Một thực thể hắc ám vô hình từ phương Bắc bất ngờ can thiệp vào trục thời gian — xóa sổ chiến công, bóp méo lịch sử. Cỗ máy Đông Sơn tự thức giấc, mở cổng xuyên không và triệu tập **Chiến Binh Toán** — những học sinh lớp 3 có tâm hồn trong sáng và tư duy sắc bén — bước vào cuộc hành trình vá lại lịch sử.
 
 ---
 
-## 3. CƠ CHẾ GAMEPLAY (THE CORE LOOP)
+## 2. NHÂN VẬT (CHARACTERS)
 
-1.  **Trang chủ (Splash Screen):** Người chơi xem hoạt ảnh cỗ máy thời gian Liên Châu cất cánh từ phòng thí nghiệm năm 2026. Chọn nhân vật Minh hoặc Vy, nhập tên học sinh. Dữ liệu được mã hóa và lưu vào `localStorage`.
-2.  **Bản đồ Lịch sử (Campaign Map):** Một cuộn tranh thư pháp cổ từ từ mở ra, lộ diện bản đồ Đại Việt chạy dọc từ Bắc vào Nam theo tiến trình thời gian. Các ải đã vượt qua sẽ hóa vàng oai hùng, gắn cúp 🏆 vàng lấp lánh.
-3.  **Hệ Thống Checkpoint & Đánh Giá Năng Lực Học Sinh:**
-    *   **Reaction Time (Thời gian phản xạ):** Đo bằng giây kể từ khi câu hỏi hiển thị đến khi học sinh đưa ra câu trả lời chính xác. Thể hiện độ nhạy bén số học của trẻ.
-    *   **Grit & Attempts (Độ kiên trì):** Theo dõi số lần học sinh thử sai trước khi tìm ra đáp án đúng. Sư phụ Long đánh giá cao những học sinh dám thử thách và tự sửa sai.
-    *   **AI Claude Đánh Giá:** Toàn bộ dữ liệu checkpoints sẽ được gửi về bot. AI Claude (đóng vai Sư phụ Long) sẽ phân tích chi tiết để đưa ra nhận xét cá nhân hóa cực kỳ ấm áp, đánh giá trẻ đạt **Mức năng lực** nào (🌱 Mức 1 đến 🏆 Mức 4) kèm lời khuyên học tập thiết thực.
+### 2.1 Nhân vật chơi được — 4 lớp nhân vật
+
+Người chơi chọn **lớp nhân vật** và **giới tính** khi đăng ký. Mỗi lớp có avatar riêng (male/female).
+
+| Lớp | Màu chủ | HP | Sở trường | Lore |
+|---|---|---|---|---|
+| ⚔️ **Lạc Tướng** | Đỏ #BE1A30 | Cao nhất | Tấn công | Tướng Hùng Vương, khiên đồng Đông Sơn, kiếm Việt |
+| 🔮 **Đạo Sĩ** | Tím #7040A0 | Trung bình | Phép thuật | Pháp sư Lạc Việt, gậy hoa sen, cuộn Lĩnh Nam Chích Quái |
+| 🏹 **Nỏ Thần** | Ngọc #5ABCAA | Thấp | Tốc độ | Chiến binh Cổ Loa, nỏ liên hoàn An Dương Vương |
+| 🛡️ **Thần Tướng** | Chàm #2B2096 | Tối đa | Phòng thủ | Hình tượng Thánh Gióng + Trần Hưng Đạo, giáo sắt, khiên hổ phù |
+
+**Asset:** `design-system/characters/playable/{folder}/{folder}-{male|female}-avatar.jpg`
+
+---
+
+### 2.2 Người đồng hành & hỗ trợ
+
+- **Thầy Long (Mentor):** Kết nối qua bộ đàm holographic từ phòng thí nghiệm năm 2026. Cung cấp bối cảnh lịch sử và giảng giải toán học. Đóng vai AI Claude phân tích kết quả học sinh.
+
+- **Robot Mo-Mo:** Chú robot nhỏ hình bánh dày, bay lơ lửng — trợ lý giao diện Cỗ máy Đông Sơn. Khi học sinh gặp bài quá khó, Mo-Mo kích hoạt **Hệ Thống Gợi Mở (Scaffolding)** — gợi ý từng bước mà không làm hộ đáp án.
+
+---
+
+## 3. LUỒNG TRẢI NGHIỆM NGƯỜI DÙNG (USER FLOW)
+
+```
+[Telegram Bot] 
+    → /start hoặc nút Menu
+    → intro.html (Splash: Chiến Binh Toán + VINASTUDY)
+        → Chạm "chạm để xem lời mở đầu"
+        → Prologue 3 đoạn (typewriter, có thể quay lại)
+        → "bắt đầu cuộc hành trình »"
+    → register.html
+        → Bước 1: Nhập tên + chọn giới tính
+        → Bước 2: Chọn nhân vật (4 lớp × 2 giới tính)
+        → Submit → Thầy Long duyệt
+        → Bước 3: Chờ duyệt (polling 5 giây/lần)
+    → [Thầy Long duyệt qua Telegram Admin]
+    → map.html (Bản đồ Chiến Dịch)
+```
+
+---
+
+## 4. HÀNH TRÌNH KHẢO CỔ TOÁN HỌC (CAMPAIGN MAP)
+
+Học sinh điều khiển Cỗ máy Đông Sơn đi dọc tiến trình lịch sử Đại Việt. Mỗi Ải là một sự kiện lịch sử có thật, lồng ghép bài Toán Lớp 3.
+
+---
+
+### 🏛️ TRẠM 1: THUỞ SƠ KHAI — DỰNG NƯỚC & GIỮ NƯỚC
+
+**Ải 1: Bản Thiết Kế Của An Dương Vương**
+- **Toán:** Phân biệt Số & Chữ số
+- **Bối cảnh:** Loa Thành cổ kính. An Dương Vương phân tích nhân lực xây vòng thành ốc xoắn.
+- **Cốt truyện:** Quân giặc tráo bản vẽ quy hoạch. Học sinh phải phân biệt ký hiệu "chữ số" cổ nhân và "số" lượng thực tế để xây thành đúng hạn.
+- **Boss:** Hồ Tinh (Cáo chín đuôi — mỗi đuôi phong ấn một chữ số 1-9)
+
+**Ải 2: Nỏ Thần Liên Châu**
+- **Toán:** Cấu tạo số 3 chữ số (hàng trăm, hàng chục, hàng đơn vị)
+- **Bối cảnh:** Tướng Cao Lỗ chế tạo Nỏ Thần bắn vạn mũi tên.
+- **Cốt truyện:** Bản đúc khuôn đồng bị hư hại. Học sinh điền đúng thông số kỹ thuật để Cao Lỗ hoàn thiện nỏ hộ quốc.
+
+**Ải 3: Đốm Đen Trên Thẻ Tre**
+- **Toán:** Phép cộng/trừ trong phạm vi 1000
+- **Bối cảnh:** Quân giặc làm đổ mực lên thẻ tre ghi kho lương Loa Thành.
+- **Cốt truyện:** Khôi phục số liệu lương thảo để quân sĩ đủ sức xây thành bảo vệ đất nước.
+
+---
+
+### 🥁 TRẠM 2: TIẾNG TRỐNG MÊ LINH — THỜI KỲ TRƯNG VƯƠNG
+
+**Ải 4: Hội Quân Mê Linh**
+- **Toán:** Cộng/trừ có nhớ trong phạm vi 1000
+- **Bối cảnh:** Hai Bà Trưng phất cờ khởi nghĩa năm 40 SCN tại cửa sông Hát.
+- **Cốt truyện:** Các cánh quân từ khắp nơi đổ về. Học sinh tính số binh sĩ, voi chiến từ các quận để sắp xếp doanh trại.
+
+**Ải 5: Chiến Thuật Voi Chiến**
+- **Toán:** Nhân/Chia cơ bản, bảng cửu chương
+- **Bối cảnh:** Quân Đông Hán dàn trận mai phục.
+- **Cốt truyện:** Tính toán chia đội hình voi chiến theo hàng lối để phá kỵ binh địch, giành lại 65 thành trì.
+
+---
+
+### ⚓ TRẠM 3: TIẾNG SẤM SÔNG BẠCH ĐẰNG — THỜI KỲ TỰ CHỦ
+
+**Ải 6 & 7: Trận Bạch Đằng — Ngô Quyền Đại Phá Nam Hán**
+- **Toán:** Phép nhân/chia, đo lường & thời gian
+- **Bối cảnh:** Sông Bạch Đằng, năm 938. Quân Nam Hán do Hoằng Tháo kéo chiến thuyền vào vịnh.
+- **Cốt truyện:** Ngô Quyền cần cắm trận địa cọc gỗ bịt sắt. Học sinh đo độ dài cọc, khoảng cách giữa cọc, và tính thời gian thủy triều lên xuống để dụ địch vào bẫy đúng lúc nước rút.
+
+---
+
+### 👑 TRẠM ĐẶC BIỆT: THỐNG NHẤT GIANG SƠN
+
+**Ải 8: Cờ Lau Tập Trận — Đinh Bộ Lĩnh Dẹp Loạn 12 Sứ Quân**
+- **Toán:** Giải toán có lời văn tổng hợp
+- **Bối cảnh:** Hoa Lư cổ kính, cậu bé Đinh Bộ Lĩnh bày trận giả bằng cờ lau.
+- **Cốt truyện:** Học sinh tham gia trận giả, giải đố phân chia lãnh địa và thu phục sứ quân — giúp Đinh Bộ Lĩnh thống nhất đất nước, lên ngôi Đinh Tiên Hoàng, đặt quốc hiệu Đại Cồ Việt.
+
+---
+
+## 5. HỆ THỐNG BOSS
+
+| Boss | Xuất hiện | Đặc điểm |
+|---|---|---|
+| 🦊 **Hồ Tinh** | Ải 1 | Cáo chín đuôi, mỗi đuôi phong ấn chữ số 1-9. Rối loạn trật tự số học. |
+| (Mở rộng sau) | Ải tiếp theo | TBD |
+
+**Hồ Tinh — thiết kế:** Nữ yêu hồ hybrid người+cáo, áo thụng đỏ (modest, phù hợp trẻ em), quạt vàng, 9 đuôi cáo vàng phát sáng, ký hiệu toán học (+ − × ÷ = √) bay xung quanh. Lạnh lùng, uy nghiêm — **không** quyến rũ.
+
+---
+
+## 6. CƠ CHẾ GAMEPLAY (CORE LOOP)
+
+### Vòng lặp cơ bản
+1. **Vào ải:** Thầy Long kể bối cảnh lịch sử (1-2 câu)
+2. **Câu hỏi toán:** Hiển thị bài toán theo chủ đề lịch sử
+3. **Học sinh trả lời:** Nhập đáp án / chọn đáp án
+4. **Mo-Mo scaffolding:** Nếu sai 2 lần → Mo-Mo gợi ý từng bước
+5. **Vượt ải:** Thầy Long nhận xét, cộng điểm, mở ải tiếp
+
+### Hệ thống đánh giá năng lực
+- **Reaction Time:** Thời gian từ khi hiện câu hỏi đến khi trả lời đúng (đo độ nhạy số học)
+- **Grit & Attempts:** Số lần thử sai trước khi đúng (đo độ kiên trì)
+- **AI Claude (vai Thầy Long):** Phân tích toàn bộ checkpoint → nhận xét cá nhân hoá, xếp mức năng lực:
+  - 🌱 Mức 1 — Đang nảy mầm
+  - ⚔️ Mức 2 — Chiến binh tập sự
+  - 🏹 Mức 3 — Chiến binh thiện chiến
+  - 🏆 Mức 4 — Hộ vệ lịch sử
+
+### Bản đồ Chiến Dịch
+- Cuộn tranh thư pháp cổ mở ra, bản đồ Đại Việt theo tiến trình thời gian
+- Ải đã vượt: hóa vàng + gắn 🏆
+- Ải hiện tại: nhấp nháy, sẵn sàng vào
+- Ải chưa mở: xám, khóa
+
+---
+
+## 7. KỸ THUẬT & TRIỂN KHAI
+
+| Thành phần | Công nghệ |
+|---|---|
+| Bot | Python + python-telegram-bot |
+| Backend | FastAPI |
+| Database | PostgreSQL |
+| AI nhận xét | Claude API (Anthropic) |
+| Deploy | Railway |
+| Frontend | HTML/CSS/JS thuần (Telegram WebApp) |
+
+### Các màn hình hiện có
+| File | Chức năng | Trạng thái |
+|---|---|---|
+| `intro.html` | Splash + Prologue 3 đoạn typewriter | ✅ Done |
+| `register.html` | Đăng ký: tên + giới tính + chọn nhân vật | ✅ Done |
+| `map.html` | Bản đồ chiến dịch | 🔨 Cần làm |
+| `battle.html` | Màn chơi câu hỏi toán | 🔨 Cần làm |
+| `result.html` | Kết quả sau ải, nhận xét Thầy Long | 🔨 Cần làm |
+
+---
+
+## 8. PALETTE MÀU (DESIGN SYSTEM)
+
+| Token | Hex | Dùng cho |
+|---|---|---|
+| Primary Gold | `#C8960C` | Logo, highlight, CTA |
+| Secondary Red | `#C0332E` | Boss, nguy hiểm, Lạc Tướng |
+| Copper Bronze | `#B87333` | Đông Sơn, đồng, accent |
+| Void Black | `#07040A` | Background |
+| Text Main | `#F5EED6` | Nội dung chính |
+| Text Muted | `#A08C70` | Phụ, gợi ý |
+
+Font: **Philosopher** (title) · **Lora** (body) · **Roboto Mono** (data/mono)
+
+---
+
+*Chiến Binh Toán · VINASTUDY · v2.0 · 2026-05-27*
