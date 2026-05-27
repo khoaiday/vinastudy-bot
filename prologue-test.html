@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Prologue Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:     #C8960C;
+  --primary-glow:rgba(200,150,12,0.40);
+  --secondary:   #C0332E;
+  --copper:      #B87333;
+  --bg-void:     #07040A;
+  --text-main:   #F5EED6;
+  --text-muted:  #A08C70;
+  --border:      rgba(184,115,51,0.35);
+  --font-title:  'Philosopher', serif;
+  --font-body:   'Lora', serif;
+  --font-mono:   'Roboto Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: var(--bg-void);
+  color: var(--text-main);
+  font-family: var(--font-body);
+}
+
+/* ── Background ── */
+.bg {
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(7,4,10,0.72), rgba(7,4,10,0.90)),
+    url('design-system/intro/intro-splash.jpg');
+  background-size: cover;
+  background-position: top center;
+}
+
+/* ── Particles ── */
+#particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+/* ── Main container ── */
+.scene {
+  position: relative; z-index: 1;
+  height: 100vh;
+  display: flex; flex-direction: column;
+  padding: 0 28px;
+}
+
+/* ── Header nhỏ ── */
+.scene-header {
+  padding: 28px 0 0;
+  flex-shrink: 0;
+  text-align: center;
+}
+.scene-logo {
+  font-family: var(--font-title);
+  font-size: 1rem; letter-spacing: 4px;
+  color: var(--primary);
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    1px -1px 0 rgba(7,4,10,1),
+   -1px  1px 0 rgba(7,4,10,1),
+    0 0 20px var(--primary-glow);
+}
+.scene-logo span { color: var(--secondary); }
+
+/* ── Segment indicator ── */
+.seg-dots {
+  display: flex; gap: 6px; justify-content: center;
+  margin-top: 16px;
+}
+.seg-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border);
+  transition: background .4s, transform .4s;
+}
+.seg-dot.active { background: var(--primary); transform: scale(1.3); }
+.seg-dot.done   { background: var(--copper); }
+
+/* ── Text area ── */
+.text-area {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px 0;
+  overflow: hidden;
+}
+
+.seg-text {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.95;
+  color: var(--text-main);
+  text-align: left;
+  max-width: 520px;
+  /* cursor nhấp nháy ở cuối đoạn đang gõ */
+}
+
+/* Cursor nhấp nháy */
+.cursor {
+  display: inline-block;
+  width: 2px; height: 1.1em;
+  background: var(--primary);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink .7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── Nút xem tiếp — ngay sau text ── */
+.next-wrap {
+  display: block;
+  text-align: right;
+  margin-top: 18px;
+  min-height: 1.6em;
+}
+
+.btn-next {
+  background: none; border: none;
+  font-family: var(--font-body);
+  font-size: .92rem;
+  font-style: italic;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-decoration-color: rgba(160,140,112,0.45);
+  text-underline-offset: 4px;
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1),
+   -1px -1px 0 rgba(7,4,10,1),
+    0 0 10px rgba(7,4,10,0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: color .2s;
+}
+.btn-next.show {
+  pointer-events: all;
+  animation: nextBlink 1.2s ease-in-out infinite;
+}
+.btn-next:active { color: var(--primary); }
+
+@keyframes nextBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* Nút skip góc phải dưới */
+.btn-skip {
+  position: fixed; bottom: 24px; right: 20px; z-index: 10;
+  background: none; border: none;
+  font-family: var(--font-body);
+  font-size: .78rem; font-style: italic;
+  color: var(--text-muted);
+  cursor: pointer; padding: 6px 4px;
+  text-shadow: 1px 1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1);
+}
+.btn-skip:active { color: var(--text-main); }
+
+/* Curtain */
+#curtain {
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--bg-void);
+  opacity: 0; pointer-events: none;
+  transition: opacity .55s ease;
+}
+#curtain.fade-in { opacity: 1; pointer-events: all; }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<canvas id="particles"></canvas>
+<div id="curtain"></div>
+
+<div class="scene">
+  <div class="scene-header">
+    <div class="scene-logo">Chiến Binh <span>Toán</span></div>
+    <div class="seg-dots" id="segDots"></div>
+  </div>
+
+  <div class="text-area">
+    <div class="seg-text" id="segText">
+      <span id="typed"></span><span class="cursor" id="cursor"></span>
+      <div class="next-wrap">
+        <button class="btn-next" id="btnNext" onclick="nextSegment()">xem tiếp &nbsp;»</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="btn-skip" onclick="goRegister()"><em>Bỏ qua</em></button>
+
+<script>
+// ── Nội dung các phân đoạn ──────────────────────────────
+const SEGMENTS = [
+  `Từ ngàn năm trước, các bậc tiền nhân Đại Việt đã tiên tri được một tai ương hủy diệt. Cỗ máy Liên Châu không chỉ đơn thuần là vũ khí thủ thành, mà là một đại trận pháp công nghệ cổ xưa được phong ấn, lưu giữ toàn bộ mã nguồn của dòng chảy lịch sử dân tộc qua mọi thời đại.`,
+
+  `Năm 2026 SCN, một dị tượng kinh hoàng ập đến. Một thực thể hắc ám vô hình từ phương Bắc bất ngờ trỗi dậy, khuấy đảo hư không. Thực thể đen tối này đang điên cuồng can thiệp vào trục thời gian, hòng xóa sổ những chiến công hiển hách và bóp méo cội nguồn của chúng ta.`,
+
+  `Trước nguy cơ lịch sử bị xóa sổ, Cỗ máy Liên Châu chính thức thức giấc, tự động kích hoạt hệ thống phòng thủ xuyên không gian. Nó biến thành một cổng trục thời gian vĩ đại, phóng đi những hạt dữ liệu định vị, kêu gọi các "Hộ Vệ Lịch Sử" bước vào cuộc hành trình vạn dặm.`,
+];
+
+const LAST_LABEL = 'bắt đầu &nbsp;»';
+const NEXT_LABEL = 'xem tiếp &nbsp;»';
+
+let currentSeg  = 0;
+let typingTimer = null;
+let charIndex   = 0;
+
+// ── Dots ────────────────────────────────────────────────
+function buildDots() {
+  const container = document.getElementById('segDots');
+  SEGMENTS.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.className = 'seg-dot' + (i === 0 ? ' active' : '');
+    d.id = `dot-${i}`;
+    container.appendChild(d);
+  });
+}
+
+function updateDots(idx) {
+  SEGMENTS.forEach((_, i) => {
+    const d = document.getElementById(`dot-${i}`);
+    d.className = 'seg-dot' + (i < idx ? ' done' : i === idx ? ' active' : '');
+  });
+}
+
+// ── Typewriter ───────────────────────────────────────────
+function typeSegment(segIdx) {
+  const text   = SEGMENTS[segIdx];
+  const typed  = document.getElementById('typed');
+  const cursor = document.getElementById('cursor');
+  const btnNext= document.getElementById('btnNext');
+
+  typed.textContent = '';
+  btnNext.classList.remove('show');
+  btnNext.innerHTML = segIdx === SEGMENTS.length - 1 ? LAST_LABEL : NEXT_LABEL;
+  charIndex = 0;
+  cursor.style.display = 'inline-block';
+
+  // Speed: nhanh hơn ở đầu, giữ nhịp ổn định
+  function typeChar() {
+    if (charIndex < text.length) {
+      typed.textContent += text[charIndex];
+      charIndex++;
+      // Dừng nhẹ ở dấu chấm / phẩy
+      const ch = text[charIndex - 1];
+      const delay = ch === '.' || ch === ',' ? 180
+                  : ch === ' '               ? 28
+                  : 32;
+      typingTimer = setTimeout(typeChar, delay);
+    } else {
+      // Xong — ẩn cursor, hiện nút
+      cursor.style.display = 'none';
+      btnNext.classList.add('show');
+    }
+  }
+  typeChar();
+}
+
+// ── Skip typing (click vùng text) ───────────────────────
+document.getElementById('segText').addEventListener('click', () => {
+  if (typingTimer) {
+    clearTimeout(typingTimer);
+    typingTimer = null;
+    const text  = SEGMENTS[currentSeg];
+    document.getElementById('typed').textContent = text;
+    document.getElementById('cursor').style.display = 'none';
+    document.getElementById('btnNext').classList.add('show');
+  }
+});
+
+// ── Chuyển phân đoạn ────────────────────────────────────
+function nextSegment() {
+  if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+  currentSeg++;
+  if (currentSeg >= SEGMENTS.length) {
+    goRegister();
+    return;
+  }
+  updateDots(currentSeg);
+  typeSegment(currentSeg);
+}
+
+// ── Navigate ─────────────────────────────────────────────
+function goRegister() {
+  const curtain = document.getElementById('curtain');
+  curtain.classList.add('fade-in');
+  const tgId = new URLSearchParams(window.location.search).get('tg_id');
+  const dest  = tgId ? `/register?tg_id=${tgId}` : '/register';
+  setTimeout(() => { window.location.href = dest; }, 580);
+}
+
+// ── Particles ────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('particles');
+  const ctx    = canvas.getContext('2d');
+  const COLORS = ['rgba(200,150,12,', 'rgba(184,115,51,', 'rgba(192,51,46,'];
+  let W, H, dots = [];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function spawn() {
+    return { x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.2+.3,
+             a: Math.random()*.4+.1, vx:(Math.random()-.5)*.2, vy:-(Math.random()*.35+.08),
+             c: COLORS[Math.floor(Math.random()*COLORS.length)] };
+  }
+  function init() { resize(); dots = Array.from({length:45}, spawn); }
+  function tick() {
+    ctx.clearRect(0,0,W,H);
+    dots.forEach(d => {
+      d.x+=d.vx; d.y+=d.vy;
+      if(d.y<-4) Object.assign(d, spawn(), {y:H+4});
+      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle = d.c+d.a+')'; ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize', resize);
+  init(); tick();
+})();
+
+// ── Init ─────────────────────────────────────────────────
+buildDots();
+typeSegment(0);
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# KỊCH BẢN GAME: CHIẾN BINH TOÁN
+﻿# KỊCH BẢN GAME: CHIẾN BINH TOÁN
 ## VINASTUDY · HÀNH TRÌNH XUYÊN KHÔNG THỜI GIAN
 
 > Cập nhật: 2026-05-27 · Phiên bản v2.0
@@ -48,7 +48,7 @@ Người chơi chọn **lớp nhân vật** và **giới tính** khi đăng ký.
 
 - **Thầy Long (Mentor):** Kết nối qua bộ đàm holographic từ phòng thí nghiệm năm 2026. Cung cấp bối cảnh lịch sử và giảng giải toán học. Đóng vai AI Claude phân tích kết quả học sinh.
 
-- **Robot Mo-Mo:** Chú robot nhỏ hình bánh dày, bay lơ lửng — trợ lý giao diện Cỗ máy Đông Sơn. Khi học sinh gặp bài quá khó, Mo-Mo kích hoạt **Hệ Thống Gợi Mở (Scaffolding)** — gợi ý từng bước mà không làm hộ đáp án.
+- **Cỗ máy Đông Sơn (Trợ lý):** Hiện thân tương tác của cỗ máy — giọng nói, biểu tượng hình trống đồng phát sáng. Khi học sinh gặp bài quá khó, Cỗ máy Đông Sơn kích hoạt **Hệ Thống Gợi Mở (Scaffolding)** — gợi ý từng bước mà không làm hộ đáp án.
 
 ---
 
@@ -147,7 +147,7 @@ Học sinh điều khiển Cỗ máy Đông Sơn đi dọc tiến trình lịch 
 1. **Vào ải:** Thầy Long kể bối cảnh lịch sử (1-2 câu)
 2. **Câu hỏi toán:** Hiển thị bài toán theo chủ đề lịch sử
 3. **Học sinh trả lời:** Nhập đáp án / chọn đáp án
-4. **Mo-Mo scaffolding:** Nếu sai 2 lần → Mo-Mo gợi ý từng bước
+4. **Cỗ máy Đông Sơn scaffolding:** Nếu sai 2 lần → Cỗ máy Đông Sơn gợi ý từng bước
 5. **Vượt ải:** Thầy Long nhận xét, cộng điểm, mở ải tiếp
 
 ### Hệ thống đánh giá năng lực

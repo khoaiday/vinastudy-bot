@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 from anthropic import AsyncAnthropic
 from app.config import ANTHROPIC_KEY, BUOI_CONFIG, DANG_BAI, CONTENT_DIR
 
@@ -126,7 +126,7 @@ async def danh_gia_nang_luc(diem: int, tong: int, chi_tiet: dict, buoi: int, lic
 PHÂN TÍCH CHI TIẾT:
 - Cấp độ chơi: {level_label}
 - Số câu làm đúng ngay lần đầu: {len(first_correct)}/{tong}
-- Số câu cần gợi ý (Mo-Mo): {len(need_hint)}
+- Số câu cần gợi ý (Cỗ máy Đông Sơn): {len(need_hint)}
 - Thời gian TB mỗi câu: {avg_time}s
 - Câu mất nhiều thời gian (>60s): {len(slow_qs)} câu"""
 

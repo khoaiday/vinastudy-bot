@@ -1,4 +1,4 @@
-/* =========================================
+﻿/* =========================================
    CYBERPUNK RESKIN OVERRIDES 
    ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap');
@@ -98,7 +98,7 @@ h1, .section-title, .result-title, .q-num, .check-btn, .submit-btn, .result-scor
 /* Fix z-index of content inside cyber-box */
 .cyber-box > * { position: relative; z-index: 1; }
 
-/* ── NPC Mo-Mo ── */
+/* ── NPC Cỗ máy Đông Sơn ── */
 .momo-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(5,10,31,0.85); z-index: 300;

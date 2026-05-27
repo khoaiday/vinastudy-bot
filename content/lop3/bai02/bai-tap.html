@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -647,7 +647,7 @@
     color: #000 !important;
   }
 
-  /* ── NPC Mo-Mo ── */
+  /* ── NPC Cỗ máy Đông Sơn ── */
   .momo-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(5,10,31,0.85); z-index: 300;
@@ -911,10 +911,10 @@
 <div id="resumeToast" style="display:none;"></div>
 
 
-<!-- Mo-Mo Overlay -->
+<!-- Cỗ máy Đông Sơn Overlay -->
 <div class="momo-overlay" id="momoOverlay">
   <div class="momo-box">
-    <div class="momo-header">🤖 Mo-Mo Gợi Ý</div>
+    <div class="momo-header">🤖 Cỗ máy Đông Sơn Gợi Ý</div>
     <div id="momoText" class="momo-text"></div>
     <button class="momo-btn" onclick="closeMomo()" style="margin-bottom: 10px;">Thử Lại Nhé!</button>
     <button class="momo-btn" onclick="openVideoHelp()" style="background: transparent; color: var(--primary); border: 2px solid var(--primary); margin-left: 10px;">🎬 Xem Video Bài Giảng</button>
@@ -1804,7 +1804,7 @@ const Q_TIMESTAMPS = {
 };
 let currentHelpQid = "";
 
-// currentHelpQid is set directly inside checkText when Mo-Mo overlay is shown
+// currentHelpQid is set directly inside checkText when Cỗ máy Đông Sơn overlay is shown
 
 function openVideoHelp() {
   document.getElementById('momoOverlay').classList.remove('show'); // Ẩn Momo
@@ -1909,7 +1909,7 @@ function openHelpVideo() {
 // ─────────────────────────────────────────────────────────────────────────
 
 
-// Khởi tạo Mo-Mo
+// Khởi tạo Cỗ máy Đông Sơn
 const momoHinted = {};
 
 function closeMomo() {
@@ -2075,10 +2075,10 @@ function checkText(qId, inputId, correctList, explanation, hintMsg) {
   const isCorrect = correctList.some(c => c.toLowerCase() === val);
   
   if (!isCorrect && !momoHinted[qId]) {
-    // Sai lần 1 -> Hiện Mo-Mo
+    // Sai lần 1 -> Hiện Cỗ máy Đông Sơn
     momoHinted[qId] = true;
     currentHelpQid = qId;
-    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
+    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Cỗ máy Đông Sơn giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
     document.getElementById('momoOverlay').classList.add('show');
     return; // Dừng lại, chưa trừ điểm
   }
@@ -2162,7 +2162,7 @@ function checkChoice(qId, correct, explanation, hintMsg) {
   if (!isCorrect && !momoHinted[qId]) {
     momoHinted[qId] = true;
     currentHelpQid = qId;
-    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
+    document.getElementById('momoText').innerHTML = "<b>Đừng lo, để Cỗ máy Đông Sơn giúp bạn!</b><br><br>" + (hintMsg || "Hãy đọc kỹ lại đề bài và nháp cẩn thận nhé!");
     document.getElementById('momoOverlay').classList.add('show');
     
     // Reset selected

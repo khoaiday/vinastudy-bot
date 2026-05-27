@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -305,7 +305,7 @@ body {
 .viz-pair-sums span { min-width: 32px; text-align: center; color: var(--amber); animation: vizPop 0.3s ease both; animation-delay: var(--d); }
 .viz-pair-line { height: 2px; background: linear-gradient(90deg,transparent,var(--amber),transparent); margin: 4px 20%; animation: fadeSlide 0.5s ease 0.6s both; }
 
-/* Mo-Mo Overlay */
+/* Cỗ máy Đông Sơn Overlay */
 .momo-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,31,0.88); z-index: 300; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
 .momo-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -626,10 +626,10 @@ body {
   <button class="game-over-btn" onclick="restartConfirm()">🔄 CHƠI LẠI TỪ ĐẦU</button>
 </div>
 
-<!-- Mo-Mo Overlay -->
+<!-- Cỗ máy Đông Sơn Overlay -->
 <div class="momo-overlay" id="momoOverlay">
   <div class="momo-box">
-    <div class="momo-header">🤖 Mo-Mo Gợi Ý</div>
+    <div class="momo-header">🤖 Cỗ máy Đông Sơn Gợi Ý</div>
     <div id="momoText" class="momo-text"></div>
     <button class="momo-btn" onclick="closeMomo()">Thử Lại Nhé!</button>
     <button class="momo-btn-video" onclick="openHelpVideo()">📹 Xem video</button>
@@ -809,7 +809,7 @@ function handleAfterAnswer(qNum, isCorrect) {
   saveProgress();
 }
 
-// ── Mo-Mo ──
+// ── Cỗ máy Đông Sơn ──
 function closeMomo() {
   document.getElementById('momoOverlay').classList.remove('show');
   const inp = document.querySelector('.q-slide.active .ans-input');
@@ -1018,7 +1018,7 @@ function checkQ(qNum) {
     window._attempts[qId] = (window._attempts[qId] || 0) + 1;
     window._checkpoints.push({ question_id: qNum, attempt_number: window._attempts[qId], submitted_answer: vals.join(','), is_correct: false, time_spent_seconds: ts0 });
     momoHinted[qId] = true;
-    document.getElementById('momoText').innerHTML = '<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>' + q.hint;
+    document.getElementById('momoText').innerHTML = '<b>Đừng lo, để Cỗ máy Đông Sơn giúp bạn!</b><br><br>' + q.hint;
     document.getElementById('momoOverlay').classList.add('show');
     return;
   }

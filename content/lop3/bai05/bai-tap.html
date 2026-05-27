@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -400,10 +400,10 @@
 <span id="progressText" style="display:none;">1/10</span>
 <div id="resumeToast" style="display:none;"></div>
 
-<!-- Mo-Mo Overlay -->
+<!-- Cỗ máy Đông Sơn Overlay -->
 <div class="momo-overlay" id="momoOverlay">
   <div class="momo-box">
-    <div class="momo-header">🤖 Mo-Mo Gợi Ý</div>
+    <div class="momo-header">🤖 Cỗ máy Đông Sơn Gợi Ý</div>
     <div id="momoText" class="momo-text"></div>
     <button class="momo-btn" onclick="closeMomo()" style="margin-bottom:10px;">Thử Lại Nhé!</button>
     <button class="momo-btn" onclick="openVideoHelp()" style="background:transparent;color:var(--primary);border:2px solid var(--primary);margin-left:10px;">🎬 Xem Video Bài Giảng</button>
@@ -611,11 +611,11 @@
     <div class="level-cards">
       <div class="level-card lv1" onclick="startGame(1)">
         <div class="lc-head">⭐ Cấp 1 — Tập Sự</div>
-        <div class="lc-desc">Có trợ giúp Mo-Mo và video bài giảng. Điểm ×1.</div>
+        <div class="lc-desc">Có trợ giúp Cỗ máy Đông Sơn và video bài giảng. Điểm ×1.</div>
       </div>
       <div class="level-card lv2" onclick="startGame(2)">
         <div class="lc-head">⭐⭐ Cấp 2 — Chiến Binh</div>
-        <div class="lc-desc">Có Mo-Mo nhưng không xem video. Điểm ×1.5.</div>
+        <div class="lc-desc">Có Cỗ máy Đông Sơn nhưng không xem video. Điểm ×1.5.</div>
       </div>
       <div class="level-card lv3" onclick="startGame(3)">
         <div class="lc-head">⭐⭐⭐ Cấp 3 — Cao Thủ</div>
@@ -807,7 +807,7 @@ function checkSlide(slideNum, inputIds, correctAnswers, explanation, hintMsg) {
   }
 
   if (!allCorrect && !slideHinted[qId]) {
-    /* Sai lần 1 — ghi checkpoint rồi hiện Mo-Mo */
+    /* Sai lần 1 — ghi checkpoint rồi hiện Cỗ máy Đông Sơn */
     var now0 = Date.now();
     var ts0 = Math.round((now0 - window._lastInteractionTime) / 1000);
     window._lastInteractionTime = now0;
@@ -822,7 +822,7 @@ function checkSlide(slideNum, inputIds, correctAnswers, explanation, hintMsg) {
     answered[qId] = false;
     updateScore();
     slideHinted[qId] = true;
-    document.getElementById('momoText').innerHTML = '<b>Đừng lo, để Mo-Mo giúp bạn!</b><br><br>' + (hintMsg || 'Hãy đọc kỹ lại đề bài!');
+    document.getElementById('momoText').innerHTML = '<b>Đừng lo, để Cỗ máy Đông Sơn giúp bạn!</b><br><br>' + (hintMsg || 'Hãy đọc kỹ lại đề bài!');
     document.getElementById('momoOverlay').classList.add('show');
     return;
   }
@@ -1023,7 +1023,7 @@ function submitAll() {
   document.getElementById('resultOverlay').classList.add('show');
 }
 
-/* ── Mo-Mo ── */
+/* ── Cỗ máy Đông Sơn ── */
 const momoHinted = {};
 
 function closeMomo() {

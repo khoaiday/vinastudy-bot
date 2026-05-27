@@ -1,4 +1,4 @@
-# ẢI 1: BÍ ẨN CỔ LOA
+﻿# ẢI 1: BÍ ẨN CỔ LOA
 ## "Tường Thành Không Chịu Đứng"
 
 > **Toán:** Số & Chữ số · Cấu tạo số tự nhiên · Đọc-viết số 3 chữ số · Giá trị theo vị trí
@@ -28,9 +28,9 @@
 **Thầy Long:**
 > "Các chiến binh! Cỗ máy Đông Sơn vừa phát tín hiệu khẩn — năm 257 trước Công nguyên, thành Cổ Loa đang gặp nguy hiểm nghiêm trọng. Vua An Dương Vương đã xây thành này được 2 năm... nhưng mỗi buổi sáng thức dậy, tường thành lại đổ sập hoàn toàn. Hai triệu mét khối đất — tất cả đều sụp xuống như chưa từng xây. Không ai hiểu tại sao."
 
-> *Mo-Mo bay lên, ánh đèn đỏ nhấp nháy.*
+> *Cỗ máy Đông Sơn bay lên, ánh đèn đỏ nhấp nháy.*
 
-**Mo-Mo:**
+**Cỗ máy Đông Sơn:**
 > "Thầy Long! Em phát hiện dấu vết năng lượng tối trong cuộn bản vẽ thi công! Ai đó đã... xâm nhập vào các con số!"
 
 ---
@@ -48,7 +48,7 @@
 > *Học sinh click vào một cuộn thẻ tre. Hiện ra dãy số bị nhòe mực:*
 > `"Chiều sâu móng: [ 3 ] [ 4 ] [ 5 ] tấc"`
 
-**Mo-Mo** *(phân tích)*:
+**Cỗ máy Đông Sơn** *(phân tích)*:
 > "💡 Em thấy rồi! Thực thể phương Bắc đã đánh tráo khái niệm trong đầu tất cả mọi người! Họ không còn phân biệt được **Chữ số** và **Số** là hai thứ khác nhau!"
 
 ---
@@ -81,7 +81,7 @@
 
 > *Bản đồ trên không của Cổ Loa hiện ra — 3 vòng tường đồng tâm.*
 
-**Mo-Mo:**
+**Cỗ máy Đông Sơn:**
 > "Ồ! Em hiểu rồi tại sao Cổ Loa có đúng 3 vòng tường! Đây không phải ngẫu nhiên đâu!"
 
 > *Ánh sáng chiếu vào từng vòng thành:*
@@ -112,7 +112,7 @@
 **Hồ Tinh** *(giọng lạnh, ngạo mạn)*:
 > "Hừ. Mấy đứa trẻ con đã tìm ra bí mật của ta rồi sao? Chín đuôi của ta phong ấn chín chữ số — khi chúng bị nhốt, con người không thể ghép thành số có nghĩa. Không có số, không có đo lường. Không đo lường được, thành sẽ đổ mãi đến ngàn đời!"
 
-**Mo-Mo:**
+**Cỗ máy Đông Sơn:**
 > "Để giải phóng từng chữ số, các chiến binh phải chứng minh họ HIỂU chữ số đó có nghĩa gì trong từng vị trí khác nhau!"
 
 ---
@@ -158,7 +158,7 @@
 > Xếp từ bé đến lớn?
 > → **285, 528, 825** ✅
 
-*(Scaffolding nếu sai 2 lần: Mo-Mo gợi ý so sánh hàng trăm trước tiên)*
+*(Scaffolding nếu sai 2 lần: Cỗ máy Đông Sơn gợi ý so sánh hàng trăm trước tiên)*
 
 ---
 
@@ -222,13 +222,13 @@
 **Khi học sinh trả lời sai lần 1:**
 > "Chưa đúng rồi. Hãy nhìn lại vị trí của chữ số đó trong con số nhé. Hàng nào thì giá trị đó bằng bao nhiêu?"
 
-**Khi học sinh sai lần 2 → Mo-Mo scaffolding:**
-> "Mo-Mo, hỗ trợ chiến binh đi!"
+**Khi học sinh sai lần 2 → Cỗ máy Đông Sơn scaffolding:**
+> "Cỗ máy Đông Sơn, hỗ trợ chiến binh đi!"
 
-**Mo-Mo scaffolding — Bước 1:**
-> "💡 Mẹo của Mo-Mo: Đếm từ phải qua trái nhé! Chữ số ngoài cùng bên phải = hàng đơn vị. Tiếp theo = hàng chục. Tiếp theo nữa = hàng trăm!"
+**Cỗ máy Đông Sơn scaffolding — Bước 1:**
+> "💡 Mẹo của Cỗ máy Đông Sơn: Đếm từ phải qua trái nhé! Chữ số ngoài cùng bên phải = hàng đơn vị. Tiếp theo = hàng chục. Tiếp theo nữa = hàng trăm!"
 
-**Mo-Mo scaffolding — Bước 2 (nếu vẫn sai):**
+**Cỗ máy Đông Sơn scaffolding — Bước 2 (nếu vẫn sai):**
 > "💡 Ví dụ: Số 345. Chữ số 5 ở ngoài cùng phải = 5 đơn vị. Chữ số 4 tiếp theo = 4 chục = 40. Chữ số 3 đầu tiên = 3 trăm = 300. Vậy 300 + 40 + 5 = 345 đúng không nào?"
 
 **Khi hoàn thành ải:**
