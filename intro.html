@@ -173,6 +173,14 @@ html, body {
 }
 .btn-prologue:active { color: var(--primary); }
 
+.countdown-badge {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  color: var(--text-muted);
+  opacity: .75;
+}
+
 /* ══════════════════════════════════════════
    PROLOGUE OVERLAY
 ══════════════════════════════════════════ */
@@ -345,7 +353,9 @@ html, body {
       Năm 2026 — <strong>Cỗ máy Liên Châu</strong> thức giấc.<br>
       Lịch sử Đại Việt cần được bảo vệ.
     </p>
-    <button class="btn-prologue" onclick="openPrologue()">xem lời mở đầu</button>
+    <button class="btn-prologue" id="btnPrologue" onclick="onPrologueClick()">
+      xem tiếp lời mở đầu &nbsp;»&nbsp; <span id="countdown" class="countdown-badge">[5]</span>
+    </button>
   </div>
 </div>
 
@@ -424,6 +434,7 @@ window.addEventListener('load', () => {
       document.getElementById('splashTop').classList.add('show');
       document.getElementById('splashBottom').classList.add('show');
       document.querySelector('.btn-skip').classList.add('show');
+      startCountdown();
     }, 200);
   }
 
@@ -434,10 +445,35 @@ window.addEventListener('load', () => {
   };
 });
 
+// ── Countdown ─────────────────────────────────────────
+let countdownTimer = null;
+
+function startCountdown() {
+  let secs = 5;
+  const badge = document.getElementById('countdown');
+  countdownTimer = setInterval(() => {
+    secs--;
+    if (secs <= 0) {
+      clearInterval(countdownTimer);
+      goRegister();
+    } else {
+      badge.textContent = `[${secs}]`;
+    }
+  }, 1000);
+}
+
+function stopCountdown() {
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  const badge = document.getElementById('countdown');
+  if (badge) badge.textContent = '';
+}
+
 // ── Prologue ──────────────────────────────────────────
-function openPrologue() {
+function onPrologueClick() {
+  stopCountdown();
   document.getElementById('prologue').classList.add('open');
 }
+function openPrologue() { onPrologueClick(); }
 function closePrologue() {
   document.getElementById('prologue').classList.remove('open');
 }
