@@ -250,7 +250,7 @@ html, body {
   <div class="splash-center" id="splashCenter">
     <p class="splash-tagline">
       Năm 2026 SCN<br>
-      <strong>Cỗ máy Đông Sơn</strong> thức giấc
+      <strong>Cỗ máy <span style="color:#B87333">Đông Sơn</span></strong> thức giấc
     </p>
     <button class="btn-prologue" onclick="startPrologue()">xem tiếp lời mở đầu &nbsp;»</button>
   </div>
@@ -335,6 +335,11 @@ function typeSegment(idx) {
       typingTimer = setTimeout(tick, ch === '.' || ch === ',' ? 180 : ch === ' ' ? 28 : 32);
     } else {
       cursor.style.display = 'none';
+      // Tô màu đồng cho "Đông Sơn"
+      typed.innerHTML = typed.textContent.replace(
+        /Đông Sơn/g,
+        '<span style="color:#B87333;text-shadow:0 0 8px rgba(184,115,51,0.6)">Đông Sơn</span>'
+      );
       btn.classList.add('show');
     }
   }
