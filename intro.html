@@ -79,6 +79,18 @@ html, body {
 .btn-skip.show { opacity: 1; }
 .btn-skip:active { color: var(--text-main); }
 
+/* Nút quay lại — góc trái dưới */
+.btn-back {
+  position: fixed; bottom: 24px; left: 20px; z-index: 50;
+  background: none; border: none;
+  font-family: var(--font-body); font-size: .78rem; font-style: italic;
+  color: var(--text-muted); cursor: pointer; padding: 6px 4px;
+  text-shadow: 1px 1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1);
+  opacity: 0; pointer-events: none; transition: opacity .3s ease;
+}
+.btn-back.show { opacity: 1; pointer-events: all; }
+.btn-back:active { color: var(--text-main); }
+
 /* ══════════════════════════════════════
    SPLASH SCREEN
 ══════════════════════════════════════ */
@@ -240,6 +252,7 @@ html, body {
 <canvas id="particles"></canvas>
 <div id="curtain"></div>
 <button class="btn-skip" id="btnSkip" onclick="goRegister()"><em>Bỏ qua</em></button>
+<button class="btn-back" id="btnBack" onclick="prevSegment()"><em>« quay lại</em></button>
 
 <!-- ═══ SPLASH ═══ -->
 <div id="splash">
@@ -382,26 +395,35 @@ document.getElementById('segText').addEventListener('click', () => {
 
 let transitioning = false;
 
-function nextSegment() {
-  if (transitioning) return;               // chặn double-tap / double-call
+function updateBackBtn() {
+  const btn = document.getElementById('btnBack');
+  if (currentSeg > 0) btn.classList.add('show');
+  else                 btn.classList.remove('show');
+}
+
+function _switchSegment(dir) {
+  if (transitioning) return;
   if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
-  currentSeg++;
+  currentSeg += dir;
   if (currentSeg >= SEGMENTS.length) { goRegister(); return; }
 
   transitioning = true;
   const segText = document.getElementById('segText');
-  // Clear ngay lập tức — không để text cũ còn sót
   document.getElementById('typed').innerHTML = '';
   document.getElementById('cursor').style.display = 'none';
   document.getElementById('btnNext').className = 'btn-next';
   segText.classList.add('fade-out');
   setTimeout(() => {
     updateDots(currentSeg);
+    updateBackBtn();
     segText.classList.remove('fade-out');
     typeSegment(currentSeg);
     transitioning = false;
   }, 360);
 }
+
+function nextSegment() { _switchSegment(+1); }
+function prevSegment() { if (currentSeg > 0) _switchSegment(-1); }
 
 // ── Start prologue — fade to dark → swap ─────────────
 function startPrologue() {
