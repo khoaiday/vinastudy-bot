@@ -380,17 +380,26 @@ document.getElementById('segText').addEventListener('click', () => {
   }
 });
 
+let transitioning = false;
+
 function nextSegment() {
+  if (transitioning) return;               // chặn double-tap / double-call
   if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
   currentSeg++;
   if (currentSeg >= SEGMENTS.length) { goRegister(); return; }
-  // Fade out text cũ → rồi gõ đoạn mới
+
+  transitioning = true;
   const segText = document.getElementById('segText');
+  // Clear ngay lập tức — không để text cũ còn sót
+  document.getElementById('typed').innerHTML = '';
+  document.getElementById('cursor').style.display = 'none';
+  document.getElementById('btnNext').className = 'btn-next';
   segText.classList.add('fade-out');
   setTimeout(() => {
     updateDots(currentSeg);
-    typeSegment(currentSeg);
     segText.classList.remove('fade-out');
+    typeSegment(currentSeg);
+    transitioning = false;
   }, 360);
 }
 
