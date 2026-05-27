@@ -460,7 +460,7 @@ function startCountdown() {
     secs--;
     if (secs <= 0) {
       clearInterval(countdownTimer);
-      goRegister();
+      onPrologueClick();
     } else {
       badge.textContent = `[${secs}]`;
     }
