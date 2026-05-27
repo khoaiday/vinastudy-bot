@@ -14,12 +14,9 @@
   --primary:        #C8960C;
   --primary-glow:   rgba(200,150,12,0.40);
   --secondary:      #C0332E;
-  --secondary-glow: rgba(192,51,46,0.35);
   --copper:         #B87333;
   --copper-glow:    rgba(184,115,51,0.30);
   --bg-void:        #07040A;
-  --bg-deep:        #0F0A14;
-  --bg-panel:       #160E1C;
   --text-main:      #F5EED6;
   --text-muted:     #A08C70;
   --border:         rgba(184,115,51,0.40);
@@ -31,297 +28,35 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 html, body {
-  height: 100%;
-  overflow: hidden;
+  height: 100%; overflow: hidden;
   background: var(--bg-void);
   color: var(--text-main);
   font-family: var(--font-body);
 }
 
-/* ══════════════════════════════════════════
-   SPLASH SCREEN
-══════════════════════════════════════════ */
-#splash {
-  position: fixed; inset: 0; z-index: 10;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: flex-end;
-  background: var(--bg-void);
-}
-
-#splash-bg {
-  position: absolute; inset: 0;
+/* ══════════════════════════════════════
+   SHARED BACKGROUND
+══════════════════════════════════════ */
+#bg {
+  position: fixed; inset: 0; z-index: 0;
   background-image:
-    linear-gradient(
-      to bottom,
-      rgba(7,4,10,0.45) 0%,
-      rgba(7,4,10,0.50) 100%
-    ),
+    linear-gradient(rgba(7,4,10,0.45), rgba(7,4,10,0.50)),
     url('design-system/intro/intro-splash.jpg');
   background-size: cover;
   background-position: top center;
   opacity: 0;
   transition: opacity 1.2s ease;
 }
-#splash-bg.loaded { opacity: 1; }
+#bg.loaded { opacity: 1; }
 
-/* Logo — trên cùng */
-.splash-top {
-  position: absolute; top: 0; left: 0; right: 0;
-  padding: 52px 24px 0;
-  text-align: center;
-  z-index: 2;
-  opacity: 0;
-  transform: translateY(-12px);
-  transition: opacity 1s ease .8s, transform 1s ease .8s;
-}
-.splash-top.show { opacity: 1; transform: translateY(0); }
+/* ══════════════════════════════════════
+   PARTICLES
+══════════════════════════════════════ */
+#particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 
-.game-logo {
-  font-family: var(--font-title);
-  font-size: 1.15rem;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--primary);
-  text-shadow:
-    1px  1px 0 rgba(7,4,10,1),
-   -1px -1px 0 rgba(7,4,10,1),
-    1px -1px 0 rgba(7,4,10,1),
-   -1px  1px 0 rgba(7,4,10,1),
-    0 0 24px var(--primary-glow),
-    0 0 48px rgba(7,4,10,0.8);
-}
-.game-logo span { color: var(--secondary); }
-.game-era {
-  font-family: var(--font-mono);
-  font-size: .62rem;
-  color: var(--text-main);
-  letter-spacing: 3px;
-  margin-top: 5px;
-  text-shadow:
-    1px  1px 0 rgba(7,4,10,1),
-   -1px -1px 0 rgba(7,4,10,1),
-    0 0 12px rgba(7,4,10,0.95);
-}
-
-/* CTA — giữa màn hình */
-.splash-bottom {
-  position: absolute; z-index: 2;
-  top: 50%; left: 0; right: 0;
-  transform: translateY(calc(-50% + 16px));
-  padding: 0 36px;
-  display: flex; flex-direction: column; align-items: stretch; gap: 20px;
-  opacity: 0;
-  transition: opacity 1s ease 1.4s, transform 1s ease 1.4s;
-}
-.splash-bottom.show { opacity: 1; transform: translateY(-50%); }
-
-.splash-tagline {
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  font-style: italic;
-  color: #F5EED6;
-  text-align: center;
-  line-height: 2;
-  text-shadow:
-    1px  1px 0 rgba(7,4,10,1),
-   -1px -1px 0 rgba(7,4,10,1),
-    1px -1px 0 rgba(7,4,10,1),
-   -1px  1px 0 rgba(7,4,10,1),
-    0 0 16px rgba(7,4,10,0.95),
-    0 0 32px rgba(7,4,10,0.8);
-}
-.splash-tagline strong { color: #fff; font-style: normal; }
-
-.btn-start {
-  width: 100%;
-  max-width: 320px;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, var(--primary), var(--copper));
-  border: none;
-  border-radius: 4px;
-  color: var(--bg-void);
-  font-family: var(--font-title);
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: transform .15s, box-shadow .15s;
-  box-shadow: 0 4px 28px rgba(200,150,12,0.40);
-}
-.btn-start::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
-  pointer-events: none;
-}
-.btn-start:active { transform: scale(.97); box-shadow: 0 2px 12px rgba(200,150,12,0.25); }
-
-.btn-prologue-wrap { text-align: right; }
-
-.btn-prologue {
-  background: none;
-  border: none;
-  color: #E8D8B0;
-  font-family: var(--font-body);
-  font-size: .92rem;
-  font-style: italic;
-  cursor: pointer;
-  padding: 4px 0;
-  text-decoration: underline;
-  text-decoration-color: rgba(200,170,120,0.5);
-  text-underline-offset: 4px;
-  text-shadow:
-    1px  1px 0 rgba(7,4,10,1),
-   -1px -1px 0 rgba(7,4,10,1),
-    0 0 12px rgba(7,4,10,0.95);
-  animation: prologueBlink 1.3s ease-in-out infinite;
-}
-.btn-prologue:active { color: var(--primary); }
-
-@keyframes prologueBlink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
-}
-
-/* ══════════════════════════════════════════
-   PROLOGUE OVERLAY
-══════════════════════════════════════════ */
-#prologue {
-  position: fixed; inset: 0; z-index: 20;
-  background: var(--bg-void);
-  display: flex; flex-direction: column;
-  opacity: 0; pointer-events: none;
-  transition: opacity .45s ease;
-}
-#prologue.open { opacity: 1; pointer-events: all; }
-
-#prologue::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(7,4,10,0.78), rgba(7,4,10,0.97)),
-    url('design-system/intro/intro-splash.jpg');
-  background-size: cover;
-  background-position: top center;
-}
-
-.prologue-header {
-  position: relative; z-index: 1;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 22px 20px 0;
-  flex-shrink: 0;
-}
-.prologue-title {
-  font-family: var(--font-title);
-  font-size: .9rem;
-  letter-spacing: 3px;
-  color: var(--primary);
-  text-shadow: 0 0 12px var(--primary-glow);
-}
-.btn-close {
-  background: none; border: none;
-  color: var(--text-muted); font-size: 1.3rem;
-  cursor: pointer; line-height: 1; padding: 4px 8px;
-  transition: color .2s;
-}
-.btn-close:active { color: var(--text-main); }
-
-.prologue-divider {
-  position: relative; z-index: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin: 14px 20px;
-  flex-shrink: 0;
-}
-
-/* Scroll body */
-.prologue-body {
-  position: relative; z-index: 1;
-  flex: 1; overflow-y: auto;
-  padding: 0 24px 24px;
-  -webkit-overflow-scrolling: touch;
-}
-.prologue-body::-webkit-scrollbar { display: none; }
-
-/* Typography */
-.prose { font-size: .9rem; line-height: 1.9; color: var(--text-main); }
-.prose p { margin-bottom: 1em; }
-
-.prose .location {
-  font-family: var(--font-mono);
-  font-size: .68rem;
-  letter-spacing: 2px;
-  color: var(--primary);
-  margin-bottom: 1.4em;
-  display: block;
-}
-
-.prose blockquote {
-  border-left: 2px solid var(--copper);
-  margin: 1.1em 0;
-  padding: 10px 16px;
-  background: rgba(184,115,51,0.07);
-  border-radius: 0 4px 4px 0;
-  font-style: italic;
-  color: var(--text-muted);
-}
-.prose blockquote strong { color: var(--text-main); font-style: normal; }
-
-.prose .destination {
-  margin-top: 1.6em;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: rgba(200,150,12,0.06);
-}
-.prose .destination .dest-label {
-  font-family: var(--font-mono);
-  font-size: .65rem;
-  color: var(--primary);
-  letter-spacing: 2px;
-  display: block;
-  margin-bottom: 7px;
-}
-.prose .destination p {
-  margin: 0;
-  font-size: .86rem;
-  color: var(--text-muted);
-  font-style: italic;
-  line-height: 1.7;
-}
-.prose .destination p strong { color: var(--text-main); font-style: normal; }
-
-/* Footer CTA */
-.prologue-footer {
-  position: relative; z-index: 1;
-  padding: 12px 24px 40px;
-  flex-shrink: 0;
-}
-.prologue-footer .btn-start { width: 100%; }
-
-/* Nút bỏ qua */
-.btn-skip {
-  position: fixed;
-  bottom: 24px; right: 20px;
-  z-index: 15;
-  background: none; border: none;
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-size: .82rem;
-  font-style: italic;
-  cursor: pointer;
-  padding: 6px 4px;
-  opacity: 0;
-  transition: opacity 1s ease 2s, color .2s;
-}
-.btn-skip.show { opacity: 1; }
-.btn-skip:active { color: var(--text-main); }
-
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════
    CURTAIN FADE
-══════════════════════════════════════════ */
+══════════════════════════════════════ */
 #curtain {
   position: fixed; inset: 0; z-index: 100;
   background: var(--bg-void);
@@ -330,138 +65,311 @@ html, body {
 }
 #curtain.fade-in { opacity: 1; pointer-events: all; }
 
-/* ══════════════════════════════════════════
-   PARTICLES
-══════════════════════════════════════════ */
-#particles {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+/* ══════════════════════════════════════
+   BỎ QUA
+══════════════════════════════════════ */
+.btn-skip {
+  position: fixed; bottom: 24px; right: 20px; z-index: 50;
+  background: none; border: none;
+  font-family: var(--font-body); font-size: .78rem; font-style: italic;
+  color: var(--text-muted); cursor: pointer; padding: 6px 4px;
+  text-shadow: 1px 1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1);
+  opacity: 0; transition: opacity 1s ease 2s;
+}
+.btn-skip.show { opacity: 1; }
+.btn-skip:active { color: var(--text-main); }
+
+/* ══════════════════════════════════════
+   SPLASH SCREEN
+══════════════════════════════════════ */
+#splash {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity .5s ease;
+}
+#splash.hide { opacity: 0; pointer-events: none; }
+
+/* Logo — trên */
+.splash-top {
+  text-align: center;
+  opacity: 0; transform: translateY(-12px);
+  transition: opacity 1s ease .8s, transform 1s ease .8s;
+}
+.splash-top.show { opacity: 1; transform: translateY(0); }
+
+.game-logo {
+  font-family: var(--font-title);
+  font-size: 1.15rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--primary);
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1),
+    1px -1px 0 rgba(7,4,10,1), -1px  1px 0 rgba(7,4,10,1),
+    0 0 24px var(--primary-glow), 0 0 48px rgba(7,4,10,0.8);
+}
+.game-logo span { color: var(--secondary); }
+.game-era {
+  font-family: var(--font-mono); font-size: .62rem;
+  color: var(--text-main); letter-spacing: 3px; margin-top: 5px;
+  text-shadow: 1px 1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1),
+    0 0 12px rgba(7,4,10,0.95);
+}
+
+/* Tagline + nút — giữa */
+.splash-center {
+  margin-top: 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  padding: 0 36px; width: 100%;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 1s ease 1.4s, transform 1s ease 1.4s;
+}
+.splash-center.show { opacity: 1; transform: translateY(0); }
+
+.splash-tagline {
+  font-family: var(--font-body); font-size: 1.05rem; font-style: italic;
+  color: #F5EED6; text-align: center; line-height: 2;
+  text-shadow:
+    1px  1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1),
+    1px -1px 0 rgba(7,4,10,1), -1px  1px 0 rgba(7,4,10,1),
+    0 0 16px rgba(7,4,10,0.95), 0 0 32px rgba(7,4,10,0.8);
+}
+.splash-tagline strong { color: #fff; font-style: normal; }
+
+.btn-prologue {
+  background: none; border: none;
+  font-family: var(--font-body); font-size: .92rem; font-style: italic;
+  color: #E8D8B0; cursor: pointer; padding: 4px 0;
+  text-decoration: underline;
+  text-decoration-color: rgba(200,170,120,0.5);
+  text-underline-offset: 4px;
+  text-shadow: 1px 1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1),
+    0 0 12px rgba(7,4,10,0.95);
+  animation: prologueBlink 1.3s ease-in-out infinite;
+}
+.btn-prologue:active { color: var(--primary); }
+@keyframes prologueBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* ══════════════════════════════════════
+   PROLOGUE — TYPEWRITER SCENE
+══════════════════════════════════════ */
+#prologue-scene {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  padding: 0 28px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .5s ease;
+}
+#prologue-scene.show { opacity: 1; pointer-events: all; }
+
+.ps-header {
+  padding: 28px 0 0; flex-shrink: 0; text-align: center;
+}
+.ps-logo {
+  font-family: var(--font-title); font-size: 1rem; letter-spacing: 4px;
+  color: var(--primary);
+  text-shadow: 1px 1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1),
+    1px -1px 0 rgba(7,4,10,1), -1px 1px 0 rgba(7,4,10,1),
+    0 0 20px var(--primary-glow);
+}
+.ps-logo span { color: var(--secondary); }
+
+.seg-dots {
+  display: flex; gap: 6px; justify-content: center; margin-top: 16px;
+}
+.seg-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border);
+  transition: background .4s, transform .4s;
+}
+.seg-dot.active { background: var(--primary); transform: scale(1.3); }
+.seg-dot.done   { background: var(--copper); }
+
+.ps-body {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 32px 0; overflow: hidden;
+}
+
+.seg-text {
+  font-family: var(--font-body); font-size: 1rem;
+  line-height: 1.95; color: var(--text-main);
+  text-align: left; width: 100%; max-width: 520px;
+}
+
+.cursor {
+  display: inline-block; width: 2px; height: 1.1em;
+  background: var(--primary); margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink .7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.next-wrap { display: block; text-align: center; margin-top: 18px; min-height: 1.6em; }
+
+.btn-next {
+  background: none; border: none;
+  font-family: var(--font-body); font-size: .92rem; font-style: italic;
+  color: var(--text-muted); cursor: pointer; padding: 4px 0;
+  text-decoration: underline;
+  text-decoration-color: rgba(160,140,112,0.45);
+  text-underline-offset: 4px;
+  text-shadow: 1px 1px 0 rgba(7,4,10,1), -1px -1px 0 rgba(7,4,10,1),
+    0 0 10px rgba(7,4,10,0.9);
+  opacity: 0; pointer-events: none;
+  transition: color .2s;
+}
+.btn-next.show {
+  pointer-events: all;
+  animation: nextBlink 1.2s ease-in-out infinite;
+}
+.btn-next:active { color: var(--primary); }
+@keyframes nextBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
 }
 </style>
 </head>
 <body>
 
+<div id="bg"></div>
 <canvas id="particles"></canvas>
 <div id="curtain"></div>
+<button class="btn-skip" id="btnSkip" onclick="goRegister()"><em>Bỏ qua</em></button>
 
 <!-- ═══ SPLASH ═══ -->
 <div id="splash">
-  <div id="splash-bg"></div>
-
   <div class="splash-top" id="splashTop">
     <div class="game-logo">Chiến Binh <span>Toán</span></div>
     <div class="game-era">VINASTUDY - HÀNH TRÌNH THỜI GIAN</div>
   </div>
-
-  <div class="splash-bottom" id="splashBottom">
+  <div class="splash-center" id="splashCenter">
     <p class="splash-tagline">
       Năm 2026 SCN<br>
       <strong>Cỗ máy Liên Châu</strong> thức giấc
     </p>
-    <div class="btn-prologue-wrap">
-      <button class="btn-prologue" onclick="onPrologueClick()">xem tiếp lời mở đầu &nbsp;»</button>
-    </div>
+    <button class="btn-prologue" onclick="startPrologue()">xem tiếp lời mở đầu &nbsp;»</button>
   </div>
 </div>
 
-<!-- Nút bỏ qua — cố định dưới cùng bên phải -->
-<button class="btn-skip" onclick="goRegister()"><em>Bỏ qua</em></button>
-
-<!-- ═══ PROLOGUE ═══ -->
-<div id="prologue">
-  <div class="prologue-header">
-    <span class="prologue-title">KHỞI ĐỘNG LIÊN CHÂU</span>
-    <button class="btn-close" onclick="closePrologue()">✕</button>
+<!-- ═══ PROLOGUE SCENE ═══ -->
+<div id="prologue-scene">
+  <div class="ps-header">
+    <div class="ps-logo">Chiến Binh <span>Toán</span></div>
+    <div class="seg-dots" id="segDots"></div>
   </div>
-  <div class="prologue-divider"></div>
-
-  <div class="prologue-body">
-    <div class="prose">
-
-      <span class="location">⊞ VIỆN TOÁN HỌC VINASTUDY — TẦNG HẦM BÍ MẬT — NĂM 2026</span>
-
-      <p>Bên dưới ngôi trường toán bình thường nhất Hà Nội, ẩn sau một cánh cửa sắt phủ rêu phong, là căn phòng mà chỉ có Thầy Long và những học trò xuất sắc nhất mới được đặt chân vào.</p>
-
-      <p>Ở giữa phòng — <strong>cỗ máy Liên Châu</strong>.</p>
-
-      <p>Nó trông như một chiếc <strong>trống đồng Đông Sơn</strong> khổng lồ, cao đến ba mét, mặt trống khắc đầy những ký hiệu kỳ lạ — nửa là chữ cổ Việt, nửa là công thức toán học. Khi được kích hoạt, cả mặt trống rực lên ánh đồng vàng, và một cánh cửa thời gian mở ra.</p>
-
-      <p>Thầy Long chỉnh lại kính, nhìn các học trò:</p>
-
-      <blockquote>
-        <strong>"Lịch sử Đại Việt đang bị xáo trộn."</strong> Có ai đó — hoặc điều gì đó — đã len lỏi vào quá khứ và phá vỡ những sự kiện không được phép thay đổi. Nếu chúng ta không sửa lại, tương lai sẽ không còn là tương lai chúng ta biết.
-      </blockquote>
-
-      <p>Một học trò giơ tay: <em>"Thầy ơi, sửa bằng cách nào ạ?"</em></p>
-
-      <blockquote>
-        "Bằng <strong>Toán</strong>. Mỗi thời đại có một bí ẩn riêng — và chỉ những phép tính đúng mới mở được cánh cửa trở về. Liên Châu sẽ đưa các em đến đúng nơi cần đến. Phần còn lại — tùy các em."
-      </blockquote>
-
-      <p>Tiếng trống đồng vang lên. Ánh sáng vàng đồng xoáy rộng ra.</p>
-
-      <p><strong>Hành trình qua các triều đại bắt đầu.</strong></p>
-
-      <div class="destination">
-        <span class="dest-label">⊞ ĐIỂM ĐẾN ĐẦU TIÊN</span>
-        <p>
-          <strong>Loa Thành — Thế kỷ III trước Công Nguyên</strong><br>
-          Vua An Dương Vương đang xây thành, nhưng thành cứ xây xong lại đổ. Ẩn sau đó là một bí ẩn về con số…
-        </p>
+  <div class="ps-body">
+    <div class="seg-text" id="segText">
+      <span id="typed"></span><span class="cursor" id="cursor"></span>
+      <div class="next-wrap">
+        <button class="btn-next" id="btnNext" onclick="nextSegment()">xem tiếp &nbsp;»</button>
       </div>
-
     </div>
-  </div>
-
-  <div class="prologue-footer">
-    <button class="btn-start" onclick="goRegister()">
-      ⚔ &nbsp;BẮT ĐẦU HÀNH TRÌNH
-    </button>
   </div>
 </div>
 
 <script>
-// ── Telegram WebApp ───────────────────────────────────
-if (window.Telegram?.WebApp) {
-  Telegram.WebApp.ready();
-  Telegram.WebApp.expand();
-}
+if (window.Telegram?.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); }
 
-// ── Splash load ───────────────────────────────────────
+// ── Load background ───────────────────────────────────
 window.addEventListener('load', () => {
-  const bg  = document.getElementById('splash-bg');
+  const bg  = document.getElementById('bg');
   const img = new Image();
-  img.src = 'design-system/intro/intro-splash.jpg';
-
+  img.src   = 'design-system/intro/intro-splash.jpg';
   function reveal() {
     bg.classList.add('loaded');
     setTimeout(() => {
       document.getElementById('splashTop').classList.add('show');
-      document.getElementById('splashBottom').classList.add('show');
-      document.querySelector('.btn-skip').classList.add('show');
+      document.getElementById('splashCenter').classList.add('show');
+      document.getElementById('btnSkip').classList.add('show');
     }, 200);
   }
-
   img.onload  = reveal;
-  img.onerror = () => {
-    bg.style.background = 'linear-gradient(160deg,#1a0c05 0%,#07040A 100%)';
-    reveal();
-  };
+  img.onerror = () => { bg.style.background = 'linear-gradient(160deg,#1a0c05,#07040A)'; reveal(); };
 });
 
-// ── Prologue — fade to dark rồi hiện ─────────────────
-function onPrologueClick() {
+// ── Prologue segments ─────────────────────────────────
+const SEGMENTS = [
+  `Từ ngàn năm trước, các bậc tiền nhân Đại Việt đã tiên tri được một tai ương hủy diệt. Cỗ máy Liên Châu không chỉ đơn thuần là vũ khí thủ thành, mà là một đại trận pháp công nghệ cổ xưa được phong ấn, lưu giữ toàn bộ mã nguồn của dòng chảy lịch sử dân tộc qua mọi thời đại.`,
+  `Năm 2026 SCN, một dị tượng kinh hoàng ập đến. Một thực thể hắc ám vô hình từ phương Bắc bất ngờ trỗi dậy, khuấy đảo hư không. Thực thể đen tối này đang điên cuồng can thiệp vào trục thời gian, hòng xóa sổ những chiến công hiển hách và bóp méo cội nguồn của chúng ta.`,
+  `Trước nguy cơ lịch sử bị xóa sổ, Cỗ máy Liên Châu chính thức thức giấc, tự động kích hoạt hệ thống phòng thủ xuyên không gian. Nó biến thành một cổng trục thời gian vĩ đại, phóng đi những hạt dữ liệu định vị, kêu gọi các "Hộ Vệ Lịch Sử" bước vào cuộc hành trình vạn dặm.`,
+];
+
+let currentSeg = 0, typingTimer = null;
+
+// ── Dots ─────────────────────────────────────────────
+function buildDots() {
+  const c = document.getElementById('segDots');
+  SEGMENTS.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.className = 'seg-dot' + (i === 0 ? ' active' : '');
+    d.id = `dot-${i}`; c.appendChild(d);
+  });
+}
+function updateDots(idx) {
+  SEGMENTS.forEach((_, i) => {
+    document.getElementById(`dot-${i}`).className =
+      'seg-dot' + (i < idx ? ' done' : i === idx ? ' active' : '');
+  });
+}
+
+// ── Typewriter ────────────────────────────────────────
+function typeSegment(idx) {
+  const text = SEGMENTS[idx];
+  const typed = document.getElementById('typed');
+  const cursor = document.getElementById('cursor');
+  const btn = document.getElementById('btnNext');
+  typed.textContent = '';
+  btn.className = 'btn-next';
+  btn.textContent = idx === SEGMENTS.length - 1 ? 'bắt đầu »' : 'xem tiếp »';
+  cursor.style.display = 'inline-block';
+  let i = 0;
+  function tick() {
+    if (i < text.length) {
+      typed.textContent += text[i++];
+      const ch = text[i - 1];
+      typingTimer = setTimeout(tick, ch === '.' || ch === ',' ? 180 : ch === ' ' ? 28 : 32);
+    } else {
+      cursor.style.display = 'none';
+      btn.classList.add('show');
+    }
+  }
+  tick();
+}
+
+// Click vùng text để skip typing
+document.getElementById('segText').addEventListener('click', () => {
+  if (typingTimer) {
+    clearTimeout(typingTimer); typingTimer = null;
+    document.getElementById('typed').textContent = SEGMENTS[currentSeg];
+    document.getElementById('cursor').style.display = 'none';
+    document.getElementById('btnNext').classList.add('show');
+  }
+});
+
+function nextSegment() {
+  if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+  currentSeg++;
+  if (currentSeg >= SEGMENTS.length) { goRegister(); return; }
+  updateDots(currentSeg);
+  typeSegment(currentSeg);
+}
+
+// ── Start prologue — fade to dark → swap ─────────────
+function startPrologue() {
   const curtain = document.getElementById('curtain');
   curtain.classList.add('fade-in');
   setTimeout(() => {
-    document.getElementById('prologue').classList.add('open');
+    document.getElementById('splash').classList.add('hide');
+    buildDots();
+    document.getElementById('prologue-scene').classList.add('show');
+    typeSegment(0);
     curtain.classList.remove('fade-in');
-  }, 500);
-}
-function closePrologue() {
-  document.getElementById('prologue').classList.remove('open');
+  }, 520);
 }
 
-// ── Go to register ────────────────────────────────────
+// ── Navigate ──────────────────────────────────────────
 function goRegister() {
   const curtain = document.getElementById('curtain');
   curtain.classList.add('fade-in');
@@ -476,39 +384,23 @@ function goRegister() {
   const ctx    = canvas.getContext('2d');
   const COLORS = ['rgba(200,150,12,', 'rgba(184,115,51,', 'rgba(192,51,46,'];
   let W, H, dots = [];
-
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   function spawn() {
-    return {
-      x:  Math.random() * W,
-      y:  Math.random() * H,
-      r:  Math.random() * 1.3 + .3,
-      a:  Math.random() * .45 + .1,
-      vx: (Math.random() - .5) * .22,
-      vy: -(Math.random() * .4 + .08),
-      c:  COLORS[Math.floor(Math.random() * COLORS.length)],
-    };
+    return { x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.3+.3,
+             a: Math.random()*.45+.1, vx:(Math.random()-.5)*.22, vy:-(Math.random()*.4+.08),
+             c: COLORS[Math.floor(Math.random()*COLORS.length)] };
   }
-
-  function init() { resize(); dots = Array.from({ length: 55 }, spawn); }
-
+  function init() { resize(); dots = Array.from({length:55}, spawn); }
   function tick() {
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0,0,W,H);
     dots.forEach(d => {
-      d.x += d.vx; d.y += d.vy;
-      if (d.y < -4) Object.assign(d, spawn(), { y: H + 4 });
-      ctx.beginPath();
-      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-      ctx.fillStyle = d.c + d.a + ')';
-      ctx.fill();
+      d.x+=d.vx; d.y+=d.vy;
+      if(d.y<-4) Object.assign(d, spawn(), {y:H+4});
+      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle=d.c+d.a+')'; ctx.fill();
     });
     requestAnimationFrame(tick);
   }
-
   window.addEventListener('resize', resize);
   init(); tick();
 })();
