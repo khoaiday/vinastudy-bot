@@ -601,6 +601,28 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
       // Lưu tgId vào localStorage → profile.html dùng làm fallback khi mở trong iframe
       if (tgId) localStorage.setItem('vsTgId', String(tgId));
 
+      // Đồng bộ nhân vật và giới tính từ DB vào localStorage để tránh bị hiện avatar cũ khi F5
+      const classMap = {
+        chien_binh: 'lac-tuong',
+        phu_thuy:   'dao-si',
+        xa_thu:     'no-than',
+        hiep_si:    'than-tuong'
+      };
+      const genderMap = {
+        nam: 'male',
+        nu:  'female'
+      };
+      const dbClass = classMap[data.character_type];
+      const dbGender = genderMap[data.gioi_tinh || 'nam'];
+      if (dbClass && dbGender) {
+        const mappedChar = `${dbClass}-${dbGender}`;
+        localStorage.setItem('vsSelectedChar', mappedChar);
+        sessionStorage.setItem('vsSelectedChar', mappedChar);
+        if (typeof loadSelectedCharacter === 'function') {
+          loadSelectedCharacter(mappedChar);
+        }
+      }
+
       // Cập nhật user badge với tên thật
       const CHARS = { chien_binh:'⚔️', phu_thuy:'🔮', xa_thu:'🏹', hiep_si:'🛡️' };
       const emoji = CHARS[data.character_type] || '⚔️';
@@ -828,13 +850,14 @@ history.pushState({}, '');
 
 
 // Load selected character from character-select.html
-(function loadSelectedCharacter() {
+function loadSelectedCharacter(charOverride) {
   const charFromURL = new URLSearchParams(window.location.search).get('character');
   if (charFromURL) {
     sessionStorage.setItem('vsSelectedChar', charFromURL);
     localStorage.setItem('vsSelectedChar', charFromURL);
   }
-  const selectedChar = charFromURL
+  const selectedChar = charOverride
+    || charFromURL
     || sessionStorage.getItem('vsSelectedChar')
     || localStorage.getItem('vsSelectedChar');
 
@@ -861,7 +884,8 @@ history.pushState({}, '');
     headerAvatar.style.borderColor = cfg.color;
     headerAvatar.style.boxShadow = `0 0 12px ${cfg.color}`;
   }
-})();
+}
+loadSelectedCharacter();
 
 // Load player info from Splash Screen
 const savedName = localStorage.getItem('cbToan_name');

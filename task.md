@@ -24,3 +24,16 @@
 - `[x]` Sửa intro modal title: "Truy tìm chúa tể" → "Rèn Giáp Cho Thánh Gióng"
 - `[x]` Sửa intro story: Boss Số Thần → Quỷ Số + cốt truyện Thánh Gióng
 - `[x]` Sửa intro mission: yêu cầu rèn 2 tuyệt chiêu trước khi vào ải
+
+---
+---
+
+## [Gemini] 2026-05-27 — Khắc phục lỗi lưu Avatar trên trang Bản đồ khi F5
+
+- `[x]` Chuyển đổi hàm `loadSelectedCharacter` từ IIFE thành hàm toàn cục có tham số ghi đè `loadSelectedCharacter(charOverride)`.
+- `[x]` Cập nhật hàm `authGate()` trong `map.html` để đồng bộ thông tin nhân vật và giới tính từ cơ sở dữ liệu (`character_type`, `gioi_tinh`) vào `localStorage` và `sessionStorage` (`vsSelectedChar`).
+- `[x]` Kích hoạt `loadSelectedCharacter(mappedChar)` ngay trong `authGate()` sau khi đồng bộ thành công để cập nhật giao diện avatar tức thời.
+- `[x]` Đảm bảo khi F5 hoặc tải lại trang, avatar luôn hiển thị nhân vật mới nhất được lưu trong cơ sở dữ liệu thay vì avatar cũ lưu trong cache cũ.
+
+---
+---

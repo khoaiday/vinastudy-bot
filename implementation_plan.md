@@ -55,3 +55,24 @@ Tài liệu này mô tả chi tiết kế hoạch thiết kế và làm mới ho
 ### Tiếp theo
 - [ ] Viết cốt truyện Ải 2 (buổi + chất liệu lịch sử chưa xác định)
 - [ ] Cập nhật text boss trong `bai01/bai-tap.html` (đổi Số Thần → Quỷ Số nếu cần)
+
+---
+---
+
+## [Gemini] 2026-05-27 — Sửa lỗi F5 bị hiển thị Avatar cũ trên trang Bản đồ
+
+Tài liệu này đề xuất phương án giải quyết dứt điểm lỗi khi nhấn F5/Reload trang Bản đồ thì avatar người dùng bị hiển thị lại avatar cũ.
+
+### Giải pháp kỹ thuật:
+1. **Lỗi hiện tại:** Hàm `authGate()` trong `map.html` lấy thông tin chính xác từ DB nhưng không ghi nhận giá trị nhân vật và giới tính mới vào `localStorage.getItem('vsSelectedChar')`. Khi F5, hàm tải ảnh `loadSelectedCharacter()` (dạng IIFE tự thực thi) sẽ đọc giá trị cũ từ `localStorage` và ghi đè ảnh đại diện cũ lên giao diện.
+2. **Đồng bộ cơ sở dữ liệu:** Thêm ánh xạ nhân vật/giới tính từ API trả về để tự động ghi đè khóa `vsSelectedChar` trong `localStorage` và `sessionStorage`.
+3. **Chuyển đổi hàm toàn cục:** Chuyển `loadSelectedCharacter` thành hàm có tham số ghi đè `loadSelectedCharacter(charOverride)` để có thể gọi lại bất cứ lúc nào trong `authGate()`, giúp cập nhật avatar mới ngay lập tức mà không cần đợi người dùng reload thủ công.
+
+### Các thay đổi đề xuất:
+
+#### `map.html` (Bản Đồ Chiến Dịch)
+- **Sửa hàm `loadSelectedCharacter`**: Bỏ IIFE, chuyển thành hàm thông thường và hỗ trợ tham số ghi đè `charOverride`.
+- **Sửa hàm `authGate()`**: Bổ sung cơ chế đồng bộ hóa dữ liệu từ DB vào `localStorage` và kích hoạt hàm vẽ lại avatar `loadSelectedCharacter(mappedChar)`.
+
+---
+---

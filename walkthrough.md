@@ -44,4 +44,18 @@ Toàn bộ trang cá nhân đã được "lột xác", loại bỏ hoàn toàn c
 - Story: Thay toàn bộ text cũ (Boss Số Thần) bằng cốt truyện Thánh Gióng + Quỷ Số
 - Mission: `Rèn 1 Tuyệt Chiêu` → `Rèn 2 Tuyệt Chiêu bên dưới`
 
+---
+---
+
+## [Gemini] 2026-05-27 — Sửa lỗi F5 bị hiển thị Avatar cũ trên trang Bản đồ
+
+**File sửa:** `map.html`
+
+*   **Đồng bộ DB vào localStorage:** Cập nhật hàm `authGate()` để tự động ánh xạ nhân vật (`character_type`) và giới tính (`gioi_tinh`) tải về từ cơ sở dữ liệu thành chuỗi đại diện (ví dụ: `chien_binh` + `nam` = `lac-tuong-male`) và ghi đè vào `localStorage` dưới khóa `vsSelectedChar`.
+*   **Hàm toàn cục loadSelectedCharacter:** Chuyển đổi hàm tải avatar từ IIFE tự thực thi thành một hàm toàn cục có thể gọi lại nhiều lần và chấp nhận tham số ghi đè (`charOverride`).
+*   **Cập nhật giao diện lập tức:** Gọi hàm `loadSelectedCharacter(mappedChar)` ngay khi nhận phản hồi phê duyệt (`approved`) từ DB trong `authGate()`, giúp hiển thị chính xác avatar mới nhất dù người dùng nhấn F5/Reload trang bản đồ.
+
+---
+---
+
 **Lý do:** Chuyển bối cảnh Ải 1 từ Cổ Loa/Số Thần sang Thánh Gióng/Quỷ Số theo kịch bản mới. Boss đổi tên cho dễ hiểu với học sinh lớp 3.
