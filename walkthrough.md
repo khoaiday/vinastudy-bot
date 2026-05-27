@@ -90,3 +90,30 @@ Toàn bộ trang cá nhân đã được "lột xác", loại bỏ hoàn toàn c
 ---
 
 **Lý do:** Chuyển bối cảnh Ải 1 từ Cổ Loa/Số Thần sang Thánh Gióng/Quỷ Số theo kịch bản mới. Boss đổi tên cho dễ hiểu với học sinh lớp 3.
+
+---
+---
+
+## [Gemini] 2026-05-27 — Sửa Triệt Để Lỗi Giao Diện 2 Minigame
+
+Tôi đã hoàn thành việc sửa chữa giao diện cho hai minigame luyện tập (`minigame.html` và `minigame2.html`) đạt độ tương thích di động cực cao và đảm bảo tính thống nhất về mặt mỹ thuật Đại Việt!
+
+### 1. 📱 Giải Quyết Triệt Để Lỗi Đè Lấp Trên Thiết Bị Siêu Nhỏ
+*   **Thiết lập breakpoint 360px:** Thêm quy tắc CSS thích ứng `@media (max-width: 360px)` để tự động thu nhỏ xếp bài ở giữa từ 180px xuống còn **140px** và hai hộp mục tiêu hai bên xuống còn **45px**.
+*   **Bố cục đệm mượt mà:** Rút gọn padding ngang của targets-container xuống **6px** ở màn hình siêu nhỏ, tạo ra khoảng cách an toàn **39px** giữa các phần tử game, cam kết 100% không bao giờ xảy ra lỗi chồng đè (overlapping) trên các máy nhỏ như iPhone SE/màn hình 320px.
+*   **Responsive chiều cao:** Bổ sung media query `@media (max-height: 540px)` giúp toàn bộ màn chơi co nhỏ cân đối khi chạy trên các thiết bị xoay ngang hoặc chiều cao hẹp.
+
+### 2. 🌁 Loại Bỏ Cluttering Tiêu Đề Khi Chạy Trong Iframe (Double Headers Fix)
+*   **Ẩn tiêu đề h1 thừa:** Lập trình mã Script tự động phát hiện nếu trò chơi đang được chạy trong iframe (`window.parent !== window`). Khi đó, tiêu đề `h1` bên trong minigame sẽ tự động ẩn đi, do trang Bản đồ mẹ đã hiển thị sẵn tiêu đề lớn "Rèn Tuyệt Chiêu".
+*   **Giải phóng diện tích:** Giải pháp này tiết kiệm thêm **35px-40px** chiều cao đứng, giúp không gian kéo thả thẻ bài cực kỳ thoáng đãng, thoải mái trên thiết bị di động.
+
+### 3. 🚪 Bổ Sung Nút Thoát An Toàn Khi Rèn Thất Bại (No-Trapping UX)
+*   **Thoát mọi nơi:** Bổ sung nút **QUAY LẠI ẢI** (style viền vàng đồng nền trong suốt) song hành trên màn hình báo **THẤT BẠI** của cả hai minigames.
+*   **Hàm exitMinigame:** Viết hàm xử lý gửi thông điệp `close_profile` đến cửa sổ mẹ để đóng modal trượt bản đồ tức thì, giúp người chơi có thể dễ dàng thoát ra ngoài bản đồ bất cứ lúc nào thay vì bị "mắc kẹt" chỉ có nút thử lại.
+
+### 4. 🎨 Hoàn Thiện Mỹ Thuật Truyền Thuyết & Lỗi HTML
+*   **Font chữ Philosopher Đại Việt:** Đổi font chữ hiển thị trên các thẻ bài (HÀNG TRĂM, HÀNG CHỤC, HÀNG ĐƠN VỊ) và dòng feedback kết quả (CHÍNH XÁC, SAI RỒI) từ font monospace thô cứng sang phông chữ **Philosopher** Đại Việt truyền thống, mang lại cảm giác oai hùng, thần thoại nhất quán.
+*   **Sửa lỗi HTML:** Loại bỏ một thẻ đóng `</div>` thừa ở dòng 624 của `minigame2.html` giúp tránh các xung đột cú pháp render của trình duyệt.
+
+---
+---

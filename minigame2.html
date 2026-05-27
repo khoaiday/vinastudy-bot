@@ -182,9 +182,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: var(--font-mono);
+            font-family: var(--font-title);
             font-weight: bold;
-            font-size: 2.2rem;
+            font-size: 2rem;
             text-align: center;
             padding: 20px;
             text-transform: uppercase;
@@ -239,7 +239,7 @@
             top: 20%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-family: var(--font-mono);
+            font-family: var(--font-title);
             font-size: 3rem;
             font-weight: 900;
             text-transform: uppercase;
@@ -555,22 +555,43 @@
         }
 
         @media (max-width: 420px) {
+            .targets-container {
+                padding: 0 10px;
+            }
             .deck-container {
-                width: 180px;
-                height: 260px;
+                width: 160px;
+                height: 230px;
             }
             .card {
-                font-size: 1.6rem;
+                font-size: 1.5rem;
                 padding: 12px;
             }
             .target-box {
-                width: 60px;
-                height: 90px;
-                font-size: 2.5rem;
+                width: 55px;
+                height: 85px;
+                font-size: 2.2rem;
             }
             .main-number {
                 font-size: 3.5rem;
                 letter-spacing: 6px;
+            }
+        }
+        @media (max-width: 360px) {
+            .targets-container {
+                padding: 0 6px;
+            }
+            .deck-container {
+                width: 140px;
+                height: 200px;
+            }
+            .target-box {
+                width: 45px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+            .main-number {
+                font-size: 2.8rem;
+                letter-spacing: 4px;
             }
         }
         @media (max-height: 680px) {
@@ -580,8 +601,8 @@
                 margin-bottom: 15px;
             }
             .deck-container {
-                width: 160px;
-                height: 230px;
+                width: 150px;
+                height: 215px;
             }
             .target-box {
                 width: 50px;
@@ -592,6 +613,29 @@
                 padding: 10px 15px;
             }
             .bottom-hint {
+                font-size: 12px;
+            }
+        }
+        @media (max-height: 540px) {
+            .main-number {
+                font-size: 2.5rem;
+                letter-spacing: 3px;
+                margin-bottom: 5px;
+            }
+            .deck-container {
+                width: 120px;
+                height: 175px;
+            }
+            .target-box {
+                width: 40px;
+                height: 60px;
+                font-size: 1.6rem;
+            }
+            .header h1 {
+                font-size: 13px;
+            }
+            .stats {
+                margin-top: 5px;
                 font-size: 12px;
             }
         }
@@ -620,7 +664,6 @@
     <!-- Countdown -->
     <div id="tourCountdown">
         <div id="countdownNum">3</div>
-    </div>
     </div>
 
     <!-- Game Over Screen -->
@@ -704,7 +747,19 @@
         let tourStep = 0;
         let tourActive = true;
 
+        function exitMinigame() {
+            if (window.parent !== window) {
+                window.parent.postMessage('close_profile', '*');
+            } else {
+                window.location.href = 'map.html';
+            }
+        }
+
         function tourInit() {
+            if (window.parent !== window) {
+                const h1 = document.querySelector('.header h1');
+                if (h1) h1.style.display = 'none';
+            }
             // Initially hide the tour overlay
             document.getElementById('tourOverlay').style.display = 'none';
 
@@ -1221,13 +1276,16 @@
                 goScreen.innerHTML = `
                     <h1 style="color: var(--danger); font-size: 3.5rem; font-family: var(--font-title); text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
                     <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Tuyệt chiêu 2 chưa rèn xong! Gióng vẫn chưa có đủ giáp!<br>Bạn chỉ đúng ${score}/12 câu${timeOut ? ' (Hết giờ)' : ''}. Cần 11/12 để qua.</h2>
-                    <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
-                    <button class="yt-btn" onclick="openVideo()">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21.582 6.186a2.506 2.506 0 0 0-1.762-1.766C18.265 4 12 4 12 4s-6.264 0-7.82.42a2.506 2.506 0 0 0-1.76 1.766C2 7.74 2 12 2 12s0 4.26.42 5.814a2.506 2.506 0 0 0 1.76 1.766C5.736 20 12 20 12 20s6.265 0 7.82-.42a2.506 2.506 0 0 0 1.762-1.766C22 16.26 22 12 22 12s0-4.26-.418-5.814zM9.99 15.47V8.529L16 12l-6.01 3.47z"/>
-                        </svg>
-                        XEM BÀI GIẢNG
-                    </button>
+                    <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; margin-top: 15px;">
+                        <button class="start-btn" onclick="startGame()" style="margin-top: 0;">THỬ LẠI</button>
+                        <button class="yt-btn" onclick="openVideo()" style="margin-top: 0;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21.582 6.186a2.506 2.506 0 0 0-1.762-1.766C18.265 4 12 4 12 4s-6.264 0-7.82.42a2.506 2.506 0 0 0-1.76 1.766C2 7.74 2 12 2 12s0 4.26.42 5.814a2.506 2.506 0 0 0 1.76 1.766C5.736 20 12 20 12 20s6.265 0 7.82-.42a2.506 2.506 0 0 0 1.762-1.766C22 16.26 22 12 22 12s0-4.26-.418-5.814zM9.99 15.47V8.529L16 12l-6.01 3.47z"/>
+                            </svg>
+                            XEM BÀI GIẢNG
+                        </button>
+                        <button class="start-btn" onclick="exitMinigame()" style="margin-top: 0; background: transparent; border: 2px solid var(--primary); color: var(--primary);">QUAY LẠI ẢI</button>
+                    </div>
                 `;
             }
         }

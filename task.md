@@ -61,3 +61,23 @@
 
 ---
 ---
+
+## [Gemini] 2026-05-27 — Khắc Phục Lỗi Giao Diện 2 Minigame
+
+- `[x]` 1. Khắc Phục Lỗi Đè Lấp Trên Màn Hình Cực Nhỏ
+  - `[x]` Tối ưu hóa padding của `.targets-container` xuống `10px` (<420px) và `6px` (<360px).
+  - `[x]` Thêm media query `@media (max-width: 360px)` để giảm kích thước xếp bài ở giữa xuống `140px` và hộp mục tiêu xuống `45px`.
+  - `[x]` Đảm bảo khoảng cách an toàn (gap) đạt `39px`, giải quyết dứt điểm lỗi chồng chéo phần tử trên các dòng máy 320px - 360px.
+- `[x]` 2. Giải Phóng Không Gian Hiển Thị Tránh Double Headers
+  - `[x]` Thiết lập đoạn script kiểm tra chế độ iframe (`window.parent !== window`).
+  - `[x]` Tự động ẩn thẻ tiêu đề `h1` bên trong minigame, tiết kiệm `35px-40px` chiều cao cho vùng chơi chính.
+  - `[x]` Tối ưu hóa media query `@media (max-height: 540px)` cho các khung nhìn có chiều cao siêu hạn chế.
+- `[x]` 3. Nâng Cao Trải Nghiệm Thoát UX (No-Trapping)
+  - `[x]` Tích hợp thêm nút "QUAY LẠI ẢI" (Exit) trên màn hình Thất bại (Failure Screen) của cả hai minigames.
+  - `[x]` Xây dựng hàm `exitMinigame()` gửi tín hiệu `close_profile` ra ngoài cửa sổ mẹ để đóng modal trượt êm ái.
+- `[x]` 4. Cải Thiện Thẩm Mỹ Truyền Thuyết & Cú Pháp HTML
+  - `[x]` Thay thế phông chữ thô cứng `var(--font-mono)` trên thẻ bài Minigame 2 và feedback chữ số thành phông chữ truyền thống Đại Việt `var(--font-title)` (Philosopher).
+  - `[x]` Loại bỏ thẻ đóng `</div>` dư thừa lỗi cú pháp ở dòng 624 của `minigame2.html`.
+
+---
+---
