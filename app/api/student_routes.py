@@ -82,8 +82,15 @@ async def complete_profile(body: CompleteProfileBody, request: Request):
         raise HTTPException(404, "Tài khoản không tồn tại")
 
     # Generate static avatar path based on character type and gender
-    gender_suffix = "nu" if body.gioi_tinh.lower() in ("nu", "nữ", "female") else "nam"
-    avatar_url = f"/static/avatars/{body.character_type}_{gender_suffix}.jpg"
+    _CHAR_FOLDER = {
+        "chien_binh": "lac-tuong",
+        "phu_thuy":   "dao-si",
+        "xa_thu":     "no-than",
+        "hiep_si":    "than-tuong",
+    }
+    gender_suffix = "female" if body.gioi_tinh.lower() in ("nu", "nữ", "female") else "male"
+    folder = _CHAR_FOLDER.get(body.character_type, body.character_type)
+    avatar_url = f"/design-system/characters/playable/{folder}/{folder}-{gender_suffix}-avatar.jpg"
 
     await crud.update_web_user_profile(
         google_id       = google_id,
@@ -267,8 +274,15 @@ async def tg_complete_profile(body: TgCompleteProfileBody):
         )
 
     # Generate static avatar path based on character type and gender
-    gender_suffix = "nu" if body.gioi_tinh.lower() in ("nu", "nữ", "female") else "nam"
-    avatar_url = f"/static/avatars/{body.character_type}_{gender_suffix}.jpg"
+    _CHAR_FOLDER = {
+        "chien_binh": "lac-tuong",
+        "phu_thuy":   "dao-si",
+        "xa_thu":     "no-than",
+        "hiep_si":    "than-tuong",
+    }
+    gender_suffix = "female" if body.gioi_tinh.lower() in ("nu", "nữ", "female") else "male"
+    folder = _CHAR_FOLDER.get(body.character_type, body.character_type)
+    avatar_url = f"/design-system/characters/playable/{folder}/{folder}-{gender_suffix}-avatar.jpg"
 
     await crud.update_web_user_profile(
         google_id       = google_id,

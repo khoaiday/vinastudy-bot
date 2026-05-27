@@ -749,9 +749,7 @@ async function loadPending(silent=false) {
 }
 
 function buildPendingCard(u) {
-  const avatarHtml = u.avatar_final
-    ? `<div class="p-avatar"><img src="${esc(u.avatar_final)}" alt=""></div>`
-    : `<div class="p-avatar" style="font-size:2rem">${charEmoji(u.character_type||'')}</div>`;
+  const avatarHtml = `<div class="p-avatar"><img src="${esc(avatarSrc(u))}" alt="" onerror="this.parentElement.innerHTML='<span style=font-size:2rem>${charEmoji(u.character_type)}</span>'"></div>`;
   const dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '';
   return `
   <div class="p-card" id="pcard-${u.id}">
@@ -848,9 +846,7 @@ function renderStudents(users) {
     return;
   }
   document.getElementById('stuBody').innerHTML = users.map(u => {
-    const avatarHtml = u.avatar_final
-      ? `<span class="stu-avatar-sm"><img src="${esc(u.avatar_final)}" alt=""></span>`
-      : `<span class="stu-avatar-sm">${charEmoji(u.character_type)}</span>`;
+    const avatarHtml = `<span class="stu-avatar-sm"><img src="${esc(avatarSrc(u))}" alt="" onerror="this.parentElement.innerHTML='${charEmoji(u.character_type)}'"></span>`;
     const statusBadge = {
       approved: `<span class="status-badge s-approved">✅ Đã duyệt</span>`,
       pending:  `<span class="status-badge s-pending">⏳ Chờ duyệt</span>`,
@@ -889,7 +885,7 @@ function showDetailById(userId, u) {
   if (typeof u === 'string') u = JSON.parse(u);
   document.getElementById('detailName').textContent = u.ho_ten || u.email;
   const img = document.getElementById('detailAvatar');
-  if (u.avatar_final) { img.src = u.avatar_final; img.style.display='block'; }
+  img.src = avatarSrc(u); img.style.display='block';
   else img.style.display='none';
 
   document.getElementById('detailContent').innerHTML = `
@@ -1035,6 +1031,20 @@ const CHARS = {
   hiep_si:    {emoji:'🛡️', name:'Hiệp Sĩ'},
 };
 function charEmoji(t) { return CHARS[t]?.emoji || '👤'; }
+
+// Trả về URL avatar từ character_type + gioi_tinh (fallback khi avatar_final cũ/sai)
+const _CHAR_FOLDER = { chien_binh:'lac-tuong', phu_thuy:'dao-si', xa_thu:'no-than', hiep_si:'than-tuong' };
+function charAvatar(character_type, gioi_tinh) {
+  const folder = _CHAR_FOLDER[character_type] || character_type;
+  const g = (gioi_tinh||'').toLowerCase();
+  const suffix = (g === 'nu' || g === 'nữ' || g === 'female') ? 'female' : 'male';
+  return `/design-system/characters/playable/${folder}/${folder}-${suffix}-avatar.jpg`;
+}
+function avatarSrc(u) {
+  // Ưu tiên avatar_final nếu dùng path mới, fallback về charAvatar
+  if (u.avatar_final && u.avatar_final.includes('design-system')) return u.avatar_final;
+  return charAvatar(u.character_type, u.gioi_tinh);
+}
 function charName(t)  { return CHARS[t]?.name  || t || '—'; }
 
 // Close modal on bg click
