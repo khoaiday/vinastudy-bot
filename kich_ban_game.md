@@ -1,7 +1,7 @@
 ﻿# KỊCH BẢN GAME: CHIẾN BINH TOÁN
 ## VINASTUDY · HÀNH TRÌNH XUYÊN KHÔNG THỜI GIAN
 
-> Cập nhật: 2026-05-27 · Phiên bản v3.0
+> Cập nhật: 2026-05-27 · Phiên bản v4.0
 
 ---
 
@@ -74,90 +74,116 @@ Người chơi chọn **lớp nhân vật** và **giới tính** khi đăng ký.
 
 ## 4. HÀNH TRÌNH KHẢO CỔ TOÁN HỌC (CAMPAIGN MAP)
 
-Học sinh điều khiển Cỗ máy Đông Sơn đi dọc tiến trình lịch sử Đại Việt theo **thứ tự thời gian từ xa xưa nhất đến gần nhất**. Mỗi Ải là một sự kiện lịch sử/huyền sử có thật, lồng ghép bài Toán Lớp 3.
+Học sinh điều khiển Cỗ máy Đông Sơn đi dọc tiến trình lịch sử Đại Việt theo **thứ tự thời gian từ xa xưa nhất đến gần nhất**. Mỗi Ải = 1 Buổi học Toán 3, gắn với một sự kiện lịch sử/huyền sử có thật.
 
 ---
 
-### 🥁 TRẠM 1: THUỞ BÌNH MINH — HÙNG VƯƠNG & VĂN LANG
-*Thời kỳ: Văn Lang (~2879 - 258 TCN) · Văn minh Đông Sơn*
+### 🐉 TRẠM 0: HỒNG BÀNG & HÙNG VƯƠNG SƠ KỲ
+*Thời kỳ: ~2879 TCN (huyền sử) · Văn Lang sơ khai · Đông Sơn sơ kỳ*
 
-**Ải 1: Tiếng Trống Thúc Quân**
-- **Toán:** Dãy số tự nhiên cách đều (Buổi 4)
-- **Bối cảnh:** Làng Phù Đổng, Hùng Vương thứ 6. Cậu bé 3 tuổi đột nhiên lên tiếng xin ngựa sắt, giáp sắt để đánh giặc Ân.
-- **Cốt truyện:** Ân Cổ Sứ gõ Trống Vàng Ân phá tan quy luật của mọi dãy số ghi kế hoạch rèn giáp. Học sinh phục hồi 6 dãy số cách đều → giáp hoàn thành → Thánh Gióng xuất trận.
-- **Boss:** 🥁 Ân Cổ Sứ (Sứ thần trống Ân — Trống Vàng Ân phá quy luật số học)
+**Ải 1: Trứng Tiên Nở Trăm Con** *(Buổi 1)*
+- **Toán:** Ôn tập — Cộng, trừ phạm vi 100 · Chia đôi · Tính nhẩm
+- **Bối cảnh:** Bờ biển Hồng Bàng. Lạc Long Quân và Âu Cơ chia tay — 100 người con phải được chia đôi: 50 theo cha xuống biển, 50 theo mẹ lên núi.
+- **Cốt truyện:** Ngư Tinh tung Lưới Hỗn Độn xóa sạch mọi phép đếm và phép chia → Lạc Long Quân không thể chia con công bằng. Học sinh tính lại → 50+50=100 hoàn chỉnh → thuyền lửa dụ Ngư Tinh → Ngư Tinh bị diệt → Âu Cơ dẫn 50 con lên núi Nghĩa Lĩnh → Hùng Vương thứ 1 lên ngôi.
+- **Boss:** 🐟 Ngư Tinh (Quái Ngư Nghìn Tuổi — Lưới Hỗn Độn phá phép đếm và chia đôi)
+- **Đồng minh:** 🐉 Lạc Long Quân · 🧚 Âu Cơ
+- **File kịch bản:** `scenarios/ai-1-lac-long-quan.md`
+
+**Ải 2: Mười Lăm Bộ Lạc Văn Lang** *(Buổi 2)*
+- **Toán:** Đọc và viết số có 3 chữ số · Số tròn trăm · Nhận biết hàng trăm-chục-đơn vị
+- **Bối cảnh:** Phong Châu (Phú Thọ), Hùng Vương thứ 1. Triều đình mới lập cần đọc chính xác số liệu dân đinh, lương thực từ 15 bộ lạc để cai trị đất nước.
+- **Cốt truyện:** Mộc Tinh (tinh cây cổ thụ) xâm nhập kho thẻ tre, đảo lộn vị trí các chữ số → 345 thành 534, 208 thành 820. Học sinh đọc và viết lại đúng 6 bộ số liệu → Hùng Vương vận hành được 15 bộ → Mộc Tinh bị Lạc Long Quân tiêu diệt.
+- **Boss:** 🌳 Mộc Tinh (Cây Cổ Thụ Nghìn Năm — đảo vị trí chữ số trong mọi con số)
+- **Đồng minh:** 👑 Hùng Vương thứ 1 · 🧙 Lạc Hầu
+- **File kịch bản:** `scenarios/ai-2-van-lang.md`
+
+**Ải 3: Yêu Cáo Chín Đuôi Tây Hồ** *(Buổi 3)*
+- **Toán:** So sánh số có 3 chữ số · Xếp thứ tự · Tìm số lớn nhất/nhỏ nhất · Dấu >, <, =
+- **Bối cảnh:** Vùng hồ lớn phía tây Phong Châu (nay là Tây Hồ, Hà Nội). Hồ Tinh — cáo 9 đuôi nghìn tuổi — cướp của cải từ khắp các bộ lạc và ẩn náu trong hang đá.
+- **Cốt truyện:** Hồ Tinh dùng phép Huyễn Số xáo trộn thứ tự con số trong báo cáo mất mát → không ai biết bộ nào mất nhiều nhất → không định vị được hang. Học sinh so sánh và xếp đúng thứ tự → tìm ra bộ mất nhiều nhất → định vị hang → Lạc Long Quân phá hang → Tây Hồ hình thành.
+- **Boss:** 🦊 Hồ Tinh (Cáo Chín Đuôi — Huyễn Số xáo trộn thứ tự mọi con số)
+- **Đồng minh:** 🐉 Lạc Long Quân
+- **File kịch bản:** `scenarios/ai-3-ho-tinh.md`
+
+---
+
+### 🥁 TRẠM 1: HÙNG VƯƠNG TRUNG & HẬU KỲ
+*Thời kỳ: Văn Lang (~800 - 258 TCN) · Đông Sơn cực thịnh*
+
+**Ải 4: Tiếng Trống Thúc Quân** *(Buổi 4)*
+- **Toán:** Dãy số tự nhiên cách đều
+- **Bối cảnh:** Làng Phù Đổng, Hùng Vương thứ 6. Cậu bé 3 tuổi xin ngựa sắt, giáp sắt đánh giặc Ân.
+- **Cốt truyện:** Ân Cổ Sứ gõ Trống Vàng Ân phá tan quy luật dãy số ghi kế hoạch rèn giáp. Học sinh phục hồi 6 dãy số cách đều → giáp hoàn thành → Thánh Gióng xuất trận → diệt quân Ân.
+- **Boss:** 🥁 Ân Cổ Sứ (Trống Vàng Ân phá quy luật dãy số)
 - **Đồng minh:** ⚔️ Thánh Gióng (Phù Đổng Thiên Vương)
-- **File kịch bản:** `scenarios/ai-1-thanh-giong.md`
+- **File kịch bản:** `scenarios/ai-4-thanh-giong.md`
 
-**Ải 2: Đê Thần & Trận Hồng Thủy**
+**Ải 5: Đê Thần & Trận Hồng Thủy** *(Buổi 5)*
 - **Toán:** Phép cộng số có 3 chữ số (có nhớ và không có nhớ)
-- **Bối cảnh:** Châu thổ Sông Hồng, Hùng Vương thứ 18. Sơn Tinh cần số liệu chính xác để đắp đê chặn lũ của Thủy Tinh.
-- **Cốt truyện:** Bọt Hỗn Độn của Thủy Tinh xóa sạch kết quả các phép cộng ghi kế hoạch đắp đê. Học sinh tính lại → Sơn Tinh có dữ liệu nâng núi → đê đứng vững → Thủy Tinh rút lui.
-- **Boss:** 🌊 Thủy Tinh (Thần Nước, Bọt Hỗn Độn xóa phép cộng)
+- **Bối cảnh:** Châu thổ Sông Hồng, Hùng Vương thứ 18. Sơn Tinh cần số liệu chính xác để đắp đê chặn lũ.
+- **Cốt truyện:** Bọt Hỗn Độn của Thủy Tinh xóa kết quả phép cộng → đê không hoàn thành. Học sinh tính lại → Sơn Tinh nâng núi → đê đứng → Thủy Tinh rút.
+- **Boss:** 🌊 Thủy Tinh (Bọt Hỗn Độn xóa phép cộng)
 - **Đồng minh:** 🏔️ Sơn Tinh (Tản Viên Sơn Thánh)
-- **File kịch bản:** `scenarios/ai-2-son-tinh.md`
+- **File kịch bản:** `scenarios/ai-5-son-tinh.md`
 
-**Ải 3: Bếp Lửa Của Hoàng Tử Nghèo**
+**Ải 6: Bếp Lửa Của Hoàng Tử Nghèo** *(Buổi 6)*
 - **Toán:** Phép trừ số có 3 chữ số (có nhớ và không có nhớ)
-- **Bối cảnh:** Cung Hùng Vương tại Phong Châu, Hùng Vương thứ 6. Lang Liêu chuẩn bị Bánh Chưng Bánh Dày dâng vua để chọn người kế vị.
-- **Cốt truyện:** Gian Thần Ân (gián điệp phương Bắc trà trộn) lấy bớt nguyên liệu và xóa hồ sơ số lượng. Học sinh tính lại phép trừ → phát hiện phần bị lấy trộm → bắt gian thần → Lang Liêu làm đủ bánh dâng vua → được chọn kế vị.
-- **Boss:** 🦊 Gian Thần Ân (gián điệp ẩn, xóa kết quả phép trừ)
+- **Bối cảnh:** Cung Hùng Vương, Phong Châu, Hùng Vương thứ 6. Lang Liêu chuẩn bị Bánh Chưng Bánh Dày dâng vua chọn kế vị.
+- **Cốt truyện:** Gian Thần Ân lấy trộm nguyên liệu + xóa hồ sơ số lượng. Học sinh tính phép trừ → phát hiện phần bị lấy → bắt gian thần → Lang Liêu làm đủ bánh → được kế vị.
+- **Boss:** 🕵️ Gian Thần Ân (gián điệp bếp núc, xóa hồ sơ phép trừ)
 - **Đồng minh:** 🍃 Lang Liêu (Hoàng tử thứ 18)
-- **File kịch bản:** `scenarios/ai-3-lang-lieu.md`
+- **File kịch bản:** `scenarios/ai-6-lang-lieu.md`
 
 ---
 
 ### 🏛️ TRẠM 2: CỔ LOA — ÂU LẠC & THỤC PHÁN
 *Thời kỳ: Âu Lạc (~257 - 179 TCN) · An Dương Vương*
 
-**Ải 4: Bí Ẩn Cổ Loa**
-- **Toán:** Phân biệt Số & Chữ số · Cấu tạo số tự nhiên · Đọc viết số 3 chữ số
-- **Bối cảnh:** Thành Cổ Loa (~257 TCN). An Dương Vương xây thành 2 năm liên tục đổ — nguyên nhân do Bạch Kê Tinh làm các kiến trúc sư không phân biệt được số và chữ số.
-- **Cốt truyện:** Tiếng gáy ma mị của Bạch Kê Tinh xóa tri thức về cấu tạo số. Học sinh phục hồi 7 dãy câu hỏi về chữ số và giá trị vị trí → Thần Kim Quy hạ gục Bạch Kê Tinh → Cổ Loa đứng vững.
-- **Boss:** 🐓 Bạch Kê Tinh (Tinh Gà Trắng — 9 lông đuôi phong ấn 9 chữ số 0-9)
+**Ải 7: Bí Ẩn Cổ Loa** *(Buổi 7)*
+- **Toán:** Phân biệt Số & Chữ số · Cấu tạo số tự nhiên · Giá trị theo vị trí
+- **Bối cảnh:** Thành Cổ Loa (~257 TCN). Tường thành xây xong ban ngày, sáng hôm sau đổ sập — suốt 2 năm liên tiếp.
+- **Cốt truyện:** Tiếng gáy ma mị của Bạch Kê Tinh xóa tri thức phân biệt số và chữ số → kiến trúc sư không đo được đúng → tường đổ. Học sinh phục hồi 7 câu hỏi về chữ số và giá trị vị trí → Thần Kim Quy hạ Bạch Kê Tinh → Cổ Loa hoàn thành.
+- **Boss:** 🐓 Bạch Kê Tinh (9 lông đuôi phong ấn 9 chữ số 0-9)
 - **Đồng minh:** 🐢 Thần Kim Quy
-- **File kịch bản:** `scenarios/ai-4-co-loa.md`
+- **File kịch bản:** `scenarios/ai-7-co-loa.md`
 
-**Ải 5: Nỏ Thần Liên Châu**
+**Ải 8: Nỏ Thần Liên Châu** *(Buổi 8)*
 - **Toán:** Cấu tạo số 3 chữ số (hàng trăm, hàng chục, hàng đơn vị) · So sánh số
 - **Bối cảnh:** Tướng Cao Lỗ chế tạo Nỏ Thần từ vuốt Rùa Vàng, bắn vạn mũi tên.
 - **Cốt truyện:** Bản đúc khuôn đồng bị hư hại — thông số kỹ thuật mất. Học sinh điền đúng giá trị theo vị trí để Cao Lỗ hoàn thiện nỏ hộ quốc.
-- **Boss:** TBD (Ân gián điệp phá khuôn đúc)
+- **Boss:** TBD
 
 ---
 
 ### 🥁 TRẠM 3: TIẾNG TRỐNG MÊ LINH — THỜI KỲ TRƯNG VƯƠNG
 *Thời kỳ: ~40 - 43 SCN · Hai Bà Trưng*
 
-**Ải 6: Hội Quân Mê Linh**
+**Ải 9: Hội Quân Mê Linh** *(Buổi 9)*
 - **Toán:** Cộng/trừ có nhớ trong phạm vi 1000
-- **Bối cảnh:** Hai Bà Trưng phất cờ khởi nghĩa năm 40 SCN. Các cánh quân từ khắp nơi đổ về.
-- **Cốt truyện:** Học sinh tính số binh sĩ, voi chiến từ các quận để sắp xếp doanh trại.
+- **Bối cảnh:** Hai Bà Trưng phất cờ khởi nghĩa năm 40 SCN.
+- **Cốt truyện:** Các cánh quân từ khắp nơi đổ về, học sinh tính quân số, voi chiến để sắp xếp doanh trại.
 
-**Ải 7: Chiến Thuật Voi Chiến**
+**Ải 10: Chiến Thuật Voi Chiến** *(Buổi 10)*
 - **Toán:** Nhân/Chia cơ bản, bảng cửu chương
-- **Bối cảnh:** Quân Đông Hán dàn trận mai phục.
 - **Cốt truyện:** Chia đội hình voi chiến theo hàng lối để phá kỵ binh địch, giành lại 65 thành trì.
 
 ---
 
-### ⚓ TRẠM 4: TIẾNG SẤM SÔNG BẠCH ĐẰNG — THỜI KỲ TỰ CHỦ
+### ⚓ TRẠM 4: TIẾNG SẤM SÔNG BẠCH ĐẰNG
 *Thời kỳ: 938 SCN · Ngô Quyền*
 
-**Ải 8 & 9: Trận Bạch Đằng — Ngô Quyền Đại Phá Nam Hán**
+**Ải 11 & 12: Trận Bạch Đằng — Ngô Quyền Đại Phá Nam Hán**
 - **Toán:** Phép nhân/chia, đo lường & thời gian
-- **Bối cảnh:** Sông Bạch Đằng, năm 938. Quân Nam Hán do Hoằng Tháo kéo chiến thuyền vào vịnh.
-- **Cốt truyện:** Ngô Quyền cần cắm trận địa cọc gỗ bịt sắt. Học sinh đo độ dài cọc, khoảng cách giữa cọc, và tính thời gian thủy triều lên xuống để dụ địch vào bẫy đúng lúc nước rút.
+- **Cốt truyện:** Cắm trận địa cọc gỗ bịt sắt; tính thời gian thủy triều để dụ địch vào bẫy.
 
 ---
 
 ### 👑 TRẠM ĐẶC BIỆT: THỐNG NHẤT GIANG SƠN
 *Thời kỳ: 968 SCN · Đinh Bộ Lĩnh*
 
-**Ải 10: Cờ Lau Tập Trận — Đinh Bộ Lĩnh Dẹp Loạn 12 Sứ Quân**
+**Ải 13: Cờ Lau Tập Trận — Đinh Bộ Lĩnh Dẹp Loạn 12 Sứ Quân**
 - **Toán:** Giải toán có lời văn tổng hợp
-- **Bối cảnh:** Hoa Lư cổ kính, cậu bé Đinh Bộ Lĩnh bày trận giả bằng cờ lau.
-- **Cốt truyện:** Học sinh tham gia trận giả, giải đố phân chia lãnh địa và thu phục sứ quân — giúp Đinh Bộ Lĩnh thống nhất đất nước, lên ngôi Đinh Tiên Hoàng, đặt quốc hiệu Đại Cồ Việt.
+- **Cốt truyện:** Giải đố phân chia lãnh địa và thu phục sứ quân — giúp Đinh Bộ Lĩnh thống nhất đất nước.
 
 ---
 
@@ -165,22 +191,28 @@ Học sinh điều khiển Cỗ máy Đông Sơn đi dọc tiến trình lịch 
 
 | Boss | Ải | Cơ chế phá hoại | Bị hạ bởi |
 |---|---|---|---|
-| 🥁 **Ân Cổ Sứ** | Ải 1 | Trống Vàng Ân gõ → xóa quy luật dãy số | Thánh Gióng (sau khi giáp hoàn thành) |
-| 🌊 **Thủy Tinh** | Ải 2 | Bọt Hỗn Độn → xóa kết quả phép cộng | Sơn Tinh (sau khi đê hoàn thành) |
-| 🦊 **Gian Thần Ân** | Ải 3 | Lấy trộm nguyên liệu + xóa hồ sơ phép trừ | Lang Liêu (bắt quả tang) |
-| 🐓 **Bạch Kê Tinh** | Ải 4 | Tiếng gáy bình minh xóa tri thức số & chữ số | Thần Kim Quy (hóa chuột cắn chân) |
-| (TBD) | Ải 5+ | TBD | TBD |
-| 🦊 **Hồ Tinh** | Trạm huyền sử | Cáo 9 đuôi thời Lạc Long Quân — màn mở đầu tùy chọn | — |
+| 🐟 **Ngư Tinh** | Ải 1 | Lưới Hỗn Độn xóa phép đếm, phép chia | Lạc Long Quân (thuyền lửa) |
+| 🌳 **Mộc Tinh** | Ải 2 | Đảo vị trí chữ số → không đọc được số | Lạc Long Quân (đốt gốc, diệt tinh) |
+| 🦊 **Hồ Tinh** | Ải 3 | Huyễn Số xáo trộn thứ tự con số | Lạc Long Quân (phá hang, thành Tây Hồ) |
+| 🥁 **Ân Cổ Sứ** | Ải 4 | Trống Vàng Ân xóa quy luật dãy số | Thánh Gióng (sau khi giáp hoàn thành) |
+| 🌊 **Thủy Tinh** | Ải 5 | Bọt Hỗn Độn xóa kết quả phép cộng | Sơn Tinh (sau khi đê hoàn thành) |
+| 🕵️ **Gian Thần Ân** | Ải 6 | Lấy trộm nguyên liệu + xóa hồ sơ phép trừ | Lang Liêu (bắt quả tang) |
+| 🐓 **Bạch Kê Tinh** | Ải 7 | Tiếng gáy bình minh xóa tri thức số & chữ số | Thần Kim Quy (hóa chuột cắn chân) |
+| TBD | Ải 8+ | TBD | TBD |
 
-**Ân Cổ Sứ — thiết kế:** Pháp sư cao lớn, áo đen viền vàng, mặt như đúc đồng, cầm Trống Vàng Ân. Hoa văn trống: xoáy hỗn độn (đối lập trống Đông Sơn hoa văn đồng tâm đều đặn).
+**Ngư Tinh — thiết kế:** Cá khổng lồ đen bạc, vẩy như giáp đồng, mắt đỏ rực từ đáy biển, đuôi vung tạo sóng cao.
 
-**Thủy Tinh — thiết kế:** Người từ thắt lưng trở lên, phần dưới là vùng nước xoáy, áo xanh lam sẫm, tóc xanh đen như sóng.
+**Mộc Tinh — thiết kế:** Cây cổ thụ khổng lồ màu đen-xanh biết di chuyển, rễ như xúc tu bạch tuộc, lá rụng thành dao nhọn.
 
-**Gian Thần Ân — thiết kế:** Ẩn trong bóng tối, mặc tạp dề bếp giả mạo, mắt ti hí ranh mãnh. Lộ áo Ân đen viền vàng khi bị phát hiện.
+**Hồ Tinh — thiết kế:** Nữ nhân áo đỏ rực, 9 đuôi cáo vàng phát sáng ảo huyễn, đôi mắt xanh lạnh phát ánh ảo thuật.
 
-**Bạch Kê Tinh — thiết kế:** Gà trắng mắt đỏ, 9 lông đuôi dài phát sáng xanh lạnh, mỗi lông ẩn một chữ số. Tiếng gáy tạo sóng trắng ma mị.
+**Ân Cổ Sứ — thiết kế:** Pháp sư cao lớn, áo đen viền vàng, mặt như đúc đồng, cầm Trống Vàng Ân hoa văn xoáy hỗn độn.
 
-**Hồ Tinh — thiết kế:** Nữ yêu hồ hybrid người+cáo, áo thụng đỏ, quạt vàng, 9 đuôi vàng phát sáng. Thời đại: huyền sử trước Hùng Vương.
+**Thủy Tinh — thiết kế:** Người từ thắt lưng trở lên, phần dưới là vùng nước xoáy, áo xanh lam sẫm, tóc xanh đen.
+
+**Gian Thần Ân — thiết kế:** Tạp dề bếp giả mạo, mắt ti hí, lộ áo Ân đen viền vàng khi bị phát hiện.
+
+**Bạch Kê Tinh — thiết kế:** Gà trắng mắt đỏ, 9 lông đuôi dài phát sáng xanh lạnh, mỗi lông ẩn một chữ số.
 
 ---
 
@@ -251,16 +283,19 @@ Font: **Philosopher** (title) · **Lora** (body) · **Roboto Mono** (data/mono)
 
 ## 9. BẢNG TỔNG HỢP CÁC ẢI (v3.0)
 
-| Ải | Tên | Thời kỳ | Nhân vật chính | Toán | Boss | File kịch bản |
-|---|---|---|---|---|---|---|
-| 1 | Tiếng Trống Thúc Quân | Hùng Vương 6 | Thánh Gióng | Dãy số cách đều (Buổi 4) | Ân Cổ Sứ 🥁 | `ai-1-thanh-giong.md` |
-| 2 | Đê Thần & Trận Hồng Thủy | Hùng Vương 18 | Sơn Tinh | Phép cộng 3 chữ số | Thủy Tinh 🌊 | `ai-2-son-tinh.md` |
-| 3 | Bếp Lửa Của Hoàng Tử Nghèo | Hùng Vương 6 | Lang Liêu | Phép trừ 3 chữ số | Gian Thần Ân 🦊 | `ai-3-lang-lieu.md` |
-| 4 | Bí Ẩn Cổ Loa | Âu Lạc 257 TCN | An Dương Vương, Cao Lỗ | Số & Chữ số, cấu tạo số | Bạch Kê Tinh 🐓 | `ai-4-co-loa.md` |
-| 5 | Nỏ Thần Liên Châu | Âu Lạc 257 TCN | Cao Lỗ | Cấu tạo số, so sánh | TBD | TBD |
-| 6 | Hội Quân Mê Linh | 40 SCN | Hai Bà Trưng | Cộng/trừ có nhớ | TBD | TBD |
-| 7 | Chiến Thuật Voi Chiến | 40 SCN | Hai Bà Trưng | Bảng nhân/chia | TBD | TBD |
-| 8-9 | Trận Bạch Đằng | 938 SCN | Ngô Quyền | Nhân/chia, đo lường | TBD | TBD |
-| 10 | Cờ Lau Tập Trận | 968 SCN | Đinh Bộ Lĩnh | Toán lời văn tổng hợp | TBD | TBD |
+| Ải | Buổi | Tên | Thời kỳ | Nhân vật | Toán | Boss | File |
+|---|---|---|---|---|---|---|---|
+| 1 | B1 | Trứng Tiên Nở Trăm Con | Hồng Bàng | Lạc Long Quân & Âu Cơ | Cộng trừ /100, chia đôi | Ngư Tinh 🐟 | `ai-1-lac-long-quan.md` |
+| 2 | B2 | Mười Lăm Bộ Lạc Văn Lang | Hùng Vương 1 | Hùng Vương 1, Lạc Hầu | Đọc viết số 3 chữ số | Mộc Tinh 🌳 | `ai-2-van-lang.md` |
+| 3 | B3 | Yêu Cáo Chín Đuôi Tây Hồ | Hùng Vương sơ kỳ | Hồ Tinh, Lạc Long Quân | So sánh, xếp thứ tự số | Hồ Tinh 🦊 | `ai-3-ho-tinh.md` |
+| 4 | B4 | Tiếng Trống Thúc Quân | Hùng Vương 6 | Thánh Gióng | Dãy số cách đều | Ân Cổ Sứ 🥁 | `ai-4-thanh-giong.md` |
+| 5 | B5 | Đê Thần & Trận Hồng Thủy | Hùng Vương 18 | Sơn Tinh, Thủy Tinh | Phép cộng 3 chữ số | Thủy Tinh 🌊 | `ai-5-son-tinh.md` |
+| 6 | B6 | Bếp Lửa Của Hoàng Tử Nghèo | Hùng Vương 6 | Lang Liêu | Phép trừ 3 chữ số | Gian Thần Ân 🕵️ | `ai-6-lang-lieu.md` |
+| 7 | B7 | Bí Ẩn Cổ Loa | Âu Lạc 257 TCN | An Dương Vương, Cao Lỗ | Số & Chữ số, giá trị vị trí | Bạch Kê Tinh 🐓 | `ai-7-co-loa.md` |
+| 8 | B8 | Nỏ Thần Liên Châu | Âu Lạc 257 TCN | Cao Lỗ | Cấu tạo số, so sánh | TBD | TBD |
+| 9 | B9 | Hội Quân Mê Linh | 40 SCN | Hai Bà Trưng | Cộng/trừ có nhớ 1000 | TBD | TBD |
+| 10 | B10 | Chiến Thuật Voi Chiến | 40 SCN | Hai Bà Trưng | Bảng nhân/chia | TBD | TBD |
+| 11-12 | B11-12 | Trận Bạch Đằng | 938 SCN | Ngô Quyền | Nhân/chia, đo lường | TBD | TBD |
+| 13 | B13 | Cờ Lau Tập Trận | 968 SCN | Đinh Bộ Lĩnh | Toán lời văn tổng hợp | TBD | TBD |
 
-*Chiến Binh Toán · VINASTUDY · v3.0 · 2026-05-27*
+*Chiến Binh Toán · VINASTUDY · v4.0 · 2026-05-27*
