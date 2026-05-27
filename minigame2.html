@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tuyệt Chiêu Cấu Tạo Số</title>
+    <title>Ải 2: Nỏ thần Liên Châu — Chiến Binh Toán</title>
     <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -595,7 +595,7 @@
 
     <!-- Main Game -->
     <div class="header">
-        <h1>Tuyệt Chiêu Cấu Tạo Số</h1>
+        <h1>Ải 2: Nỏ thần Liên Châu</h1>
         <div class="stats">
             <div class="score-text">ĐÚNG: <span id="scoreDisplay">0</span>/12</div>
             <div class="time-text">THỜI GIAN: <span id="timeDisplay">45</span>s</div>
@@ -834,6 +834,9 @@
         // ─────────────────────────────────────────────────────────────────
 
         // Game variables
+        const urlParams = new URLSearchParams(window.location.search);
+        const buoi = urlParams.get('buoi') || '1';
+
         const TOTAL_QUESTIONS = 12;
         let score = 0;
         let questionCount = 1;
@@ -843,6 +846,10 @@
         let targetNumberStr = "";
         let leftDigitInfo = {};
         let rightDigitInfo = {};
+        
+        // Checkpoints state
+        let minigame2Checkpoints = [];
+        let roundStartTime = 0;
         
         // Deck state
         let deck = [
@@ -870,6 +877,9 @@
             score = 0;
             questionCount = 1;
             timeLeft = 45;
+            
+            // Clear checkpoints
+            minigame2Checkpoints = [];
             
             document.getElementById('scoreDisplay').innerText = score;
             document.getElementById('timeDisplay').innerText = timeLeft;
@@ -940,6 +950,9 @@
             
             document.getElementById('targetLeft').innerText = leftDigitInfo.val;
             document.getElementById('targetRight').innerText = rightDigitInfo.val;
+            
+            // Record round start time
+            roundStartTime = Date.now();
             
             // Randomize deck initial state visually? No, just keep current deck order or shuffle
             deck.sort(() => Math.random() - 0.5);
@@ -1089,6 +1102,16 @@
                 feedbackEl.style.textShadow = "0 0 20px var(--secondary-glow)";
             }
             
+            // Save checkpoints
+            let timeSpent = Math.max(1, Math.round((Date.now() - roundStartTime) / 1000));
+            minigame2Checkpoints.push({
+                question_id: 2000 + questionCount,
+                attempt_number: 1,
+                submitted_answer: `${currentTopType}_${direction}`,
+                is_correct: isCorrect,
+                time_spent_seconds: timeSpent
+            });
+            
             feedbackEl.classList.add('show');
             document.getElementById('scoreDisplay').innerText = score;
             
@@ -1116,15 +1139,25 @@
             document.getElementById('videoModal').classList.remove('show');
         }
 
+        function returnToMap() {
+            window.parent.postMessage('minigame_won', '*');
+        }
+
         function endGame(timeOut = false) {
             clearInterval(gameInterval);
             document.getElementById('gameOverScreen').classList.remove('hidden');
+            
+            // Save checkpoints to localStorage
+            localStorage.setItem('cbToan_minigame2_checkpoints_bai' + buoi, JSON.stringify(minigame2Checkpoints));
             
             const isWin = score >= 11;
             const goScreen = document.getElementById('gameOverScreen');
             
             if (isWin) {
                 goScreen.classList.add('win-bg');
+                
+                // Save progress
+                localStorage.setItem('cbToan_skill_bai' + buoi, 'true');
                 
                 confetti({
                     particleCount: 150,
@@ -1133,18 +1166,18 @@
                 });
                 
                 goScreen.innerHTML = `
-                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: var(--font-mono); text-shadow: 0 0 20px var(--success-glow);">TUYỆT VỜI!</h1>
-                    <h2 style="font-size: 1.2rem; text-align: center; color: var(--text-main); font-weight: 400; margin-top: 10px;">Bạn đã thành thạo Tuyệt chiêu Cấu Tạo Số!</h2>
-                    <div style="background: rgba(184,115,51,0.1); border: 1px solid var(--copper); border-radius: 10px; padding: 15px; margin: 15px; font-size: 1rem; line-height: 1.5; color: var(--primary); backdrop-filter: blur(5px);">
-                        <strong>👨‍🏫 Thầy Long khen ngợi:</strong><br>"Giỏi lắm! Nắm vững Hàng Trăm, Chục, Đơn vị thì số nào cũng phân tích được dễ dàng!"
+                    <h1 style="color: var(--success); font-size: 3rem; text-align: center; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(78,255,159,0.5);">THÀNH CÔNG!</h1>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; margin-top: 10px;">Bạn đã thu thập đủ linh kiện cho Nỏ thần Liên Châu!</h2>
+                    <div style="background: rgba(10,224,254,0.1); border: 1px solid var(--primary); border-radius: 10px; padding: 15px; margin: 15px; font-size: 1rem; line-height: 1.5; color: var(--primary); backdrop-filter: blur(5px);">
+                        <strong>👨‍🏫 Sư phụ Long khen ngợi:</strong><br>"Giỏi lắm! Nắm vững Hàng Trăm, Hàng Chục, Hàng Đơn vị là chìa khóa để chế tạo và vận hành vũ khí hộ quốc!"
                     </div>
-                    <button class="start-btn" onclick="startGame()">CHƠI LẠI</button>
+                    <button class="start-btn" onclick="returnToMap()">QUAY LẠI ẢI</button>
                 `;
             } else {
                 goScreen.classList.add('lose-bg');
                 goScreen.innerHTML = `
-                    <h1 style="color: var(--secondary); font-size: 3.5rem; font-family: var(--font-mono); text-shadow: 0 0 20px var(--secondary-glow);">THẤT BẠI</h1>
-                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Bạn chỉ đúng ${score}/12 câu${timeOut ? ' (Hết giờ)' : ''}.<br>Cần 11/12 để qua ải.</h2>
+                    <h1 style="color: var(--danger); font-size: 3.5rem; font-family: 'Chakra Petch', sans-serif; text-shadow: 0 0 20px rgba(255,0,85,0.5);">THẤT BẠI</h1>
+                    <h2 style="font-size: 1.2rem; text-align: center; color: #fff; font-weight: 400; line-height: 1.6; margin-top: 10px;">Linh kiện chế tạo chưa đồng bộ do sai sót.<br>Bạn chỉ đúng ${score}/12 câu${timeOut ? ' (Hết giờ)' : ''}. Cần 11/12 để qua ải.</h2>
                     <button class="start-btn" onclick="startGame()">THỬ LẠI</button>
                     <button class="yt-btn" onclick="openVideo()">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">

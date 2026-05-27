@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Hồ Sơ Chiến Binh</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary:   #0ae0fe;
-  --secondary: #ea0eed;
-  --success:   #4eff9f;
-  --danger:    #ff0055;
-  --gold:      #ffd700;
-  --bg:        #050a1f;
-  --card:      #080e22;
-  --border:    rgba(10,224,254,.22);
-  --text:      #c8e6ff;
-  --glow:      0 0 18px rgba(10,224,254,.45);
+  --primary:   #C8960C; /* Vàng nghệ */
+  --secondary: #C0332E; /* Đỏ son */
+  --success:   #22C55E; /* Ngải lục */
+  --danger:    #EF4444; /* Đỏ hỏa */
+  --gold:      #C8960C;
+  --bg:        #080502; /* Mực tàu */
+  --card:      #160E1C; /* Trầm gỗ */
+  --border:    rgba(184,115,51,.3); /* Đồng Đông Sơn */
+  --text:      #D4C4A0; /* Ngà voi */
+  --glow:      0 0 18px rgba(200,150,12,.35);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -25,16 +25,16 @@ html, body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Lora', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* Grid bg */
+/* Lưới đồng Đông Sơn cổ kính */
 body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image:
-    linear-gradient(rgba(10,224,254,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10,224,254,.045) 1px, transparent 1px);
+    linear-gradient(rgba(184,115,51,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184,115,51,.045) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
@@ -59,7 +59,7 @@ body::before {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .load-txt {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Philosopher', serif;
   font-size: 13px; letter-spacing: 3px;
   color: var(--primary); text-shadow: 0 0 10px var(--primary);
 }
@@ -67,49 +67,52 @@ body::before {
 /* ── Header ── */
 .hdr {
   padding: 18px 20px 14px;
-  background: linear-gradient(180deg, rgba(10,224,254,.07) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(200, 150, 12, 0.08) 0%, transparent 100%);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 12px;
 }
 .hdr-icon { font-size: 1.7rem; }
 .hdr-info { flex: 1; }
 .hdr-title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.25rem; font-weight: 900;
+  font-family: 'Philosopher', serif;
+  font-size: 1.35rem; font-weight: 700;
   color: var(--primary); text-shadow: var(--glow);
   letter-spacing: 2px; text-transform: uppercase;
 }
-.hdr-sub { font-size: .68rem; color: rgba(200,230,255,.35); margin-top: 2px; letter-spacing: 1.5px; }
+.hdr-sub { font-size: .68rem; color: rgba(212,196,160,.4); margin-top: 2px; letter-spacing: 1.5px; }
 .btn-logout {
   padding: 8px 12px;
-  border-radius: 8px; border: 1px solid rgba(255,0,85,.4);
-  background: rgba(255,0,85,.08);
-  color: var(--danger); font-size: .78rem; font-weight: 700;
+  border-radius: 8px; border: 1px solid rgba(192,51,46,.4);
+  background: rgba(192,51,46,.08);
+  color: var(--secondary); font-size: .78rem; font-weight: 700;
   cursor: pointer; white-space: nowrap; transition: all .18s;
 }
-.btn-logout:active { background: rgba(255,0,85,.2); }
+.btn-logout:active { background: rgba(192,51,46,.2); }
 
-/* ── Cyber card ── */
+/* ── Premium Card ── */
 .cyber-card {
   position: relative; z-index: 1;
   border-radius: 16px;
   background: var(--card);
   padding: 20px;
   margin: 16px 16px 0;
+  border: 1px solid var(--border);
 }
 .cyber-card::before {
   content: '';
   position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
   border-radius: 17px;
-  background: linear-gradient(135deg, rgba(10,224,254,.55), rgba(234,14,237,.55));
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   z-index: -1;
+  opacity: 0.15;
 }
 .sec-label {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: .68rem; font-weight: 700;
-  color: rgba(200,230,255,.4);
+  font-family: 'Philosopher', serif;
+  font-size: .85rem; font-weight: 700;
+  color: var(--primary);
   letter-spacing: 2.5px; text-transform: uppercase;
   margin-bottom: 16px;
+  text-shadow: 0 0 10px rgba(200, 150, 12, 0.2);
 }
 
 /* ── Avatar ring ── */
@@ -122,11 +125,11 @@ body::before {
   content: '';
   position: absolute; inset: -3px;
   border-radius: 23px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--success));
+  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--gold));
   background-size: 200% 200%;
   animation: gradShift 3s ease infinite;
   z-index: 0;
-  box-shadow: 0 0 20px rgba(10,224,254,.4);
+  box-shadow: 0 0 20px rgba(200,150,12,.4);
 }
 @keyframes gradShift {
   0%   { background-position: 0% 50%; }
@@ -136,49 +139,51 @@ body::before {
 #avatarImg {
   position: relative; z-index: 1;
   width: 120px; height: 120px; border-radius: 18px;
-  object-fit: cover; display: block; background: #0a1428;
+  object-fit: cover; display: block; background: #160e1c;
 }
 
 /* ── Fields ── */
 .field { margin-bottom: 14px; }
 .field:last-child { margin-bottom: 0; }
 .field label {
-  display: block; font-size: .68rem; font-weight: 700;
-  color: rgba(200,230,255,.45); letter-spacing: 1.5px;
+  display: block; font-size: .75rem; font-weight: 700;
+  color: var(--text-muted); letter-spacing: 1.5px;
   margin-bottom: 7px; text-transform: uppercase;
 }
 .field input, .field select {
   width: 100%; padding: 12px 14px;
-  background: rgba(10,224,254,.04);
+  background: rgba(184,115,51,.04);
   border: 1px solid var(--border);
   border-radius: 10px; color: var(--text);
   font-size: .95rem; outline: none;
   transition: border-color .2s, box-shadow .2s;
+  font-family: 'Lora', serif;
 }
 .field input:focus, .field select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(10,224,254,.12);
+  box-shadow: 0 0 0 3px var(--glow);
 }
-.field select option { background: #0d1b3e; }
+.field select option { background: var(--bg); color: var(--text); }
 
 /* ── Gender ── */
 .gender-row { display: flex; gap: 10px; }
 .gender-btn {
   flex: 1; padding: 11px; border-radius: 10px;
   border: 1.5px solid var(--border);
-  background: rgba(10,224,254,.03);
-  color: rgba(200,230,255,.6); font-size: .95rem;
+  background: rgba(184,115,51,.03);
+  color: rgba(212,196,160,.6); font-size: .95rem;
   cursor: pointer; font-weight: 700; transition: all .2s;
+  font-family: 'Lora', serif;
 }
 .gender-btn.active-nam {
   border-color: var(--primary);
-  background: rgba(10,224,254,.15); color: var(--primary);
-  box-shadow: 0 0 12px rgba(10,224,254,.25);
+  background: rgba(200,150,12,.15); color: var(--primary);
+  box-shadow: 0 0 12px var(--glow);
 }
 .gender-btn.active-nu {
   border-color: var(--secondary);
-  background: rgba(234,14,237,.15); color: var(--secondary);
-  box-shadow: 0 0 12px rgba(234,14,237,.25);
+  background: rgba(192,51,46,.15); color: var(--secondary);
+  box-shadow: 0 0 12px rgba(192,51,46,.25);
 }
 
 /* ── Character grid ── */
@@ -196,55 +201,69 @@ body::before {
   text-align: left;
   column-gap: 8px;
   padding: 8px 10px; border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid var(--border);
   cursor: pointer;
   transition: all .25s; position: relative;
-  background: rgba(10,224,254,.02);
+  background: rgba(184,115,51,.02);
+  font-family: 'Lora', serif;
 }
 .char-card:active { transform: scale(.95); }
 .char-card .em { grid-area: emoji; font-size: 1.5rem; margin-bottom: 0; }
-.char-card .nm { grid-area: name; font-size: .75rem; font-weight: 700; align-self: end; margin: 0; }
+.char-card .nm { grid-area: name; font-size: .8rem; font-weight: 700; align-self: end; margin: 0; }
 .char-card .desc { grid-area: desc; font-size: .65rem; opacity: 0.8; align-self: start; margin: 0; }
 .char-card .badge {
   position: absolute; top: -5px; right: -5px;
   font-size: .7rem; width: 18px; height: 18px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 50%; font-weight: 700; display: none;
-  background: var(--c); color: #000;
+  background: var(--c); color: #fff;
 }
 .char-card.selected .badge { display: flex; }
 
-.char-chien_binh { --c: #0ae0fe; }
-.char-phu_thuy   { --c: #ea0eed; }
-.char-xa_thu     { --c: #4eff9f; }
-.char-hiep_si    { --c: #ffd700; }
+.char-chien_binh { --c: #C0332E; } /* Lạc Tướng */
+.char-phu_thuy   { --c: #C8960C; } /* Đạo Sĩ */
+.char-xa_thu     { --c: #15803D; } /* Nỏ Thần */
+.char-hiep_si    { --c: #B87333; } /* Thần Tướng */
 
-.char-card.selected { border-color: var(--c); background: rgba(10,224,254,.08); box-shadow: 0 0 14px color-mix(in srgb, var(--c) 40%, transparent); }
+.char-card.selected { border-color: var(--c); background: rgba(184,115,51,.08); box-shadow: 0 0 14px color-mix(in srgb, var(--c) 40%, transparent); }
 .char-chien_binh .nm { color: var(--c); }
 .char-phu_thuy   .nm { color: var(--c); }
 .char-xa_thu     .nm { color: var(--c); }
 .char-hiep_si    .nm { color: var(--c); }
 
-/* ── Save bar ── */
+/* ── Save / Exit bar ── */
 .save-bar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
   padding: 12px 16px max(14px, env(safe-area-inset-bottom));
-  background: linear-gradient(0deg, rgba(5,10,31,.98) 80%, transparent);
+  background: linear-gradient(0deg, var(--bg) 80%, transparent);
   max-width: 480px; margin: 0 auto;
 }
 .btn-save {
-  width: 100%; padding: 15px;
+  flex: 1.5; padding: 15px;
   border-radius: 12px; border: none;
-  background: linear-gradient(135deg, var(--primary) 0%, #0090c8 100%);
-  color: #000;
-  font-family: 'Rajdhani', sans-serif;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #fff;
+  font-family: 'Philosopher', serif;
   font-size: 1.05rem; font-weight: 900; letter-spacing: 2px;
   cursor: pointer; transition: all .2s;
-  box-shadow: 0 0 24px rgba(10,224,254,.4);
+  box-shadow: 0 0 24px rgba(200,150,12,.4);
   display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .btn-save:active { transform: scale(.98); }
 .btn-save:disabled { opacity: .5; cursor: not-allowed; }
+.btn-exit {
+  flex: 1; padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(192,51,46,.4);
+  background: rgba(192,51,46,.08);
+  color: var(--secondary);
+  font-family: 'Philosopher', serif;
+  font-size: 1.05rem; font-weight: 700; letter-spacing: 1px;
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-exit:active { transform: scale(.98); background: rgba(192,51,46,.2); }
+
 .spin-sm {
   width: 18px; height: 18px; border-radius: 50%;
   border: 2px solid transparent; border-top-color: #000;
@@ -264,7 +283,7 @@ body::before {
 /* ── Crop Modal ── */
 #cropModal {
   position: fixed; inset: 0; z-index: 800;
-  background: rgba(5,10,31,.97);
+  background: rgba(8,5,2,.97);
   display: none; flex-direction: column;
   align-items: center; gap: 0;
   padding: 0;
@@ -273,14 +292,14 @@ body::before {
   width: 100%; padding: 18px 20px 14px;
   border-bottom: 1px solid var(--border);
   text-align: center;
-  background: rgba(10,224,254,.04);
+  background: rgba(184,115,51,.04);
 }
 .crop-header h3 {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.15rem; font-weight: 900;
+  font-family: 'Philosopher', serif;
+  font-size: 1.15rem; font-weight: 700;
   color: var(--primary); letter-spacing: 2px;
 }
-.crop-header p { font-size: .72rem; color: rgba(200,230,255,.4); margin-top: 4px; }
+.crop-header p { font-size: .72rem; color: rgba(212,196,160,.4); margin-top: 4px; }
 .crop-container {
   flex: 1; width: 100%; overflow: hidden;
   background: #000;
@@ -296,17 +315,17 @@ body::before {
 .btn-crop-ok {
   flex: 2; padding: 14px;
   border-radius: 10px; border: none;
-  background: linear-gradient(135deg, var(--primary), #0090c8);
-  color: #000; font-family: 'Rajdhani', sans-serif;
-  font-size: 1rem; font-weight: 900; letter-spacing: 1px;
-  cursor: pointer; box-shadow: 0 0 16px rgba(10,224,254,.35);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff; font-family: 'Philosopher', serif;
+  font-size: 1rem; font-weight: 700; letter-spacing: 1px;
+  cursor: pointer; box-shadow: 0 0 16px rgba(200,150,12,.35);
 }
 .btn-crop-cancel {
   flex: 1; padding: 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255,0,85,.4);
-  background: rgba(255,0,85,.08);
-  color: var(--danger); font-size: .9rem; font-weight: 700;
+  border: 1px solid rgba(192,51,46,.4);
+  background: rgba(192,51,46,.08);
+  color: var(--secondary); font-size: .9rem; font-weight: 700;
   cursor: pointer;
 }
 
@@ -315,7 +334,7 @@ body::before {
 .cropper-face { background: transparent; }
 .cropper-line { background-color: var(--primary); opacity: .5; }
 .cropper-point { background-color: var(--primary); }
-.cropper-bg { background: #0a1428; }
+.cropper-bg { background: #160e1c; }
 .cropper-modal { opacity: .65; }
 
 @media (max-width: 400px) {
@@ -331,6 +350,7 @@ body::before {
   <div class="load-txt">ĐANG TẢI HỒ SƠ...</div>
 </div>
 
+<div class="wrap" id="mainContent" style="display:none">
   <!-- Header -->
   <div class="hdr">
     <div class="hdr-icon">🏅</div>
@@ -378,25 +398,25 @@ body::before {
     <div class="char-grid">
       <div class="char-card char-chien_binh" data-char="chien_binh" onclick="selectChar(this)">
         <span class="em">⚔️</span>
-        <div class="nm">Chiến Binh</div>
+        <div class="nm">Lạc Tướng</div>
         <div class="desc">Mạnh mẽ, kiên định</div>
         <span class="badge">✓</span>
       </div>
       <div class="char-card char-phu_thuy" data-char="phu_thuy" onclick="selectChar(this)">
         <span class="em">🔮</span>
-        <div class="nm">Phù Thủy</div>
+        <div class="nm">Đạo Sĩ</div>
         <div class="desc">Thông minh, sáng tạo</div>
         <span class="badge">✓</span>
       </div>
       <div class="char-card char-xa_thu" data-char="xa_thu" onclick="selectChar(this)">
         <span class="em">🏹</span>
-        <div class="nm">Xạ Thủ</div>
+        <div class="nm">Nỏ Thần</div>
         <div class="desc">Nhanh nhẹn, chính xác</div>
         <span class="badge">✓</span>
       </div>
       <div class="char-card char-hiep_si" data-char="hiep_si" onclick="selectChar(this)">
         <span class="em">🛡️</span>
-        <div class="nm">Hiệp Sĩ</div>
+        <div class="nm">Thần Tướng</div>
         <div class="desc">Dũng cảm, bảo vệ</div>
         <span class="badge">✓</span>
       </div>
@@ -408,7 +428,10 @@ body::before {
 
 <!-- Save bar -->
 <div class="save-bar" id="saveBar" style="display:none">
-  <button class="btn-save" id="btnSave" onclick="saveProfile()">💾 LƯU HỒ SƠ</button>
+  <div style="display: flex; gap: 10px; width: 100%;">
+    <button class="btn-exit" id="btnExit" onclick="exitProfile()">🚪 THOÁT</button>
+    <button class="btn-save" id="btnSave" onclick="saveProfile()">💾 LƯU HỒ SƠ</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -461,7 +484,7 @@ function resolveTgId() {
         showError(`⏳ Hồ sơ đang chờ thầy duyệt!<br><br>
           <span style="color:rgba(200,230,255,.6);font-size:.85rem">Thầy sẽ thông báo qua Telegram khi được duyệt.</span><br><br>
           <button onclick="window.close()" 
-             style="display:inline-block;padding:12px 28px;background:var(--primary);border:none;color:#000;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;box-shadow:0 4px 15px rgba(10,224,254,0.3)">         🤖 Mở Telegram Bot
+             style="display:inline-block;padding:12px 28px;background:var(--primary);border:none;color:#fff;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;font-family:'Philosopher',serif;letter-spacing:1px;box-shadow:0 4px 15px rgba(200,150,12,0.3)">         🤖 Mở Telegram Bot
           </button>`);
       } else {
         showError('❌ Chưa đăng ký. Hãy đăng ký trước!');
@@ -555,6 +578,15 @@ async function saveProfile() {
   } catch(e) {
     showToast('🔌 Lỗi kết nối!', false);
     btn.disabled = false; btn.innerHTML = '💾 LƯU HỒ SƠ';
+  }
+}
+
+/* ── Exit Profile ────────────────────────────────────────────────────── */
+function exitProfile() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage('close_profile', '*');
+  } else {
+    window.location.href = '/map';
   }
 }
 

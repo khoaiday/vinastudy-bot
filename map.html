@@ -66,12 +66,15 @@
 
   /* ── Header ── */
   .header {
-    padding: 28px 20px 18px;
-    text-align: center; flex-shrink: 0;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
     position: relative; z-index: 5;
-    background: radial-gradient(circle at center top, rgba(200,150,12,0.08), transparent);
-    border-bottom: 2px solid var(--copper);
-    box-shadow: 0 5px 30px rgba(184,115,51,0.20);
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
   .user-badge {
@@ -361,19 +364,15 @@
   
   
   <div class="header">
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">
-      <div class="user-badge" id="userBadge">⚡ CHIẾN BINH TOÁN</div>
-      <div class="user-badge" id="badgeCount" style="color:gold;border-color:gold;box-shadow:0 0 10px gold">🏆 x 0</div>
-      <button onclick="openProfile()" style="background:rgba(10,224,254,.1);border:1px solid var(--primary);color:var(--primary);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Chakra Petch',sans-serif;letter-spacing:1px">🏅 HỒ SƠ</button>
+    <div id="avatarContainer" style="cursor:pointer;" onclick="openProfile()">
+      <img id="headerAvatar" src="/static/avatars/chien_binh_nam.jpg" style="width:46px; height:46px; border-radius:50%; border:2px solid var(--primary); box-shadow:0 0 10px var(--primary-glow); object-fit:cover;">
     </div>
-    <h1>GIẢI CỨU NGÂN HÀ</h1>
-    <p>TRẠM 1: SAO THỦY CẤP TỐC</p>
   </div>
 
   <div class="scroll">
-    <div class="zone-title">TRẠM 1: SAO THỦY CẤP TỐC</div>
+    <div class="zone-title">TRẠM 1: THUỞ SƠ KHAI - DỰNG NƯỚC</div>
 
-    <div class="cyber-box" data-lesson="1" onclick="open_(1,'Số Thần Tỉnh Giấc','content/lop3/bai01/bai-tap.html',this)">
+    <div class="cyber-box" data-lesson="1" onclick="open_(1,'Bản thiết kế thành Cổ Loa','content/lop3/bai01/bai-tap.html',this)">
       <div class="card-content">
         <div class="card-icon" style="padding:0;overflow:hidden;background:rgba(180,0,0,0.15);border-color:#cc0000;box-shadow:inset 0 0 10px rgba(180,0,0,0.4),0 0 8px rgba(180,0,0,0.3)">
           <img src="/content/lop3/bai01/assets/boss_so_than_portrait.jpg"
@@ -382,66 +381,66 @@
         </div>
         <div class="card-body">
           <div class="card-level" style="color:#ff4444">MISSION 01 — BOSS</div>
-          <div class="card-title">Số Thần Tỉnh Giấc</div>
+          <div class="card-title">Bản thiết kế thành Cổ Loa</div>
         </div>
         <div class="card-arrow" style="color:#ff4444;filter:drop-shadow(0 0 6px rgba(255,0,0,0.6))">⚔️</div>
       </div>
     </div>
 
-    <div class="cyber-box" data-lesson="2" onclick="open_(2,'Quái Vật Ổ Khóa','content/lop3/bai02/bai-tap.html',this)">
+    <div class="cyber-box" data-lesson="2" onclick="open_(2,'Nỏ thần Liên Châu','content/lop3/bai02/bai-tap.html',this)">
       <div class="card-content">
         <div class="card-icon">ẢI 2</div>
         <div class="card-body">
           <div class="card-level">MISSION 02</div>
-          <div class="card-title">Quái Vật Ổ Khóa Số Học</div>
+          <div class="card-title">Nỏ thần Liên Châu</div>
         </div>
         <div class="card-arrow">⚔️</div>
       </div>
     </div>
 
-    <div class="cyber-box" data-lesson="3" onclick="open_(3,'Đốm Đen Tinh Nghịch','content/lop3/bai03/bai-tap.html',this)" style="display:none"><!-- tạm ẩn -->
+    <div class="cyber-box" data-lesson="3" onclick="open_(3,'Đốm mực trên thẻ tre','content/lop3/bai03/bai-tap.html',this)" style="display:none"><!-- tạm ẩn -->
       <div class="card-content">
         <div class="card-icon">ẢI 3</div>
         <div class="card-body">
           <div class="card-level">MISSION 03</div>
-          <div class="card-title">Đốm Đen Tinh Nghịch</div>
+          <div class="card-title">Đốm mực trên thẻ tre</div>
         </div>
         <div class="card-arrow">⚔️</div>
       </div>
     </div>
 
-    <div class="zone-title">TRẠM 2: SAO KIM RỰC RỠ</div>
+    <div class="zone-title">TRẠM 2: TIẾNG TRỐNG MÊ LINH</div>
 
-    <div class="cyber-box" data-lesson="4" onclick="open_(4,'Đám Mây Bão Lóc Chóc','content/lop3/bai04/bai-tap.html',this)">
+    <div class="cyber-box" data-lesson="4" onclick="open_(4,'Hội quân sông Hát','content/lop3/bai04/bai-tap.html',this)">
       <div class="card-content">
         <div class="card-icon">ẢI 4</div>
         <div class="card-body">
           <div class="card-level">MISSION 04</div>
-          <div class="card-title">Đám Mây Bão Lóc Chóc</div>
+          <div class="card-title">Hội quân sông Hát</div>
         </div>
         <div class="card-arrow">⚔️</div>
       </div>
     </div>
 
-    <div class="cyber-box" data-lesson="5" onclick="open_(5,'Quái Vật Máy Xóa Số','content/lop3/bai05/bai-tap.html',this)">
+    <div class="cyber-box" data-lesson="5" onclick="open_(5,'Chiến thuật Voi chiến','content/lop3/bai05/bai-tap.html',this)">
       <div class="card-content">
         <div class="card-icon">ẢI 5</div>
         <div class="card-body">
           <div class="card-level">MISSION 05</div>
-          <div class="card-title">Quái Vật Máy Xóa Số</div>
+          <div class="card-title">Chiến thuật Voi chiến</div>
         </div>
         <div class="card-arrow">⚔️</div>
       </div>
     </div>
     
-    <div class="zone-title">TRẠM 3: TRÁI ĐẤT & SAO HỎA</div>
+    <div class="zone-title">TRẠM 3: SẤM SÉT BẠCH ĐẰNG</div>
 
-    <div class="cyber-box" data-lesson="27" onclick="open_(27,'Chúa Tể Hỗn Loạn','content/lop3/bai27/bai-tap.html',this)">
+    <div class="cyber-box" data-lesson="27" onclick="open_(27,'Cờ lau tập trận','content/lop3/bai27/bai-tap.html',this)">
       <div class="card-content">
         <div class="card-icon">ẢI 27</div>
         <div class="card-body">
           <div class="card-level">MISSION 27</div>
-          <div class="card-title">Truy Tìm Chúa Tể Hỗn Loạn</div>
+          <div class="card-title">Cờ lau tập trận</div>
         </div>
         <div class="card-arrow">⏳</div>
       </div>
@@ -664,10 +663,51 @@ function open_(buoi, title, path, el) {
   /* Mở màn Intro thay vì mở Level Modal */
   document.getElementById('introTitle').textContent = `ẢI ${buoi}: ${title}`;
 
+  /* Định nghĩa cốt truyện lịch sử tương ứng từng buổi */
+  const STORIES = {
+    1: {
+      story: "Cỗ máy thời không Liên Châu đưa Minh và Vy xuyên không về Loa Thành cổ kính. An Dương Vương đang đau đầu vì bản thiết kế xây thành bị quân giặc đánh tráo làm xáo trộn số liệu. Hãy giúp nhà vua phân loại chữ số!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Phân biệt Số & Chữ số'"
+    },
+    2: {
+      story: "Tướng quân Cao Lỗ đang chế tạo Nỏ thần Liên Châu bắn một phát vạn mũi tên. Nhưng khuôn đúc đồng bị hư hại các ký số vị trí Hàng Trăm, Chục, Đơn vị. Hãy dùng kỹ năng cấu tạo số để đúc mũi tên đồng giữ nước!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Tuyệt chiêu Cấu tạo số'"
+    },
+    3: {
+      story: "Quân giặc đã làm đổ mực đen lên các thẻ tre ghi chép kho lương thảo Loa Thành. Em hãy khôi phục số liệu lương thảo giúp quân sĩ xây thành đắp lũy giữ nước!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Phân biệt Số & Chữ số'"
+    },
+    4: {
+      story: "Năm 40 sau Công Nguyên, Hai Bà Trưng phất cờ khởi nghĩa tại sông Hát. Các cánh nghĩa quân từ khắp nơi đổ về hội tụ. Các em hãy tính toán số quân lương chi tiết!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Phân biệt Số & Chữ số'"
+    },
+    5: {
+      story: "Quân Đông Hán dàn trận địa bộ binh giáp sắt hiểm hóc. Hãy dùng phép nhân chia cơ bản để tính toán sắp xếp đội hình voi chiến phá tan kỵ binh địch!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Tuyệt chiêu Cấu tạo số'"
+    },
+    27: {
+      story: "Nước Việt rơi vào loạn 12 sứ quân cát cứ xẻ nghé giang sơn. Em hãy đồng hành cùng cậu bé Đinh Bộ Lĩnh cờ lau tập trận ở Hoa Lư bày binh bố trận giả!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu của buổi 27"
+    }
+  };
+
+  const storyData = STORIES[buoi] || {
+    story: "Sau khi xuyên không, nhóm Chiến Binh Toán phát hiện vết nứt thời gian đang phá vỡ trật tự lịch sử của triều đại Đại Việt. Hãy cùng Sư phụ Long tiến hành sửa chữa!",
+    mission: `🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu của buổi ${buoi}`
+  };
+
+  document.querySelector('.intro-story').innerHTML = storyData.story;
+  document.querySelector('.intro-mission').innerHTML = storyData.mission;
+
+  // Hiển thị nút rèn luyện phù hợp
+  const btn1 = document.getElementById('btnRenTuyetChieu');
+  const btn2 = document.getElementById('btnRenTuyetChieu2');
+  btn1.style.display = (buoi === 1) ? 'block' : 'none';
+  btn2.style.display = (buoi === 2) ? 'block' : 'none';
+
   /* Boss background image theo từng bài — mặc định dùng Hồ Tinh */
   const BOSS_BG = {
-    // Thêm boss riêng từng bài ở đây nếu cần:
-    // 2: '/content/lop3/bai02/assets/boss_xxx_full.jpg',
+    1: 'design-system/characters/boss/ho-tinh-portrait.jpg',
   };
   const im = document.getElementById('introModal');
   const bgUrl = BOSS_BG[buoi] || 'design-system/characters/boss/ho-tinh-portrait.jpg';
@@ -727,13 +767,17 @@ function playMinigame2() {
 }
 
 window.addEventListener('message', function(e) {
-  if (e.data === 'minigame_won') {
+  if (e.data === 'close_profile') {
+    close_();
+  } else if (e.data === 'minigame_won') {
     close_(); 
     
     // Cập nhật lại diện mạo nút Vào Ải
     const btnVaoAi = document.getElementById('btnVaoAi');
-    btnVaoAi.style.opacity = '1';
-    btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
+    if (btnVaoAi) {
+      btnVaoAi.style.opacity = '1';
+      btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
+    }
     
     // Tùy chọn thông báo
     setTimeout(() => {
@@ -799,38 +843,23 @@ history.pushState({}, '');
   if (!cfg) return;
 
   const classKey = selectedChar.replace(/-male|-female/, '');
-  const charBadge = document.getElementById('userBadge');
-  if (charBadge) {
-    charBadge.style.borderColor = cfg.color;
-    charBadge.style.color = cfg.color;
-    charBadge.style.boxShadow = `0 0 10px ${cfg.color}66`;
-  }
-
-  // Thêm avatar nhỏ vào header nếu ảnh tồn tại
-  const headerRow = document.querySelector('.header > div');
-  if (headerRow) {
-    const av = document.createElement('img');
-    av.src = `design-system/characters/playable/${classKey}/${selectedChar}-avatar.jpg`;
-    av.alt = cfg.label;
-    av.style.cssText = `width:36px;height:36px;border-radius:50%;border:2px solid ${cfg.color};object-fit:cover;box-shadow:0 0 8px ${cfg.glow}66;flex-shrink:0;display:none`;
-    av.onload = () => { av.style.display = 'block'; };
-    headerRow.insertBefore(av, headerRow.firstChild);
+  const headerAvatar = document.getElementById('headerAvatar');
+  if (headerAvatar) {
+    headerAvatar.src = `design-system/characters/playable/${classKey}/${selectedChar}-avatar.jpg`;
+    headerAvatar.style.borderColor = cfg.color;
+    headerAvatar.style.boxShadow = `0 0 12px ${cfg.color}`;
   }
 })();
 
 // Load player info from Splash Screen
 const savedName = localStorage.getItem('cbToan_name');
 const savedAvatar = localStorage.getItem('cbToan_avatar');
-if (savedName && savedAvatar) {
-  document.getElementById('userBadge').innerHTML = `${savedAvatar} ${savedName}`;
-}
 
 // Load badges
 let badges = [];
 try {
   badges = JSON.parse(localStorage.getItem('cbToan_badges')) || [];
 } catch(e) {}
-document.getElementById('badgeCount').innerHTML = `🏆 x ${badges.length}`;
 
 document.querySelectorAll('.cyber-box').forEach(card => {
   const lesson = card.getAttribute('data-lesson');
@@ -867,6 +896,39 @@ close_ = function() {
   // Reload sau 1s để cập nhật huy hiệu
   setTimeout(() => location.reload(), 1000);
 }
+
+// Tự động đồng bộ và trộn checkpoints của minigame khi vào bài học lớn
+document.getElementById('frame').addEventListener('load', function() {
+  try {
+    const frame = document.getElementById('frame');
+    const iframeWindow = frame.contentWindow;
+    if (iframeWindow) {
+      const buoi = iframeWindow._BUOI || currentBuoi;
+      if (buoi) {
+        const cp1 = localStorage.getItem('cbToan_minigame_checkpoints_bai' + buoi);
+        const cp2 = localStorage.getItem('cbToan_minigame2_checkpoints_bai' + buoi);
+        let minigameCps = [];
+        if (cp1) {
+          try { minigameCps = minigameCps.concat(JSON.parse(cp1)); } catch(e){}
+        }
+        if (cp2) {
+          try { minigameCps = minigameCps.concat(JSON.parse(cp2)); } catch(e){}
+        }
+        if (minigameCps.length > 0) {
+          iframeWindow._checkpoints = iframeWindow._checkpoints || [];
+          const existingIds = new Set(iframeWindow._checkpoints.map(cp => cp.question_id));
+          const uniqueMinigameCps = minigameCps.filter(cp => !existingIds.has(cp.question_id));
+          if (uniqueMinigameCps.length > 0) {
+            iframeWindow._checkpoints = uniqueMinigameCps.concat(iframeWindow._checkpoints);
+            console.log("Đã trộn checkpoints luyện tập Đại Việt thành công:", uniqueMinigameCps);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Checkpoint merge skipped:", err);
+  }
+});
 </script>
 </body>
 </html>
