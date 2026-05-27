@@ -75,8 +75,8 @@ async def home():
 
 @app.get("/game", response_class=HTMLResponse)
 async def game_page():
-    """Splash/intro — index.html (được mở từ bot qua WebApp)."""
-    p = BASE_DIR / "index.html"
+    """Bản đồ chiến dịch — map.html (mở từ bot sau khi tài khoản được duyệt)."""
+    p = BASE_DIR / "map.html"
     if p.exists():
         return HTMLResponse(p.read_text(encoding="utf-8"))
     return HTMLResponse("...", status_code=503)
