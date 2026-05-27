@@ -397,13 +397,20 @@ function nextSegment() {
 // ── Start prologue — fade to dark → swap ─────────────
 function startPrologue() {
   const curtain = document.getElementById('curtain');
+  const scene   = document.getElementById('prologue-scene');
   curtain.classList.add('fade-in');
   setTimeout(() => {
     document.getElementById('splash').classList.add('hide');
     buildDots();
-    document.getElementById('prologue-scene').classList.add('show');
+    // Hiện prologue NGAY (không transition) trong khi curtain vẫn đang che
+    scene.style.transition = 'none';
+    scene.classList.add('show');
+    scene.getBoundingClientRect(); // force reflow
     typeSegment(0);
+    // Fade curtain ra — prologue đã sẵn sàng → không chớp
     curtain.classList.remove('fade-in');
+    // Khôi phục transition cho sau
+    setTimeout(() => { scene.style.transition = ''; }, 600);
   }, 520);
 }
 
