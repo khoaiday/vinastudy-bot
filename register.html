@@ -758,7 +758,7 @@ async function _submitProfile() {
     const suffix = currentGender === 'nu' ? 'female' : 'male';
     const localAvatar = `design-system/characters/playable/${currentFolder}/${currentFolder}-${suffix}-avatar.jpg`;
     const av = document.getElementById('pendingAvatar');
-    av.src = data.avatar_final || localAvatar;
+    av.src = localAvatar;  // luôn dùng avatar vừa chọn, không dùng avatar_final cũ từ server
     av.style.display = '';
     document.getElementById('pendingName').textContent = name;
     goStep(3);
