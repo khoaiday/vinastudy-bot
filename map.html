@@ -678,8 +678,8 @@ function open_(buoi, title, path, el) {
   /* Định nghĩa cốt truyện lịch sử tương ứng từng buổi */
   const STORIES = {
     1: {
-      story: "Cỗ máy thời không Liên Châu đưa Minh và Vy xuyên không về Loa Thành cổ kính. An Dương Vương đang đau đầu vì bản thiết kế xây thành bị quân giặc đánh tráo làm xáo trộn số liệu. Hãy giúp nhà vua phân loại chữ số!",
-      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Phân biệt Số & Chữ số'"
+      story: "Quân Ân xâm lược Văn Lang. Cậu bé Gióng xin giáp sắt để đánh giặc — nhưng Quỷ Số đã xáo trộn toàn bộ bản kê rèn giáp, không ai đọc được số thật! Hãy rèn 2 tuyệt chiêu rồi phá phép Quỷ Số, giúp Gióng có giáp ra trận!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn 2 Tuyệt Chiêu bên dưới"
     },
     2: {
       story: "Tướng quân Cao Lỗ đang chế tạo Nỏ thần Liên Châu bắn một phát vạn mũi tên. Nhưng khuôn đúc đồng bị hư hại các ký số vị trí Hàng Trăm, Chục, Đơn vị. Hãy dùng kỹ năng cấu tạo số để đúc mũi tên đồng giữ nước!",
@@ -715,7 +715,7 @@ function open_(buoi, title, path, el) {
   const btn1 = document.getElementById('btnRenTuyetChieu');
   const btn2 = document.getElementById('btnRenTuyetChieu2');
   btn1.style.display = (buoi === 1) ? 'block' : 'none';
-  btn2.style.display = (buoi === 2) ? 'block' : 'none';
+  btn2.style.display = (buoi === 1 || buoi === 2) ? 'block' : 'none';
 
   /* Boss background image theo từng bài — mặc định dùng Hồ Tinh */
   const BOSS_BG = {
