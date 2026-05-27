@@ -94,3 +94,25 @@ Tài liệu này đề xuất phương án giải quyết dứt điểm lỗi kh
 
 ---
 ---
+
+## [Gemini] 2026-05-27 — Tối ưu hóa hiển thị Mobile cho 2 Minigames
+
+Tài liệu này đề xuất phương án tối ưu hóa thiết kế thích ứng (responsive design) trên thiết bị di động cho cả hai minigames luyện tập, giải quyết triệt để vấn đề chồng chéo (overlapping) phần tử gameplay trên các dòng máy màn hình nhỏ.
+
+### Giải pháp kỹ thuật:
+1. **Minigame 1 (`minigame.html`):** Thiết lập các CSS media queries (@media) cho màn hình chiều rộng hẹp (dưới 420px) và chiều cao hạn chế (dưới 680px) để thu nhỏ kích thước thẻ bài vuốt từ 320px xuống 280px/260px và giảm kích thước hiển thị chữ số.
+2. **Minigame 2 (`minigame2.html`):** 
+   - **Vấn đề chồng lấn:** Xếp bài ở giữa (`.deck-container`) có chiều rộng tĩnh là 240px, khi hiển thị trên màn hình điện thoại 360px sẽ che lấp toàn bộ các hộp mục tiêu Hàng Trăm, Chục, Đơn vị hai bên (.target-box, rộng 80px mỗi bên).
+   - **Giải pháp:** Sử dụng CSS `@media (max-width: 420px)` để tự động co tỷ lệ của `.deck-container` xuống 180px, đồng thời giảm kích cỡ `.target-box` xuống 60px và cỡ chữ số xuống 2.5rem, mở ra khoảng trống 40px ở giữa giúp loại bỏ hoàn toàn việc chồng đè.
+   - Thêm media query chiều cao hạn chế để tự động thu nhỏ giao diện khi minigame chạy bên trong iframe có chiều cao hạn chế của trang Bản đồ.
+
+### Các thay đổi đề xuất:
+
+#### `minigame.html` (Tuyệt Chiêu 1)
+- Bổ sung quy tắc CSS thích ứng chiều rộng (`max-width: 420px`) và chiều cao (`max-height: 680px`) ở cuối thẻ `<style>`.
+
+#### `minigame2.html` (Tuyệt Chiêu 2)
+- Bổ sung quy tắc CSS thích ứng chiều rộng (`max-width: 420px`) và chiều cao (`max-height: 680px`) ở cuối thẻ `<style>`.
+
+---
+---

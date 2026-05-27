@@ -413,6 +413,35 @@
             from { transform: scale(2); opacity: 0; }
             to   { transform: scale(1); opacity: 1; }
         }
+
+        @media (max-width: 420px) {
+            .card-container {
+                width: 280px;
+                height: 380px;
+            }
+            .number-display {
+                font-size: 120px;
+            }
+        }
+        @media (max-height: 680px) {
+            .card-container {
+                width: 260px;
+                height: 350px;
+            }
+            .number-display {
+                font-size: 100px;
+            }
+            .header {
+                padding: 10px 15px;
+            }
+            .stats {
+                padding: 0 20px;
+                font-size: 14px;
+            }
+            .bottom-hint {
+                padding-bottom: 15px;
+            }
+        }
     </style>
 </head>
 <body>

@@ -78,4 +78,15 @@ Toàn bộ trang cá nhân đã được "lột xác", loại bỏ hoàn toàn c
 ---
 ---
 
+## [Gemini] 2026-05-27 — Tối ưu hóa hiển thị Mobile cho 2 Minigames
+
+**Files sửa:** `minigame.html`, `minigame2.html`
+
+*   **Tối ưu hóa game 1 (`minigame.html`):** Bổ sung các quy tắc CSS `@media` thu nhỏ thẻ bài vuốt từ 320px xuống 280px ở các dòng màn hình điện thoại chiều rộng nhỏ và chiều cao thấp, giúp trò chơi hiển thị trọn vẹn không bị tràn khung nhìn.
+*   **Giải quyết đè lấp game 2 (`minigame2.html`):** Thiết lập quy tắc co giãn responsive cho xếp bài trung tâm (`.deck-container` giảm xuống 180px) và các mục tiêu biên (`.target-box` giảm xuống 60px), loại bỏ hoàn toàn hiện tượng chồng đè che khuất hộp mục tiêu trên di động (dưới 420px).
+*   **Mượt mà trên Iframe:** Cân đối lại đệm khoảng cách tiêu đề và tỉ lệ hiển thị chữ số giúp minigame chạy hoàn hảo bên trong iframe của trang Bản đồ.
+
+---
+---
+
 **Lý do:** Chuyển bối cảnh Ải 1 từ Cổ Loa/Số Thần sang Thánh Gióng/Quỷ Số theo kịch bản mới. Boss đổi tên cho dễ hiểu với học sinh lớp 3.

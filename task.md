@@ -51,3 +51,13 @@
 
 ---
 ---
+
+## [Gemini] 2026-05-27 — Tối ưu hóa hiển thị Mobile cho 2 Minigames
+
+- `[x]` Thêm các quy tắc CSS `@media (max-width: 420px)` và `@media (max-height: 680px)` vào `minigame.html` để thu nhỏ kích thước thẻ bài tương thích với các dòng máy di động màn hình nhỏ.
+- `[x]` Thêm các quy tắc CSS tương tự vào `minigame2.html`, giảm kích thước của trung tâm thẻ bài (`.deck-container`) từ 240px xuống 180px và thu hẹp các hộp chứa mục tiêu hai bên từ 80px xuống 60px trên màn hình di động.
+- `[x]` Loại bỏ hoàn toàn lỗi đè lấp (overlapping) giữa xếp bài ở giữa và các hộp mục tiêu Hàng Trăm/Chục/Đơn vị hai bên trên màn hình điện thoại dưới 420px.
+- `[x]` Đảm bảo trò chơi hiển thị trọn vẹn bên trong iframe mà không gây ra thanh cuộn dọc (vertical scrollbars) trên các thiết bị chiều cao thấp.
+
+---
+---
