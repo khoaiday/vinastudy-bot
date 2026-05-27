@@ -30,3 +30,18 @@ Toàn bộ trang cá nhân đã được "lột xác", loại bỏ hoàn toàn c
 
 ---
 ---
+
+## [Claude] 2026-05-27 — Cập nhật cốt truyện Ải 1
+
+**File sửa:** `map.html`
+
+**Thay đổi 1 — Card Ải 1 trên bản đồ (dòng 387-396):**
+- `open_` param: `'Bản thiết kế thành Cổ Loa'` → `'Rèn Giáp Cho Thánh Gióng'`
+- `.card-title`: `Bản thiết kế thành Cổ Loa` → `Rèn Giáp Cho Thánh Gióng`
+
+**Thay đổi 2 — Intro modal (dòng 467-473):**
+- Title: `Ải 1: Truy tìm chúa tể` → `Ải 1: Rèn Giáp Cho Thánh Gióng`
+- Story: Thay toàn bộ text cũ (Boss Số Thần) bằng cốt truyện Thánh Gióng + Quỷ Số
+- Mission: `Rèn 1 Tuyệt Chiêu` → `Rèn 2 Tuyệt Chiêu bên dưới`
+
+**Lý do:** Chuyển bối cảnh Ải 1 từ Cổ Loa/Số Thần sang Thánh Gióng/Quỷ Số theo kịch bản mới. Boss đổi tên cho dễ hiểu với học sinh lớp 3.

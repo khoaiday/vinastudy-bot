@@ -44,3 +44,14 @@ Tài liệu này mô tả chi tiết kế hoạch thiết kế và làm mới ho
 
 ---
 ---
+
+## [Claude] 2026-05-27 — Ải 1: Thánh Gióng + Quỷ Số
+
+### Đã hoàn thành
+- [x] Đổi tên card Ải 1 trên map → "Rèn Giáp Cho Thánh Gióng"
+- [x] Viết cốt truyện intro modal (Thánh Gióng, Quỷ Số xáo số, rèn 2 tuyệt chiêu)
+- [x] Cập nhật `map.html`
+
+### Tiếp theo
+- [ ] Viết cốt truyện Ải 2 (buổi + chất liệu lịch sử chưa xác định)
+- [ ] Cập nhật text boss trong `bai01/bai-tap.html` (đổi Số Thần → Quỷ Số nếu cần)
