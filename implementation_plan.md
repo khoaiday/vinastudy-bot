@@ -59,6 +59,24 @@ Tài liệu này mô tả chi tiết kế hoạch thiết kế và làm mới ho
 ---
 ---
 
+## [Claude] 2026-05-27 — Sửa giao diện minigame.html cho chủ đề Thánh Gióng
+
+### Vấn đề
+Commit Gemini (`8f350df`) đã nhầm khi đổi text `minigame.html` từ chủ đề "Phân Biệt Số & Chữ Số" sang "Bản thiết kế thành Cổ Loa" (chủ đề cũ). Ngoài ra header h1 dài gây lỗi "/" float trên mobile khi text wraps.
+
+### Giải pháp
+- Dùng `font-size: clamp()` cho `.header h1` để giới hạn kích cỡ font trên mọi thiết bị
+- Dùng "—" (em dash) thay "/" làm separator trong h1 để tránh wrap thành ký tự đơn
+- Cập nhật toàn bộ text để khớp với chủ đề Ải 1: Thánh Gióng / Quỷ Số
+- Sửa background reference đến file ảnh tồn tại thực sự
+
+### Tiếp theo
+- [ ] Test visual trên mobile (điện thoại thực hoặc DevTools)
+- [ ] Cập nhật `minigame2.html` nếu cũng còn text cũ
+
+---
+---
+
 ## [Gemini] 2026-05-27 — Sửa lỗi F5 bị hiển thị Avatar cũ trên trang Bản đồ
 
 Tài liệu này đề xuất phương án giải quyết dứt điểm lỗi khi nhấn F5/Reload trang Bản đồ thì avatar người dùng bị hiển thị lại avatar cũ.

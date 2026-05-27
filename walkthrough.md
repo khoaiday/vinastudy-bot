@@ -47,6 +47,26 @@ Toàn bộ trang cá nhân đã được "lột xác", loại bỏ hoàn toàn c
 ---
 ---
 
+## [Claude] 2026-05-27 — Sửa giao diện minigame.html (Tuyệt Chiêu 1: Phân Biệt Số & Chữ Số)
+
+**File sửa:** `minigame.html`
+
+**Lý do:** Commit `8f350df` (Gemini) đã thay text mini-game từ "Phân Biệt Số & Chữ Số" sang "Ải 1: Bản thiết kế thành Cổ Loa" (lỗi chủ đề). Phiên Claude trước đã thử sửa nhưng mất context trước khi commit. Phiên này tiếp tục sửa.
+
+**Thay đổi chi tiết:**
+- **Tab title** (dòng 6): `"Ải 1: Bản thiết kế thành Cổ Loa — Chiến Binh Toán"` → `"Tuyệt Chiêu 1: Phân Biệt Số & Chữ Số — Chiến Binh Toán"`
+- **Header h1 CSS** (dòng 60-68): Thêm `font-size: clamp(14px, 4vw, 22px)` và `line-height: 1.3` để tránh text dài bị wrap thành ký tự "/" đơn lẻ trên mobile
+- **Game header h1** (dòng 472): `"Ải 1: Bản thiết kế thành Cổ Loa"` → `"Rèn Tuyệt Chiêu 1 — Phân Biệt Số & Chữ Số"` (dùng "—" thay "/" làm separator)
+- **Start screen h1** (dòng 444): `"ẢI 1: BẢN THIẾT KẾ THÀNH CỔ LOA"` → `"RÈN TUYỆT CHIÊU 1 / Phân Biệt Số & Chữ Số"` — font đổi sang `var(--font-title)`
+- **Start screen story** (dòng 447-448): `"An Dương Vương / Loa Thành"` → `"Quỷ Số / Thánh Gióng"` cho khớp chủ đề Ải 1
+- **Win screen** (dòng 572-577): Text "Bản thiết kế thành Cổ Loa đã được khôi phục" → "Tuyệt chiêu đã rèn xong! Thánh Gióng sắp có giáp ra trận!"
+- **Fail screen** (dòng 585-586): Text "Bản thiết kế chưa hoàn thiện" → "Tuyệt chiêu chưa rèn xong! Quỷ Số còn ngự trị!"
+- **Fail background** (dòng 582): `'assets/boss_so_than_portrait.jpg'` (file không tồn tại) → `'design-system/characters/boss/ho-tinh-portrait.jpg'` (file hợp lệ)
+- **Fonts**: Thay `'Chakra Petch', sans-serif` (không được load) → `var(--font-title)` nhất quán
+
+---
+---
+
 ## [Gemini] 2026-05-27 — Sửa lỗi F5 bị hiển thị Avatar cũ trên trang Bản đồ
 
 **File sửa:** `map.html`

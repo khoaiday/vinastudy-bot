@@ -28,6 +28,20 @@
 ---
 ---
 
+## [Claude] 2026-05-27 — Sửa giao diện minigame.html (Tuyệt Chiêu 1)
+
+- `[x]` Cập nhật tab title → "Tuyệt Chiêu 1: Phân Biệt Số & Chữ Số — Chiến Binh Toán"
+- `[x]` Cập nhật header h1 game → "Rèn Tuyệt Chiêu 1 — Phân Biệt Số & Chữ Số" (dùng — thay / tránh wrapping)
+- `[x]` Cập nhật CSS `.header h1` → dùng `clamp(14px, 4vw, 22px)` + `line-height: 1.3` cho mobile
+- `[x]` Cập nhật Start Screen → cốt truyện Thánh Gióng / Quỷ Số, bỏ An Dương Vương / Loa Thành
+- `[x]` Cập nhật Win Screen → "Tuyệt chiêu đã rèn xong! Thánh Gióng sắp có giáp ra trận!"
+- `[x]` Cập nhật Fail Screen → "Tuyệt chiêu chưa rèn xong! Quỷ Số còn ngự trị!"
+- `[x]` Sửa background fail screen → dùng ảnh boss có sẵn thay vì file lỗi
+- `[x]` Loại bỏ font 'Chakra Petch' (không load) → dùng `var(--font-title)` nhất quán
+
+---
+---
+
 ## [Gemini] 2026-05-27 — Khắc phục lỗi lưu Avatar trên trang Bản đồ khi F5
 
 - `[x]` Chuyển đổi hàm `loadSelectedCharacter` từ IIFE thành hàm toàn cục có tham số ghi đè `loadSelectedCharacter(charOverride)`.
