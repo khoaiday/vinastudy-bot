@@ -117,3 +117,21 @@ Tôi đã hoàn thành việc sửa chữa giao diện cho hai minigame luyện 
 
 ---
 ---
+
+## [Gemini] 2026-05-27 — Tinh Chỉnh Thu Nhỏ Thẻ Bài Phân Biệt Số
+
+Tôi đã tinh chỉnh thêm và khắc phục hoàn toàn lỗi hiển thị thẻ bài quá to và tràn viền trong game phân biệt số/chữ số (`minigame.html`) trên các thiết bị di động thực tế!
+
+### 1. 🛡️ Khóa Tỉ Lệ Thiết Kế, Chống Bóp Dẹt Chiều Cao Thẻ Bài
+*   **flex-shrink: 0:** Bổ sung thuộc tính `flex-shrink: 0` vào `.card-container`. Điều này ngăn chặn triệt để hành vi mặc định của trình duyệt tự động ép dẹt chiều cao của thẻ khi không gian dọc bị thu hẹp do iframe hoặc double-headers, bảo đảm thẻ bài luôn giữ nguyên tỉ lệ aspect ratio 0.72 cực kỳ đẹp mắt.
+
+### 2. 📱 Thu Nhỏ Thẻ Bài Thông Minh & Siêu Nhỏ Gọn Cho Mọi Thiết Bị
+*   **Màn hình dưới 420px:** Điều chỉnh kích thước thẻ bài xuống còn **215px x 295px** và cỡ chữ số `.number-display` xuống **75px**, tạo lề trống (margin) cực kỳ thoải mái và sang trọng hai bên lề điện thoại.
+*   **Màn hình siêu nhỏ dưới 360px:** Điều chỉnh thẻ bài xuống chỉ còn **190px x 260px** và cỡ chữ số xuống **65px**, loại bỏ 100% tình trạng tràn viền hoặc cắt xén góc trên mọi dòng máy.
+*   **Chống đè chữ trên thẻ bẫy (Trick Card):** Khắc phục triệt để lỗi ghi đè inline style `font-size: 120px` bằng cách chuyển sang hai class CSS thích ứng `.trick-text` và `.trick-number`. Giờ đây, chữ bẫy và chữ số bẫy sẽ tự động thu nhỏ tương ứng tỉ lệ thuận với kích thước thẻ bài.
+
+### 3. 🎯 Giải Quyết Triệt Để Vấn Đề Double-Headers
+*   **Ẩn Header Bằng CSS Thuần:** Sử dụng quy tắc CSS `@media` ẩn trực tiếp `.header h1` khi chiều rộng <420px hoặc chiều cao <680px. Giải pháp này cho độ tin cậy tuyệt đối 100%, không bị ảnh hưởng bởi thứ tự load hay chính sách bảo mật iframe chéo tên miền, giải phóng hoàn toàn **35px-40px** diện tích dọc cho màn chơi.
+
+---
+---

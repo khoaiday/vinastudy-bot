@@ -138,3 +138,18 @@ Tài liệu này trình bày phương án khắc phục hoàn toàn lỗi giao d
 
 ---
 ---
+
+## [Gemini] 2026-05-27 — Tinh Chỉnh Thu Nhỏ Thẻ Bài Phân Biệt Số
+
+Tài liệu này đề xuất phương án tinh chỉnh bổ sung để thu nhỏ triệt để thẻ bài game phân biệt số/chữ số, khắc phục hiện tượng thẻ bài tràn viền và lỗi đè chữ trên các máy điện thoại di động thực tế.
+
+### Chi tiết giải pháp:
+1. **Khóa chống móp méo tỉ lệ (Aspect Ratio Locked):** Thêm `flex-shrink: 0` vào `.card-container` để ngăn trình duyệt tự động ép bóp chiều cao của thẻ khi chạy trong không gian iframe chật hẹp, giữ nguyên tỉ lệ thiết kế 0.72 đẹp đẽ.
+2. **Thu nhỏ triệt để thẻ bài:**
+   - Trên màn hình dưới 420px: Giảm kích thước thẻ bài xuống còn **215px x 295px** (rất nhỏ gọn) và cỡ chữ số `.number-display` xuống **75px**.
+   - Trên màn hình dưới 360px: Giảm kích thước thẻ bài xuống còn **190px x 260px** và cỡ chữ số xuống **65px**, đảm bảo khoảng trống lề (margin) hai bên luôn đạt mức an toàn >40px.
+3. **Giải quyết đè kích thước chữ số trên thẻ bẫy (Trick Card):** Khắc phục lỗi inline style `font-size: 120px` cứng nhắc trên thẻ bẫy. Thay thế bằng các class CSS chuyên biệt `.trick-text` và `.trick-number` để tự động scale cỡ chữ bẫy và cỡ chữ số tương ứng với kích thước thẻ bài thu nhỏ.
+4. **Hệ thống ẩn header 100% bằng CSS:** Thay thế đoạn script JS bằng quy tắc CSS `@media` ẩn `.header h1` trực tiếp khi chiều rộng màn hình dưới 420px hoặc chiều cao dưới 680px, mang lại độ tin cậy tuyệt đối và không tốn chi phí render JS.
+
+---
+---

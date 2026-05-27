@@ -122,6 +122,20 @@
             height: 440px;
             perspective: 1000px;
             touch-action: none; /* Prevent scroll while dragging */
+            flex-shrink: 0;
+        }
+
+        .trick-text {
+            font-family: var(--font-mono);
+            font-weight: 900;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+            text-transform: uppercase;
+        }
+
+        .trick-number {
+            font-size: 110px !important;
         }
 
         .card {
@@ -415,30 +429,46 @@
         }
 
         @media (max-width: 420px) {
+            .header h1 {
+                display: none !important;
+            }
             .card-container {
-                width: 280px;
-                height: 380px;
+                width: 215px;
+                height: 295px;
             }
             .number-display {
-                font-size: 120px;
+                font-size: 75px;
+            }
+            .trick-text {
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+            }
+            .trick-number {
+                font-size: 65px !important;
             }
         }
         @media (max-width: 360px) {
             .card-container {
-                width: 240px;
-                height: 320px;
+                width: 190px;
+                height: 260px;
             }
             .number-display {
-                font-size: 90px;
+                font-size: 65px;
+            }
+            .trick-number {
+                font-size: 55px !important;
             }
         }
         @media (max-height: 680px) {
+            .header h1 {
+                display: none !important;
+            }
             .card-container {
-                width: 260px;
-                height: 350px;
+                width: 215px;
+                height: 295px;
             }
             .number-display {
-                font-size: 100px;
+                font-size: 75px;
             }
             .header {
                 padding: 10px 15px;
@@ -453,14 +483,11 @@
         }
         @media (max-height: 540px) {
             .card-container {
-                width: 200px;
-                height: 265px;
+                width: 175px;
+                height: 240px;
             }
             .number-display {
-                font-size: 75px;
-            }
-            .header h1 {
-                font-size: 14px;
+                font-size: 55px;
             }
             .stats {
                 margin-top: 5px;
@@ -701,8 +728,8 @@
                 const rotation = (currentCardValue < 10) ? 'rotate(15deg)' : 'rotate(-15deg)';
                 
                 card.innerHTML = `
-                    <div class="pulse" style="font-family: var(--font-mono); font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px ${arrowColor}; color: ${arrowColor}; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: ${rotation}; text-transform: uppercase;">${trickText}</div>
-                    <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
+                    <div class="pulse trick-text" style="text-shadow: 0 0 20px ${arrowColor}; color: ${arrowColor}; transform: ${rotation};">${trickText}</div>
+                    <div class="number-display trick-number">${currentCardValue}</div>
                 `;
             } else {
                 card.innerHTML = `

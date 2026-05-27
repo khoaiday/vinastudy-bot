@@ -81,3 +81,19 @@
 
 ---
 ---
+
+## [Gemini] 2026-05-27 — Tinh Chỉnh Thu Nhỏ Thẻ Bài Phân Biệt Số
+
+- `[x]` 1. Khóa Chống Móp Méo Tỉ Lệ Thẻ Bài
+  - `[x]` Bổ sung `flex-shrink: 0` cho `.card-container` để ngăn trình duyệt tự động ép bóp dẹt chiều cao thẻ bài khi thiếu không gian dọc.
+- `[x]` 2. Thu Nhỏ Triệt Để Thẻ Bài Cho Mọi Viewport
+  - `[x]` Giảm kích thước `.card-container` trên thiết bị <420px xuống còn **215px x 295px**, cỡ chữ số xuống **75px**.
+  - `[x]` Giảm kích thước `.card-container` trên thiết bị cực nhỏ <360px xuống còn **190px x 260px**, cỡ chữ số xuống **65px**.
+- `[x]` 3. Khắc Phục Giao Diện Chữ Số Thẻ Bẫy (Trick Card)
+  - `[x]` Loại bỏ inline `font-size: 120px` ghi đè thô bạo trên thẻ bẫy.
+  - `[x]` Thay thế bằng các class `.trick-text` và `.trick-number` thích ứng linh hoạt trong CSS để tự động thu nhỏ chữ số bẫy trên di động.
+- `[x]` 4. Ẩn Header Bằng CSS Thuần
+  - `[x]` Áp dụng quy tắc `@media` ẩn `.header h1` trực tiếp khi chiều rộng <420px hoặc chiều cao <680px, cam kết sạch bóng double headers.
+
+---
+---
