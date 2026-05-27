@@ -109,7 +109,7 @@ html, body {
   top: 50%; left: 0; right: 0;
   transform: translateY(calc(-50% + 16px));
   padding: 0 36px;
-  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 20px;
   opacity: 0;
   transition: opacity 1s ease 1.4s, transform 1s ease 1.4s;
 }
@@ -158,32 +158,31 @@ html, body {
 }
 .btn-start:active { transform: scale(.97); box-shadow: 0 2px 12px rgba(200,150,12,0.25); }
 
+.btn-prologue-wrap { text-align: right; }
+
 .btn-prologue {
   background: none;
   border: none;
   color: #E8D8B0;
   font-family: var(--font-body);
-  font-size: .88rem;
+  font-size: .92rem;
   font-style: italic;
   cursor: pointer;
   padding: 4px 0;
   text-decoration: underline;
-  text-decoration-color: rgba(200,170,120,0.6);
+  text-decoration-color: rgba(200,170,120,0.5);
   text-underline-offset: 4px;
   text-shadow:
     1px  1px 0 rgba(7,4,10,1),
    -1px -1px 0 rgba(7,4,10,1),
     0 0 12px rgba(7,4,10,0.95);
-  transition: color .2s;
+  animation: prologueBlink 1.3s ease-in-out infinite;
 }
 .btn-prologue:active { color: var(--primary); }
 
-.countdown-badge {
-  font-style: normal;
-  font-family: var(--font-mono);
-  font-size: .75rem;
-  color: var(--text-muted);
-  opacity: .75;
+@keyframes prologueBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
 }
 
 /* ══════════════════════════════════════════
@@ -358,9 +357,9 @@ html, body {
       Năm 2026 SCN<br>
       <strong>Cỗ máy Liên Châu</strong> thức giấc
     </p>
-    <button class="btn-prologue" id="btnPrologue" onclick="onPrologueClick()">
-      xem tiếp lời mở đầu &nbsp;»&nbsp; <span id="countdown" class="countdown-badge">[9]</span>
-    </button>
+    <div class="btn-prologue-wrap">
+      <button class="btn-prologue" onclick="onPrologueClick()">xem tiếp lời mở đầu &nbsp;»</button>
+    </div>
   </div>
 </div>
 
@@ -439,7 +438,6 @@ window.addEventListener('load', () => {
       document.getElementById('splashTop').classList.add('show');
       document.getElementById('splashBottom').classList.add('show');
       document.querySelector('.btn-skip').classList.add('show');
-      startCountdown();
     }, 200);
   }
 
@@ -450,35 +448,15 @@ window.addEventListener('load', () => {
   };
 });
 
-// ── Countdown ─────────────────────────────────────────
-let countdownTimer = null;
-
-function startCountdown() {
-  let secs = 9;
-  const badge = document.getElementById('countdown');
-  countdownTimer = setInterval(() => {
-    secs--;
-    if (secs <= 0) {
-      clearInterval(countdownTimer);
-      onPrologueClick();
-    } else {
-      badge.textContent = `[${secs}]`;
-    }
-  }, 1000);
-}
-
-function stopCountdown() {
-  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
-  const badge = document.getElementById('countdown');
-  if (badge) badge.textContent = '';
-}
-
-// ── Prologue ──────────────────────────────────────────
+// ── Prologue — fade to dark rồi hiện ─────────────────
 function onPrologueClick() {
-  stopCountdown();
-  document.getElementById('prologue').classList.add('open');
+  const curtain = document.getElementById('curtain');
+  curtain.classList.add('fade-in');
+  setTimeout(() => {
+    document.getElementById('prologue').classList.add('open');
+    curtain.classList.remove('fade-in');
+  }, 500);
 }
-function openPrologue() { onPrologueClick(); }
 function closePrologue() {
   document.getElementById('prologue').classList.remove('open');
 }
