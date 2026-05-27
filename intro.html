@@ -196,7 +196,9 @@ html, body {
   font-family: var(--font-body); font-size: 1rem;
   line-height: 1.95; color: var(--text-main);
   text-align: left; width: 100%; max-width: 520px;
+  transition: opacity .35s ease;
 }
+.seg-text.fade-out { opacity: 0; }
 
 .cursor {
   display: inline-block; width: 2px; height: 1.1em;
@@ -352,8 +354,14 @@ function nextSegment() {
   if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
   currentSeg++;
   if (currentSeg >= SEGMENTS.length) { goRegister(); return; }
-  updateDots(currentSeg);
-  typeSegment(currentSeg);
+  // Fade out text cũ → rồi gõ đoạn mới
+  const segText = document.getElementById('segText');
+  segText.classList.add('fade-out');
+  setTimeout(() => {
+    updateDots(currentSeg);
+    typeSegment(currentSeg);
+    segText.classList.remove('fade-out');
+  }, 360);
 }
 
 // ── Start prologue — fade to dark → swap ─────────────
