@@ -441,6 +441,14 @@ body::before {
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor?.('#050a1f'); }
 
+// Hide internal header inside iframe to prevent duplicate headers
+if (window.parent && window.parent !== window) {
+  const internalHdr = document.querySelector('.hdr');
+  if (internalHdr) {
+    internalHdr.style.display = 'none';
+  }
+}
+
 const CHARS = {
   chien_binh: { emoji: '⚔️' },
   phu_thuy:   { emoji: '🔮' },

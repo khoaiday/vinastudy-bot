@@ -196,25 +196,35 @@
   .page.active { transform: translateX(0); pointer-events: auto; }
 
   .page-header {
-    background: var(--bg-panel);
-    color: white; padding: 12px 14px;
-    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-    border-bottom: 1px solid var(--copper);
-    box-shadow: 0 4px 15px rgba(184,115,51,0.20);
+    background: linear-gradient(180deg, rgba(200, 150, 12, 0.08) 0%, transparent 100%);
+    color: white; padding: 18px 20px 14px;
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
 
   .back-btn {
-    width: 40px; height: 40px; border-radius: 8px;
-    background: rgba(200, 150, 12, 0.10); border: 1px solid var(--copper);
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(200, 150, 12, 0.10); border: 1.5px solid var(--border);
     color: var(--primary); font-size: 22px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: inset 0 0 8px var(--copper-glow);
+    box-shadow: inset 0 0 8px rgba(184, 115, 51, 0.2);
     transition: all 0.2s;
+    font-family: 'Philosopher', serif;
   }
-  .back-btn:active { background: var(--copper); color: #000; }
+  .back-btn:active { background: var(--primary); color: #000; }
 
-  .page-header-info h2 { font-family: var(--font-title); font-size: 17px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
-  .page-header-info p  { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 1px; font-style: italic; }
+  .page-header-info h2 {
+    font-family: var(--font-title);
+    font-size: 1.35rem; font-weight: 700;
+    color: var(--primary); text-shadow: 0 0 18px rgba(200,150,12,.35);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .page-header-info p {
+    font-size: .68rem; color: rgba(212,196,160,.4);
+    font-family: var(--font-body); margin-top: 2px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
 
   .page-body { flex: 1; position: relative; overflow: hidden; }
   .page-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
