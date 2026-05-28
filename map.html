@@ -828,6 +828,8 @@
     <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()">🔥 RÈN SỐ & CHỮ SỐ</button>
     <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu2" onclick="playMinigame2()"
       style="margin-top:10px;background:linear-gradient(45deg,#ff0055,#fbbf24);box-shadow:0 0 15px rgba(255,0,85,0.6);">🔥 RÈN CẤU TẠO SỐ</button>
+    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTowerDefense" onclick="playTowerDefense()"
+      style="margin-top:10px;background:linear-gradient(45deg,#b87333,#c8960c);box-shadow:0 0 15px rgba(184,115,51,0.6);">🔥 THỦ THÀNH ÂU LẠC</button>
     <button class="btn-intro btn-vao-ai" id="btnVaoAi" onclick="openLvSelect()">⚔️ VÀO ẢI LUÔN</button>
     <button class="btn-intro-close" onclick="closeIntroModal()">✕ Thoát</button>
   </div>
@@ -1052,8 +1054,10 @@ function open_(buoi, title, path, el) {
 
   const btn1 = document.getElementById('btnRenTuyetChieu');
   const btn2 = document.getElementById('btnRenTuyetChieu2');
+  const btn3 = document.getElementById('btnRenTowerDefense');
   btn1.style.display = (buoi === 1) ? 'block' : 'none';
   btn2.style.display = (buoi === 1 || buoi === 2) ? 'block' : 'none';
+  if (btn3) btn3.style.display = (buoi === 1) ? 'block' : 'none';
 
   const BOSS_BG = { 1: 'design-system/characters/boss/ho-tinh-portrait.jpg' };
   const im = document.getElementById('introModal');
@@ -1105,6 +1109,15 @@ function playMinigame2() {
   document.getElementById('pgSub').textContent   = 'Rèn Cấu Tạo Số';
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('frame').src = `${BASE}/minigame2.html?buoi=${currentBuoi}&v=${Date.now()}`;
+  requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
+  if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
+}
+
+function playTowerDefense() {
+  document.getElementById('pgTitle').textContent = 'Ải Thủ Thành';
+  document.getElementById('pgSub').textContent   = 'Trận Chiến Cổ Loa';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('frame').src = `${BASE}/tower_defense.html?buoi=${currentBuoi}&v=${Date.now()}`;
   requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
   if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
 }

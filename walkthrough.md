@@ -205,3 +205,34 @@ Hoàn thiện thay đổi narrative "nhập vai Cao Lỗ" trên 3 file:
 
 ---
 ---
+
+## [Gemini] 2026-05-28 — Xây Dựng Hoàn Tất Prototype Game Thủ Thành Âu Lạc (tower_defense.html)
+
+Tôi đã hoàn thành xuất sắc việc xây dựng và tích hợp game thủ thành tự do hoành tráng mang đậm bối cảnh lịch sử Âu Lạc của Cao Lỗ!
+
+### 1. 🏰 Xây Dựng Trọn Vẹn Địa Bàn Trận Chiến Cổ Loa (`tower_defense.html`)
+*   **Mỹ thuật Âu Lạc:** Vẽ bản đồ bằng Canvas giả lập một mảnh da hổ cổ xưa tinh tế kết hợp phông chữ `Philosopher` và `Lora` sang trọng.
+*   **Âm thanh thông minh (Web Audio API Synthesizer):** Tích hợp bộ tổng hợp âm thanh lập trình trực tiếp bằng mã lệnh. Game tự tạo ra tiếng mũi tên xé gió, tiếng bẫy nhựa dính dẻo, tiếng pháo Thần Cơ nổ đanh giòn giã và nhạc chiến thắng oai hùng cực kỳ sống động mà hoàn toàn không cần tải tệp âm thanh tĩnh bên ngoài.
+
+### 2. 🔀 Động Cơ Tìm Đường Động BFS & Thuật Toán Chống Chặn Lối (Blocking Prevention)
+*   **Flow Field BFS:** Lập trình công cụ tìm đường động theo lưới ô. Quân địch (Quỷ Số) tự động phân tích mê cung và di chuyển dọc theo đường ngắn nhất vẽ trên lưới.
+*   **Chống bịt lối đi:** Xây dựng cơ chế mô phỏng trước bước đi khi người chơi rê tháp. Nếu tháp mới gây bịt hoàn toàn đường ra, hệ thống tự động khóa ô, báo viền đỏ cảnh báo và phát âm thanh từ chối.
+*   **Nút Xem Luồng Di Chuyển (Flow Field Eye):** Nút mắt thần 👁️ cho phép người chơi hiển thị nét đứt vàng óng ánh động mô phỏng dòng di chuyển của quân giặc trước khi xây tháp.
+
+### 3. 🏹 Hệ Thống 3 Tháp Thủ Công Của Cao Lỗ & Quái Vật (Enemies)
+*   **Tháp Tre Cổ Lũy (Arrow):** Ném chông lao tre cực nhanh tầm trung. (Màu vàng đồng)
+*   **Tháp Bẫy Nhựa Rừng (Slow):** Sa bẫy nhựa thông phủ bùn sình làm chậm lính 50% trong 3 giây. (Màu xanh ngọc)
+*   **Tháp Thần Cơ Pháo (Splash Bomb):** Bắn pháo đồng nổ lan (Splash range 65px) sát thương diện rộng cực lớn. (Màu đỏ son)
+*   **Quân địch đa dạng:** Gồm Lính Trinh Sát (chạy nhanh máu yếu), Bộ Binh Yêu Quái (máu vừa tốc vừa), Voi Chiến Quỷ Số (máu cực trâu đi chậm). Mỗi loại lính có emoji, thanh máu, và hiệu ứng nổ hạt sắc màu khi chịu sát thương.
+
+### 4. ⚡ Điều Khiển Nâng Cao & Nút Thoát Phụ Trợ
+*   **Tốc độ 2x:** Nút tua nhanh ⚡ cho phép tăng gấp đôi tốc độ cập nhật khung hình, giúp tiết kiệm thời gian chờ đợi.
+*   **Hồi vàng & Nâng cấp:** Hỗ trợ nhấp chuột chọn tháp đã xây để xem thuộc tính chi tiết, nâng cấp tháp tối đa cấp 3 (Upgrade) hoặc bán tháp hồi vàng (Sell).
+*   **Thoát mượt mà:** Nút **🚪 THOÁT** và nút thoát chiến thắng gửi tín hiệu `close_profile` ra ngoài trang bản đồ mẹ để đóng modal trượt êm ái.
+
+### 5. 🌐 Đăng Ký Định Tuyến API (`web_server.py`) & Cập Nhật Nút Bấm (`map.html`)
+*   **FastAPI Routing:** Cấu hình route `/tower_defense` và `/tower_defense.html` phục vụ trang game tĩnh.
+*   **Tích hợp Bản đồ chính:** Thêm nút **🔥 THỦ THÀNH ÂU LẠC** (gradient đồng Đông Sơn sang trọng) vào trong modal Ải 1 của trang Bản đồ. Nút này sẽ tự động xuất hiện khi người chơi nhấp vào Ải 1, cho phép thử sức ngay lập tức!
+
+---
+---

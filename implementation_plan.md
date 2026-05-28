@@ -210,3 +210,37 @@ Việc tiếp theo:
 
 ---
 ---
+
+## [Gemini] 2026-05-28 — Xây dựng Prototype Game Thủ Thành Âu Lạc (tower_defense.html)
+
+Tài liệu này đề xuất phương án chi tiết để phát triển và tích hợp một bản Prototype hoàn chỉnh của game thủ thành tự do (Free-form Tower Defense) lấy bối cảnh Thục Phán An Dương Vương và Cao Lỗ chỉ huy bảo vệ Loa Thành chống quân xâm lược.
+
+### Ý tưởng cốt truyện & Thiết kế Mỹ thuật:
+1. **Narrative:** Người chơi trong vai Cao Lỗ, sử dụng trí tuệ toán học và cơ khí chế tạo các cạm bẫy và vũ khí phòng thủ để ngăn chặn các toán quân địch (Quỷ Số, quân giặc) di chuyển qua thung lũng xây dựng móng thành Cổ Loa.
+2. **Giao diện truyền thống:** Sử dụng phông chữ `Philosopher` và `Lora`, cùng bảng màu truyền thống Đại Việt (Đỏ son, Vàng đồng, Trầm gỗ, Ngà voi). Bản đồ game được vẽ giả lập như một mảnh da hổ/bản đồ cổ mộc mạc tinh xảo bằng HTML5 Canvas.
+3. **Hiệu ứng âm thanh thông minh (Web Audio API Synthesizer):** Để tránh việc thiếu tệp tin âm thanh tĩnh, game sẽ tự động tổng hợp (synthesize) âm thanh bắn cung, pháo nổ, quái kêu bằng Web Audio API trực tiếp trong trình duyệt, tạo trải nghiệm âm thanh sống động cực kỳ nhẹ nhàng.
+
+### Chi tiết kỹ thuật cốt lõi:
+1. **Tìm đường động (Flow Field / BFS):** Tự động vẽ lưới ô kích thước 16x11. Quân lính di chuyển từ cổng xuất phát bên trái tìm đường đến cổng thoát bên phải. Khi người chơi đặt hoặc bán tháp, thuật toán BFS sẽ tính toán lại đường đi ngắn nhất.
+2. **Ngăn chặn xây bịt đường (Blocking Prevention):** Hệ thống sẽ mô phỏng đường đi trước khi đặt tháp. Nếu việc đặt tháp gây bít hoàn toàn đường đi từ cổng xuất phát đến lối ra, tháp sẽ không cho phép xây và hiển thị cảnh báo viền đỏ trực quan.
+3. **Hệ thống 3 Tháp phòng thủ của Cao Lỗ:**
+   - **Tháp Tre Cổ Lũy (Arrow/Spear Tower):** Bắn lao tre liên tiếp tầm gần, sát thương nhanh. (Gold)
+   - **Tháp Bẫy Nhựa Rừng (Sap/Slow Tower):** Làm chậm tốc độ di chuyển của địch trên một diện nhỏ. (Deep Forest Green)
+   - **Tháp Thần Cơ Pháo (Bomb/Cannon Tower):** Bắn đạn pháo đồng gây sát thương nổ lan cực mạnh nhưng tốc độ chậm. (Son-Red)
+4. **Hệ thống điều khiển nâng cao:** Hỗ trợ nút Play/Pause, tua nhanh tốc độ game (1x / 2x speed), xem luồng di chuyển của địch trước khi xây, nâng cấp tháp (Upgrade), bán tháp hồi tiền (Sell), và nút Thoát/Quay lại ải.
+
+### Các tệp thay đổi và tạo mới:
+
+#### [NEW] [tower_defense.html](file:///c:/Users/Nam/OneDrive/Desktop/vinastudy-bot/tower_defense.html)
+- Viết toàn bộ mã HTML, CSS và JavaScript game thủ thành Canvas tự do.
+
+#### [MODIFY] [web_server.py](file:///c:/Users/Nam/OneDrive/Desktop/vinastudy-bot/web_server.py)
+- Thêm router phục vụ trang `/tower_defense.html` tại địa chỉ `/tower_defense` và `/tower_defense.html`.
+
+### Kế hoạch xác minh:
+1. **Kiểm tra tìm đường:** Thử đặt các tháp zic-zac để ép quái đi lòng vòng, xem lính có tự đổi hướng tìm đường chính xác không.
+2. **Kiểm tra chống chặn đường:** Xây tháp bịt kín lối ra, xác nhận hệ thống báo lỗi viền đỏ ngăn cản và không trừ tiền.
+3. **Kiểm tra âm thanh & tua nhanh:** Bấm tua nhanh 2x xem tốc độ chạy game tăng mượt mà, xác nhận âm thanh tổng hợp nổ giòn tan khi bắn pháo.
+
+---
+---

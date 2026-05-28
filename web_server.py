@@ -120,6 +120,21 @@ async def minigame2_page():
     return HTMLResponse("...", status_code=503)
 
 
+@app.get("/tower_defense.html", response_class=HTMLResponse)
+async def tower_defense_page():
+    """Trang game thủ thành Âu Lạc."""
+    p = BASE_DIR / "tower_defense.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
+@app.get("/tower_defense", response_class=HTMLResponse)
+async def tower_defense_page_no_ext():
+    return await tower_defense_page()
+
+
+
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page():
     """Trang chỉnh sửa hồ sơ học sinh."""

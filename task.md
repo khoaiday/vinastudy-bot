@@ -162,3 +162,21 @@
 
 ---
 ---
+
+## [Gemini] 2026-05-28 — Phát triển Prototype Game Thủ Thành Âu Lạc (tower_defense.html)
+
+- `[x]` 1. Cập Nhật FastAPI Web Server (`web_server.py`)
+  - `[x]` Thêm route phục vụ `/tower_defense.html` tại cả `/tower_defense` và `/tower_defense.html` sử dụng `HTMLResponse`.
+- `[x]` 2. Xây Dựng Game HTML/CSS/JS Cơ Bản (`tower_defense.html`)
+  - `[x]` Thiết lập cấu trúc giao diện HTML5 Canvas (16x11 grid) và Design System Đại Việt cổ kính (Philosopher, Lora, Gold/Son-Red/Ivory).
+  - `[x]` Tích hợp Web Audio API Synthesizer tạo hiệu ứng âm thanh bắn cung, làm chậm, pháo nổ chân thực mà không cần asset tĩnh.
+- `[x]` 3. Hiện Thực Hóa Logic Tìm Đường Động BFS
+  - `[x]` Xây dựng thuật toán Breadth-First Search (BFS) vẽ lại đường đi tối ưu ngay khi đặt/bán tháp phòng thủ.
+  - `[x]` Lập trình tính năng Chống chặn đường (Blocking Prevention) ngăn người chơi bịt kín lối ra của quân địch.
+- `[x]` 4. Hoàn Thiện Hệ Thống Tháp & Kẻ Địch Của Cao Lỗ
+  - `[x]` Triển khai 3 loại tháp: Tháp Tre Cổ Lũy (Arrow), Tháp Bẫy Nhựa Rừng (Slow), Tháp Pháo Thần Cơ (Splash).
+  - `[x]` Thiết lập hệ thống quái vật (Quỷ Số, quân giặc) di chuyển mượt mà, có thanh máu, hiệu ứng giảm tốc và nổ pháo.
+  - `[x]` Hỗ trợ các nút điều khiển nâng cao: Play/Pause, Fast Forward 2x, nâng cấp (Upgrade), bán tháp (Sell), và nút Thoát thoát hiểm.
+
+---
+---
