@@ -138,3 +138,27 @@
 
 ---
 ---
+
+[Claude] 2026-05-28 — Nhập vai Cao Lỗ: hoàn thiện kịch bản Ải 1 & Ải 2
+---
+- `[x]` Cập nhật `scenarios/ai-1-co-loa-v2.md` — học sinh nhập vai Cao Lỗ
+  - `[x]` Metadata: thêm `> **Vai chơi:** ⚔️ **Cao Lỗ**`, đổi Đồng minh → Thần Kim Quy · An Dương Vương
+  - `[x]` CẢNH MỞ: Thầy Long giới thiệu "em sẽ trở thành Cao Lỗ"; An Dương Vương nói chuyện với Cao Lỗ (em)
+  - `[x]` CẢNH 1: Thợ cả báo cáo với Cao Lỗ (em); Cỗ máy Đông Sơn = trống đồng trong tay Cao Lỗ
+  - `[x]` CẢNH 4: "Chiến binh" → "Cao Lỗ (em) một mình mai phục"
+  - `[x]` HP System: "Chiến binh" → "Cao Lỗ" ❤️❤️❤️
+  - `[x]` CẢNH 5: Thần Kim Quy nói với Cao Lỗ trực tiếp (không còn "Chiến binh Toán")
+  - `[x]` CẢNH KẾT: Cao Lỗ nói theo ngôi thứ nhất ("Ta đã nhớ lại...")
+  - `[x]` Lời thoại thắng: "Cao Lỗ — [Tên]!"
+- `[x]` Cập nhật `scenarios/ai-2-no-lien-chau.md` — học sinh nhập vai Cao Lỗ
+  - `[x]` Metadata: thêm `> **Vai chơi:** ⚔️ **Cao Lỗ** — Nhà phát minh Nỏ thần Liên Châu`
+  - `[x]` CẢNH MỞ: "Chiến binh!" → "Cao Lỗ!"; Cao Lỗ không còn là nhân vật phụ mà là người chơi
+  - `[x]` HP System: "Chiến binh" → "Cao Lỗ" ❤️❤️❤️
+  - `[x]` CẢNH KẾT: "Chiến binh Toán" → "Cao Lỗ"
+  - `[x]` Lời thoại thắng: "Cao Lỗ — [Tên]!"
+- `[x]` Cập nhật `map.html` STORIES[1] & STORIES[2]
+  - `[x]` STORIES[1]: "Em là Cao Lỗ, tổng công trình sư thiên tài..."
+  - `[x]` STORIES[2]: "Thành Cổ Loa đứng vững — nhờ bộ óc của Cao Lỗ (em)..."
+
+---
+---

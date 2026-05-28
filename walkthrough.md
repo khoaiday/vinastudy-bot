@@ -176,3 +176,32 @@ Sau 10 năm kháng chiến chống Tần (đại tướng Đồ Thư tử trận
 
 ---
 ---
+
+[Claude] 2026-05-28 — Nhập vai Cao Lỗ: ai-1, ai-2, map.html
+---
+Hoàn thiện thay đổi narrative "nhập vai Cao Lỗ" trên 3 file:
+
+**ai-1-co-loa-v2.md** (đã cập nhật đầy đủ):
+- Metadata: `Vai chơi: ⚔️ Cao Lỗ — Tổng công trình sư` + `Đồng minh: Thần Kim Quy · An Dương Vương`
+- CẢNH MỞ: Thầy Long giới thiệu player = Cao Lỗ; An Dương Vương giao nhiệm vụ cho em
+- Cỗ máy Đông Sơn = trống đồng nhỏ trong tay Cao Lỗ
+- CẢNH 1: thợ cả Đức báo cáo với em (Cao Lỗ)
+- CẢNH 4: "Cao Lỗ (em) một mình mai phục"
+- HP System: Cao Lỗ ❤️❤️❤️
+- CẢNH 5: Thần Kim Quy nói với Cao Lỗ trực tiếp
+- CẢNH KẾT: Cao Lỗ nói ngôi thứ nhất ("Ta đã nhớ lại...")
+- Lời thoại win: "Cao Lỗ — [Tên]!"
+
+**ai-2-no-lien-chau.md** (cập nhật vai chơi):
+- Metadata: thêm `Vai chơi: ⚔️ Cao Lỗ — Nhà phát minh Nỏ thần Liên Châu`
+- CẢNH MỞ: header "Em là Cao Lỗ, người rèn Nỏ thần"; "Chiến binh!" → "Cao Lỗ!"; Cao Lỗ = player
+- HP System: Cao Lỗ ❤️❤️❤️
+- CẢNH KẾT: "Chiến binh Toán" → "Cao Lỗ"
+- Lời thoại win: "Cao Lỗ — [Tên]!"
+
+**map.html**:
+- STORIES[1]: mở đầu "Em là Cao Lỗ, tổng công trình sư thiên tài..."
+- STORIES[2]: mở đầu "Thành Cổ Loa đứng vững — nhờ bộ óc của Cao Lỗ (em)..."
+
+---
+---

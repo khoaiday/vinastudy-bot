@@ -193,3 +193,20 @@ Thiết kế đầy đủ kịch bản cho 2 ải đầu tiên dựa trên bối
 
 ---
 ---
+
+[Claude] 2026-05-28 — Hoàn thiện Nhập vai Cao Lỗ
+---
+Đã xong: Cả hai scenario file (Ải 1 & Ải 2) và map.html STORIES đều thống nhất:
+- Player = Cao Lỗ (nhà quân sự + nhà khoa học của An Dương Vương)
+- Ải 1: Cao Lỗ xây Cổ Loa, đánh Bạch Kê Tinh
+- Ải 2: Cao Lỗ rèn Nỏ thần Liên Châu, đánh Ám Toán Sứ
+- Đồng minh: Thầy Long (qua bộ đàm trống đồng) + Thần Kim Quy + An Dương Vương
+
+Việc tiếp theo:
+- [ ] Build boss battle HTML cho Ải 1 (6 câu hỏi Bạch Kê Tinh)
+- [ ] Build boss battle HTML cho Ải 2 (6 câu hỏi Ám Toán Sứ)
+- [ ] Build mini-game Ải 2 (bài toán cấu tạo số / viết thêm chữ số)
+- [ ] Viết cốt truyện Ải 3+
+
+---
+---
