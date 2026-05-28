@@ -8,13 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* ── Palette Đại Việt v6 ── */
     --bg-void:    #07040A;
     --bg-deep:    #0F0A14;
     --bg-panel:   #160E1C;
     --bg-card:    #1E1327;
     --bg-lift:    #261A30;
-
     --primary:       #C8960C;
     --primary-glow:  rgba(200, 150, 12, 0.40);
     --secondary:     #C0332E;
@@ -24,12 +22,10 @@
     --danger:        #C0332E;
     --copper:        #B87333;
     --copper-glow:   rgba(184, 115, 51, 0.30);
-
     --bg-base:    var(--bg-void);
     --text-main:  #F5EED6;
     --text-muted: #A08C70;
     --border:     rgba(184, 115, 51, 0.40);
-
     --font-title: 'Philosopher', serif;
     --font-body:  'Lora', serif;
     --font-mono:  'Roboto Mono', monospace;
@@ -44,7 +40,6 @@
     color: var(--text-main);
   }
 
-  /* ── Background Grid ── */
   .grid-bg {
     position: absolute; inset: 0;
     background-image:
@@ -52,137 +47,307 @@
       linear-gradient(90deg, rgba(184, 115, 51, 0.06) 1px, transparent 1px);
     background-size: 40px 40px;
     background-position: center top;
-    z-index: 0;
-    pointer-events: none;
+    z-index: 0; pointer-events: none;
   }
 
   .app {
     display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1;
     background:
       radial-gradient(ellipse 80% 35% at 50% 0%, rgba(180,100,20,0.10) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 20% at 20% 80%, rgba(100,40,15,0.06) 0%, transparent 60%),
       var(--bg-void);
   }
 
   /* ── Header ── */
   .header {
-    padding: 18px 20px 14px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    flex-shrink: 0;
-    position: relative; z-index: 5;
+    padding: 14px 16px 12px;
+    display: flex; justify-content: flex-end; align-items: center;
+    flex-shrink: 0; position: relative; z-index: 5;
     background: linear-gradient(180deg, rgba(200, 150, 12, 0.08) 0%, rgba(7, 4, 10, 0.4) 100%);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border-bottom: 1.5px solid var(--border);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   }
 
   .user-badge {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(200, 150, 12, 0.10);
-    border: 1px solid var(--copper);
-    border-radius: 20px; padding: 5px 14px;
-    font-family: var(--font-mono);
+    background: rgba(200, 150, 12, 0.10); border: 1px solid var(--copper);
+    border-radius: 20px; padding: 5px 14px; font-family: var(--font-mono);
     font-size: 13px; font-weight: 600; letter-spacing: 1px;
-    margin-bottom: 12px; color: var(--primary);
-    box-shadow: 0 0 10px var(--primary-glow);
+    color: var(--primary); box-shadow: 0 0 10px var(--primary-glow);
   }
 
-  .header h1 {
-    font-family: var(--font-title);
-    font-size: 30px; font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: 2px;
-    color: var(--primary);
-    text-shadow: 0 0 30px var(--primary-glow);
-  }
-  .header p { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; letter-spacing: 1px; font-style: italic; }
-
-  /* ── Scroll Area ── */
-  .scroll {
-    flex: 1; overflow-y: auto; padding: 20px 16px 40px; 
+  /* ── World Map ── */
+  .world-map-wrap {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
     -webkit-overflow-scrolling: touch; position: relative; z-index: 1;
   }
-  .scroll::-webkit-scrollbar { display: none; }
+  .world-map-wrap::-webkit-scrollbar { display: none; }
 
-  .zone-title {
-    font-family: var(--font-title);
-    font-size: 18px; font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--primary); margin: 24px 0 16px;
-    display: flex; align-items: center; gap: 12px;
-    text-shadow: 0 0 20px var(--primary-glow);
-  }
-  .zone-title::after {
-    content: ""; flex: 1; height: 1px;
-    background: linear-gradient(90deg, var(--copper), transparent);
-  }
-
-  /* ── Cyber Box Style ── */
-  .cyber-box {
+  .world-map {
     position: relative;
+    width: 100%;
+    height: 3130px;
+    overflow: hidden;
+  }
+
+  /* ── Zone Backgrounds ── */
+  .zone {
+    position: absolute; left: 0; width: 100%;
+    overflow: hidden;
+  }
+
+  /* Zone 0 — Hồng Bàng: deep ocean night */
+  .zone-0 {
+    background:
+      radial-gradient(ellipse 70% 25% at 50% 5%, rgba(10,30,70,0.6) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 15% at 20% 70%, rgba(5,20,50,0.4) 0%, transparent 60%),
+      linear-gradient(180deg, #03060E 0%, #050A1C 25%, #071228 55%, #050E20 80%, #040C1C 100%);
+  }
+  .zone-0::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(circle 1.5px at 18% 12%, rgba(180,220,255,0.45) 0%, transparent 60%),
+      radial-gradient(circle 1px  at 62%  8%, rgba(180,220,255,0.35) 0%, transparent 60%),
+      radial-gradient(circle 2px  at 78% 28%, rgba(200,220,255,0.25) 0%, transparent 60%),
+      radial-gradient(circle 1px  at 40% 45%, rgba(180,210,255,0.20) 0%, transparent 60%),
+      radial-gradient(circle 1px  at 88% 60%, rgba(180,210,255,0.18) 0%, transparent 60%),
+      radial-gradient(circle 1.5px at 30% 78%, rgba(180,210,255,0.15) 0%, transparent 60%),
+      repeating-linear-gradient(180deg, transparent 0px, transparent 50px,
+        rgba(10,40,100,0.10) 50px, rgba(10,40,100,0.10) 52px);
+  }
+
+  /* Zone 1 — Hùng Vương: mountain forest */
+  .zone-1 {
+    background:
+      radial-gradient(ellipse 60% 20% at 50% 0%, rgba(10,35,10,0.5) 0%, transparent 65%),
+      linear-gradient(180deg, #050D08 0%, #08160C 25%, #0C2010 55%, #0A1C0E 80%, #06100A 100%);
+  }
+  .zone-1::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(90deg,
+        transparent 0px, transparent 26px,
+        rgba(15,50,15,0.10) 26px, rgba(15,50,15,0.10) 28px),
+      repeating-linear-gradient(180deg,
+        transparent 0px, transparent 60px,
+        rgba(10,35,10,0.06) 60px, rgba(10,35,10,0.06) 62px);
+  }
+
+  /* Zone 2 — Cổ Loa: copper earth fortress */
+  .zone-2 {
+    background:
+      radial-gradient(ellipse 50% 30% at 50% 50%, rgba(40,18,4,0.6) 0%, transparent 70%),
+      linear-gradient(180deg, #100804 0%, #1C1006 30%, #221408 60%, #1A0E06 85%, #140A04 100%);
+  }
+  .zone-2::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      repeating-radial-gradient(ellipse 300% 100% at 50% 50%,
+        transparent 0px, transparent 58px,
+        rgba(184,115,51,0.07) 58px, rgba(184,115,51,0.07) 60px);
+  }
+
+  /* Zone 3 — Mê Linh: river delta mist */
+  .zone-3 {
+    background:
+      radial-gradient(ellipse 80% 20% at 50% 30%, rgba(5,20,30,0.5) 0%, transparent 70%),
+      linear-gradient(180deg, #040A10 0%, #071218 30%, #0A181E 60%, #081014 85%, #050C12 100%);
+  }
+  .zone-3::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(180deg,
+        transparent 0px, transparent 16px,
+        rgba(8,60,80,0.07) 16px, rgba(8,60,80,0.07) 18px);
+  }
+
+  /* Zone 4 — Bạch Đằng: dark battle river */
+  .zone-4 {
+    background:
+      radial-gradient(ellipse 90% 25% at 50% 50%, rgba(5,5,18,0.6) 0%, transparent 70%),
+      linear-gradient(180deg, #050610 0%, #07091A 30%, #08091E 60%, #060816 85%, #040610 100%);
+  }
+  .zone-4::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(135deg,
+        transparent 0px, transparent 20px,
+        rgba(20,30,70,0.07) 20px, rgba(20,30,70,0.07) 22px);
+  }
+
+  /* Zone 5 — Hoa Lư: mountain stone fortress */
+  .zone-5 {
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 60%, rgba(20,12,6,0.6) 0%, transparent 70%),
+      linear-gradient(180deg, #0C0A08 0%, #160E0A 30%, #1C1410 60%, #160E0C 85%, #100A08 100%);
+  }
+  .zone-5::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(90deg,
+        transparent 0px, transparent 30px,
+        rgba(60,40,20,0.06) 30px, rgba(60,40,20,0.06) 32px),
+      repeating-linear-gradient(180deg,
+        transparent 0px, transparent 30px,
+        rgba(60,40,20,0.06) 30px, rgba(60,40,20,0.06) 32px);
+  }
+
+  /* ── Zone Dividers ── */
+  .zone-divider {
+    position: absolute; left: 0; right: 0; z-index: 7;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent 0%, rgba(184,115,51,0.25) 20%,
+      rgba(200,150,12,0.45) 50%,
+      rgba(184,115,51,0.25) 80%, transparent 100%);
+  }
+  .zone-divider-chip {
+    position: absolute; left: 50%; transform: translateX(-50%) translateY(-50%);
+    background: rgba(12,8,6,0.92); border: 1px solid rgba(184,115,51,0.35);
+    border-radius: 20px; padding: 3px 14px;
+    font-family: var(--font-mono); font-size: 8.5px; color: var(--copper);
+    letter-spacing: 1.5px; backdrop-filter: blur(6px); white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  /* ── Zone Banners ── */
+  .zone-banner {
+    position: absolute; z-index: 8;
+    left: 12px; right: 12px;
+    padding: 8px 14px 9px;
+    background: rgba(7,4,10,0.65);
+    border: 1px solid rgba(184,115,51,0.22);
     border-radius: 10px;
-    background: transparent !important;
-    margin-bottom: 14px;
-    cursor: pointer;
-    transition: transform 0.2s;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
-  .cyber-box:active { transform: scale(0.97); }
+  .zb-era {
+    font-family: var(--font-mono); font-size: 8.5px; color: var(--text-muted);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .zb-name {
+    font-family: var(--font-title); font-size: 15px; font-weight: 700;
+    color: var(--primary); letter-spacing: 0.5px; margin-top: 1px;
+  }
+  .zb-art {
+    font-family: var(--font-mono); font-size: 8px;
+    color: rgba(184,115,51,0.30); margin-top: 3px; font-style: italic;
+  }
 
-  .cyber-box::before {
-    content: "";
+  /* ── Path SVG ── */
+  #mapSvg {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 3130px;
+    pointer-events: none; z-index: 5;
+    overflow: visible;
+  }
+
+  /* ── Level Nodes ── */
+  .map-node {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, var(--copper), var(--primary));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
+    display: flex; flex-direction: column; align-items: center;
+    transform: translate(-50%, -50%);
     z-index: 10;
-    box-shadow: 0 0 8px var(--copper-glow);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
   }
-  .cyber-box::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: inherit;
-    z-index: -1;
-    background: var(--bg-card);
+  .map-node.node-locked { cursor: default; pointer-events: none; }
+
+  .node-body {
+    width: 66px; height: 66px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0px; position: relative; transition: transform 0.18s;
+    flex-shrink: 0;
+  }
+  .map-node:not(.node-locked):active .node-body { transform: scale(0.88); }
+
+  /* Available: gold pulsing */
+  .node-available .node-body {
+    background: radial-gradient(circle at 38% 32%, #E8B828 0%, #B8720C 55%, #7A4808 100%);
+    border: 3px solid #F0D060;
+    box-shadow: 0 0 18px rgba(220,160,10,0.95), 0 0 38px rgba(200,140,8,0.50), 0 0 60px rgba(180,120,6,0.25);
+    animation: nodePulse 2.6s ease-in-out infinite;
+  }
+  /* Completed: bright gold */
+  .node-completed .node-body {
+    background: radial-gradient(circle at 38% 32%, #FFE060 0%, #D4A010 45%, #946808 100%);
+    border: 3px solid #FFD700;
+    box-shadow: 0 0 14px rgba(255,210,0,0.80), 0 0 28px rgba(200,150,10,0.45);
+  }
+  /* Locked: dark */
+  .node-locked .node-body {
+    background: radial-gradient(circle at 38% 32%, #2E2A38 0%, #1C1828 60%, #12101C 100%);
+    border: 3px solid rgba(60,55,75,0.6);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+    opacity: 0.48;
   }
 
-  .card-content {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px;
+  .node-num {
+    font-family: var(--font-title); font-size: 19px; font-weight: 700;
+    line-height: 1; color: rgba(255,255,240,0.92);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+  .node-locked .node-num { color: rgba(180,170,200,0.35); }
+  .node-boss { font-size: 15px; line-height: 1.1; }
+  .node-locked .node-boss { filter: grayscale(1); opacity: 0.35; }
+
+  .node-stars {
+    height: 13px; margin-top: 5px;
+    font-size: 9px; letter-spacing: -1px; line-height: 1;
+  }
+  .node-label {
+    font-family: var(--font-body); font-size: 10px; font-weight: 600;
+    color: var(--text-main); text-align: center; margin-top: 4px;
+    line-height: 1.35;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.8);
+    max-width: 88px;
+  }
+  .node-locked .node-label { color: var(--text-muted); opacity: 0.45; }
+
+  /* SOON badge */
+  .node-soon-badge {
+    position: absolute; top: -7px; right: -4px;
+    background: var(--secondary); color: #fff;
+    font-size: 6.5px; font-family: var(--font-mono); font-weight: 700;
+    padding: 1px 5px; border-radius: 4px; letter-spacing: 0.5px;
+    white-space: nowrap; z-index: 2;
+    box-shadow: 0 0 6px rgba(192,51,46,0.5);
   }
 
-  .card-icon {
-    flex-shrink: 0; width: 50px; height: 50px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-title); font-size: 20px; font-weight: 700; color: #fff;
-    background: rgba(200, 150, 12, 0.10);
-    border: 2px solid var(--copper);
-    box-shadow: inset 0 0 10px var(--copper-glow);
-    text-shadow: 0 0 8px var(--primary-glow);
+  @keyframes nodePulse {
+    0%, 100% {
+      box-shadow: 0 0 18px rgba(220,160,10,0.95), 0 0 38px rgba(200,140,8,0.50), 0 0 60px rgba(180,120,6,0.25);
+    }
+    50% {
+      box-shadow: 0 0 28px rgba(240,180,10,1), 0 0 55px rgba(220,160,8,0.70), 0 0 80px rgba(200,140,6,0.40);
+    }
   }
 
-  .card-body { flex: 1; min-width: 0; }
-  .card-level {
-    font-size: 10px; font-family: var(--font-mono);
-    text-transform: uppercase; letter-spacing: 1px;
-    color: var(--copper); margin-bottom: 4px;
+  /* ── Start / End Markers ── */
+  .map-totem {
+    position: absolute; z-index: 12;
+    display: flex; flex-direction: column; align-items: center;
+    transform: translateX(-50%);
   }
-  .card-title {
-    font-size: 15px; font-weight: 600; font-family: var(--font-body); line-height: 1.3;
-    color: var(--text-main);
+  .map-totem-icon {
+    font-size: 30px;
+    filter: drop-shadow(0 0 14px rgba(200,150,12,0.7));
+    animation: float 4s ease-in-out infinite;
   }
-
-  .card-arrow {
-    flex-shrink: 0; font-size: 22px; color: var(--primary);
-    filter: drop-shadow(0 0 4px var(--primary-glow));
+  .map-totem-label {
+    font-family: var(--font-mono); font-size: 8px; color: var(--copper);
+    letter-spacing: 2px; text-align: center; margin-top: 6px;
+    text-transform: uppercase; opacity: 0.7;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
   }
 
   /* ── Slide-in Page ── */
@@ -191,7 +356,7 @@
     transform: translateX(100%);
     transition: transform .3s cubic-bezier(.4,0,.2,1);
     z-index: 10000; display: flex; flex-direction: column;
-    pointer-events: none; /* Không chặn tap khi đang ẩn */
+    pointer-events: none;
   }
   .page.active { transform: translateX(0); pointer-events: auto; }
 
@@ -200,23 +365,19 @@
     color: white; padding: 18px 20px 14px;
     display: flex; align-items: center; gap: 12px; flex-shrink: 0;
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   }
-
   .back-btn {
     width: 40px; height: 40px; border-radius: 10px;
     background: rgba(200, 150, 12, 0.10); border: 1.5px solid var(--border);
     color: var(--primary); font-size: 22px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: inset 0 0 8px rgba(184, 115, 51, 0.2);
-    transition: all 0.2s;
-    font-family: 'Philosopher', serif;
+    box-shadow: inset 0 0 8px rgba(184,115,51,0.2);
+    transition: all 0.2s; font-family: 'Philosopher', serif;
   }
   .back-btn:active { background: var(--primary); color: #000; }
-
   .page-header-info h2 {
-    font-family: var(--font-title);
-    font-size: 1.35rem; font-weight: 700;
+    font-family: var(--font-title); font-size: 1.35rem; font-weight: 700;
     color: var(--primary); text-shadow: 0 0 18px rgba(200,150,12,.35);
     letter-spacing: 2px; text-transform: uppercase;
   }
@@ -225,7 +386,6 @@
     font-family: var(--font-body); margin-top: 2px;
     letter-spacing: 1.5px; text-transform: uppercase;
   }
-
   .page-body { flex: 1; position: relative; overflow: hidden; }
   .page-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
 
@@ -244,22 +404,6 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading p { font-size: 13px; color: var(--primary); font-family: var(--font-mono); letter-spacing: 2px; font-style: italic; text-shadow: 0 0 10px var(--primary-glow); }
 
-
-  /* ── Passed Level Badge ── */
-  .cyber-box.passed::before {
-    background: linear-gradient(135deg, #ffd700, #ff8c00);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-  }
-  .cyber-box.passed .card-icon {
-    background: rgba(255, 215, 0, 0.15); border-color: gold; color: gold; 
-    text-shadow: 0 0 10px gold; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.5);
-  }
-  .cyber-box.passed .card-level { color: gold; }
-  .cyber-box.passed .card-arrow { color: gold; filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
-
-  /* ── Star badges on card ── */
-  .card-stars { font-size: 12px; letter-spacing: -1px; margin-top: 2px; }
-
   /* ── Level Selection Modal ── */
   .lv-modal {
     display: none; position: fixed; inset: 0; z-index: 9999;
@@ -267,12 +411,9 @@
     align-items: flex-end; justify-content: center; padding-bottom: 0;
   }
   .lv-panel {
-    background: var(--bg-panel);
-    border: 1px solid var(--copper);
-    border-bottom: none;
-    border-radius: 16px 16px 0 0;
-    padding: 20px 18px 28px;
-    width: 100%; max-width: 480px;
+    background: var(--bg-panel); border: 1px solid var(--copper);
+    border-bottom: none; border-radius: 16px 16px 0 0;
+    padding: 20px 18px 28px; width: 100%; max-width: 480px;
     box-shadow: 0 -8px 40px rgba(184,115,51,0.20);
     animation: slideUp 0.28s ease;
   }
@@ -281,8 +422,6 @@
   .lv-drag { width: 36px; height: 4px; background: var(--copper); border-radius: 2px; margin: 0 auto 14px; opacity: 0.4; }
   .lv-title { font-family: var(--font-title); font-size: 20px; font-weight: 700; letter-spacing: 1px; color: var(--primary); text-shadow: 0 0 16px var(--primary-glow); }
   .lv-mission { font-family: var(--font-mono); font-size: 12px; color: var(--copper); font-style: italic; margin-top: 3px; }
-
-  /* Feature comparison table */
   .lv-table { width: 100%; margin-bottom: 18px; }
   .lv-tr { display: grid; grid-template-columns: 1fr 60px 60px 60px; align-items: center; padding: 5px 4px; border-radius: 7px; }
   .lv-tr:not(:first-child):not(:last-child) { background: rgba(255,255,255,0.025); margin-bottom: 2px; }
@@ -295,8 +434,6 @@
   .lv-td.tick { color: var(--success); }
   .lv-td.cross { color: rgba(255,255,255,0.18); }
   .lv-tr:last-child .lv-td { color: #fbbf24; }
-
-  /* Level buttons */
   .lv-btns { display: flex; gap: 10px; margin-bottom: 14px; }
   .lv-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -323,17 +460,11 @@
   }
   .intro-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(7,4,10,0.15) 0%,
-      rgba(7,4,10,0.55) 45%,
-      rgba(7,4,10,0.92) 70%,
-      rgba(7,4,10,1) 100%
-    );
+    background: linear-gradient(to bottom,
+      rgba(7,4,10,0.15) 0%, rgba(7,4,10,0.55) 45%,
+      rgba(7,4,10,0.92) 70%, rgba(7,4,10,1) 100%);
   }
-  .intro-content {
-    position: relative; z-index: 1; padding: 30px 20px 40px; text-align: center;
-  }
+  .intro-content { position: relative; z-index: 1; padding: 30px 20px 40px; text-align: center; }
   .intro-title {
     font-family: var(--font-title); font-size: 26px; font-weight: 700;
     color: var(--primary); letter-spacing: 2px;
@@ -343,12 +474,9 @@
   .intro-story { font-family: var(--font-body); font-size: 14px; color: var(--text-main); line-height: 1.7; margin-bottom: 20px; text-align: justify; }
   .intro-mission {
     font-family: var(--font-mono); font-size: 13px; color: var(--primary); font-weight: 600;
-    margin-bottom: 30px;
-    background: rgba(200,150,12,0.10);
-    padding: 10px; border-radius: 8px;
-    border: 1px solid var(--copper);
+    margin-bottom: 30px; background: rgba(200,150,12,0.10);
+    padding: 10px; border-radius: 8px; border: 1px solid var(--copper);
   }
-
   .btn-intro {
     width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 17px; font-weight: 800;
     font-family: var(--font-title); letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
@@ -356,14 +484,12 @@
   }
   .btn-ren-tuyet-chieu {
     background: linear-gradient(135deg, var(--secondary), #8B1A1A);
-    color: var(--text-main);
-    box-shadow: 0 0 20px rgba(192,51,46,0.5);
+    color: var(--text-main); box-shadow: 0 0 20px rgba(192,51,46,0.5);
     border: 1px solid var(--secondary);
   }
   .btn-vao-ai {
     background: linear-gradient(135deg, var(--copper), var(--primary));
-    color: var(--bg-void);
-    box-shadow: 0 0 20px var(--primary-glow);
+    color: var(--bg-void); box-shadow: 0 0 20px var(--primary-glow);
   }
   .btn-intro-close { background: transparent; border: 1px solid rgba(184,115,51,0.3); color: var(--text-muted); padding: 10px; border-radius: 10px; font-size: 13px; width: auto; min-width: 120px; cursor: pointer; transition: all 0.2s; font-family: var(--font-mono); }
   .btn-intro-close:hover { background: rgba(184,115,51,0.1); }
@@ -373,120 +499,340 @@
 
 <div class="app">
   <div class="grid-bg"></div>
-  
-  
+
+  <!-- Header -->
   <div class="header">
     <div id="avatarContainer" style="cursor:pointer;" onclick="openProfile()">
-      <img id="headerAvatar" src="/static/avatars/chien_binh_nam.jpg" style="width:46px; height:46px; border-radius:50%; border:2px solid var(--primary); box-shadow:0 0 10px var(--primary-glow); object-fit:cover;">
+      <img id="headerAvatar" src="/static/avatars/chien_binh_nam.jpg"
+        style="width:46px;height:46px;border-radius:50%;border:2px solid var(--primary);box-shadow:0 0 10px var(--primary-glow);object-fit:cover;">
     </div>
   </div>
 
-  <div class="scroll">
-    <div class="zone-title">TRẠM 1: ÂU LẠC — SAU 10 NĂM KHÁNG TẦN</div>
+  <!-- ══════════════════════════════════════════════
+       WORLD MAP
+  ══════════════════════════════════════════════ -->
+  <div class="world-map-wrap" id="worldMapWrap">
+    <div class="world-map" id="worldMap">
 
-    <div class="cyber-box" data-lesson="1" onclick="open_(1,'Dựng Thành Cổ Loa','content/lop3/bai01/bai-tap.html',this)">
-      <div class="card-content">
-        <div class="card-icon" style="padding:0;overflow:hidden;background:rgba(140,80,0,0.18);border-color:#B87333;box-shadow:inset 0 0 10px rgba(184,115,51,0.4),0 0 8px rgba(184,115,51,0.35)">
-          <img src="/design-system/characters/boss/ho-tinh-portrait.jpg"
-               style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:6px;display:block"
-               onerror="this.parentElement.innerHTML='ẢI 1';this.parentElement.style.cssText=''">
-        </div>
-        <div class="card-body">
-          <div class="card-level" style="color:#C8960C">MISSION 01 — BOSS</div>
-          <div class="card-title">Dựng Thành Cổ Loa</div>
-          <div style="font-size:11px;color:var(--copper);margin-top:2px;font-family:var(--font-mono)">🐓 Bạch Kê Tinh · Buổi 1</div>
-        </div>
-        <div class="card-arrow" style="color:#C8960C;filter:drop-shadow(0 0 6px rgba(200,150,12,0.6))">⚔️</div>
+      <!-- ── Zone Backgrounds ── -->
+      <div class="zone zone-0" style="top:0;height:760px"></div>
+      <div class="zone zone-1" style="top:760px;height:720px"></div>
+      <div class="zone zone-2" style="top:1480px;height:470px"></div>
+      <div class="zone zone-3" style="top:1950px;height:450px"></div>
+      <div class="zone zone-4" style="top:2400px;height:470px"></div>
+      <div class="zone zone-5" style="top:2870px;height:260px"></div>
+
+      <!-- ── Zone Dividers ── -->
+      <div class="zone-divider" style="top:760px">
+        <div class="zone-divider-chip">800 TCN · Vào Thời Hùng Vương</div>
       </div>
-    </div>
-
-    <div class="cyber-box" data-lesson="2" onclick="open_(2,'Rèn Nỏ Thần Liên Châu','content/lop3/bai02/bai-tap.html',this)">
-      <div class="card-content">
-        <div class="card-icon" style="padding:0;overflow:hidden;background:rgba(180,0,0,0.15);border-color:#cc0000;box-shadow:inset 0 0 10px rgba(180,0,0,0.4),0 0 8px rgba(180,0,0,0.3)">
-          <img src="/design-system/characters/boss/ho-tinh-portrait.jpg"
-               style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:6px;display:block;filter:hue-rotate(200deg) saturate(1.5)"
-               onerror="this.parentElement.innerHTML='ẢI 2';this.parentElement.style.cssText=''">
-        </div>
-        <div class="card-body">
-          <div class="card-level" style="color:#ff4444">MISSION 02 — BOSS</div>
-          <div class="card-title">Rèn Nỏ Thần Liên Châu</div>
-          <div style="font-size:11px;color:var(--copper);margin-top:2px;font-family:var(--font-mono)">📜 Ám Toán Sứ · Buổi 2</div>
-        </div>
-        <div class="card-arrow" style="color:#ff4444;filter:drop-shadow(0 0 6px rgba(255,0,0,0.6))">⚔️</div>
+      <div class="zone-divider" style="top:1480px">
+        <div class="zone-divider-chip">257 TCN · Thục Phán dựng Âu Lạc</div>
       </div>
-    </div>
-
-    <div class="cyber-box" data-lesson="3" onclick="open_(3,'Đốm mực trên thẻ tre','content/lop3/bai03/bai-tap.html',this)" style="display:none"><!-- tạm ẩn -->
-      <div class="card-content">
-        <div class="card-icon">ẢI 3</div>
-        <div class="card-body">
-          <div class="card-level">MISSION 03</div>
-          <div class="card-title">Đốm mực trên thẻ tre</div>
-        </div>
-        <div class="card-arrow">⚔️</div>
+      <div class="zone-divider" style="top:1950px">
+        <div class="zone-divider-chip">40 SCN · Hai Bà Trưng khởi nghĩa</div>
       </div>
-    </div>
-
-    <div class="zone-title">TRẠM 2: TIẾNG TRỐNG MÊ LINH</div>
-
-    <div class="cyber-box" data-lesson="4" onclick="open_(4,'Hội quân sông Hát','content/lop3/bai04/bai-tap.html',this)">
-      <div class="card-content">
-        <div class="card-icon">ẢI 4</div>
-        <div class="card-body">
-          <div class="card-level">MISSION 04</div>
-          <div class="card-title">Hội quân sông Hát</div>
-        </div>
-        <div class="card-arrow">⚔️</div>
+      <div class="zone-divider" style="top:2400px">
+        <div class="zone-divider-chip">938 SCN · Ngô Quyền đại thắng</div>
       </div>
-    </div>
-
-    <div class="cyber-box" data-lesson="5" onclick="open_(5,'Chiến thuật Voi chiến','content/lop3/bai05/bai-tap.html',this)">
-      <div class="card-content">
-        <div class="card-icon">ẢI 5</div>
-        <div class="card-body">
-          <div class="card-level">MISSION 05</div>
-          <div class="card-title">Chiến thuật Voi chiến</div>
-        </div>
-        <div class="card-arrow">⚔️</div>
+      <div class="zone-divider" style="top:2870px">
+        <div class="zone-divider-chip">968 SCN · Đinh Bộ Lĩnh thống nhất</div>
       </div>
-    </div>
-    
-    <div class="zone-title">TRẠM 3: SẤM SÉT BẠCH ĐẰNG</div>
 
-    <div class="cyber-box" data-lesson="27" onclick="open_(27,'Cờ lau tập trận','content/lop3/bai27/bai-tap.html',this)">
-      <div class="card-content">
-        <div class="card-icon">ẢI 27</div>
-        <div class="card-body">
-          <div class="card-level">MISSION 27</div>
-          <div class="card-title">Cờ lau tập trận</div>
-        </div>
-        <div class="card-arrow">⏳</div>
+      <!-- ── Zone Banners ── -->
+      <div class="zone-banner" style="top:32px">
+        <div class="zb-era">~2879 TCN · Huyền sử</div>
+        <div class="zb-name">🐉 TRẠM 0 · HỒNG BÀNG & HÙNG VƯƠNG SƠ KỲ</div>
+        <div class="zb-art">[🎨 Artwork: Bờ biển Hồng Bàng · Đảo cổ · Sóng biển đêm]</div>
       </div>
-    </div>
-  </div>
-</div>
+
+      <div class="zone-banner" style="top:792px">
+        <div class="zb-era">~800 – 258 TCN</div>
+        <div class="zb-name">🥁 TRẠM 1 · HÙNG VƯƠNG TRUNG & HẬU KỲ</div>
+        <div class="zb-art">[🎨 Artwork: Núi Tản Viên · Rừng nguyên sinh · Sông Đà]</div>
+      </div>
+
+      <div class="zone-banner" style="top:1512px">
+        <div class="zb-era">~257 – 179 TCN · Âu Lạc</div>
+        <div class="zb-name">🏛️ TRẠM 2 · CỔ LOA — THÀNH ỐC XOẮN</div>
+        <div class="zb-art">[🎨 Artwork: Thành Cổ Loa 3 vòng xoắn nhìn từ trên cao · Đêm đuốc]</div>
+      </div>
+
+      <div class="zone-banner" style="top:1982px">
+        <div class="zb-era">~40 – 43 SCN</div>
+        <div class="zb-name">⚔️ TRẠM 3 · TIẾNG TRỐNG MÊ LINH</div>
+        <div class="zb-art">[🎨 Artwork: Đầm Mê Linh · Đội voi chiến · Cờ Hai Bà Trưng]</div>
+      </div>
+
+      <div class="zone-banner" style="top:2432px">
+        <div class="zb-era">938 SCN</div>
+        <div class="zb-name">⚓ TRẠM 4 · SẤM SÉT BẠCH ĐẰNG</div>
+        <div class="zb-art">[🎨 Artwork: Sông Bạch Đằng · Cọc gỗ bịt sắt · Chiến thuyền Nam Hán]</div>
+      </div>
+
+      <div class="zone-banner" style="top:2902px">
+        <div class="zb-era">968 SCN</div>
+        <div class="zb-name">👑 TRẠM ĐB · HOA LƯ — THỐNG NHẤT GIANG SƠN</div>
+        <div class="zb-art">[🎨 Artwork: Thành Hoa Lư · Núi đá vôi · Kỳ đài Đinh Tiên Hoàng]</div>
+      </div>
+
+      <!-- ── SVG Path ── -->
+      <!--
+        Node centers (x, y):
+        1:(195,220)  2:(100,435)  3:(278,650)
+        4:(158,900)  5:(258,1120) 6:(118,1340)
+        7:(242,1590) 8:(128,1800)
+        9:(232,2055) 10:(118,2275)
+        11:(232,2510) 12:(118,2730)
+        13:(195,2980)
+      -->
+      <svg id="mapSvg" viewBox="0 0 390 3130" preserveAspectRatio="none"
+           xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pathGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Full path — deep shadow -->
+        <path d="M195,220 C195,308,100,372,100,435
+                 C100,523,278,583,278,650
+                 C278,763,158,832,158,900
+                 C158,993,258,1043,258,1120
+                 C258,1218,118,1263,118,1340
+                 C118,1460,242,1523,242,1590
+                 C242,1682,128,1743,128,1800
+                 C128,1918,232,1978,232,2055
+                 C232,2155,118,2198,118,2275
+                 C118,2388,232,2443,232,2510
+                 C232,2625,118,2668,118,2730
+                 C118,2848,195,2908,195,2980"
+          stroke="rgba(0,0,0,0.65)" stroke-width="28"
+          fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Nodes 1–8: dim copper (historical + live corridor) -->
+        <path d="M195,220 C195,308,100,372,100,435
+                 C100,523,278,583,278,650
+                 C278,763,158,832,158,900
+                 C158,993,258,1043,258,1120
+                 C258,1218,118,1263,118,1340
+                 C118,1460,242,1523,242,1590
+                 C242,1682,128,1743,128,1800"
+          stroke="#3A1E06" stroke-width="16"
+          fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Nodes 8–13: locked/dark -->
+        <path d="M128,1800 C128,1918,232,1978,232,2055
+                 C232,2155,118,2198,118,2275
+                 C118,2388,232,2443,232,2510
+                 C232,2625,118,2668,118,2730
+                 C118,2848,195,2908,195,2980"
+          stroke="#14141E" stroke-width="16"
+          fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Live corridor: node 7–8 highlighted -->
+        <path d="M242,1590 C242,1682,128,1743,128,1800"
+          stroke="#6A3A12" stroke-width="10"
+          fill="none" stroke-linecap="round" filter="url(#pathGlow)"/>
+        <path d="M242,1590 C242,1682,128,1743,128,1800"
+          stroke="rgba(200,150,12,0.55)" stroke-width="3"
+          fill="none" stroke-linecap="round" stroke-dasharray="12 22"/>
+
+        <!-- Pre-live subtle center dash (nodes 1–7) -->
+        <path d="M195,220 C195,308,100,372,100,435
+                 C100,523,278,583,278,650
+                 C278,763,158,832,158,900
+                 C158,993,258,1043,258,1120
+                 C258,1218,118,1263,118,1340
+                 C118,1460,242,1523,242,1590"
+          stroke="rgba(184,115,51,0.20)" stroke-width="2"
+          fill="none" stroke-linecap="round" stroke-dasharray="10 28"/>
+      </svg>
+
+      <!-- ── Start Totem ── -->
+      <div class="map-totem" style="left:50%;top:118px">
+        <div class="map-totem-icon">🗺️</div>
+        <div class="map-totem-label">Hành Trình<br>Xuyên Thời Không</div>
+      </div>
+
+      <!-- ═══════════════════════════════
+           LEVEL NODES  (13 ải)
+      ═══════════════════════════════ -->
+
+      <!-- NODE 1 · Trứng Tiên · TRẠM 0 -->
+      <div class="map-node node-locked" data-ai="1" style="left:50%;top:220px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">1</span>
+          <span class="node-boss">🐟</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Trứng Tiên<br>Nở Trăm Con</div>
+      </div>
+
+      <!-- NODE 2 · Mộc Tinh -->
+      <div class="map-node node-locked" data-ai="2" style="left:25.6%;top:435px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">2</span>
+          <span class="node-boss">🌳</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Mười Lăm<br>Bộ Lạc Văn Lang</div>
+      </div>
+
+      <!-- NODE 3 · Hồ Tinh -->
+      <div class="map-node node-locked" data-ai="3" style="left:71.3%;top:650px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">3</span>
+          <span class="node-boss">🦊</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Yêu Cáo<br>Chín Đuôi Tây Hồ</div>
+      </div>
+
+      <!-- NODE 4 · Thánh Gióng · TRẠM 1 -->
+      <div class="map-node node-locked" data-ai="4" style="left:40.5%;top:900px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">4</span>
+          <span class="node-boss">🥁</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Tiếng Trống<br>Thúc Quân</div>
+      </div>
+
+      <!-- NODE 5 · Sơn Tinh / Thủy Tinh -->
+      <div class="map-node node-locked" data-ai="5" style="left:66.2%;top:1120px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">5</span>
+          <span class="node-boss">🌊</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Đê Thần &<br>Trận Hồng Thủy</div>
+      </div>
+
+      <!-- NODE 6 · Lang Liêu -->
+      <div class="map-node node-locked" data-ai="6" style="left:30.3%;top:1340px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">6</span>
+          <span class="node-boss">🍃</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Bếp Lửa<br>Hoàng Tử Nghèo</div>
+      </div>
+
+      <!-- NODE 7 · Bí Ẩn Cổ Loa · buoi=1 · LIVE ✅ -->
+      <div class="map-node node-available" id="mapNode7" data-ai="7" data-buoi="1"
+           style="left:62.1%;top:1590px" onclick="nodeClick(7)">
+        <div class="node-body">
+          <span class="node-num">7</span>
+          <span class="node-boss">🐓</span>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Bí Ẩn<br>Cổ Loa</div>
+      </div>
+
+      <!-- NODE 8 · Nỏ Thần Liên Châu · buoi=2 · LIVE ✅ -->
+      <div class="map-node node-available" id="mapNode8" data-ai="8" data-buoi="2"
+           style="left:32.8%;top:1800px" onclick="nodeClick(8)">
+        <div class="node-body">
+          <span class="node-num">8</span>
+          <span class="node-boss">📜</span>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Nỏ Thần<br>Liên Châu</div>
+      </div>
+
+      <!-- NODE 9 · Mê Linh · TRẠM 3 -->
+      <div class="map-node node-locked" data-ai="9" style="left:59.5%;top:2055px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">9</span>
+          <span class="node-boss">⚔️</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Hội Quân<br>Mê Linh</div>
+      </div>
+
+      <!-- NODE 10 · Voi Chiến -->
+      <div class="map-node node-locked" data-ai="10" style="left:30.3%;top:2275px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">10</span>
+          <span class="node-boss">🐘</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Chiến Thuật<br>Voi Chiến</div>
+      </div>
+
+      <!-- NODE 11 · Bạch Đằng I · TRẠM 4 -->
+      <div class="map-node node-locked" data-ai="11" style="left:59.5%;top:2510px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">11</span>
+          <span class="node-boss">⚓</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Trận Bạch<br>Đằng I</div>
+      </div>
+
+      <!-- NODE 12 · Bạch Đằng II -->
+      <div class="map-node node-locked" data-ai="12" style="left:30.3%;top:2730px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">12</span>
+          <span class="node-boss">🗡️</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Trận Bạch<br>Đằng II</div>
+      </div>
+
+      <!-- NODE 13 · Cờ Lau Tập Trận · TRẠM ĐB -->
+      <div class="map-node node-locked" data-ai="13" style="left:50%;top:2980px">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">13</span>
+          <span class="node-boss">👑</span>
+          <div class="node-soon-badge">SOON</div>
+        </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Cờ Lau<br>Tập Trận</div>
+      </div>
+
+      <!-- End marker -->
+      <div style="position:absolute;left:50%;top:3065px;transform:translateX(-50%);
+                  text-align:center;z-index:12;opacity:0.3">
+        <div style="font-size:26px">🏆</div>
+        <div style="font-family:var(--font-mono);font-size:7.5px;
+                    color:var(--copper);letter-spacing:2px;margin-top:5px">
+          HÀNH TRÌNH TIẾP DIỄN…
+        </div>
+      </div>
+
+    </div><!-- /world-map -->
+  </div><!-- /world-map-wrap -->
+
+</div><!-- /app -->
 
 <!-- ── Intro Modal ── -->
 <div class="intro-modal" id="introModal">
   <div class="intro-overlay"></div>
   <div class="intro-content">
-    <div class="intro-title" id="introTitle">Ải 1: Dựng Thành Cổ Loa</div>
-    <div class="intro-story" id="introStory">
-      Sau 10 năm kháng Tần, An Dương Vương xây thành Cổ Loa — nhưng tường cứ đổ mỗi sáng! Bạch Kê Tinh, yêu vật phương Bắc, mỗi đêm gáy xóa tri thức số học của thợ thuyền. Hãy khôi phục tri thức, phá phép nguyền, dựng vững thành Cổ Loa!
-    </div>
-    <div class="intro-mission" id="introMission">
-      🎯 Nhiệm vụ trước khi vào ải:<br>Rèn 2 Tuyệt Chiêu bên dưới
-    </div>
-    
+    <div class="intro-title" id="introTitle">Ải 7: Bí Ẩn Cổ Loa</div>
+    <div class="intro-story" id="introStory"></div>
+    <div class="intro-mission" id="introMission"></div>
     <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()">🔥 RÈN SỐ & CHỮ SỐ</button>
-    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu2" onclick="playMinigame2()" style="margin-top: 10px; background: linear-gradient(45deg, #ff0055, #fbbf24); box-shadow: 0 0 15px rgba(255, 0, 85, 0.6);">🔥 RÈN CẤU TẠO SỐ</button>
+    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu2" onclick="playMinigame2()"
+      style="margin-top:10px;background:linear-gradient(45deg,#ff0055,#fbbf24);box-shadow:0 0 15px rgba(255,0,85,0.6);">🔥 RÈN CẤU TẠO SỐ</button>
     <button class="btn-intro btn-vao-ai" id="btnVaoAi" onclick="openLvSelect()">⚔️ VÀO ẢI LUÔN</button>
-    
     <button class="btn-intro-close" onclick="closeIntroModal()">✕ Thoát</button>
   </div>
 </div>
 
-<!-- Trang bài tập slide in -->
 <!-- ── Level Selection Modal ── -->
 <div class="lv-modal" id="levelModal" onclick="if(event.target===this)closeLvModal()">
   <div class="lv-panel">
@@ -495,66 +841,49 @@
       <div class="lv-title">⚔️ CHỌN CẤP ĐỘ</div>
       <div class="lv-mission" id="lvModalName"></div>
     </div>
-
     <div class="lv-table">
-      <!-- Header -->
       <div class="lv-tr lv-thead">
         <div class="lv-td-feat"></div>
         <div class="lv-td"><span class="lv-stars">⭐</span><em>Cấp 1</em></div>
         <div class="lv-td"><span class="lv-stars">⭐⭐</span><em>Cấp 2</em></div>
         <div class="lv-td"><span class="lv-stars">⭐⭐⭐</span><em>Cấp 3</em></div>
       </div>
-      <!-- Rows -->
       <div class="lv-tr">
         <div class="lv-td-feat">💡 Trợ giúp</div>
-        <div class="lv-td tick">✓</div>
-        <div class="lv-td tick">✓</div>
-        <div class="lv-td cross">✗</div>
+        <div class="lv-td tick">✓</div><div class="lv-td tick">✓</div><div class="lv-td cross">✗</div>
       </div>
       <div class="lv-tr">
         <div class="lv-td-feat">🎬 Xem video</div>
-        <div class="lv-td tick">✓</div>
-        <div class="lv-td cross">✗</div>
-        <div class="lv-td cross">✗</div>
+        <div class="lv-td tick">✓</div><div class="lv-td cross">✗</div><div class="lv-td cross">✗</div>
       </div>
       <div class="lv-tr">
         <div class="lv-td-feat">⏱ Tính giờ</div>
-        <div class="lv-td cross">✗</div>
-        <div class="lv-td cross">✗</div>
-        <div class="lv-td tick">✓</div>
+        <div class="lv-td cross">✗</div><div class="lv-td cross">✗</div><div class="lv-td tick">✓</div>
       </div>
       <div class="lv-tr">
         <div class="lv-td-feat">🏆 Điểm thưởng</div>
-        <div class="lv-td">×1</div>
-        <div class="lv-td">×1.5</div>
-        <div class="lv-td">×2</div>
+        <div class="lv-td">×1</div><div class="lv-td">×1.5</div><div class="lv-td">×2</div>
       </div>
     </div>
-
     <div class="lv-btns">
       <button class="lv-btn" id="lvBtn1" onclick="enterLevel(1)">
-        <span class="lv-stars">⭐</span>
-        <span class="lv-name">CẤP 1</span>
-        <span class="lv-sub">Có trợ giúp</span>
-        <span class="lv-mult">×1 điểm</span>
+        <span class="lv-stars">⭐</span><span class="lv-name">CẤP 1</span>
+        <span class="lv-sub">Có trợ giúp</span><span class="lv-mult">×1 điểm</span>
       </button>
       <button class="lv-btn" id="lvBtn2" onclick="enterLevel(2)">
-        <span class="lv-stars">⭐⭐</span>
-        <span class="lv-name">CẤP 2</span>
-        <span class="lv-sub">Không video</span>
-        <span class="lv-mult">×1.5 điểm</span>
+        <span class="lv-stars">⭐⭐</span><span class="lv-name">CẤP 2</span>
+        <span class="lv-sub">Không video</span><span class="lv-mult">×1.5 điểm</span>
       </button>
       <button class="lv-btn" id="lvBtn3" onclick="enterLevel(3)">
-        <span class="lv-stars">⭐⭐⭐</span>
-        <span class="lv-name">CẤP 3</span>
-        <span class="lv-sub">Tự lực hoàn toàn</span>
-        <span class="lv-mult">×2 điểm</span>
+        <span class="lv-stars">⭐⭐⭐</span><span class="lv-name">CẤP 3</span>
+        <span class="lv-sub">Tự lực hoàn toàn</span><span class="lv-mult">×2 điểm</span>
       </button>
     </div>
     <button class="lv-cancel" onclick="closeLvModal()">✕ Huỷ</button>
   </div>
 </div>
 
+<!-- ── Slide-in Page ── -->
 <div class="page" id="pg">
   <div class="page-header">
     <button class="back-btn" onclick="close_()">‹</button>
@@ -579,15 +908,11 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
 
 // ── Auth Gate ─────────────────────────────────────────────────────────────
 (async function authGate() {
-  // Fallback: lấy tgId từ URL param nếu WebApp context chưa sẵn sàng
   const tgIdWA  = tg?.initDataUnsafe?.user?.id;
   const tgIdURL = new URLSearchParams(window.location.search).get('tg_id');
   const tgId    = tgIdWA || (tgIdURL ? parseInt(tgIdURL) : null);
 
-  if (!tgId) {
-    window.location.replace('/register');
-    return;
-  }
+  if (!tgId) { window.location.replace('/register'); return; }
 
   async function fetchStatus() {
     const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
@@ -598,38 +923,20 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
   try {
     let data;
     try { data = await fetchStatus(); }
-    catch(e1) {
-      await new Promise(r => setTimeout(r, 1500));
-      data = await fetchStatus();
-    }
+    catch(e1) { await new Promise(r => setTimeout(r, 1500)); data = await fetchStatus(); }
 
     if (data.status === 'approved') {
-      // Lưu tgId vào localStorage → profile.html dùng làm fallback khi mở trong iframe
       if (tgId) localStorage.setItem('vsTgId', String(tgId));
-
-      // Đồng bộ nhân vật và giới tính từ DB vào localStorage để tránh bị hiện avatar cũ khi F5
-      const classMap = {
-        chien_binh: 'lac-tuong',
-        phu_thuy:   'dao-si',
-        xa_thu:     'no-than',
-        hiep_si:    'than-tuong'
-      };
-      const genderMap = {
-        nam: 'male',
-        nu:  'female'
-      };
-      const dbClass = classMap[data.character_type];
+      const classMap = { chien_binh:'lac-tuong', phu_thuy:'dao-si', xa_thu:'no-than', hiep_si:'than-tuong' };
+      const genderMap = { nam:'male', nu:'female' };
+      const dbClass  = classMap[data.character_type];
       const dbGender = genderMap[data.gioi_tinh || 'nam'];
       if (dbClass && dbGender) {
         const mappedChar = `${dbClass}-${dbGender}`;
         localStorage.setItem('vsSelectedChar', mappedChar);
         sessionStorage.setItem('vsSelectedChar', mappedChar);
-        if (typeof loadSelectedCharacter === 'function') {
-          loadSelectedCharacter(mappedChar);
-        }
+        if (typeof loadSelectedCharacter === 'function') loadSelectedCharacter(mappedChar);
       }
-
-      // Cập nhật user badge với tên thật
       const CHARS = { chien_binh:'⚔️', phu_thuy:'🔮', xa_thu:'🏹', hiep_si:'🛡️' };
       const emoji = CHARS[data.character_type] || '⚔️';
       const badge = document.getElementById('userBadge');
@@ -643,18 +950,12 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
           <div style="font-size:52px;animation:float 3s ease-in-out infinite">⏳</div>
           <style>@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}</style>
           <div style="font-size:22px;font-weight:800;color:#0ae0fe;margin:16px 0 8px">Đang chờ duyệt</div>
-          <div style="color:rgba(248,250,252,.6);line-height:1.7">Hồ sơ của em đang chờ thầy duyệt.<br>Thầy sẽ thông báo qua Telegram khi xong!<br><br><strong style="color:#0ae0fe">Thường trong 24 giờ 🚀</strong></div>
+          <div style="color:rgba(248,250,252,.6);line-height:1.7">Hồ sơ đang chờ thầy duyệt.<br>Thầy sẽ thông báo qua Telegram khi xong!<br><br><strong style="color:#0ae0fe">Thường trong 24 giờ 🚀</strong></div>
         </div>`;
       return;
     }
-
-    // Chưa đăng ký → về trang đăng ký (kèm tg_id)
     window.location.replace(`/register?tg_id=${tgId}`);
-
-  } catch(e) {
-    console.warn('Auth gate error:', e);
-    // Fail open — không chặn học sinh đã đăng ký
-  }
+  } catch(e) { console.warn('Auth gate error:', e); }
 })();
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -677,17 +978,44 @@ function openProfile() {
   history.pushState({ lesson: 'profile' }, '');
 }
 
-/* ── Level selection ── */
+/* ── Map level data ── */
+const MAP_LEVELS = [
+  { ai:1,  buoi:null, name:'Trứng Tiên Nở Trăm Con',   path:null },
+  { ai:2,  buoi:null, name:'Mười Lăm Bộ Lạc Văn Lang', path:null },
+  { ai:3,  buoi:null, name:'Yêu Cáo Chín Đuôi Tây Hồ', path:null },
+  { ai:4,  buoi:null, name:'Tiếng Trống Thúc Quân',     path:null },
+  { ai:5,  buoi:null, name:'Đê Thần & Trận Hồng Thủy',  path:null },
+  { ai:6,  buoi:null, name:'Bếp Lửa Hoàng Tử Nghèo',   path:null },
+  { ai:7,  buoi:1,   name:'Bí Ẩn Cổ Loa',              path:'content/lop3/bai01/bai-tap.html' },
+  { ai:8,  buoi:2,   name:'Nỏ Thần Liên Châu',          path:'content/lop3/bai02/bai-tap.html' },
+  { ai:9,  buoi:null, name:'Hội Quân Mê Linh',          path:null },
+  { ai:10, buoi:null, name:'Chiến Thuật Voi Chiến',     path:null },
+  { ai:11, buoi:null, name:'Trận Bạch Đằng I',          path:null },
+  { ai:12, buoi:null, name:'Trận Bạch Đằng II',         path:null },
+  { ai:13, buoi:null, name:'Cờ Lau Tập Trận',           path:null }
+];
+
+/* ── Level selection state ── */
 var _pending = {};
-let currentBuoi = null;
+let currentBuoi  = null;
 let currentTitle = null;
 
+function nodeClick(ai) {
+  const lv = MAP_LEVELS.find(l => l.ai === ai);
+  if (!lv || !lv.buoi) {
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+    return; // locked / coming soon
+  }
+  const el = document.querySelector(`[data-ai="${ai}"]`);
+  open_(lv.buoi, lv.name, lv.path, el);
+}
+
 function open_(buoi, title, path, el) {
-  _pending = { buoi, title, path, el };
-  currentBuoi = buoi;
+  _pending     = { buoi, title, path, el };
+  currentBuoi  = buoi;
   currentTitle = title;
 
-  /* Nếu đang chơi dở → vào thẳng với level đã lưu, không chọn lại */
+  /* Nếu đang chơi dở → vào thẳng */
   try {
     var savedRaw = localStorage.getItem('cbToan_progress_bai' + buoi);
     if (savedRaw) {
@@ -700,10 +1028,9 @@ function open_(buoi, title, path, el) {
     }
   } catch(e) {}
 
-  /* Mở màn Intro thay vì mở Level Modal */
+  /* Mở Intro Modal */
   document.getElementById('introTitle').textContent = `ẢI ${buoi}: ${title}`;
 
-  /* Định nghĩa cốt truyện lịch sử tương ứng từng buổi */
   const STORIES = {
     1: {
       story: "Năm 210 TCN — <b>Em là Cao Lỗ</b>, tổng công trình sư thiên tài của An Dương Vương. Sau 10 năm kháng Tần, Người giao cho em một sứ mệnh: xây thành Cổ Loa pháo đài bảo vệ Âu Lạc. Nhưng yêu vật <b>Bạch Kê Tinh</b> mỗi đêm gáy xóa tri thức số học của thợ thuyền — tường xây ban ngày, sáng sớm đổ sụp. Kẻ thù biết: phá bộ óc Cao Lỗ là chúng thắng. Hãy chứng minh chúng sai!",
@@ -712,51 +1039,28 @@ function open_(buoi, title, path, el) {
     2: {
       story: "Thành Cổ Loa đứng vững — nhờ bộ óc của Cao Lỗ (em)! Thần Kim Quy tặng vuốt rùa vàng, An Dương Vương giao tiếp cho <b>em — Cao Lỗ</b> — rèn Nỏ thần Liên Châu, một phát bắn ra vạn mũi tên. Nhưng gián điệp <b>Ám Toán Sứ</b> đã xâm nhập xưởng đúc, viết thêm chữ số giả vào bản vẽ của em — kích thước sai hết, nỏ không thể hoạt động! Hãy dùng bài toán cấu tạo số vạch trần số giả, hoàn thành vũ khí huyền thoại!",
       mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Bài toán Cấu tạo số'"
-    },
-    3: {
-      story: "Quân giặc đã làm đổ mực đen lên các thẻ tre ghi chép kho lương thảo Loa Thành. Em hãy khôi phục số liệu lương thảo giúp quân sĩ xây thành đắp lũy giữ nước!",
-      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Phân biệt Số & Chữ số'"
-    },
-    4: {
-      story: "Năm 40 sau Công Nguyên, Hai Bà Trưng phất cờ khởi nghĩa tại sông Hát. Các cánh nghĩa quân từ khắp nơi đổ về hội tụ. Các em hãy tính toán số quân lương chi tiết!",
-      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Phân biệt Số & Chữ số'"
-    },
-    5: {
-      story: "Quân Đông Hán dàn trận địa bộ binh giáp sắt hiểm hóc. Hãy dùng phép nhân chia cơ bản để tính toán sắp xếp đội hình voi chiến phá tan kỵ binh địch!",
-      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Tuyệt chiêu Cấu tạo số'"
-    },
-    27: {
-      story: "Nước Việt rơi vào loạn 12 sứ quân cát cứ xẻ nghé giang sơn. Em hãy đồng hành cùng cậu bé Đinh Bộ Lĩnh cờ lau tập trận ở Hoa Lư bày binh bố trận giả!",
-      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu của buổi 27"
     }
   };
 
   const storyData = STORIES[buoi] || {
-    story: "Sau khi xuyên không, nhóm Chiến Binh Toán phát hiện vết nứt thời gian đang phá vỡ trật tự lịch sử của triều đại Đại Việt. Hãy cùng Sư phụ Long tiến hành sửa chữa!",
-    mission: `🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu của buổi ${buoi}`
+    story: "Sau khi xuyên không, nhóm Chiến Binh Toán phát hiện vết nứt thời gian đang phá vỡ trật tự lịch sử Đại Việt. Hãy cùng Sư phụ Long sửa chữa!",
+    mission: `🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu của ải ${buoi}`
   };
 
-  document.querySelector('.intro-story').innerHTML = storyData.story;
+  document.querySelector('.intro-story').innerHTML  = storyData.story;
   document.querySelector('.intro-mission').innerHTML = storyData.mission;
 
-  // Hiển thị nút rèn luyện phù hợp
   const btn1 = document.getElementById('btnRenTuyetChieu');
   const btn2 = document.getElementById('btnRenTuyetChieu2');
   btn1.style.display = (buoi === 1) ? 'block' : 'none';
   btn2.style.display = (buoi === 1 || buoi === 2) ? 'block' : 'none';
 
-  /* Boss background image theo từng bài — mặc định dùng Hồ Tinh */
-  const BOSS_BG = {
-    1: 'design-system/characters/boss/ho-tinh-portrait.jpg',
-  };
+  const BOSS_BG = { 1: 'design-system/characters/boss/ho-tinh-portrait.jpg' };
   const im = document.getElementById('introModal');
-  const bgUrl = BOSS_BG[buoi] || 'design-system/characters/boss/ho-tinh-portrait.jpg';
-  im.style.backgroundImage = `url('${bgUrl}')`;
-  
-  const hasSkill = localStorage.getItem('cbToan_skill_bai' + buoi) === 'true';
-  
-  // Nút Vào Ải sẽ thay đổi diện mạo nếu chưa có skill
-  const btnVaoAi = document.getElementById('btnVaoAi');
+  im.style.backgroundImage = `url('${BOSS_BG[buoi] || 'design-system/characters/boss/ho-tinh-portrait.jpg'}')`;
+
+  const hasSkill  = localStorage.getItem('cbToan_skill_bai' + buoi) === 'true';
+  const btnVaoAi  = document.getElementById('btnVaoAi');
   if (hasSkill) {
     btnVaoAi.style.opacity = '1';
     btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
@@ -777,7 +1081,6 @@ function openLvSelect() {
     alert("⚠️ Bạn chưa rèn xong Tuyệt Chiêu! Hãy nhấn 'RÈN TUYỆT CHIÊU' để thu thập đủ sức mạnh trước khi vào ải nhé!");
     return;
   }
-  
   closeIntroModal();
   document.getElementById('lvModalName').textContent = currentTitle;
   var best = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + currentBuoi) || '0');
@@ -805,26 +1108,6 @@ function playMinigame2() {
   requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
   if (tg?.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(close_); }
 }
-
-window.addEventListener('message', function(e) {
-  if (e.data === 'close_profile') {
-    close_();
-  } else if (e.data === 'minigame_won') {
-    close_(); 
-    
-    // Cập nhật lại diện mạo nút Vào Ải
-    const btnVaoAi = document.getElementById('btnVaoAi');
-    if (btnVaoAi) {
-      btnVaoAi.style.opacity = '1';
-      btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
-    }
-    
-    // Tùy chọn thông báo
-    setTimeout(() => {
-      alert("✨ Tuyệt vời!\nChúc mừng bạn đã lĩnh hội được tuyệt chiêu!\nBấm VÀO ẢI LUÔN để khiêu chiến Boss!");
-    }, 400);
-  }
-});
 
 function closeLvModal() {
   document.getElementById('levelModal').style.display = 'none';
@@ -854,92 +1137,103 @@ window.addEventListener('popstate', () => {
 });
 history.pushState({}, '');
 
+window.addEventListener('message', function(e) {
+  if (e.data === 'close_profile') {
+    close_();
+  } else if (e.data === 'minigame_won') {
+    close_();
+    const btnVaoAi = document.getElementById('btnVaoAi');
+    if (btnVaoAi) { btnVaoAi.style.opacity = '1'; btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN'; }
+    setTimeout(() => {
+      alert("✨ Tuyệt vời!\nChúc mừng bạn đã lĩnh hội được tuyệt chiêu!\nBấm VÀO ẢI LUÔN để khiêu chiến Boss!");
+    }, 400);
+  }
+});
 
-// Load selected character from character-select.html
+/* ── Character loading ── */
 function loadSelectedCharacter(charOverride) {
   const charFromURL = new URLSearchParams(window.location.search).get('character');
   if (charFromURL) {
     sessionStorage.setItem('vsSelectedChar', charFromURL);
     localStorage.setItem('vsSelectedChar', charFromURL);
   }
-  const selectedChar = charOverride
-    || charFromURL
+  const selectedChar = charOverride || charFromURL
     || sessionStorage.getItem('vsSelectedChar')
     || localStorage.getItem('vsSelectedChar');
-
   if (!selectedChar) return;
-
   const charCfg = {
-    'lac-tuong-male':   { color:'#C0332E', glow:'#D9514A', emoji:'⚔️', label:'LẠC TƯỚNG' },
-    'lac-tuong-female': { color:'#C0332E', glow:'#D9514A', emoji:'⚔️', label:'LẠC TƯỚNG' },
-    'dao-si-male':      { color:'#5E2A78', glow:'#A05CC0', emoji:'🔮', label:'ĐẠO SĨ' },
-    'dao-si-female':    { color:'#5E2A78', glow:'#A05CC0', emoji:'🔮', label:'ĐẠO SĨ' },
-    'no-than-male':     { color:'#246B4A', glow:'#58B082', emoji:'🏹', label:'NỎ THẦN' },
-    'no-than-female':   { color:'#246B4A', glow:'#58B082', emoji:'🏹', label:'NỎ THẦN' },
-    'than-tuong-male':  { color:'#1A3A5C', glow:'#5090CC', emoji:'🛡️', label:'THẦN TƯỚNG' },
-    'than-tuong-female':{ color:'#1A3A5C', glow:'#5090CC', emoji:'🛡️', label:'THẦN TƯỚNG' }
+    'lac-tuong-male':   { color:'#C0332E', glow:'#D9514A' },
+    'lac-tuong-female': { color:'#C0332E', glow:'#D9514A' },
+    'dao-si-male':      { color:'#5E2A78', glow:'#A05CC0' },
+    'dao-si-female':    { color:'#5E2A78', glow:'#A05CC0' },
+    'no-than-male':     { color:'#246B4A', glow:'#58B082' },
+    'no-than-female':   { color:'#246B4A', glow:'#58B082' },
+    'than-tuong-male':  { color:'#1A3A5C', glow:'#5090CC' },
+    'than-tuong-female':{ color:'#1A3A5C', glow:'#5090CC' }
   };
-
   const cfg = charCfg[selectedChar];
   if (!cfg) return;
-
   const classKey = selectedChar.replace(/-male|-female/, '');
   const headerAvatar = document.getElementById('headerAvatar');
   if (headerAvatar) {
     headerAvatar.src = `design-system/characters/playable/${classKey}/${selectedChar}-avatar.jpg`;
     headerAvatar.style.borderColor = cfg.color;
-    headerAvatar.style.boxShadow = `0 0 12px ${cfg.color}`;
+    headerAvatar.style.boxShadow   = `0 0 12px ${cfg.color}`;
   }
 }
 loadSelectedCharacter();
 
-// Load player info from Splash Screen
-const savedName = localStorage.getItem('cbToan_name');
-const savedAvatar = localStorage.getItem('cbToan_avatar');
-
-// Load badges
+/* ── Node status from localStorage ── */
 let badges = [];
-try {
-  badges = JSON.parse(localStorage.getItem('cbToan_badges')) || [];
-} catch(e) {}
+try { badges = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
 
-document.querySelectorAll('.cyber-box').forEach(card => {
-  const lesson = card.getAttribute('data-lesson');
-  if (badges.includes(parseInt(lesson))) {
-    card.classList.add('passed');
-    card.querySelector('.card-arrow').innerHTML = '🏆';
-    var bestLv = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + lesson) || '0');
-    var starStr = bestLv > 0 ? '⭐'.repeat(bestLv) : '';
-    card.querySelector('.card-level').innerHTML = 'ĐÃ VƯỢT QUA' + (starStr ? ' <span class="card-stars">' + starStr + '</span>' : '');
-  } else {
-    card.querySelector('.card-arrow').innerHTML = '🔓';
+function updateMapNodes() {
+  badges.forEach(buoi => {
+    const node = document.querySelector(`.map-node[data-buoi="${buoi}"]`);
+    if (!node) return;
+    // Mark completed
+    node.classList.remove('node-available', 'node-locked');
+    node.classList.add('node-completed');
+    const boss = node.querySelector('.node-boss');
+    if (boss) boss.textContent = '🏆';
+    const bestLv = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + buoi) || '0');
+    const stars  = node.querySelector('.node-stars');
+    if (stars && bestLv > 0) stars.textContent = '⭐'.repeat(bestLv);
+    // Mark in-progress info
+    const progressData = localStorage.getItem('cbToan_progress_bai' + buoi);
+    if (progressData && !badges.includes(buoi)) {
+      try {
+        const p = JSON.parse(progressData);
+        if (p && p.slide > 1) {
+          const num = node.querySelector('.node-num');
+          if (num) num.style.fontSize = '14px';
+        }
+      } catch(e) {}
+    }
+  });
+}
+updateMapNodes();
 
-  const progressData = localStorage.getItem('cbToan_progress_bai' + lesson);
-  if (progressData && !badges.includes(parseInt(lesson))) {
-    try {
-      const p = JSON.parse(progressData);
-      if (p && p.slide > 1) {
-         const lvStars = p.level ? '⭐'.repeat(p.level) : '';
-         card.querySelector('.card-level').innerHTML = `Câu ${p.slide}/${p.total} ${lvStars}`;
-         card.querySelector('.card-level').style.color = 'var(--primary)';
-         card.style.borderColor = 'var(--primary)';
-         card.style.boxShadow = '0 0 15px rgba(10,224,254,0.3)';
-      }
-    } catch(e){}
-  }
-  
-  }
+/* ── Auto-scroll to first live level (ải 7) ── */
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const el = document.getElementById('mapNode7');
+    const wrap = document.getElementById('worldMapWrap');
+    if (el && wrap) {
+      const nodeY = parseInt(el.style.top) || 1590;
+      wrap.scrollTop = Math.max(0, nodeY - 280);
+    }
+  }, 120);
 });
 
-// Lắng nghe sự kiện reload khi popup tắt
+/* ── Reload after close to refresh badges ── */
 const _origClose = close_;
 close_ = function() {
   _origClose();
-  // Reload sau 1s để cập nhật huy hiệu
   setTimeout(() => location.reload(), 1000);
-}
+};
 
-// Tự động đồng bộ và trộn checkpoints của minigame khi vào bài học lớn
+/* ── Checkpoint merge ── */
 document.getElementById('frame').addEventListener('load', function() {
   try {
     const frame = document.getElementById('frame');
@@ -947,31 +1241,23 @@ document.getElementById('frame').addEventListener('load', function() {
     if (iframeWindow) {
       const buoi = iframeWindow._BUOI || currentBuoi;
       if (buoi) {
-        const cp1 = localStorage.getItem('cbToan_minigame_checkpoints_bai' + buoi);
+        const cp1 = localStorage.getItem('cbToan_minigame_checkpoints_bai'  + buoi);
         const cp2 = localStorage.getItem('cbToan_minigame2_checkpoints_bai' + buoi);
         let minigameCps = [];
-        if (cp1) {
-          try { minigameCps = minigameCps.concat(JSON.parse(cp1)); } catch(e){}
-        }
-        if (cp2) {
-          try { minigameCps = minigameCps.concat(JSON.parse(cp2)); } catch(e){}
-        }
+        if (cp1) { try { minigameCps = minigameCps.concat(JSON.parse(cp1)); } catch(e){} }
+        if (cp2) { try { minigameCps = minigameCps.concat(JSON.parse(cp2)); } catch(e){} }
         if (minigameCps.length > 0) {
           iframeWindow._checkpoints = iframeWindow._checkpoints || [];
           const existingIds = new Set(iframeWindow._checkpoints.map(cp => cp.question_id));
-          const uniqueMinigameCps = minigameCps.filter(cp => !existingIds.has(cp.question_id));
-          if (uniqueMinigameCps.length > 0) {
-            iframeWindow._checkpoints = uniqueMinigameCps.concat(iframeWindow._checkpoints);
-            console.log("Đã trộn checkpoints luyện tập Đại Việt thành công:", uniqueMinigameCps);
+          const uniqueCps   = minigameCps.filter(cp => !existingIds.has(cp.question_id));
+          if (uniqueCps.length > 0) {
+            iframeWindow._checkpoints = uniqueCps.concat(iframeWindow._checkpoints);
           }
         }
       }
     }
-  } catch (err) {
-    console.warn("Checkpoint merge skipped:", err);
-  }
+  } catch(err) { console.warn('Checkpoint merge skipped:', err); }
 });
 </script>
 </body>
 </html>
-
