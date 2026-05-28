@@ -135,3 +135,19 @@ Tôi đã tinh chỉnh thêm và khắc phục hoàn toàn lỗi hiển thị th
 
 ---
 ---
+
+## [Claude] 2026-05-28 — Khắc Phục Lỗi "/" Ảo Trong Quick Tour
+
+### Bối cảnh
+Quick tour của Minigame 1 (`minigame.html`) hiển thị chữ số demo ở `font-size: 160px`. Khi tooltip tour (`position: fixed`) trải dài từ y≈16px đến y≈296px trong iframe, nó che phủ ≈51px phần đầu của chữ số "7" (160px cao, bắt đầu từ y≈245px). Phần còn lộ ra chỉ là nét chéo xuống phải → trông hệt dấu "/".
+
+### Cách sửa (commit c9ce117)
+Trong `showTourStep()`:
+- **Step 0** (số 7): `font-size: 80px` + nhãn `"← CHỮ SỐ | SỐ →"` dưới số
+- **Step 2** (số 23, SỐ): `font-size: 80px` + nhãn `"👉 Đây là SỐ (>9)"`
+- **Step 3** (trick card 23): font trick-text 2.5rem → 1.8rem, số 120px → 80px
+
+Với 80px, đỉnh số bắt đầu từ y≈285-295px — nằm dưới hoặc sát mép tooltip (≈296px) → hiển thị đầy đủ, không còn lỗi "/" ảo.
+
+---
+---

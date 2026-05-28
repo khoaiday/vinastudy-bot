@@ -97,3 +97,18 @@
 
 ---
 ---
+
+## [Claude] 2026-05-28 — Sửa Lỗi "/" Ảo Trong Quick Tour (minigame.html)
+
+- `[x]` 1. Xác định nguyên nhân lỗi
+  - `[x]` Chữ số "7" hiển thị 160px trong `showTourStep(0)` bị tooltip tour đè lên phần trên (~51px)
+  - `[x]` Chỉ còn thấy nét chéo dưới của "7" → trông như dấu "/" bồng bềnh
+- `[x]` 2. Sửa `showTourStep()` trong `minigame.html`
+  - `[x]` Step 0: giảm font số demo từ 160px → 80px, thêm nhãn `"← CHỮ SỐ | SỐ →"`
+  - `[x]` Step 2: giảm font số "23" từ 160px → 80px, thêm nhãn `"👉 Đây là SỐ (>9)"`
+  - `[x]` Step 3 (trick card): giảm font text bẫy 2.5rem → 1.8rem, số 120px → 80px
+  - `[x]` Font `.number-display` trong gameplay thực (CSS class) KHÔNG thay đổi
+- `[x]` 3. Commit & push (c9ce117)
+
+---
+---
