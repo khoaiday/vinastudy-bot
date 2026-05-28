@@ -1032,11 +1032,14 @@
             // Custom side-effects for each step
             const card = document.getElementById('activeCard');
             if (idx === 0) {
-                // Show standard card
+                // Show standard card — font 80px to avoid tooltip overlap (160px gây lỗi "/")
                 if (card) {
                     currentCardValue = 7;
                     isTrick = false;
-                    card.innerHTML = `<div class="number-display">${currentCardValue}</div>`;
+                    card.innerHTML = `
+                        <div class="number-display" style="font-size: 80px;">${currentCardValue}</div>
+                        <div style="font-size:13px; color:var(--text-muted); margin-top:8px; font-family:var(--font-mono);">← CHỮ SỐ &nbsp;|&nbsp; SỐ →</div>
+                    `;
                 }
                 indLeft.style.opacity = 0;
                 indRight.style.opacity = 0;
@@ -1046,23 +1049,26 @@
                 indLeft.style.transform = `scale(1) rotate(-15deg)`;
                 indRight.style.opacity = 0;
             } else if (idx === 2) {
-                // Highlight Right indicator
+                // Highlight Right indicator — font 80px
                 if (card) {
                     currentCardValue = 23;
                     isTrick = false;
-                    card.innerHTML = `<div class="number-display">${currentCardValue}</div>`;
+                    card.innerHTML = `
+                        <div class="number-display" style="font-size: 80px;">${currentCardValue}</div>
+                        <div style="font-size:13px; color:var(--primary); margin-top:8px; font-family:var(--font-mono);">👉 Đây là SỐ (>9)</div>
+                    `;
                 }
                 indLeft.style.opacity = 0;
                 indRight.style.opacity = 1;
                 indRight.style.transform = `scale(1) rotate(15deg)`;
             } else if (idx === 3) {
-                // Show trick card
+                // Show trick card — font 80px, trick text smaller
                 if (card) {
                     currentCardValue = 23;
                     isTrick = true;
                     card.innerHTML = `
-                        <div class="pulse" style="font-family: var(--font-mono); font-weight: 900; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 20px var(--secondary-glow); color: var(--secondary); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: rotate(-15deg); text-transform: uppercase;">CHỮ SỐ 👈</div>
-                        <div class="number-display" style="font-size: 120px;">${currentCardValue}</div>
+                        <div class="pulse" style="font-family: var(--font-mono); font-weight: 900; font-size: 1.8rem; margin-bottom: 12px; text-shadow: 0 0 20px var(--secondary-glow); color: var(--secondary); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transform: rotate(-15deg); text-transform: uppercase;">CHỮ SỐ 👈</div>
+                        <div class="number-display" style="font-size: 80px;">${currentCardValue}</div>
                     `;
                 }
                 indLeft.style.opacity = 0;
