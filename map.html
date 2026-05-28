@@ -382,31 +382,37 @@
   </div>
 
   <div class="scroll">
-    <div class="zone-title">TRẠM 1: THUỞ SƠ KHAI - DỰNG NƯỚC</div>
+    <div class="zone-title">TRẠM 1: ÂU LẠC — SAU 10 NĂM KHÁNG TẦN</div>
 
-    <div class="cyber-box" data-lesson="1" onclick="open_(1,'Rèn Giáp Cho Thánh Gióng','content/lop3/bai01/bai-tap.html',this)">
+    <div class="cyber-box" data-lesson="1" onclick="open_(1,'Dựng Thành Cổ Loa','content/lop3/bai01/bai-tap.html',this)">
       <div class="card-content">
-        <div class="card-icon" style="padding:0;overflow:hidden;background:rgba(180,0,0,0.15);border-color:#cc0000;box-shadow:inset 0 0 10px rgba(180,0,0,0.4),0 0 8px rgba(180,0,0,0.3)">
-          <img src="/content/lop3/bai01/assets/boss_so_than_portrait.jpg"
+        <div class="card-icon" style="padding:0;overflow:hidden;background:rgba(140,80,0,0.18);border-color:#B87333;box-shadow:inset 0 0 10px rgba(184,115,51,0.4),0 0 8px rgba(184,115,51,0.35)">
+          <img src="/design-system/characters/boss/ho-tinh-portrait.jpg"
                style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:6px;display:block"
                onerror="this.parentElement.innerHTML='ẢI 1';this.parentElement.style.cssText=''">
         </div>
         <div class="card-body">
-          <div class="card-level" style="color:#ff4444">MISSION 01 — BOSS</div>
-          <div class="card-title">Rèn Giáp Cho Thánh Gióng</div>
+          <div class="card-level" style="color:#C8960C">MISSION 01 — BOSS</div>
+          <div class="card-title">Dựng Thành Cổ Loa</div>
+          <div style="font-size:11px;color:var(--copper);margin-top:2px;font-family:var(--font-mono)">🐓 Bạch Kê Tinh · Buổi 1</div>
         </div>
-        <div class="card-arrow" style="color:#ff4444;filter:drop-shadow(0 0 6px rgba(255,0,0,0.6))">⚔️</div>
+        <div class="card-arrow" style="color:#C8960C;filter:drop-shadow(0 0 6px rgba(200,150,12,0.6))">⚔️</div>
       </div>
     </div>
 
-    <div class="cyber-box" data-lesson="2" onclick="open_(2,'Nỏ thần Liên Châu','content/lop3/bai02/bai-tap.html',this)">
+    <div class="cyber-box" data-lesson="2" onclick="open_(2,'Rèn Nỏ Thần Liên Châu','content/lop3/bai02/bai-tap.html',this)">
       <div class="card-content">
-        <div class="card-icon">ẢI 2</div>
-        <div class="card-body">
-          <div class="card-level">MISSION 02</div>
-          <div class="card-title">Nỏ thần Liên Châu</div>
+        <div class="card-icon" style="padding:0;overflow:hidden;background:rgba(180,0,0,0.15);border-color:#cc0000;box-shadow:inset 0 0 10px rgba(180,0,0,0.4),0 0 8px rgba(180,0,0,0.3)">
+          <img src="/design-system/characters/boss/ho-tinh-portrait.jpg"
+               style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:6px;display:block;filter:hue-rotate(200deg) saturate(1.5)"
+               onerror="this.parentElement.innerHTML='ẢI 2';this.parentElement.style.cssText=''">
         </div>
-        <div class="card-arrow">⚔️</div>
+        <div class="card-body">
+          <div class="card-level" style="color:#ff4444">MISSION 02 — BOSS</div>
+          <div class="card-title">Rèn Nỏ Thần Liên Châu</div>
+          <div style="font-size:11px;color:var(--copper);margin-top:2px;font-family:var(--font-mono)">📜 Ám Toán Sứ · Buổi 2</div>
+        </div>
+        <div class="card-arrow" style="color:#ff4444;filter:drop-shadow(0 0 6px rgba(255,0,0,0.6))">⚔️</div>
       </div>
     </div>
 
@@ -464,11 +470,11 @@
 <div class="intro-modal" id="introModal">
   <div class="intro-overlay"></div>
   <div class="intro-content">
-    <div class="intro-title" id="introTitle">Ải 1: Rèn Giáp Cho Thánh Gióng</div>
-    <div class="intro-story">
-      Quân Ân xâm lược Văn Lang. Cậu bé Gióng xin giáp sắt để đánh giặc — nhưng Quỷ Số đã xáo trộn toàn bộ bản kê rèn giáp, không ai đọc được số thật! Hãy rèn 2 tuyệt chiêu rồi phá phép Quỷ Số, giúp Gióng có giáp ra trận!
+    <div class="intro-title" id="introTitle">Ải 1: Dựng Thành Cổ Loa</div>
+    <div class="intro-story" id="introStory">
+      Sau 10 năm kháng Tần, An Dương Vương xây thành Cổ Loa — nhưng tường cứ đổ mỗi sáng! Bạch Kê Tinh, yêu vật phương Bắc, mỗi đêm gáy xóa tri thức số học của thợ thuyền. Hãy khôi phục tri thức, phá phép nguyền, dựng vững thành Cổ Loa!
     </div>
-    <div class="intro-mission">
+    <div class="intro-mission" id="introMission">
       🎯 Nhiệm vụ trước khi vào ải:<br>Rèn 2 Tuyệt Chiêu bên dưới
     </div>
     
@@ -700,12 +706,12 @@ function open_(buoi, title, path, el) {
   /* Định nghĩa cốt truyện lịch sử tương ứng từng buổi */
   const STORIES = {
     1: {
-      story: "Quân Ân xâm lược Văn Lang. Cậu bé Gióng xin giáp sắt để đánh giặc — nhưng Quỷ Số đã xáo trộn toàn bộ bản kê rèn giáp, không ai đọc được số thật! Hãy rèn 2 tuyệt chiêu rồi phá phép Quỷ Số, giúp Gióng có giáp ra trận!",
+      story: "Năm 210 TCN — Sau 10 năm kháng chiến, quân Tần đại bại, Thục Phán lên ngôi An Dương Vương. Nhưng thực thể hắc ám phương Bắc cử <b>Bạch Kê Tinh</b> phá hoại: mỗi đêm nó gáy xóa tri thức số học của thợ thuyền — tường Cổ Loa cứ xây ban ngày là sáng sớm đổ sụp. Hãy rèn 2 tuyệt chiêu, phá phép nguyền, dựng vững kinh đô Âu Lạc!",
       mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn 2 Tuyệt Chiêu bên dưới"
     },
     2: {
-      story: "Tướng quân Cao Lỗ đang chế tạo Nỏ thần Liên Châu bắn một phát vạn mũi tên. Nhưng khuôn đúc đồng bị hư hại các ký số vị trí Hàng Trăm, Chục, Đơn vị. Hãy dùng kỹ năng cấu tạo số để đúc mũi tên đồng giữ nước!",
-      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Tuyệt chiêu Cấu tạo số'"
+      story: "Cổ Loa đã đứng vững! Thần Kim Quy tặng vuốt rùa vàng để rèn Nỏ thần Liên Châu. Nhưng gián điệp <b>Ám Toán Sứ</b> đã xâm nhập xưởng đúc, viết thêm chữ số giả vào bản vẽ kỹ thuật — kích thước sai hết, nỏ không thể hoạt động! Hãy dùng bài toán cấu tạo số để vạch trần số giả, cứu lấy Nỏ thần!",
+      mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Bài toán Cấu tạo số'"
     },
     3: {
       story: "Quân giặc đã làm đổ mực đen lên các thẻ tre ghi chép kho lương thảo Loa Thành. Em hãy khôi phục số liệu lương thảo giúp quân sĩ xây thành đắp lũy giữ nước!",
