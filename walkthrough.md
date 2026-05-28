@@ -151,3 +151,28 @@ Với 80px, đỉnh số bắt đầu từ y≈285-295px — nằm dưới hoặ
 
 ---
 ---
+
+## [Claude] 2026-05-28 — Xây Kịch Bản Ải 1 & 2: Thục Phán Dựng Nước
+
+### Bối cảnh lịch sử (nguồn: Wikipedia, Sử ký Tư Mã Thiên)
+Sau 10 năm kháng chiến chống Tần (đại tướng Đồ Thư tử trận), nhân dân Âu Việt giành độc lập. Thục Phán — An Dương Vương — bắt tay củng cố và xây dựng lại đất nước. Thực thể hắc ám phương Bắc không còn chiến thắng bằng quân sự nên can thiệp trực tiếp vào quá trình xây dựng.
+
+### Ải 1: Dựng Thành Cổ Loa (`ai-1-co-loa-v2.md`)
+- **Boss:** Bạch Kê Tinh (白雞精) — gà trắng yêu vật, mỗi đêm gáy xóa tri thức số học → thợ thuyền không phân biệt số và chữ số → đọc sai bản vẽ → tường đổ
+- **Toán (buổi 1):** Phân biệt Số & Chữ số · Phân tích cấu tạo số ABC=A×100+B×10+C · So sánh A43+4B6+25C vs ABC+700
+- **Mini-games:** minigame.html + minigame2.html (đã có sẵn)
+- **Kết:** Thần Kim Quy hạ Bạch Kê Tinh → Cổ Loa hoàn thành nửa tháng
+
+### Ải 2: Rèn Nỏ Thần Liên Châu (`ai-2-no-lien-chau.md`)
+- **Boss:** Ám Toán Sứ (暗算使) — gián điệp viết thêm chữ số giả vào bản vẽ kỹ thuật → kích thước sai → nỏ không hoạt động
+- **Toán (buổi 2):** Bài toán cấu tạo số: 3a=30+a · 2AB=200+AB · Tìm a/AB/ABC khi biết gấp x lần
+- **6 câu hỏi boss được thiết kế toán học cẩn thận** (kiểm tra nghiệm nguyên dương, tránh a=10)
+- **Kết:** Ám Toán Sứ bại, Cao Lỗ sửa bản vẽ → Nỏ thần hoàn thành
+
+### Thay đổi map.html
+- TRẠM 1 đổi tên → "ÂU LẠC — SAU 10 NĂM KHÁNG TẦN"
+- Ải 1 card màu đồng (#B87333) thay màu đỏ
+- STORIES[1] & STORIES[2] cập nhật cốt truyện mới
+
+---
+---

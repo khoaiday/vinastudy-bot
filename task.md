@@ -112,3 +112,29 @@
 
 ---
 ---
+
+## [Claude] 2026-05-28 — Xây Dựng Ải 1 & 2: Cổ Loa + Nỏ Thần (Bối Cảnh An Dương Vương)
+
+- `[x]` 1. Tạo kịch bản Ải 1: Dựng Thành Cổ Loa (`scenarios/ai-1-co-loa-v2.md`)
+  - `[x]` Bối cảnh: Thục Phán củng cố Âu Lạc sau 10 năm kháng Tần (~210 TCN)
+  - `[x]` Boss: Bạch Kê Tinh — tiếng gáy xóa tri thức số học, tường Cổ Loa cứ đổ
+  - `[x]` Toán: Phân biệt số/chữ số · Phân tích cấu tạo số ABC=A×100+B×10+C · So sánh số
+  - `[x]` 6 câu hỏi boss (🌱 Nhận biết → ⚔️ Giá trị → 🏹 So sánh A43+4B6+25C → 🏆 Tổng hợp)
+  - `[x]` Lời thoại đầy đủ: Thầy Long · Cỗ máy Đông Sơn · Cao Lỗ · Thần Kim Quy · Bạch Kê Tinh
+  - `[x]` Ngân hàng câu hỏi mở rộng (🌱⚔️🏹)
+- `[x]` 2. Tạo kịch bản Ải 2: Rèn Nỏ Thần Liên Châu (`scenarios/ai-2-no-lien-chau.md`)
+  - `[x]` Bối cảnh: Thần Kim Quy tặng vuốt rùa, Cao Lỗ rèn nỏ thần
+  - `[x]` Boss: Ám Toán Sứ — viết thêm chữ số giả vào bản vẽ kỹ thuật
+  - `[x]` Toán: Bài toán viết thêm chữ số · Tìm số ẩn 1/2/3 chữ số (3a=30+a, 2AB=200+AB)
+  - `[x]` 6 câu hỏi boss (🌱 Phép viết thêm → 🌱 Giá trị cụ thể → ⚔️ Tìm a 1 c.số → ⚔️ Số 2 c.số → 🏹 Tìm AB → 🏆 Tìm ABC)
+  - `[x]` Ngân hàng câu hỏi hợp lệ (kiểm tra nghiệm nguyên dương)
+- `[x]` 3. Cập nhật `map.html`
+  - `[x]` TRẠM 1: "THUỞ SƠ KHAI" → "ÂU LẠC — SAU 10 NĂM KHÁNG TẦN"
+  - `[x]` Ải 1 card: "Rèn Giáp Cho Thánh Gióng" → "Dựng Thành Cổ Loa" · màu đồng #B87333
+  - `[x]` Ải 2 card: thêm thông tin boss "📜 Ám Toán Sứ · Buổi 2", border màu đỏ
+  - `[x]` STORIES[1]: cập nhật cốt truyện Bạch Kê Tinh + Cổ Loa
+  - `[x]` STORIES[2]: cập nhật cốt truyện Ám Toán Sứ + Nỏ thần
+- `[x]` 4. Commit & push (430f3ae)
+
+---
+---
