@@ -885,7 +885,7 @@ function showDetailById(userId, u) {
   if (typeof u === 'string') u = JSON.parse(u);
   document.getElementById('detailName').textContent = u.ho_ten || u.email;
   const img = document.getElementById('detailAvatar');
-  img.src = avatarSrc(u); img.style.display='block';
+  if (avatarSrc(u)) { img.src = avatarSrc(u); img.style.display='block'; }
   else img.style.display='none';
 
   document.getElementById('detailContent').innerHTML = `
