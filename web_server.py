@@ -1,5 +1,5 @@
 """FastAPI web server — OAuth, registration, admin dashboard."""
-# deploy trigger 2026-05-31
+# deploy trigger 2026-05-31 v2 (assets: map-bg, loading-bg, runner)
 import logging
 import os
 import uvicorn
