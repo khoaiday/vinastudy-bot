@@ -1,4 +1,5 @@
 """FastAPI web server — OAuth, registration, admin dashboard."""
+# deploy trigger 2026-05-31
 import logging
 import os
 import uvicorn
@@ -115,6 +116,15 @@ async def minigame_page():
 async def minigame2_page():
     """Trang mini game cấu tạo số."""
     p = BASE_DIR / "minigame2.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
+@app.get("/battle.html", response_class=HTMLResponse)
+async def battle_page(ai: int = 7):
+    """Trang chiến đấu boss — nhận ?ai=N để load kịch bản tương ứng."""
+    p = BASE_DIR / "battle.html"
     if p.exists():
         return HTMLResponse(p.read_text(encoding="utf-8"))
     return HTMLResponse("...", status_code=503)
