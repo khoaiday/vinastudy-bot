@@ -573,6 +573,36 @@ body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'S
 
 <div class="toast" id="toast"></div>
 
+<!-- Login script tách riêng để không bị ảnh hưởng bởi lỗi JS bên dưới -->
+<script>
+var adminToken = localStorage.getItem('adminToken') || '';
+function doLogin() {
+  var t = document.getElementById('tokenInput').value.trim();
+  if (!t) return;
+  fetch('/api/admin/stats', {headers:{'X-Admin-Token':t}}).then(function(r){
+    if (!r.ok) { document.getElementById('loginErr').style.display='block'; return; }
+    adminToken = t;
+    localStorage.setItem('adminToken', t);
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    r.json().then(function(d){ if(typeof renderStats==='function') renderStats(d); });
+    if(typeof loadPending==='function') loadPending(true);
+    if(typeof loadLeaderboard==='function') loadLeaderboard();
+  });
+}
+// Auto-login nếu đã có token
+if (adminToken) {
+  fetch('/api/admin/stats', {headers:{'X-Admin-Token':adminToken}}).then(function(r){
+    if (!r.ok) { localStorage.removeItem('adminToken'); adminToken=''; return; }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    r.json().then(function(d){ if(typeof renderStats==='function') renderStats(d); });
+    if(typeof loadPending==='function') loadPending(true);
+    if(typeof loadLeaderboard==='function') loadLeaderboard();
+  });
+}
+</script>
+
 <script>
 // ── State ────────────────────────────────────────────────────────────────
 let adminToken = localStorage.getItem('adminToken') || '';
