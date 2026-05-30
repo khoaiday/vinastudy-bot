@@ -853,7 +853,7 @@
   <div class="geo-map-wrap" id="worldMapWrap">
     <div class="geo-map" id="worldMap">
       <!-- Background map image -->
-      <img class="geo-map-img" src="assets/map-bg.jpg" alt="Bản đồ Đại Việt">
+      <img class="geo-map-img" src="https://raw.githubusercontent.com/khoaiday/vinastudy-bot/main/assets/map-bg.jpg" alt="Bản đồ Đại Việt">
 
 
       <!-- ═══ 7 LIVE NODES — vị trí địa lý ═══ -->
@@ -1800,4 +1800,49 @@ document.getElementById('frame').addEventListener('load', function() {
     let html = '';
     for (let b = 1; b <= 7; b++) {
       const tl = parseInt(localStorage.getItem(`cbToan_tl_ai${b}`) || '0');
-      const t3 = localStorage.getItem(`cbToan_ai${b}_tang3_done`) ? '📚' : '
+      const t3 = localStorage.getItem(`cbToan_ai${b}_tang3_done`) ? '📚' : '·';
+      html += `Ải${b}: ${t3} ${tl}⚡ | `;
+    }
+    el.innerHTML = html.replace(/\| $/, '');
+  }
+
+  window._mapDevSimLearn = function(buoi) {
+    // 1. Ghi localStorage
+    for (let t = 1; t <= 3; t++)
+      localStorage.setItem(`cbToan_ai${buoi}_tang${t}_done`, '1');
+    localStorage.setItem(`cbToan_tl_ai${buoi}`, '180');
+
+    // 2. Tìm node
+    const node = document.querySelector(`.map-node[data-buoi="${buoi}"]`);
+    if (!node) { alert(`Không tìm thấy node data-buoi="${buoi}"`); return; }
+
+    // 3. Dùng markNodeLearned — đã fix removeClass node-available
+    if (!node.classList.contains('node-completed')) {
+      markNodeLearned(node, 3);
+    }
+
+    // 4. Scroll đến node
+    const wrap = document.getElementById('worldMapWrap');
+    if (wrap) wrap.scrollTop = Math.max(0, (parseInt(node.style.top) || 300) - 250);
+
+    // 5. Refresh HUD & panel state
+    refreshToanLucHUD();
+    _mapDevRefresh();
+  };
+  window._mapDevSetTL = function(buoi, amount) {
+    localStorage.setItem(`cbToan_tl_ai${buoi}`, String(amount));
+    refreshToanLucHUD(); _mapDevRefresh();
+  };
+  window._mapDevReset = function() {
+    if (!confirm('Reset tất cả?')) return;
+    for (let b = 1; b <= 7; b++) {
+      ['tang1_done','tang2_done','tang3_done','tang1_best','tang2_best','tang3_best']
+        .forEach(k => localStorage.removeItem(`cbToan_ai${b}_${k}`));
+      localStorage.removeItem(`cbToan_tl_ai${b}`);
+    }
+    location.reload();
+  };
+})();
+</script>
+</body>
+</html>
