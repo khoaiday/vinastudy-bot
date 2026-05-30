@@ -605,7 +605,7 @@ if (adminToken) {
 
 <script>
 // ── State ────────────────────────────────────────────────────────────────
-let adminToken = localStorage.getItem('adminToken') || '';
+// adminToken đã khai báo ở script login phía trên
 let allStudents = [];
 let rejectTargetId = null;
 
@@ -648,39 +648,7 @@ function showToast(msg, type='success') {
   setTimeout(()=>t.classList.remove('show'), type==='warn' ? 6000 : 3200);
 }
 
-// ── Login ────────────────────────────────────────────────────────────────
-async function doLogin() {
-  const t = document.getElementById('tokenInput').value.trim();
-  if (!t) return;
-  // Verify by calling stats
-  try {
-    const res = await fetch('/api/admin/stats', { headers: { 'X-Admin-Token': t } });
-    if (!res.ok) throw new Error();
-    adminToken = t;
-    localStorage.setItem('adminToken', t);
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('main').style.display = 'block';
-    renderStats(await res.json());
-    loadPending(true); // load pending count silently
-    loadLeaderboard();
-  } catch(e) {
-    document.getElementById('loginErr').style.display = 'block';
-  }
-}
-
-// Auto-login if token stored
-(async function autoLogin() {
-  if (!adminToken) return;
-  try {
-    const res = await fetch('/api/admin/stats', { headers: { 'X-Admin-Token': adminToken } });
-    if (!res.ok) { localStorage.removeItem('adminToken'); adminToken=''; return; }
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('main').style.display = 'block';
-    renderStats(await res.json());
-    loadPending(true);
-    loadLeaderboard();
-  } catch(e) { localStorage.removeItem('adminToken'); adminToken=''; }
-})();
+// doLogin và autoLogin đã được định nghĩa ở script login phía trên
 
 // ── API helper ───────────────────────────────────────────────────────────
 async function api(path, opts={}) {
