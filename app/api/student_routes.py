@@ -434,8 +434,14 @@ async def complete_ai(body: CompleteAiBody):
     # 2. Cộng XP dựa trên số sao (10 XP/sao)
     xp_earn = body.stars * 10 + body.score // 10
     try:
-        from app.services.gamification import cap_nhat_xp
-        await cap_nhat_xp(body.tg_id, xp_earn)
+        from app.database.connection import get_pool
+        pool = get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO gamification (telegram_id, xp) VALUES ($1, $2)
+                ON CONFLICT (telegram_id) DO UPDATE
+                    SET xp = gamification.xp + EXCLUDED.xp
+            """, body.tg_id, xp_earn)
     except Exception as e:
         logger.warning(f"XP update failed: {e}")
 
