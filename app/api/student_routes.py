@@ -347,3 +347,146 @@ async def leaderboard(top: int = 20):
         r["badge_list"] = badge_list
         r.pop("badges", None)
     return JSONResponse({"leaderboard": rows, "total": len(rows)})
+
+
+# ── Telegram WebApp Auth ───────────────────────────────────────────────────
+
+import hashlib, hmac, time, urllib.parse
+
+class TgAuthBody(BaseModel):
+    init_data: str   # raw initData string từ Telegram.WebApp.initData
+
+@router.post("/tg-auth")
+async def tg_auth(body: TgAuthBody):
+    """Xác thực initData từ Telegram WebApp (HMAC-SHA256).
+    Trả về telegram_id nếu hợp lệ — client dùng id này cho các API call sau."""
+    from app.config import TELEGRAM_TOKEN as BOT_TOKEN
+    if not BOT_TOKEN:
+        raise HTTPException(500, "Bot token chưa cấu hình")
+
+    raw = body.init_data
+    params = dict(urllib.parse.parse_qsl(raw, keep_blank_values=True))
+    received_hash = params.pop("hash", None)
+    if not received_hash:
+        raise HTTPException(400, "Thiếu hash")
+
+    # Build data-check-string
+    data_check = "\n".join(f"{k}={v}" for k, v in sorted(params.items()))
+
+    # secret_key = HMAC-SHA256("WebAppData", bot_token)
+    secret_key = hmac.new(b"WebAppData", BOT_TOKEN.encode(), hashlib.sha256).digest()
+    expected = hmac.new(secret_key, data_check.encode(), hashlib.sha256).hexdigest()
+
+    if not hmac.compare_digest(expected, received_hash):
+        raise HTTPException(403, "initData không hợp lệ")
+
+    # Kiểm tra thời gian (tối đa 1 giờ)
+    auth_date = int(params.get("auth_date", 0))
+    if time.time() - auth_date > 3600:
+        raise HTTPException(403, "initData đã hết hạn")
+
+    import json
+    user_json = params.get("user", "{}")
+    user = json.loads(user_json)
+    tg_id = user.get("id")
+    if not tg_id:
+        raise HTTPException(400, "Không tìm được user id")
+
+    return JSONResponse({"ok": True, "telegram_id": tg_id, "user": user})
+
+
+# ── Game Progress ──────────────────────────────────────────────────────────
+
+class CompleteAiBody(BaseModel):
+    tg_id:  int
+    ai_num: int
+    score:  int = 0
+    stars:  int = 1    # 1-3
+
+
+@router.get("/progress")
+async def get_progress(tg_id: int):
+    """Lấy danh sách ải đã hoàn thành của học sinh."""
+    rows = await crud.get_game_progress(tg_id)
+    # Serialize datetime
+    result = []
+    for r in rows:
+        result.append({
+            "ai_num":       r["ai_num"],
+            "score":        r["score"],
+            "stars":        r["stars"],
+            "completed_at": r["completed_at"].isoformat() if r.get("completed_at") else None,
+        })
+    return JSONResponse({"progress": result})
+
+
+@router.post("/complete-ai")
+async def complete_ai(body: CompleteAiBody):
+    """Lưu kết quả hoàn thành ải + cộng XP + gửi thông báo Telegram."""
+    # 1. Lưu progress
+    saved = await crud.upsert_game_progress(
+        telegram_id=body.tg_id,
+        ai_num=body.ai_num,
+        score=body.score,
+        stars=body.stars,
+    )
+
+    # 2. Cộng XP dựa trên số sao (10 XP/sao)
+    xp_earn = body.stars * 10 + body.score // 10
+    try:
+        from app.services.gamification import cap_nhat_xp
+        await cap_nhat_xp(body.tg_id, xp_earn)
+    except Exception as e:
+        logger.warning(f"XP update failed: {e}")
+
+    # 3. Gửi thông báo Telegram
+    star_str = "⭐" * body.stars
+    msg = (
+        f"🏆 *Hoàn thành Ải {body.ai_num}!*\n"
+        f"{star_str}  Điểm: *{body.score}*\n"
+        f"Nhận được *{xp_earn} XP* ✨\n\n"
+        f"Tiếp tục chinh phục Ải {body.ai_num + 1} nhé! ⚔️"
+    )
+    await _send_tg_md(body.tg_id, msg)
+
+    return JSONResponse({
+        "ok": True,
+        "ai_num": saved["ai_num"],
+        "score":  saved["score"],
+        "stars":  saved["stars"],
+        "xp_earned": xp_earn,
+    })
+
+
+async def _send_tg_md(chat_id: int, text: str) -> None:
+    """Gửi tin Telegram Markdown, không raise nếu lỗi."""
+    if not (chat_id and TELEGRAM_TOKEN):
+        return
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=8) as client:
+            await client.post(
+                f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"},
+            )
+    except Exception as e:
+        logger.warning(f"TG notify error: {e}")
+
+
+# ── Leaderboard Progress ───────────────────────────────────────────────────
+
+@router.get("/leaderboard-progress")
+async def leaderboard_progress(top: int = 20):
+    """Bảng xếp hạng theo tiến độ game (tổng điểm + số ải)."""
+    rows = await crud.get_leaderboard_progress(min(top, 50))
+    result = []
+    for i, r in enumerate(rows):
+        result.append({
+            "rank":      i + 1,
+            "ho_ten":    r["ho_ten"],
+            "so_ai":     int(r["so_ai"]),
+            "tong_diem": int(r["tong_diem"] or 0),
+            "ai_xa_nhat": r["ai_xa_nhat"],
+            "xp":        r["xp"],
+        })
+    return JSONResponse({"leaderboard": result, "total": len(result)})

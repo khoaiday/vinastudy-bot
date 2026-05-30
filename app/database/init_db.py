@@ -146,6 +146,18 @@ async def init_db():
     -- Thêm question_num (số thứ tự câu 1-N) vào checkpoints, không dùng FK
     ALTER TABLE checkpoints ADD COLUMN IF NOT EXISTS question_num INT;
 
+    -- Tiến độ game (ải nào đã hoàn thành)
+    CREATE TABLE IF NOT EXISTS game_progress (
+        id           SERIAL PRIMARY KEY,
+        telegram_id  BIGINT NOT NULL,
+        ai_num       INT NOT NULL,
+        score        INT DEFAULT 0,
+        stars        INT DEFAULT 1,
+        completed_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(telegram_id, ai_num)
+    );
+    CREATE INDEX IF NOT EXISTS idx_game_progress_tg ON game_progress(telegram_id);
+
     -- Thách đấu giữa học sinh
     CREATE TABLE IF NOT EXISTS challenges (
         id               SERIAL PRIMARY KEY,
@@ -159,15 +171,4 @@ async def init_db():
         created_at       TIMESTAMP DEFAULT NOW(),
         expires_at       TIMESTAMP DEFAULT NOW() + INTERVAL '24 hours'
     );
-    CREATE INDEX IF NOT EXISTS idx_challenges_challenger ON challenges(challenger_id);
-    CREATE INDEX IF NOT EXISTS idx_challenges_challengee ON challenges(challengee_id);
-    CREATE INDEX IF NOT EXISTS idx_challenges_status     ON challenges(status);
-    """
-    try:
-        async with pool.acquire() as conn:
-            await conn.execute(sql)
-            await conn.execute(migration)
-        logger.info("✅ Database schema initialized")
-    except Exception as e:
-        logger.error(f"❌ DB init error: {e}")
-        raise
+    CREATE INDEX IF NOT EXISTS idx_challenges_challenger ON challenges(ch

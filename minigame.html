@@ -455,6 +455,10 @@
             .number-display {
                 font-size: 65px;
             }
+            .trick-text {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
             .trick-number {
                 font-size: 55px !important;
             }
@@ -469,6 +473,13 @@
             }
             .number-display {
                 font-size: 75px;
+            }
+            .trick-text {
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+            }
+            .trick-number {
+                font-size: 65px !important;
             }
             .header {
                 padding: 10px 15px;
@@ -488,6 +499,13 @@
             }
             .number-display {
                 font-size: 55px;
+            }
+            .trick-text {
+                font-size: 1.1rem;
+                margin-bottom: 5px;
+            }
+            .trick-number {
+                font-size: 55px !important;
             }
             .stats {
                 margin-top: 5px;
@@ -636,8 +654,23 @@
             const isWin = score >= 11;
             
             if (isWin) {
-                // Save progress
+                // Save progress locally
                 localStorage.setItem('cbToan_skill_bai' + buoi, 'true');
+                // Save to server
+                (async () => {
+                  try {
+                    const tgId = localStorage.getItem('vsTgId');
+                    if (tgId) {
+                      const aiNum = parseInt(urlParams.get('ai') || buoi);
+                      const stars = score >= 14 ? 3 : score >= 12 ? 2 : 1;
+                      await fetch('/api/student/complete-ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tg_id: parseInt(tgId), ai_num: aiNum, score, stars })
+                      });
+                    }
+                  } catch(e) { console.warn('complete-ai failed:', e); }
+                })();
                 
                 document.getElementById('gameOverScreen').style.background = "linear-gradient(rgba(10, 15, 30, 0.7), rgba(10, 15, 30, 0.95)), url('assets/thay_long_bg.jpg')";
                 document.getElementById('gameOverScreen').style.backgroundSize = "cover";
@@ -1156,27 +1189,4 @@
 
             let n = 3;
             numEl.textContent = n;
-            numEl.style.animation = 'none';
-            void numEl.offsetWidth;
-            numEl.style.animation = 'cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-
-            const iv = setInterval(() => {
-                n--;
-                if (n <= 0) {
-                    clearInterval(iv);
-                    cdEl.style.display = 'none';
-                    startGame();
-                } else {
-                    numEl.textContent = n;
-                    numEl.style.animation = 'none';
-                    void numEl.offsetWidth;
-                    numEl.style.animation = 'cdPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                }
-            }, 1000);
-        }
-
-        window.addEventListener('load', tourInit);
-    </script>
-</body>
-</html>
-
+            numE

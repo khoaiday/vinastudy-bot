@@ -60,7 +60,7 @@
   /* ── Header ── */
   .header {
     padding: 14px 16px 12px;
-    display: flex; justify-content: flex-end; align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     flex-shrink: 0; position: relative; z-index: 5;
     background: linear-gradient(180deg, rgba(200, 150, 12, 0.08) 0%, rgba(7, 4, 10, 0.4) 100%);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -310,6 +310,21 @@
   }
   .node-locked .node-label { color: var(--text-muted); opacity: 0.45; }
 
+  /* Learned (học xong learn.html, chưa thủ thành) */
+  .node-learned .node-body {
+    animation: none !important;
+    background: radial-gradient(circle at 38% 32%, #1a5a4a 0%, #0d3a2e 60%) !important;
+    border-color: rgba(90, 188, 170, 0.85) !important;
+    box-shadow: 0 0 14px rgba(90, 188, 170, 0.60), 0 0 30px rgba(90, 188, 170, 0.25) !important;
+  }
+  .node-learn-badge {
+    position: absolute; top: -7px; right: -4px;
+    background: linear-gradient(135deg, #1a5a4a, #2d8a7a);
+    color: #d0f5ee; font-size: 6.5px; font-family: var(--font-mono);
+    font-weight: 700; letter-spacing: .04em; padding: 2px 5px;
+    border-radius: 4px; text-transform: uppercase; white-space: nowrap;
+  }
+
   /* SOON badge */
   .node-soon-badge {
     position: absolute; top: -7px; right: -4px;
@@ -482,6 +497,29 @@
     font-family: var(--font-title); letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
     text-transform: uppercase; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.6);
   }
+  /* ── 2-choice Dựng Nước / Giữ Nước layout ── */
+  .intro-choices {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;
+  }
+  .btn-choice {
+    padding: 16px 12px; border-radius: 14px; border: none; cursor: pointer;
+    transition: all 0.2s; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    font-family: var(--font-title);
+  }
+  .btn-choice:hover { transform: translateY(-2px); }
+  .btn-choice-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .btn-choice-title { font-size: 14px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 3px; }
+  .btn-choice-sub { font-size: 11px; opacity: 0.8; font-family: var(--font-body); font-weight: 400; text-transform: none; letter-spacing: 0; display: block; }
+  .btn-dungnuoc {
+    background: linear-gradient(135deg, #1a4a0a, #2d7a1a);
+    color: #d4f0b8; border: 1px solid rgba(90,188,90,0.5);
+    box-shadow: 0 0 20px rgba(90,188,90,0.25);
+  }
+  .btn-giununuoc {
+    background: linear-gradient(135deg, #4a1a0a, #8B2200);
+    color: #f0c8b8; border: 1px solid rgba(192,51,46,0.5);
+    box-shadow: 0 0 20px rgba(192,51,46,0.25);
+  }
   .btn-ren-tuyet-chieu {
     background: linear-gradient(135deg, var(--secondary), #8B1A1A);
     color: var(--text-main); box-shadow: 0 0 20px rgba(192,51,46,0.5);
@@ -493,6 +531,297 @@
   }
   .btn-intro-close { background: transparent; border: 1px solid rgba(184,115,51,0.3); color: var(--text-muted); padding: 10px; border-radius: 10px; font-size: 13px; width: auto; min-width: 120px; cursor: pointer; transition: all 0.2s; font-family: var(--font-mono); }
   .btn-intro-close:hover { background: rgba(184,115,51,0.1); }
+
+  /* ── Kho Nhân Vật Vault ── */
+  .vault-modal {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(5,3,12,0.92); backdrop-filter: blur(6px);
+    align-items: flex-end; justify-content: center; padding-bottom: 0;
+  }
+  .vault-panel {
+    background: var(--bg-panel); border: 1px solid var(--copper);
+    border-bottom: none; border-radius: 16px 16px 0 0;
+    padding: 20px 18px 28px; width: 100%; max-width: 480px;
+    box-shadow: 0 -8px 40px rgba(184,115,51,0.20);
+    animation: slideUp 0.28s ease;
+    max-height: 85vh; overflow-y: auto;
+  }
+  .vault-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 16px;
+  }
+  .vault-char-card {
+    border-radius: 12px; padding: 14px 10px 12px;
+    border: 1.5px solid rgba(184,115,51,0.18);
+    background: var(--bg-card);
+    text-align: center; position: relative;
+    transition: all 0.2s;
+  }
+  .vault-char-card.unlocked {
+    border-color: var(--primary);
+    background: rgba(200,150,12,0.07);
+    box-shadow: 0 0 18px rgba(200,150,12,0.14);
+  }
+  .vault-char-card.in-progress {
+    border-color: var(--copper);
+    background: rgba(184,115,51,0.05);
+  }
+  .vault-char-card.locked { opacity: 0.42; }
+  .vault-char-emoji { font-size: 30px; line-height: 1; margin-bottom: 6px; display: block; }
+  .vault-char-name {
+    font-family: var(--font-title); font-size: 13px; font-weight: 700;
+    color: var(--primary); margin-bottom: 2px;
+  }
+  .vault-char-sub {
+    font-family: var(--font-mono); font-size: 8px; color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .vault-char-zone {
+    font-family: var(--font-mono); font-size: 8px; color: var(--copper);
+    margin-top: 6px; letter-spacing: 0.5px; opacity: 0.7;
+  }
+  .vault-unlock-badge {
+    position: absolute; top: -7px; right: -4px;
+    background: var(--primary); color: #07040A;
+    font-size: 7px; padding: 2px 6px; border-radius: 6px;
+    font-weight: 700; font-family: var(--font-mono); letter-spacing: 0.5px;
+  }
+
+  /* ══ GEO MAP — 16:9 pannable ══ */
+  .geo-map-wrap {
+    position: fixed; top: 62px; left: 0; right: 0; bottom: 0;
+    overflow: hidden; background: #040208;
+    cursor: grab; touch-action: pan-x;
+  }
+  .geo-map-wrap.dragging { cursor: grabbing; }
+
+  /* Map container: JS sets w/h to always fill viewport */
+  .geo-map {
+    position: absolute; top: 0;
+    left: 50%; transform: translateX(-50%);
+    will-change: transform;
+  }
+  .geo-map-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: fill;
+    display: block; pointer-events: none; user-select: none;
+  }
+  .geo-paths {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 2;
+  }
+  /* ══ MEDALLION MAP NODES ══ */
+  .geo-map .map-node {
+    position: absolute;
+    /* CENTER của medallion = tọa độ trên ảnh */
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    /* drop-shadow = blend đẹp vào tranh */
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.75))
+            drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+    transition: transform 0.15s, filter 0.15s;
+  }
+  .geo-map .map-node:active {
+    transform: translate(-50%,-50%) scale(0.88);
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6)) brightness(1.2);
+  }
+
+  /* Vòng medallion chính — tròn, có chiều sâu */
+  .geo-map .node-body {
+    width: 50px; height: 50px; border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 0;
+    position: relative;
+    /* Vàng đồng ring ngoài */
+    border: 3px solid rgba(200,150,12,0.9);
+    /* Depth gradient từ trái trên — giả lập 3D */
+    background: radial-gradient(circle at 38% 32%,
+      rgba(255,255,255,0.18) 0%,
+      rgba(180,50,10,0.85) 35%,
+      rgba(100,10,5,0.95) 100%);
+    /* Inner highlight ring + outer glow */
+    box-shadow:
+      inset 0 0 0 1px rgba(255,200,80,0.20),
+      inset 0 2px 5px rgba(255,255,255,0.12),
+      inset 0 -2px 4px rgba(0,0,0,0.4),
+      0 0 0 1px rgba(0,0,0,0.7),
+      0 0 18px rgba(200,80,20,0.55),
+      0 0 40px rgba(200,80,20,0.20);
+    animation: medallionPulse 3s ease-in-out infinite;
+  }
+
+  /* Pin tip dưới medallion — chỉ đúng vị trí địa lý */
+  .geo-map .node-body::after {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 11px solid rgba(100,10,5,0.95);
+  }
+  /* Viền vàng pin tip */
+  .geo-map .node-body::before {
+    content: '';
+    position: absolute;
+    bottom: -12px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8.5px solid transparent;
+    border-right: 8.5px solid transparent;
+    border-top: 12.5px solid rgba(200,150,12,0.85);
+    z-index: -1;
+  }
+
+  /* Số + icon bên trong */
+  .geo-map .node-num {
+    font-family: var(--font-title); font-size: 16px; font-weight: 700;
+    color: rgba(255,230,120,0.97); line-height: 1;
+    text-shadow: 0 0 8px rgba(200,150,12,0.6), 0 1px 3px rgba(0,0,0,0.9);
+  }
+  .geo-map .node-boss { font-size: 11px; line-height: 1; opacity: 0.9; }
+  .geo-map .node-stars { display: none; }
+
+  /* Label dưới pin */
+  .geo-map .node-label {
+    margin-top: 14px; /* space for pin tip */
+    font-size: 9px; font-weight: 700; letter-spacing: 0.3px;
+    color: #FFE090;
+    background: rgba(8,4,0,0.78);
+    border: 1px solid rgba(200,150,12,0.45);
+    padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,1);
+    font-family: var(--font-mono);
+  }
+
+  /* Pulse animation */
+  @keyframes medallionPulse {
+    0%,100% { box-shadow:
+      inset 0 0 0 1px rgba(255,200,80,0.20),
+      inset 0 2px 5px rgba(255,255,255,0.12),
+      0 0 0 1px rgba(0,0,0,0.7),
+      0 0 18px rgba(200,80,20,0.55),
+      0 0 40px rgba(200,80,20,0.20); }
+    50% { box-shadow:
+      inset 0 0 0 1px rgba(255,200,80,0.28),
+      inset 0 2px 5px rgba(255,255,255,0.18),
+      0 0 0 1px rgba(0,0,0,0.7),
+      0 0 26px rgba(200,100,20,0.75),
+      0 0 55px rgba(200,80,20,0.30); }
+  }
+
+  /* ── STATES ── */
+  .geo-map .node-learned .node-body {
+    background: radial-gradient(circle at 38% 32%,
+      rgba(255,255,255,0.18) 0%, rgba(10,160,90,0.85) 35%, rgba(4,70,35,0.95) 100%) !important;
+    border-color: rgba(30,220,140,0.9) !important;
+    box-shadow: inset 0 0 0 1px rgba(100,255,180,0.20),
+      0 0 0 1px rgba(0,0,0,0.7), 0 0 20px rgba(20,180,100,0.6) !important;
+    animation: none !important;
+  }
+  .geo-map .node-learned .node-body::after  { border-top-color: rgba(4,70,35,0.95) !important; }
+  .geo-map .node-learned .node-body::before { border-top-color: rgba(30,220,140,0.85) !important; }
+  .geo-map .node-learned .node-label { color: #60FFB0; border-color: rgba(30,220,140,0.4); }
+
+  .geo-map .node-completed .node-body {
+    background: radial-gradient(circle at 38% 32%,
+      rgba(255,255,255,0.25) 0%, rgba(210,160,0,0.9) 35%, rgba(100,70,0,0.95) 100%) !important;
+    border-color: rgba(255,220,40,0.95) !important;
+    box-shadow: inset 0 0 0 1px rgba(255,240,100,0.25),
+      0 0 0 1px rgba(0,0,0,0.7), 0 0 22px rgba(220,160,0,0.7) !important;
+    animation: none !important;
+  }
+  .geo-map .node-completed .node-body::after  { border-top-color: rgba(100,70,0,0.95) !important; }
+  .geo-map .node-completed .node-body::before { border-top-color: rgba(255,210,30,0.9) !important; }
+  .geo-map .node-completed .node-label { color: #FFD700; border-color: rgba(255,210,30,0.5); }
+
+  .geo-map .node-learn-badge {
+    position: absolute; top: -6px; right: -8px;
+    background: linear-gradient(135deg,#0A4A2A,#10803A);
+    color: #60FFB0; font-size: 6px; padding: 2px 4px;
+    border-radius: 3px; font-family: var(--font-mono); font-weight: 700;
+    border: 1px solid rgba(30,220,140,0.5);
+  }
+  .geo-map .node-soon-badge {
+    position: absolute; top: -7px; left: -8px;
+    background: linear-gradient(135deg,#1a4a0a,#2d8a1a);
+    color: #90FF60; font-size: 6px; padding: 2px 5px;
+    border-radius: 3px; font-family: var(--font-mono); font-weight: 700;
+    white-space: nowrap;
+    animation: badgePulse 1.8s ease-in-out infinite;
+  }
+  @keyframes badgePulse {
+    0%,100% { box-shadow: 0 0 4px rgba(45,138,26,0.4); }
+    50%     { box-shadow: 0 0 10px rgba(45,138,26,0.8); }
+  }
+
+  .geo-map::after {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: radial-gradient(ellipse 90% 90% at 42% 42%,
+      transparent 35%, rgba(0,0,0,0.22) 100%);
+    pointer-events: none;
+  }
+
+  /* ══ MÀU MEDALLION TỪNG ẢI — radial 3D gradient ══ */
+  /* Ải 1 · Cổ Loa · Lam ngọc */
+  #mapNode7 .node-body { background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.18) 0%,rgba(20,110,200,0.85) 35%,rgba(6,40,90,0.97) 100%); border-color:rgba(80,180,255,0.9); box-shadow:inset 0 0 0 1px rgba(120,200,255,0.2),0 0 0 1px rgba(0,0,0,0.7),0 0 20px rgba(20,100,220,0.6),0 0 44px rgba(20,100,220,0.22); }
+  #mapNode7 .node-body::after  { border-top-color:rgba(6,40,90,0.97); }
+  #mapNode7 .node-body::before { border-top-color:rgba(80,180,255,0.85); }
+  #mapNode7 .node-label { color:#90D4FF; border-color:rgba(80,180,255,0.4); }
+
+  /* Ải 2 · Nỏ Thần · Đồng Đông Sơn */
+  #mapNode8 .node-body { background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.18) 0%,rgba(180,100,20,0.85) 35%,rgba(80,40,6,0.97) 100%); border-color:rgba(220,150,50,0.9); box-shadow:inset 0 0 0 1px rgba(240,180,80,0.2),0 0 0 1px rgba(0,0,0,0.7),0 0 20px rgba(180,100,20,0.6),0 0 44px rgba(180,100,20,0.22); }
+  #mapNode8 .node-body::after  { border-top-color:rgba(80,40,6,0.97); }
+  #mapNode8 .node-body::before { border-top-color:rgba(220,150,50,0.85); }
+  #mapNode8 .node-label { color:#F0C070; border-color:rgba(220,150,50,0.4); }
+
+  /* Ải 3 · Mê Linh · Đỏ son Trưng Vương */
+  #mapNode9 .node-body { background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.18) 0%,rgba(220,20,20,0.85) 35%,rgba(90,4,4,0.97) 100%); border-color:rgba(255,90,90,0.9); box-shadow:inset 0 0 0 1px rgba(255,120,120,0.2),0 0 0 1px rgba(0,0,0,0.7),0 0 20px rgba(220,20,20,0.65),0 0 44px rgba(220,20,20,0.25); }
+  #mapNode9 .node-body::after  { border-top-color:rgba(90,4,4,0.97); }
+  #mapNode9 .node-body::before { border-top-color:rgba(255,90,90,0.85); }
+  #mapNode9 .node-label { color:#FF9090; border-color:rgba(255,90,90,0.4); }
+
+  /* Ải 4 · Voi Chiến · Xanh rừng */
+  #mapNode10 .node-body { background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.18) 0%,rgba(20,160,50,0.85) 35%,rgba(4,65,15,0.97) 100%); border-color:rgba(50,220,90,0.9); box-shadow:inset 0 0 0 1px rgba(80,255,120,0.2),0 0 0 1px rgba(0,0,0,0.7),0 0 20px rgba(20,160,50,0.6),0 0 44px rgba(20,160,50,0.22); }
+  #mapNode10 .node-body::after  { border-top-color:rgba(4,65,15,0.97); }
+  #mapNode10 .node-body::before { border-top-color:rgba(50,220,90,0.85); }
+  #mapNode10 .node-label { color:#80FF90; border-color:rgba(50,220,90,0.4); }
+
+  /* Ải 5 · Bạch Đằng I · Xanh đại dương */
+  #mapNode11 .node-body { background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.18) 0%,rgba(10,60,200,0.85) 35%,rgba(4,20,80,0.97) 100%); border-color:rgba(70,140,255,0.9); box-shadow:inset 0 0 0 1px rgba(100,160,255,0.2),0 0 0 1px rgba(0,0,0,0.7),0 0 20px rgba(10,80,220,0.6),0 0 44px rgba(10,80,220,0.22); }
+  #mapNode11 .node-body::after  { border-top-color:rgba(4,20,80,0.97); }
+  #mapNode11 .node-body::before { border-top-color:rgba(70,140,255,0.85); }
+  #mapNode11 .node-label { color:#90AEFF; border-color:rgba(70,140,255,0.4); }
+
+  /* Ải 6 · Bạch Đằng II · Tím hoàng Trần triều */
+  #mapNode12 .node-body { background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.18) 0%,rgba(130,20,210,0.85) 35%,rgba(50,6,90,0.97) 100%); border-color:rgba(200,90,255,0.9); box-shadow:inset 0 0 0 1px rgba(210,120,255,0.2),0 0 0 1px rgba(0,0,0,0.7),0 0 20px rgba(130,20,210,0.6),0 0 44px rgba(130,20,210,0.22); }
+  #mapNode12 .node-body::after  { border-top-color:rgba(50,6,90,0.97); }
+  #mapNode12 .node-body::before { border-top-color:rgba(200,90,255,0.85); }
+  #mapNode12 .node-label { color:#D090FF; border-color:rgba(200,90,255,0.4); }
+
+  /* Ải 7 · Cờ Lau · Vàng hoàng kim Đinh Bộ Lĩnh */
+  #mapNode13 .node-body { background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.25) 0%,rgba(210,160,0,0.88) 35%,rgba(90,60,0,0.97) 100%); border-color:rgba(255,215,30,0.95); box-shadow:inset 0 0 0 1px rgba(255,230,80,0.25),0 0 0 1px rgba(0,0,0,0.7),0 0 22px rgba(210,160,0,0.7),0 0 50px rgba(210,160,0,0.28); }
+  #mapNode13 .node-body::after  { border-top-color:rgba(90,60,0,0.97); }
+  #mapNode13 .node-body::before { border-top-color:rgba(255,215,30,0.9); }
+  #mapNode13 .node-label { color:#FFD700; border-color:rgba(255,215,30,0.5); }
+
+  /* Pan hint */
+  .pan-hint {
+    position: fixed; bottom: 14px; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 9px;
+    color: rgba(184,115,51,0.5); letter-spacing: 1px;
+    pointer-events: none; z-index: 10;
+    animation: hintFade 4s ease-out 1.5s forwards;
+    opacity: 0;
+  }
+  @keyframes hintFade {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
 </style>
 </head>
 <body>
@@ -502,335 +831,152 @@
 
   <!-- Header -->
   <div class="header">
-    <div id="avatarContainer" style="cursor:pointer;" onclick="openProfile()">
-      <img id="headerAvatar" src="/static/avatars/chien_binh_nam.jpg"
-        style="width:46px;height:46px;border-radius:50%;border:2px solid var(--primary);box-shadow:0 0 10px var(--primary-glow);object-fit:cover;">
+    <!-- Zone character identity -->
+    <div onclick="openProfile()" style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;min-width:0;">
+      <div id="zoneCharEmoji" style="width:44px;height:44px;border-radius:50%;background:rgba(184,115,51,0.12);border:2px solid var(--copper);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 0 10px var(--copper-glow);transition:border-color 0.3s,box-shadow 0.3s;">⚔️</div>
+      <div style="min-width:0;">
+        <div id="zoneCharName" style="font-family:var(--font-title);font-size:14px;font-weight:700;color:var(--primary);letter-spacing:0.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Cao Lỗ</div>
+        <div id="zoneCharTitle" style="font-family:var(--font-mono);font-size:8.5px;color:var(--text-muted);letter-spacing:0.3px;line-height:1.3;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Tổng Công Trình Sư Âu Lạc</div>
+      </div>
     </div>
+    <!-- Toán Lực balance → Kho Vũ Khí -->
+    <div id="tlBadge" onclick="window.location.href='arsenal.html'" style="flex-shrink:0;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.35);border-radius:20px;padding:6px 12px;color:#FFD700;font-family:var(--font-mono);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;margin-left:8px;box-shadow:0 0 8px rgba(255,215,0,0.1);letter-spacing:0.5px;transition:all 0.2s;" title="⚡ Kho Vũ Khí — mua tháp phòng thủ">⚡ <span id="tlBalance">0</span></div>
+    <!-- Thống kê button -->
+    <button onclick="window.location.href='stats.html'" style="flex-shrink:0;background:rgba(200,150,12,0.08);border:1px solid rgba(184,115,51,0.35);border-radius:10px;padding:8px 10px;color:var(--primary);font-family:var(--font-mono);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:0.5px;display:flex;align-items:center;gap:4px;margin-left:6px;box-shadow:0 0 8px rgba(200,150,12,0.1);transition:all 0.2s;" title="Bảng thành tích">📊</button>
+    <!-- Kho nhân vật button -->
+    <button onclick="openVault()" style="flex-shrink:0;background:rgba(200,150,12,0.08);border:1px solid rgba(184,115,51,0.35);border-radius:10px;padding:8px 10px;color:var(--primary);font-family:var(--font-mono);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:0.5px;display:flex;align-items:center;gap:4px;margin-left:6px;box-shadow:0 0 8px rgba(200,150,12,0.1);transition:all 0.2s;" title="Kho nhân vật">🏛️</button>
   </div>
 
   <!-- ══════════════════════════════════════════════
-       WORLD MAP
+       GEO MAP — Bản đồ địa lý Đại Việt
   ══════════════════════════════════════════════ -->
-  <div class="world-map-wrap" id="worldMapWrap">
-    <div class="world-map" id="worldMap">
+  <div class="geo-map-wrap" id="worldMapWrap">
+    <div class="geo-map" id="worldMap">
+      <!-- Background map image -->
+      <img class="geo-map-img" src="assets/map-bg.jpg" alt="Bản đồ Đại Việt">
 
-      <!-- ── Zone Backgrounds ── -->
-      <div class="zone zone-0" style="top:0;height:760px"></div>
-      <div class="zone zone-1" style="top:760px;height:720px"></div>
-      <div class="zone zone-2" style="top:1480px;height:470px"></div>
-      <div class="zone zone-3" style="top:1950px;height:450px"></div>
-      <div class="zone zone-4" style="top:2400px;height:470px"></div>
-      <div class="zone zone-5" style="top:2870px;height:260px"></div>
 
-      <!-- ── Zone Dividers ── -->
-      <div class="zone-divider" style="top:760px">
-        <div class="zone-divider-chip">800 TCN · Vào Thời Hùng Vương</div>
-      </div>
-      <div class="zone-divider" style="top:1480px">
-        <div class="zone-divider-chip">257 TCN · Thục Phán dựng Âu Lạc</div>
-      </div>
-      <div class="zone-divider" style="top:1950px">
-        <div class="zone-divider-chip">40 SCN · Hai Bà Trưng khởi nghĩa</div>
-      </div>
-      <div class="zone-divider" style="top:2400px">
-        <div class="zone-divider-chip">938 SCN · Ngô Quyền đại thắng</div>
-      </div>
-      <div class="zone-divider" style="top:2870px">
-        <div class="zone-divider-chip">968 SCN · Đinh Bộ Lĩnh thống nhất</div>
-      </div>
+      <!-- ═══ 7 LIVE NODES — vị trí địa lý ═══ -->
 
-      <!-- ── Zone Banners ── -->
-      <div class="zone-banner" style="top:32px">
-        <div class="zb-era">~2879 TCN · Huyền sử</div>
-        <div class="zb-name">🐉 TRẠM 0 · HỒNG BÀNG & HÙNG VƯƠNG SƠ KỲ</div>
-        <div class="zb-art">[🎨 Artwork: Bờ biển Hồng Bàng · Đảo cổ · Sóng biển đêm]</div>
-      </div>
-
-      <div class="zone-banner" style="top:792px">
-        <div class="zb-era">~800 – 258 TCN</div>
-        <div class="zb-name">🥁 TRẠM 1 · HÙNG VƯƠNG TRUNG & HẬU KỲ</div>
-        <div class="zb-art">[🎨 Artwork: Núi Tản Viên · Rừng nguyên sinh · Sông Đà]</div>
-      </div>
-
-      <div class="zone-banner" style="top:1512px">
-        <div class="zb-era">~257 – 179 TCN · Âu Lạc</div>
-        <div class="zb-name">🏛️ TRẠM 2 · CỔ LOA — THÀNH ỐC XOẮN</div>
-        <div class="zb-art">[🎨 Artwork: Thành Cổ Loa 3 vòng xoắn nhìn từ trên cao · Đêm đuốc]</div>
-      </div>
-
-      <div class="zone-banner" style="top:1982px">
-        <div class="zb-era">~40 – 43 SCN</div>
-        <div class="zb-name">⚔️ TRẠM 3 · TIẾNG TRỐNG MÊ LINH</div>
-        <div class="zb-art">[🎨 Artwork: Đầm Mê Linh · Đội voi chiến · Cờ Hai Bà Trưng]</div>
-      </div>
-
-      <div class="zone-banner" style="top:2432px">
-        <div class="zb-era">938 SCN</div>
-        <div class="zb-name">⚓ TRẠM 4 · SẤM SÉT BẠCH ĐẰNG</div>
-        <div class="zb-art">[🎨 Artwork: Sông Bạch Đằng · Cọc gỗ bịt sắt · Chiến thuyền Nam Hán]</div>
-      </div>
-
-      <div class="zone-banner" style="top:2902px">
-        <div class="zb-era">968 SCN</div>
-        <div class="zb-name">👑 TRẠM ĐB · HOA LƯ — THỐNG NHẤT GIANG SƠN</div>
-        <div class="zb-art">[🎨 Artwork: Thành Hoa Lư · Núi đá vôi · Kỳ đài Đinh Tiên Hoàng]</div>
-      </div>
-
-      <!-- ── SVG Path ── -->
-      <!--
-        Node centers (x, y):
-        1:(195,220)  2:(100,435)  3:(278,650)
-        4:(158,900)  5:(258,1120) 6:(118,1340)
-        7:(242,1590) 8:(128,1800)
-        9:(232,2055) 10:(118,2275)
-        11:(232,2510) 12:(118,2730)
-        13:(195,2980)
-      -->
-      <svg id="mapSvg" viewBox="0 0 390 3130" preserveAspectRatio="none"
-           xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="pathGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        <!-- Full path — deep shadow -->
-        <path d="M195,220 C195,308,100,372,100,435
-                 C100,523,278,583,278,650
-                 C278,763,158,832,158,900
-                 C158,993,258,1043,258,1120
-                 C258,1218,118,1263,118,1340
-                 C118,1460,242,1523,242,1590
-                 C242,1682,128,1743,128,1800
-                 C128,1918,232,1978,232,2055
-                 C232,2155,118,2198,118,2275
-                 C118,2388,232,2443,232,2510
-                 C232,2625,118,2668,118,2730
-                 C118,2848,195,2908,195,2980"
-          stroke="rgba(0,0,0,0.65)" stroke-width="28"
-          fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-
-        <!-- Nodes 1–8: dim copper (historical + live corridor) -->
-        <path d="M195,220 C195,308,100,372,100,435
-                 C100,523,278,583,278,650
-                 C278,763,158,832,158,900
-                 C158,993,258,1043,258,1120
-                 C258,1218,118,1263,118,1340
-                 C118,1460,242,1523,242,1590
-                 C242,1682,128,1743,128,1800"
-          stroke="#3A1E06" stroke-width="16"
-          fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-
-        <!-- Nodes 8–13: locked/dark -->
-        <path d="M128,1800 C128,1918,232,1978,232,2055
-                 C232,2155,118,2198,118,2275
-                 C118,2388,232,2443,232,2510
-                 C232,2625,118,2668,118,2730
-                 C118,2848,195,2908,195,2980"
-          stroke="#14141E" stroke-width="16"
-          fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-
-        <!-- Live corridor: node 7–8 highlighted -->
-        <path d="M242,1590 C242,1682,128,1743,128,1800"
-          stroke="#6A3A12" stroke-width="10"
-          fill="none" stroke-linecap="round" filter="url(#pathGlow)"/>
-        <path d="M242,1590 C242,1682,128,1743,128,1800"
-          stroke="rgba(200,150,12,0.55)" stroke-width="3"
-          fill="none" stroke-linecap="round" stroke-dasharray="12 22"/>
-
-        <!-- Pre-live subtle center dash (nodes 1–7) -->
-        <path d="M195,220 C195,308,100,372,100,435
-                 C100,523,278,583,278,650
-                 C278,763,158,832,158,900
-                 C158,993,258,1043,258,1120
-                 C258,1218,118,1263,118,1340
-                 C118,1460,242,1523,242,1590"
-          stroke="rgba(184,115,51,0.20)" stroke-width="2"
-          fill="none" stroke-linecap="round" stroke-dasharray="10 28"/>
-      </svg>
-
-      <!-- ── Start Totem ── -->
-      <div class="map-totem" style="left:50%;top:118px">
-        <div class="map-totem-icon">🗺️</div>
-        <div class="map-totem-label">Hành Trình<br>Xuyên Thời Không</div>
-      </div>
-
-      <!-- ═══════════════════════════════
-           LEVEL NODES  (13 ải)
-      ═══════════════════════════════ -->
-
-      <!-- NODE 1 · Trứng Tiên · TRẠM 0 -->
-      <div class="map-node node-locked" data-ai="1" style="left:50%;top:220px">
-        <div class="node-body" style="position:relative">
-          <span class="node-num">1</span>
-          <span class="node-boss">🐟</span>
-          <div class="node-soon-badge">SOON</div>
-        </div>
-        <div class="node-stars"></div>
-        <div class="node-label">Trứng Tiên<br>Nở Trăm Con</div>
-      </div>
-
-      <!-- NODE 2 · Mộc Tinh -->
-      <div class="map-node node-locked" data-ai="2" style="left:25.6%;top:435px">
-        <div class="node-body" style="position:relative">
-          <span class="node-num">2</span>
-          <span class="node-boss">🌳</span>
-          <div class="node-soon-badge">SOON</div>
-        </div>
-        <div class="node-stars"></div>
-        <div class="node-label">Mười Lăm<br>Bộ Lạc Văn Lang</div>
-      </div>
-
-      <!-- NODE 3 · Hồ Tinh -->
-      <div class="map-node node-locked" data-ai="3" style="left:71.3%;top:650px">
-        <div class="node-body" style="position:relative">
-          <span class="node-num">3</span>
-          <span class="node-boss">🦊</span>
-          <div class="node-soon-badge">SOON</div>
-        </div>
-        <div class="node-stars"></div>
-        <div class="node-label">Yêu Cáo<br>Chín Đuôi Tây Hồ</div>
-      </div>
-
-      <!-- NODE 4 · Thánh Gióng · TRẠM 1 -->
-      <div class="map-node node-locked" data-ai="4" style="left:40.5%;top:900px">
-        <div class="node-body" style="position:relative">
-          <span class="node-num">4</span>
-          <span class="node-boss">🥁</span>
-          <div class="node-soon-badge">SOON</div>
-        </div>
-        <div class="node-stars"></div>
-        <div class="node-label">Tiếng Trống<br>Thúc Quân</div>
-      </div>
-
-      <!-- NODE 5 · Sơn Tinh / Thủy Tinh -->
-      <div class="map-node node-locked" data-ai="5" style="left:66.2%;top:1120px">
-        <div class="node-body" style="position:relative">
-          <span class="node-num">5</span>
-          <span class="node-boss">🌊</span>
-          <div class="node-soon-badge">SOON</div>
-        </div>
-        <div class="node-stars"></div>
-        <div class="node-label">Đê Thần &<br>Trận Hồng Thủy</div>
-      </div>
-
-      <!-- NODE 6 · Lang Liêu -->
-      <div class="map-node node-locked" data-ai="6" style="left:30.3%;top:1340px">
-        <div class="node-body" style="position:relative">
-          <span class="node-num">6</span>
-          <span class="node-boss">🍃</span>
-          <div class="node-soon-badge">SOON</div>
-        </div>
-        <div class="node-stars"></div>
-        <div class="node-label">Bếp Lửa<br>Hoàng Tử Nghèo</div>
-      </div>
-
-      <!-- NODE 7 · Bí Ẩn Cổ Loa · buoi=1 · LIVE ✅ -->
+      <!-- NODE 7 · Cổ Loa · buoi=1 -->
       <div class="map-node node-available" id="mapNode7" data-ai="7" data-buoi="1"
-           style="left:62.1%;top:1590px" onclick="nodeClick(7)">
-        <div class="node-body">
-          <span class="node-num">7</span>
-          <span class="node-boss">🐓</span>
+           style="left:50.9%;top:31%" onclick="nodeClick(7)">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">ẢI 1</span><span class="node-boss">🐓</span>
         </div>
         <div class="node-stars"></div>
-        <div class="node-label">Bí Ẩn<br>Cổ Loa</div>
+        <div class="node-label">Bí Ẩn Cổ Loa</div>
       </div>
 
-      <!-- NODE 8 · Nỏ Thần Liên Châu · buoi=2 · LIVE ✅ -->
+      <!-- NODE 8 · Nỏ Thần · buoi=2 -->
       <div class="map-node node-available" id="mapNode8" data-ai="8" data-buoi="2"
-           style="left:32.8%;top:1800px" onclick="nodeClick(8)">
-        <div class="node-body">
-          <span class="node-num">8</span>
-          <span class="node-boss">📜</span>
-        </div>
-        <div class="node-stars"></div>
-        <div class="node-label">Nỏ Thần<br>Liên Châu</div>
-      </div>
-
-      <!-- NODE 9 · Mê Linh · TRẠM 3 -->
-      <div class="map-node node-locked" data-ai="9" style="left:59.5%;top:2055px">
+           style="left:41.2%;top:52.8%" onclick="nodeClick(8)">
         <div class="node-body" style="position:relative">
-          <span class="node-num">9</span>
-          <span class="node-boss">⚔️</span>
-          <div class="node-soon-badge">SOON</div>
+          <span class="node-num">ẢI 2</span><span class="node-boss">🏹</span>
         </div>
         <div class="node-stars"></div>
-        <div class="node-label">Hội Quân<br>Mê Linh</div>
+        <div class="node-label">Nỏ Thần</div>
       </div>
 
-      <!-- NODE 10 · Voi Chiến -->
-      <div class="map-node node-locked" data-ai="10" style="left:30.3%;top:2275px">
+      <!-- NODE 9 · Mê Linh · buoi=3 -->
+      <div class="map-node node-available" id="mapNode9" data-ai="9" data-buoi="3"
+           style="left:17.2%;top:40.8%" onclick="nodeClick(9)">
         <div class="node-body" style="position:relative">
-          <span class="node-num">10</span>
-          <span class="node-boss">🐘</span>
-          <div class="node-soon-badge">SOON</div>
+          <span class="node-num">ẢI 3</span><span class="node-boss">⚔️</span>
         </div>
         <div class="node-stars"></div>
-        <div class="node-label">Chiến Thuật<br>Voi Chiến</div>
+        <div class="node-label">Mê Linh</div>
       </div>
 
-      <!-- NODE 11 · Bạch Đằng I · TRẠM 4 -->
-      <div class="map-node node-locked" data-ai="11" style="left:59.5%;top:2510px">
+      <!-- NODE 10 · Voi Chiến · buoi=4 -->
+      <div class="map-node node-available" id="mapNode10" data-ai="10" data-buoi="4"
+           style="left:33.8%;top:18%" onclick="nodeClick(10)">
         <div class="node-body" style="position:relative">
-          <span class="node-num">11</span>
-          <span class="node-boss">⚓</span>
-          <div class="node-soon-badge">SOON</div>
+          <span class="node-num">ẢI 4</span><span class="node-boss">🐘</span>
         </div>
         <div class="node-stars"></div>
-        <div class="node-label">Trận Bạch<br>Đằng I</div>
+        <div class="node-label">Voi Chiến</div>
       </div>
 
-      <!-- NODE 12 · Bạch Đằng II -->
-      <div class="map-node node-locked" data-ai="12" style="left:30.3%;top:2730px">
+      <!-- NODE 11 · Bạch Đằng I · buoi=5 -->
+      <div class="map-node node-available" id="mapNode11" data-ai="11" data-buoi="5"
+           style="left:84.2%;top:28.1%" onclick="nodeClick(11)">
         <div class="node-body" style="position:relative">
-          <span class="node-num">12</span>
-          <span class="node-boss">🗡️</span>
-          <div class="node-soon-badge">SOON</div>
+          <span class="node-num">ẢI 5</span><span class="node-boss">⚓</span>
         </div>
         <div class="node-stars"></div>
-        <div class="node-label">Trận Bạch<br>Đằng II</div>
+        <div class="node-label">Bạch Đằng I</div>
       </div>
 
-      <!-- NODE 13 · Cờ Lau Tập Trận · TRẠM ĐB -->
-      <div class="map-node node-locked" data-ai="13" style="left:50%;top:2980px">
+      <!-- NODE 12 · Bạch Đằng II · buoi=6 -->
+      <div class="map-node node-available" id="mapNode12" data-ai="12" data-buoi="6"
+           style="left:79.8%;top:59.6%" onclick="nodeClick(12)">
         <div class="node-body" style="position:relative">
-          <span class="node-num">13</span>
-          <span class="node-boss">👑</span>
-          <div class="node-soon-badge">SOON</div>
+          <span class="node-num">ẢI 6</span><span class="node-boss">🔱</span>
         </div>
         <div class="node-stars"></div>
-        <div class="node-label">Cờ Lau<br>Tập Trận</div>
+        <div class="node-label">Bạch Đằng II</div>
       </div>
 
-      <!-- End marker -->
-      <div style="position:absolute;left:50%;top:3065px;transform:translateX(-50%);
-                  text-align:center;z-index:12;opacity:0.3">
-        <div style="font-size:26px">🏆</div>
-        <div style="font-family:var(--font-mono);font-size:7.5px;
-                    color:var(--copper);letter-spacing:2px;margin-top:5px">
-          HÀNH TRÌNH TIẾP DIỄN…
+      <!-- NODE 13 · Cờ Lau · buoi=7 -->
+      <div class="map-node node-available" id="mapNode13" data-ai="13" data-buoi="7"
+           style="left:55.6%;top:81.7%" onclick="nodeClick(13)">
+        <div class="node-body" style="position:relative">
+          <span class="node-num">ẢI 7</span><span class="node-boss">👑</span>
         </div>
+        <div class="node-stars"></div>
+        <div class="node-label">Cờ Lau</div>
       </div>
 
-    </div><!-- /world-map -->
-  </div><!-- /world-map-wrap -->
+    </div><!-- /geo-map -->
+  </div><!-- /geo-map-wrap -->
+  <div class="pan-hint" id="panHint">◀ kéo để xem toàn bản đồ ▶</div>
 
 </div><!-- /app -->
+
+<!-- ── Kho Nhân Vật Modal ── -->
+<div class="vault-modal" id="vaultModal" onclick="if(event.target===this)closeVault()">
+  <div class="vault-panel">
+    <div class="lv-drag"></div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-family:var(--font-title);font-size:20px;font-weight:700;color:var(--primary);letter-spacing:1px;">🏛️ KHO NHÂN VẬT</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:4px;letter-spacing:0.5px;">Những anh hùng đã đồng hành cùng em</div>
+    </div>
+    <div class="vault-grid" id="vaultGrid">
+      <!-- Populated by JS -->
+    </div>
+    <button class="lv-cancel" onclick="closeVault()">✕ Đóng</button>
+  </div>
+</div>
 
 <!-- ── Intro Modal ── -->
 <div class="intro-modal" id="introModal">
   <div class="intro-overlay"></div>
   <div class="intro-content">
-    <div class="intro-title" id="introTitle">Ải 7: Bí Ẩn Cổ Loa</div>
+    <div class="intro-title" id="introTitle">Ải 1: Cổ Loa</div>
     <div class="intro-story" id="introStory"></div>
     <div class="intro-mission" id="introMission"></div>
-    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()">🔥 RÈN SỐ & CHỮ SỐ</button>
+
+    <!-- ── 2-choice layout (ải Cổ Loa trở đi) ── -->
+    <div class="intro-choices" id="introDualChoice" style="display:none">
+      <button class="btn-choice btn-dungnuoc" id="btnDungNuoc" onclick="goDungNuoc()">
+        <span class="btn-choice-icon">📚</span>
+        <span class="btn-choice-title">Dựng Nước</span>
+        <span class="btn-choice-sub">Học Toán · Tích Toán Lực</span>
+      </button>
+      <button class="btn-choice btn-giununuoc" id="btnGiuNuoc" onclick="goGiuNuoc()">
+        <span class="btn-choice-icon">🏰</span>
+        <span class="btn-choice-title">Giữ Nước</span>
+        <span class="btn-choice-sub">Thủ thành · Dùng Toán Lực</span>
+      </button>
+    </div>
+
+    <!-- ── Legacy buttons (ải cũ trước Cổ Loa) ── -->
+    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu" onclick="playMinigame()" style="display:none">🔥 RÈN SỐ & CHỮ SỐ</button>
     <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTuyetChieu2" onclick="playMinigame2()"
-      style="margin-top:10px;background:linear-gradient(45deg,#ff0055,#fbbf24);box-shadow:0 0 15px rgba(255,0,85,0.6);">🔥 RÈN CẤU TẠO SỐ</button>
-    <button class="btn-intro btn-ren-tuyet-chieu" id="btnRenTowerDefense" onclick="playTowerDefense()"
-      style="margin-top:10px;background:linear-gradient(45deg,#b87333,#c8960c);box-shadow:0 0 15px rgba(184,115,51,0.6);">🔥 THỦ THÀNH ÂU LẠC</button>
-    <button class="btn-intro btn-vao-ai" id="btnVaoAi" onclick="openLvSelect()">⚔️ VÀO ẢI LUÔN</button>
+      style="display:none;margin-top:10px;background:linear-gradient(45deg,#ff0055,#fbbf24);box-shadow:0 0 15px rgba(255,0,85,0.6);">🔥 RÈN CẤU TẠO SỐ</button>
+    <button class="btn-intro btn-vao-ai" id="btnVaoAi" onclick="openLvSelect()" style="display:none">⚔️ VÀO ẢI LUÔN</button>
+
     <button class="btn-intro-close" onclick="closeIntroModal()">✕ Thoát</button>
   </div>
 </div>
@@ -914,7 +1060,10 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
   const tgIdURL = new URLSearchParams(window.location.search).get('tg_id');
   const tgId    = tgIdWA || (tgIdURL ? parseInt(tgIdURL) : null);
 
-  if (!tgId) { window.location.replace('/register'); return; }
+  const isDev = new URLSearchParams(window.location.search).get('dev') === '1'
+             || ['localhost','127.0.0.1'].includes(location.hostname);
+  if (!tgId && !isDev) { window.location.replace('/register'); return; }
+  if (isDev && !tgId) { if (typeof loadZoneCharacter === 'function') loadZoneCharacter(); return; }
 
   async function fetchStatus() {
     const res = await fetch(`/api/student/tg-status?tg_id=${tgId}`);
@@ -929,20 +1078,33 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#050a1f'); }
 
     if (data.status === 'approved') {
       if (tgId) localStorage.setItem('vsTgId', String(tgId));
-      const classMap = { chien_binh:'lac-tuong', phu_thuy:'dao-si', xa_thu:'no-than', hiep_si:'than-tuong' };
-      const genderMap = { nam:'male', nu:'female' };
-      const dbClass  = classMap[data.character_type];
+      if (data.gioi_tinh) localStorage.setItem('vsGender', data.gioi_tinh);
+      
+      // Update vsUser in sessionStorage so F5 or next levels get the latest updated avatar/character!
+      sessionStorage.setItem('vsUser', JSON.stringify(data));
+      
+      // Map character_type and gioi_tinh to vsSelectedChar / selectedCharacter
+      const classMap = {
+        chien_binh: 'lac-tuong',
+        phu_thuy:   'dao-si',
+        xa_thu:     'no-than',
+        hiep_si:    'than-tuong'
+      };
+      const genderMap = {
+        nam: 'male',
+        nu:  'female'
+      };
+      const dbClass = classMap[data.character_type];
       const dbGender = genderMap[data.gioi_tinh || 'nam'];
       if (dbClass && dbGender) {
         const mappedChar = `${dbClass}-${dbGender}`;
         localStorage.setItem('vsSelectedChar', mappedChar);
         sessionStorage.setItem('vsSelectedChar', mappedChar);
-        if (typeof loadSelectedCharacter === 'function') loadSelectedCharacter(mappedChar);
+        localStorage.setItem('selectedCharacter', mappedChar);
+        localStorage.setItem('selectedGender', dbGender);
       }
-      const CHARS = { chien_binh:'⚔️', phu_thuy:'🔮', xa_thu:'🏹', hiep_si:'🛡️' };
-      const emoji = CHARS[data.character_type] || '⚔️';
-      const badge = document.getElementById('userBadge');
-      if (badge && data.ho_ten) badge.innerHTML = `${emoji} ${data.ho_ten.toUpperCase()}`;
+      
+      if (typeof loadZoneCharacter === 'function') loadZoneCharacter();
       return;
     }
 
@@ -980,21 +1142,31 @@ function openProfile() {
   history.pushState({ lesson: 'profile' }, '');
 }
 
+/* ── Zone Characters ── */
+const ZONE_CHARACTERS = [
+  { zone:0, nodes:[1,2,3],  buois:[],    name:'Lạc Long Quân', title:'Thủy Tổ · Rồng Biển Lạc Việt',          emoji:'🐉', zone_name:'Hồng Bàng',  color:'#1A5A8C' },
+  { zone:1, nodes:[4,5,6],  buois:[],    name:'Thánh Gióng',   title:'Thiên Tướng · Phù Đổng Thiên Vương',     emoji:'🥁', zone_name:'Hùng Vương', color:'#3D7A3F' },
+  { zone:2, nodes:[7,8],    buois:[1,2], name:'Cao Lỗ',        title:'Tổng Công Trình Sư Âu Lạc',              emoji:'⚔️', zone_name:'Cổ Loa',     color:'#B87333' },
+  { zone:3, nodes:[9,10],   buois:[3,4], name:'Trưng Trắc',    title:'Vương Hậu · Nữ Tướng Mê Linh',           emoji:'🔥', zone_name:'Mê Linh',    color:'#C0332E' },
+  { zone:4, nodes:[11,12],  buois:[5,6], name:'Ngô Quyền',     title:'Đại Thắng Sông Bạch Đằng',               emoji:'⚓', zone_name:'Bạch Đằng',  color:'#1E3A8A' },
+  { zone:5, nodes:[13],     buois:[7],   name:'Đinh Bộ Lĩnh',  title:'Đinh Tiên Hoàng · Thống Nhất Giang Sơn', emoji:'👑', zone_name:'Hoa Lư',     color:'#7B2FA0' }
+];
+
 /* ── Map level data ── */
 const MAP_LEVELS = [
-  { ai:1,  buoi:null, name:'Trứng Tiên Nở Trăm Con',   path:null },
-  { ai:2,  buoi:null, name:'Mười Lăm Bộ Lạc Văn Lang', path:null },
-  { ai:3,  buoi:null, name:'Yêu Cáo Chín Đuôi Tây Hồ', path:null },
-  { ai:4,  buoi:null, name:'Tiếng Trống Thúc Quân',     path:null },
-  { ai:5,  buoi:null, name:'Đê Thần & Trận Hồng Thủy',  path:null },
-  { ai:6,  buoi:null, name:'Bếp Lửa Hoàng Tử Nghèo',   path:null },
-  { ai:7,  buoi:1,   name:'Bí Ẩn Cổ Loa',              path:'content/lop3/bai01/bai-tap.html' },
-  { ai:8,  buoi:2,   name:'Nỏ Thần Liên Châu',          path:'content/lop3/bai02/bai-tap.html' },
-  { ai:9,  buoi:null, name:'Hội Quân Mê Linh',          path:null },
-  { ai:10, buoi:null, name:'Chiến Thuật Voi Chiến',     path:null },
-  { ai:11, buoi:null, name:'Trận Bạch Đằng I',          path:null },
-  { ai:12, buoi:null, name:'Trận Bạch Đằng II',         path:null },
-  { ai:13, buoi:null, name:'Cờ Lau Tập Trận',           path:null }
+  { ai:1,  buoi:null, name:'Trứng Tiên Nở Trăm Con',   path:null,   battle:null  },
+  { ai:2,  buoi:null, name:'Mười Lăm Bộ Lạc Văn Lang', path:null,   battle:null  },
+  { ai:3,  buoi:null, name:'Yêu Cáo Chín Đuôi Tây Hồ', path:null,   battle:null  },
+  { ai:4,  buoi:null, name:'Tiếng Trống Thúc Quân',     path:null,   battle:null  },
+  { ai:5,  buoi:null, name:'Đê Thần & Trận Hồng Thủy',  path:null,   battle:null  },
+  { ai:6,  buoi:null, name:'Bếp Lửa Hoàng Tử Nghèo',   path:null,   battle:null  },
+  { ai:7,  buoi:1,   name:'Bí Ẩn Cổ Loa',              path:'content/lop3/bai01/bai-tap.html', battle:'battle.html?ai=7' },
+  { ai:8,  buoi:2,   name:'Nỏ Thần Liên Châu',          path:'content/lop3/bai02/bai-tap.html', battle:'battle.html?ai=8' },
+  { ai:9,  buoi:3,   name:'Hội Quân Mê Linh',           path:null,   battle:'battle.html?ai=9' },
+  { ai:10, buoi:4,   name:'Chiến Thuật Voi Chiến',      path:null,   battle:'battle.html?ai=10' },
+  { ai:11, buoi:5,    name:'Trận Bạch Đằng I',          path:null,   battle:'battle.html?ai=11' },
+  { ai:12, buoi:6,    name:'Trận Bạch Đằng II',         path:null,   battle:'battle.html?ai=12' },
+  { ai:13, buoi:7,    name:'Cờ Lau Tập Trận',           path:null,   battle:'battle.html?ai=13' }
 ];
 
 /* ── Level selection state ── */
@@ -1009,11 +1181,11 @@ function nodeClick(ai) {
     return; // locked / coming soon
   }
   const el = document.querySelector(`[data-ai="${ai}"]`);
-  open_(lv.buoi, lv.name, lv.path, el);
+  open_(lv.buoi, lv.name, lv.path, el, lv.ai, lv.battle);
 }
 
-function open_(buoi, title, path, el) {
-  _pending     = { buoi, title, path, el };
+function open_(buoi, title, path, el, ai, battle) {
+  _pending     = { ai: ai || null, buoi, title, path, battle: battle || null, el };
   currentBuoi  = buoi;
   currentTitle = title;
 
@@ -1031,7 +1203,7 @@ function open_(buoi, title, path, el) {
   } catch(e) {}
 
   /* Mở Intro Modal */
-  document.getElementById('introTitle').textContent = `ẢI ${buoi}: ${title}`;
+  document.getElementById('introTitle').textContent = `CHƯƠNG ${buoi}: ${title}`;
 
   const STORIES = {
     1: {
@@ -1041,6 +1213,26 @@ function open_(buoi, title, path, el) {
     2: {
       story: "Thành Cổ Loa đứng vững — nhờ bộ óc của Cao Lỗ (em)! Thần Kim Quy tặng vuốt rùa vàng, An Dương Vương giao tiếp cho <b>em — Cao Lỗ</b> — rèn Nỏ thần Liên Châu, một phát bắn ra vạn mũi tên. Nhưng gián điệp <b>Ám Toán Sứ</b> đã xâm nhập xưởng đúc, viết thêm chữ số giả vào bản vẽ của em — kích thước sai hết, nỏ không thể hoạt động! Hãy dùng bài toán cấu tạo số vạch trần số giả, hoàn thành vũ khí huyền thoại!",
       mission: "🎯 Nhiệm vụ trước khi vào ải:<br>Rèn Tuyệt Chiêu 'Bài toán Cấu tạo số'"
+    },
+    3: {
+      story: "Năm 40 SCN — <b>Em là Trưng Trắc</b>, Nữ Vương Mê Linh. Chồng ta — Thi Sách — bị Tô Định giết để dập tắt mầm khởi nghĩa. Nhưng cái chết đó không phải là kết thúc, mà là bắt đầu! Bốn cánh nghĩa quân đang đổ về — Mê Linh, Cửu Chân, Tây Vu, Nhật Nam — nhưng <b>Xích Thư Ma</b> của Tô Định phong ấn phép cộng trừ của mọi người. Hãy dùng toán học để hội tụ nghĩa quân, tính lương thực, tổ chức đội ngũ — đây là vũ khí Tô Định không thể cướp đi!",
+      mission: "🎯 Nhiệm vụ:<br>⚔️ Vào ải ngay — phá Xích Thư Ma của Tô Định!"
+    },
+    4: {
+      story: "Mê Linh đã tự do! Nhưng Nhà Hán không chịu bỏ cuộc — họ cử <b>Mã Viện</b>, danh tướng thiện chiến nhất, dẫn 20.000 quân sang. <b>Em — Trưng Trắc</b> — có vũ khí bí mật: đàn voi chiến thiện chiến. Nhưng Mã Viện dùng Bùa Hán Trận xóa bảng nhân và phép chia trong đầu nghĩa quân — voi không chia được đội hình, sẽ chạy loạn! Hãy dùng bảng nhân và phép chia để tổ chức tượng binh — phá tan Bùa Hán Trận!",
+      mission: "🎯 Nhiệm vụ:<br>🐘 Vào ải ngay — chia đội hình voi chiến, phá Bùa Hán Trận!"
+    },
+    5: {
+      story: "Năm 938 — <b>Em là Ngô Quyền</b>, vị tướng tài ba người Việt chuẩn bị kết thúc hơn 1000 năm Bắc thuộc. Kế hoạch táo bạo nhất lịch sử: cắm hàng nghìn cọc gỗ bịt sắt nhọn dưới lòng sông Bạch Đằng. Khi thủy triều lên — cọc chìm, nhử hạm đội Nam Hán vào. Khi thủy triều xuống — cọc lộ, đâm thủng đáy 500 chiến thuyền! Nhưng <b>Phong Thủy Ấn</b> của Lưu Hoằng Tháo đã phong ấn phép nhân và đo lường của thợ cọc Việt. Hãy dùng toán học để tính số cọc, chiều dài gỗ, chu vi trận địa và thời điểm thủy triều!",
+      mission: "🎯 Nhiệm vụ:<br>⚓ Vào ải ngay — tính toán trận địa cọc, phá Phong Thủy Ấn!"
+    },
+    6: {
+      story: "Bẫy cọc đã xong — đêm qua <b>em — Ngô Quyền</b> đã cắm xong 48 cọc sắt dưới lòng sông. Bình minh sông Bạch Đằng: 500 chiến thuyền Nam Hán đang mắc kẹt — họ chưa biết. Thủy triều đang rút, cọc đang lộ dần. Đây là khoảnh khắc ngàn năm có một — nhưng <b>Ma Trận Hỗn Độn</b> của Lưu Hoằng Tháo đang phá vỡ phép chia và bài toán nhiều bước của quân Việt. Nếu không chia đúng đội hình tấn công — cơ hội lịch sử sẽ vuột mất!",
+      mission: "🎯 Nhiệm vụ:<br>🔱 Vào ải ngay — chia đội hình tấn công, phá Ma Trận Hỗn Độn!"
+    },
+    7: {
+      story: "Năm 944, sau khi Ngô Vương mất, đất nước rơi vào loạn lạc — <b>12 sứ quân</b> cát cứ 12 vùng đất. Nhưng ở Hoa Lư, một cậu bé chăn trâu đang chơi trận giả trên đồng cờ lau — cắt cờ lau làm cờ, dùng tre làm giáo. Hai mươi mấy năm sau, <b>em — Đinh Bộ Lĩnh</b> — đứng trước bản đồ 12 vùng đất chia cắt. Ma Trận Chia Cắt của liên minh sứ quân phong ấn toàn bộ tri thức toán học từ 12 ải đã qua. Đây là ải cuối — hãy dùng tất cả những gì đã học để thống nhất Đại Cồ Việt!",
+      mission: "🎯 Nhiệm vụ:<br>👑 Vào ải ngay — phá 8 thành lũy, dẹp 12 sứ quân, thống nhất giang sơn!"
     }
   };
 
@@ -1052,27 +1244,57 @@ function open_(buoi, title, path, el) {
   document.querySelector('.intro-story').innerHTML  = storyData.story;
   document.querySelector('.intro-mission').innerHTML = storyData.mission;
 
-  const btn1 = document.getElementById('btnRenTuyetChieu');
-  const btn2 = document.getElementById('btnRenTuyetChieu2');
-  const btn3 = document.getElementById('btnRenTowerDefense');
-  btn1.style.display = (buoi === 1) ? 'block' : 'none';
-  btn2.style.display = (buoi === 1 || buoi === 2) ? 'block' : 'none';
-  if (btn3) btn3.style.display = (buoi === 1) ? 'block' : 'none';
+  // ── Ải từ Cổ Loa (buoi >= 1): hiển thị 2-choice layout ──
+  const isDualChoice = buoi >= 1;
+  const dualDiv = document.getElementById('introDualChoice');
+  const btn1    = document.getElementById('btnRenTuyetChieu');
+  const btn2    = document.getElementById('btnRenTuyetChieu2');
+  const btnVaoAi = document.getElementById('btnVaoAi');
 
-  const BOSS_BG = { 1: 'design-system/characters/boss/ho-tinh-portrait.jpg' };
+  if (isDualChoice) {
+    dualDiv.style.display  = 'grid';
+    btn1.style.display     = 'none';
+    btn2.style.display     = 'none';
+    btnVaoAi.style.display = 'none';
+
+    // Cập nhật TL hiển thị trên nút Giữ Nước
+    const tlVal = parseInt(localStorage.getItem(`cbToan_tl_ai${buoi}`) || '0');
+    const giuNuocBtn = document.getElementById('btnGiuNuoc');
+    giuNuocBtn.querySelector('.btn-choice-sub').textContent =
+      tlVal > 0
+        ? `⚡ ${tlVal} Toán Lực · Thủ thành`
+        : '⚠️ 0 TL · Học trước để mua tháp!';
+    giuNuocBtn.style.opacity = tlVal > 0 ? '1' : '0.7';
+    giuNuocBtn.style.borderColor = tlVal > 0 ? '' : 'rgba(200,150,12,0.4)';
+  } else {
+    // Ải cũ (trước Cổ Loa) — không có trong game mới, giữ legacy
+    dualDiv.style.display  = 'none';
+    btn1.style.display     = 'none';
+    btn2.style.display     = 'none';
+    btnVaoAi.style.display = 'block';
+    btnVaoAi.style.opacity = '1';
+    btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
+  }
+
+  const BOSS_BG = {
+    1: 'design-system/characters/boss/ho-tinh-portrait.jpg',
+    2: 'design-system/characters/boss/ho-tinh-portrait.jpg'
+  };
   const im = document.getElementById('introModal');
   im.style.backgroundImage = `url('${BOSS_BG[buoi] || 'design-system/characters/boss/ho-tinh-portrait.jpg'}')`;
 
-  const hasSkill  = localStorage.getItem('cbToan_skill_bai' + buoi) === 'true';
-  const btnVaoAi  = document.getElementById('btnVaoAi');
-  if (hasSkill) {
-    btnVaoAi.style.opacity = '1';
-    btnVaoAi.innerHTML = '⚔️ VÀO ẢI LUÔN';
-  } else {
-    btnVaoAi.style.opacity = '0.5';
-    btnVaoAi.innerHTML = '🔒 VÀO ẢI LUÔN (Cần rèn)';
-  }
   document.getElementById('introModal').style.display = 'flex';
+}
+
+function goDungNuoc() {
+  closeIntroModal();
+  window.location.href = `learn.html?ai=${currentBuoi}`;
+}
+
+function goGiuNuoc() {
+  closeIntroModal();
+  const aiNode = _pending.ai || 7;
+  window.location.href = `tower_defense.html?ai=${aiNode}`;
 }
 
 function closeIntroModal() {
@@ -1080,12 +1302,20 @@ function closeIntroModal() {
 }
 
 function openLvSelect() {
+  closeIntroModal();
+  // Nếu ải này có battle.html → navigate thẳng (không cần chọn cấp độ / kiểm tra skill)
+  // battle.html đã có phần lý thuyết tích hợp sẵn
+  if (_pending.battle) {
+    window.location.href = _pending.battle;
+    return;
+  }
+  // Fallback cho ải dùng iframe content: kiểm tra skill trước
   const hasSkill = localStorage.getItem('cbToan_skill_bai' + currentBuoi) === 'true';
   if (!hasSkill) {
     alert("⚠️ Bạn chưa rèn xong Tuyệt Chiêu! Hãy nhấn 'RÈN TUYỆT CHIÊU' để thu thập đủ sức mạnh trước khi vào ải nhé!");
     return;
   }
-  closeIntroModal();
+  // Fallback: level select modal (cho nội dung iframe cũ)
   document.getElementById('lvModalName').textContent = currentTitle;
   var best = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + currentBuoi) || '0');
   [1,2,3].forEach(function(n) {
@@ -1131,7 +1361,7 @@ function enterLevel(level) {
   localStorage.setItem('cbToan_gameLevel', String(level));
   var p = _pending;
   document.getElementById('pgTitle').textContent = p.title;
-  document.getElementById('pgSub').textContent   = `Boss Battle • Mission ${p.buoi} • Cấp ${level}`;
+  document.getElementById('pgSub').textContent   = `Boss Battle • Chương ${p.buoi} • Cấp ${level}`;
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('frame').src = `${BASE}/${p.path}`;
   requestAnimationFrame(() => document.getElementById('pg').classList.add('active'));
@@ -1163,81 +1393,337 @@ window.addEventListener('message', function(e) {
   }
 });
 
-/* ── Character loading ── */
-function loadSelectedCharacter(charOverride) {
-  const charFromURL = new URLSearchParams(window.location.search).get('character');
-  if (charFromURL) {
-    sessionStorage.setItem('vsSelectedChar', charFromURL);
-    localStorage.setItem('vsSelectedChar', charFromURL);
-  }
-  const selectedChar = charOverride || charFromURL
-    || sessionStorage.getItem('vsSelectedChar')
-    || localStorage.getItem('vsSelectedChar');
-  if (!selectedChar) return;
-  const charCfg = {
-    'lac-tuong-male':   { color:'#C0332E', glow:'#D9514A' },
-    'lac-tuong-female': { color:'#C0332E', glow:'#D9514A' },
-    'dao-si-male':      { color:'#5E2A78', glow:'#A05CC0' },
-    'dao-si-female':    { color:'#5E2A78', glow:'#A05CC0' },
-    'no-than-male':     { color:'#246B4A', glow:'#58B082' },
-    'no-than-female':   { color:'#246B4A', glow:'#58B082' },
-    'than-tuong-male':  { color:'#1A3A5C', glow:'#5090CC' },
-    'than-tuong-female':{ color:'#1A3A5C', glow:'#5090CC' }
-  };
-  const cfg = charCfg[selectedChar];
-  if (!cfg) return;
-  const classKey = selectedChar.replace(/-male|-female/, '');
-  const headerAvatar = document.getElementById('headerAvatar');
-  if (headerAvatar) {
-    headerAvatar.src = `design-system/characters/playable/${classKey}/${selectedChar}-avatar.jpg`;
-    headerAvatar.style.borderColor = cfg.color;
-    headerAvatar.style.boxShadow   = `0 0 12px ${cfg.color}`;
+/* ── Zone character header ── */
+function loadZoneCharacter() {
+  // Show the latest active zone character (highest zone with live buoi nodes)
+  const liveZones = ZONE_CHARACTERS.filter(zc => zc.buois.length > 0);
+  const activeZone = liveZones.length > 0 ? liveZones[liveZones.length - 1] : ZONE_CHARACTERS[2];
+  const nameEl  = document.getElementById('zoneCharName');
+  const titleEl = document.getElementById('zoneCharTitle');
+  const emojiEl = document.getElementById('zoneCharEmoji');
+  if (nameEl)  nameEl.textContent  = activeZone.name;
+  if (titleEl) titleEl.textContent = activeZone.title;
+  if (emojiEl) {
+    emojiEl.textContent           = activeZone.emoji;
+    emojiEl.style.borderColor     = activeZone.color;
+    emojiEl.style.boxShadow       = `0 0 14px ${activeZone.color}55`;
   }
 }
-loadSelectedCharacter();
+loadZoneCharacter();
+
+/* ── Kho Nhân Vật Vault ── */
+function openVault() {
+  const grid = document.getElementById('vaultGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  let bdg = [];
+  try { bdg = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
+  ZONE_CHARACTERS.forEach(zc => {
+    const completed  = zc.buois.length > 0 && zc.buois.every(b => bdg.includes(b));
+    const inProgress = zc.buois.length > 0 && zc.buois.some(b => bdg.includes(b)) && !completed;
+    const hasLive    = zc.buois.length > 0;
+    let cls = 'vault-char-card';
+    if (completed)       cls += ' unlocked';
+    else if (inProgress) cls += ' in-progress';
+    else                 cls += ' locked';
+    const card = document.createElement('div');
+    card.className = cls;
+    card.innerHTML =
+      `${completed ? '<div class="vault-unlock-badge">✓ ĐÃ MỞ</div>' : ''}
+       <span class="vault-char-emoji">${(completed || inProgress) ? zc.emoji : '🔒'}</span>
+       <div class="vault-char-name">${(hasLive || completed) ? zc.name : '???'}</div>
+       <div class="vault-char-sub">${completed ? zc.title : (inProgress ? 'Đang chinh phục...' : (hasLive ? 'Chưa hoàn thành' : 'Khu vực chưa mở'))}</div>
+       <div class="vault-char-zone">TRẠM ${zc.zone} · ${zc.zone_name}</div>`;
+    grid.appendChild(card);
+  });
+  document.getElementById('vaultModal').style.display = 'flex';
+}
+function closeVault() {
+  const m = document.getElementById('vaultModal');
+  if (m) m.style.display = 'none';
+}
 
 /* ── Node status from localStorage ── */
 let badges = [];
 try { badges = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
 
+// Tính ⭐ cho ải battle.html (hệ mới: cbToan_ai${N}_done/bestTime/noHints)
+function battleStars(aiId) {
+  if (!localStorage.getItem('cbToan_ai' + aiId + '_done')) return 0;
+  if (localStorage.getItem('cbToan_ai' + aiId + '_noHints') === '1') return 3;
+  const t = parseInt(localStorage.getItem('cbToan_ai' + aiId + '_bestTime')) || 9999;
+  return t < 120 ? 2 : 1;
+}
+
+function markNodeDone(node, stars) {
+  node.classList.remove('node-available', 'node-locked', 'node-learned');
+  node.classList.add('node-completed');
+  const boss = node.querySelector('.node-boss');
+  if (boss) boss.textContent = '🏆';
+  const starsEl = node.querySelector('.node-stars');
+  if (starsEl && stars > 0) starsEl.textContent = '⭐'.repeat(stars);
+  // Xóa badge cũ nếu có
+  const lb = node.querySelector('.node-learn-badge');
+  if (lb) lb.remove();
+}
+
+/* Học xong learn.html (chưa thủ thành) — viền xanh jade + badge 📚 */
+function markNodeLearned(node, tiersCount) {
+  if (node.classList.contains('node-completed')) return;
+  // Xoá class "available" để tắt animation vàng, thêm "learned"
+  node.classList.remove('node-available');
+  node.classList.add('node-learned');
+  const body = node.querySelector('.node-body');
+  if (body) {
+    body.style.position = 'relative';
+    // Clear any leftover inline animation/style
+    body.style.animation = '';
+    // Xoá badge cũ (BẮT ĐẦU, SOON, v.v.)
+    body.querySelectorAll('.node-soon-badge').forEach(el => el.remove());
+    // Đổi emoji thành 📚 để thấy rõ
+    const boss = body.querySelector('.node-boss');
+    if (boss) boss.textContent = tiersCount >= 3 ? '📚' : '📖';
+    // Badge text
+    if (!body.querySelector('.node-learn-badge')) {
+      const badge = document.createElement('div');
+      badge.className = 'node-learn-badge';
+      badge.textContent = tiersCount >= 3 ? 'Học Xong' : `${tiersCount}/3`;
+      body.appendChild(badge);
+    } else {
+      body.querySelector('.node-learn-badge').textContent =
+        tiersCount >= 3 ? 'Học Xong' : `${tiersCount}/3`;
+    }
+  }
+}
+
 function updateMapNodes() {
+  // Hệ cũ: cbToan_badges (buoi numbers từ minigame iframe)
   badges.forEach(buoi => {
     const node = document.querySelector(`.map-node[data-buoi="${buoi}"]`);
     if (!node) return;
-    // Mark completed
-    node.classList.remove('node-available', 'node-locked');
-    node.classList.add('node-completed');
-    const boss = node.querySelector('.node-boss');
-    if (boss) boss.textContent = '🏆';
     const bestLv = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + buoi) || '0');
-    const stars  = node.querySelector('.node-stars');
-    if (stars && bestLv > 0) stars.textContent = '⭐'.repeat(bestLv);
-    // Mark in-progress info
-    const progressData = localStorage.getItem('cbToan_progress_bai' + buoi);
-    if (progressData && !badges.includes(buoi)) {
-      try {
-        const p = JSON.parse(progressData);
-        if (p && p.slide > 1) {
-          const num = node.querySelector('.node-num');
-          if (num) num.style.fontSize = '14px';
-        }
-      } catch(e) {}
-    }
+    markNodeDone(node, bestLv);
   });
+
+  // Hệ mới: cbToan_ai${N}_done (từ battle.html)
+  MAP_LEVELS.forEach(lv => {
+    if (!lv.battle || !lv.buoi) return;
+    if (!localStorage.getItem('cbToan_ai' + lv.ai + '_done')) return;
+    const node = document.querySelector(`.map-node[data-buoi="${lv.buoi}"]`);
+    if (!node || node.classList.contains('node-completed')) return;
+    markNodeDone(node, battleStars(lv.ai));
+  });
+
+  // Hệ learn.html: cbToan_ai${buoi}_tang${t}_done
+  for (let buoi = 1; buoi <= 7; buoi++) {
+    if (!localStorage.getItem(`cbToan_ai${buoi}_tang1_done`)) continue; // chưa học gì cả
+    const node = document.querySelector(`.map-node[data-buoi="${buoi}"]`);
+    if (!node || node.classList.contains('node-completed')) continue;
+    let tiers = 0;
+    for (let t = 1; t <= 3; t++) {
+      if (localStorage.getItem(`cbToan_ai${buoi}_tang${t}_done`)) tiers++;
+    }
+    markNodeLearned(node, tiers);
+  }
 }
 updateMapNodes();
 
-/* ── Auto-scroll to first live level (ải 7) ── */
+/* ── Sync tiến độ từ server (game_progress) ── */
+async function syncProgressFromServer() {
+  const tgId = localStorage.getItem('vsTgId');
+  if (!tgId) return;
+  try {
+    const res = await fetch(`/api/student/progress?tg_id=${tgId}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const serverProgress = data.progress || [];
+    let updated = false;
+    serverProgress.forEach(p => {
+      const lv = MAP_LEVELS.find(l => l.ai === p.ai_num);
+      if (!lv) return;
+      const buoi = lv.buoi;
+      if (buoi) {
+        const existing = parseInt(localStorage.getItem('cbToan_bestLevel_bai' + buoi) || '0');
+        if (p.stars > existing) {
+          localStorage.setItem('cbToan_bestLevel_bai' + buoi, String(p.stars));
+          updated = true;
+        }
+        let bdg = [];
+        try { bdg = JSON.parse(localStorage.getItem('cbToan_badges')) || []; } catch(e) {}
+        if (!bdg.includes(buoi)) {
+          bdg.push(buoi);
+          localStorage.setItem('cbToan_badges', JSON.stringify(bdg));
+          updated = true;
+        }
+      }
+      const doneKey = 'cbToan_ai' + p.ai_num + '_done';
+      if (!localStorage.getItem(doneKey) && p.stars > 0) {
+        localStorage.setItem(doneKey, '1');
+        if (p.stars >= 3) localStorage.setItem('cbToan_ai' + p.ai_num + '_noHints', '1');
+        updated = true;
+      }
+    });
+    if (updated) updateMapNodes();
+  } catch(e) {
+    console.warn('syncProgress error:', e);
+  }
+}
+syncProgressFromServer();
+
+/* ── Badge "BẮT ĐẦU!" trên node 7 cho user mới ── */
+(function() {
+  const hasProgress = [1,2,3,4,5,6,7].some(b =>
+    localStorage.getItem(`cbToan_tl_ai${b}`) ||
+    localStorage.getItem(`cbToan_ai${b}_tang1_done`) ||
+    localStorage.getItem(`cbToan_ai${b + 6}_done`)
+  );
+  if (hasProgress) return;
+  const node7 = document.getElementById('mapNode7');
+  if (!node7) return;
+  const body = node7.querySelector('.node-body');
+  if (!body) return;
+  body.style.position = 'relative';
+  const badge = document.createElement('div');
+  badge.className = 'node-soon-badge';
+  badge.style.cssText = 'background:linear-gradient(135deg,#1a4a0a,#2d8a1a);' +
+    'top:-10px;right:-14px;font-size:7px;padding:2px 6px;letter-spacing:.05em;' +
+    'box-shadow:0 0 8px rgba(45,138,26,0.6);';
+  badge.textContent = '▶ BẮT ĐẦU';
+  body.appendChild(badge);
+})();
+
+/* ── Toán Lực HUD — tổng tất cả per-ải TL ── */
+function refreshToanLucHUD() {
+  let total = 0;
+  for (let i = 1; i <= 7; i++) {
+    total += parseInt(localStorage.getItem(`cbToan_tl_ai${i}`)) || 0;
+  }
+  const el = document.getElementById('tlBalance');
+  if (el) el.textContent = total.toLocaleString('vi-VN');
+}
+
+/* ── Init on load ── */
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    const el = document.getElementById('mapNode7');
-    const wrap = document.getElementById('worldMapWrap');
-    if (el && wrap) {
-      const nodeY = parseInt(el.style.top) || 1590;
-      wrap.scrollTop = Math.max(0, nodeY - 280);
-    }
-  }, 120);
+  refreshToanLucHUD();
+  initMapPan();
 });
+
+/* ── Size geo-map to always fill viewport width ── */
+function sizeGeoMap() {
+  const wrap = document.getElementById('worldMapWrap');
+  const map  = document.getElementById('worldMap');
+  if (!wrap || !map) return;
+  const W = wrap.offsetWidth;
+  const H = wrap.offsetHeight;
+  let mapW = H * 16 / 9;  // 16:9 from height
+  let mapH = H;
+  if (mapW < W) {          // too narrow → scale from width instead
+    mapW = W;
+    mapH = W * 9 / 16;
+  }
+  map.style.width  = mapW + 'px';
+  map.style.height = mapH + 'px';
+}
+sizeGeoMap();
+window.addEventListener('resize', () => { sizeGeoMap(); initMapPan(); });
+
+/* ── Map Pan (16:9 image on portrait) ── */
+function initMapPan() {
+  const wrap = document.getElementById('worldMapWrap');
+  const map  = document.getElementById('worldMap');
+  if (!wrap || !map) return;
+
+  let panX = 0;       // current offset in px
+  let dragStart = null;
+  let dragOrigin = 0;
+  let velocity = 0;
+  let lastX = 0;
+  let animId = null;
+
+  function clamp(val) {
+    const maxPan = Math.max(0, (map.offsetWidth - wrap.offsetWidth) / 2);
+    return Math.max(-maxPan, Math.min(maxPan, val));
+  }
+  function applyPan(x, instant) {
+    panX = clamp(x);
+    map.style.transform = `translateX(calc(-50% + ${panX}px))`;
+  }
+
+  // Show hint only if map is wider than viewport
+  function checkHint() {
+    if (map.offsetWidth > wrap.offsetWidth + 10) {
+      const hint = document.getElementById('panHint');
+      if (hint) hint.style.opacity = '1';
+    }
+  }
+  setTimeout(checkHint, 400);
+
+  // Center on Cổ Loa (43% of image width) on load
+  setTimeout(() => {
+    const coLoaX = map.offsetWidth * 0.43;    // px from left of map
+    const centerX = wrap.offsetWidth / 2;      // center of viewport
+    panX = clamp(centerX - coLoaX);
+    applyPan(panX);
+  }, 100);
+
+  // Touch
+  wrap.addEventListener('touchstart', e => {
+    if (e.target.closest('.map-node')) return; // don't steal node taps
+    dragStart = e.touches[0].clientX;
+    dragOrigin = panX;
+    velocity = 0;
+    lastX = dragStart;
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', e => {
+    if (dragStart === null) return;
+    const dx = e.touches[0].clientX - dragStart;
+    velocity = e.touches[0].clientX - lastX;
+    lastX = e.touches[0].clientX;
+    applyPan(dragOrigin + dx);
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', () => {
+    dragStart = null;
+    // Momentum
+    function momentum() {
+      velocity *= 0.88;
+      if (Math.abs(velocity) < 0.5) return;
+      applyPan(panX + velocity);
+      animId = requestAnimationFrame(momentum);
+    }
+    animId = requestAnimationFrame(momentum);
+  });
+
+  // Mouse drag (desktop)
+  wrap.addEventListener('mousedown', e => {
+    if (e.target.closest('.map-node')) return;
+    dragStart = e.clientX; dragOrigin = panX; velocity = 0; lastX = e.clientX;
+    wrap.classList.add('dragging');
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+  });
+  window.addEventListener('mousemove', e => {
+    if (dragStart === null) return;
+    velocity = e.clientX - lastX; lastX = e.clientX;
+    applyPan(dragOrigin + (e.clientX - dragStart));
+  });
+  window.addEventListener('mouseup', () => {
+    if (dragStart === null) return;
+    dragStart = null;
+    wrap.classList.remove('dragging');
+    function momentum() {
+      velocity *= 0.88;
+      if (Math.abs(velocity) < 0.5) return;
+      applyPan(panX + velocity);
+      animId = requestAnimationFrame(momentum);
+    }
+    animId = requestAnimationFrame(momentum);
+  });
+}
+
+/* Cập nhật HUD khi focus lại tab (vừa thắng battle xong quay về) */
+window.addEventListener('focus', refreshToanLucHUD);
 
 /* ── Reload after close to refresh badges ── */
 const _origClose = close_;
@@ -1272,5 +1758,46 @@ document.getElementById('frame').addEventListener('load', function() {
   } catch(err) { console.warn('Checkpoint merge skipped:', err); }
 });
 </script>
-</body>
-</html>
+
+<!-- ═══ DEV TOOL — ?dev=1 ═══ -->
+<script>
+(function() {
+  if (new URLSearchParams(location.search).get('dev') !== '1') return;
+
+  const panel = document.createElement('div');
+  panel.style.cssText = [
+    'position:fixed;bottom:12px;left:12px;z-index:9999',
+    'background:#0d0d18;border:1px solid #C8960C;border-radius:12px',
+    'padding:10px 12px;min-width:190px',
+    'font-family:monospace;font-size:11px;color:#C8960C',
+    'box-shadow:0 0 18px rgba(200,150,12,.35)'
+  ].join(';');
+
+  panel.innerHTML = `
+    <div style="font-weight:700;margin-bottom:8px">🗺 DEV — Map</div>
+    <div id="mapDevState" style="color:#aaa;font-size:10px;line-height:1.7;margin-bottom:8px"></div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <button onclick="_mapDevSimLearn(1)" style="background:#0a2a1a;border:1px solid #5ABCAA;
+        color:#5ABCAA;padding:3px 7px;border-radius:5px;cursor:pointer;font-family:monospace;font-size:10px">
+        📚 Giả lập học xong Ải 1
+      </button>
+      <button onclick="_mapDevSetTL(1,150)" style="background:#2a1a0a;border:1px solid #C8960C;
+        color:#C8960C;padding:3px 7px;border-radius:5px;cursor:pointer;font-family:monospace;font-size:10px">
+        ⚡ Set TL Ải 1 = 150
+      </button>
+      <button onclick="_mapDevReset()" style="background:#1a0a0a;border:1px solid #666;
+        color:#888;padding:3px 7px;border-radius:5px;cursor:pointer;font-family:monospace;font-size:10px">
+        💣 Reset tất cả → reload
+      </button>
+    </div>
+  `;
+  document.body.appendChild(panel);
+  _mapDevRefresh();
+
+  function _mapDevRefresh() {
+    const el = document.getElementById('mapDevState');
+    if (!el) return;
+    let html = '';
+    for (let b = 1; b <= 7; b++) {
+      const tl = parseInt(localStorage.getItem(`cbToan_tl_ai${b}`) || '0');
+      const t3 = localStorage.getItem(`cbToan_ai${b}_tang3_done`) ? '📚' : '

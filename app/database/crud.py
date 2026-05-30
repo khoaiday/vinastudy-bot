@@ -692,3 +692,57 @@ async def get_active_classmates(exclude_id: int) -> list:
             LIMIT 20
         """, exclude_id)
     return [dict(r) for r in rows]
+
+
+# ── Game Progress ─────────────────────────────────────────────────────────────
+
+async def get_game_progress(telegram_id: int) -> list:
+    """Lấy toàn bộ ải đã hoàn thành của một học sinh."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT ai_num, score, stars, completed_at FROM game_progress WHERE telegram_id=$1 ORDER BY ai_num",
+            telegram_id)
+    return [dict(r) for r in rows]
+
+
+async def upsert_game_progress(telegram_id: int, ai_num: int, score: int, stars: int) -> dict:
+    """Lưu (hoặc cập nhật nếu điểm cao hơn) tiến độ ải."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            INSERT INTO game_progress (telegram_id, ai_num, score, stars, completed_at)
+            VALUES ($1, $2, $3, $4, NOW())
+            ON CONFLICT (telegram_id, ai_num) DO UPDATE
+                SET score        = GREATEST(game_progress.score, EXCLUDED.score),
+                    stars        = GREATEST(game_progress.stars, EXCLUDED.stars),
+                    completed_at = CASE
+                        WHEN EXCLUDED.score > game_progress.score THEN NOW()
+                        ELSE game_progress.completed_at
+                    END
+            RETURNING ai_num, score, stars, completed_at
+        """, telegram_id, ai_num, score, stars)
+    return dict(row)
+
+
+async def get_leaderboard_progress(top_n: int = 20) -> list:
+    """Bảng xếp hạng: tổng điểm + số ải hoàn thành."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("""
+            SELECT
+                gp.telegram_id,
+                COALESCE(s.ho_ten, wu.ho_ten, 'Ẩn danh') AS ho_ten,
+                COUNT(gp.ai_num)    AS so_ai,
+                SUM(gp.score)       AS tong_diem,
+                MAX(gp.ai_num)      AS ai_xa_nhat,
+                COALESCE(g.xp, 0)   AS xp
+            FROM game_progress gp
+            LEFT JOIN students   s  ON s.telegram_id = gp.telegram_id
+            LEFT JOIN web_users  wu ON wu.telegram_id = gp.telegram_id
+            LEFT JOIN gamification g ON g.telegram_id = gp.telegram_id
+            GROUP BY gp.telegram_id, s.ho_ten, wu.ho_ten, g.xp
+            ORDER BY tong_diem DESC, so_ai DESC
+            LIMIT $1
+        """, top_n)
+    return [dict(r) for r in rows]
