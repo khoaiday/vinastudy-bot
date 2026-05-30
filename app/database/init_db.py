@@ -171,4 +171,15 @@ async def init_db():
         created_at       TIMESTAMP DEFAULT NOW(),
         expires_at       TIMESTAMP DEFAULT NOW() + INTERVAL '24 hours'
     );
-    CREATE INDEX IF NOT EXISTS idx_challenges_challenger ON challenges(ch
+    CREATE INDEX IF NOT EXISTS idx_challenges_challenger ON challenges(challenger_id);
+    CREATE INDEX IF NOT EXISTS idx_challenges_challengee ON challenges(challengee_id);
+    CREATE INDEX IF NOT EXISTS idx_challenges_status     ON challenges(status);
+    """
+    try:
+        async with pool.acquire() as conn:
+            await conn.execute(sql)
+            await conn.execute(migration)
+        logger.info("✅ Database schema initialized")
+    except Exception as e:
+        logger.error(f"❌ DB init error: {e}")
+        raise
