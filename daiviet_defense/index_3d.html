@@ -820,35 +820,8 @@ function buildMap() {
   const gridRightPx = gridLeftPx + COLS * cellPx;
   const gridBottomPx = gridTopPx + ROWS * cellPx;
 
-  // ── BACKGROUND: map_tile.png tiled ──
-  const _drawMapBg = () => {
-    if (window._mapTileImg && window._mapTileImg.complete) {
-      // Tile the image across full canvas
-      const pat = mctx.createPattern(window._mapTileImg, 'repeat');
-      const tileScale = TEX_W / (window._mapTileImg.width * 2.5);
-      mctx.save();
-      mctx.scale(tileScale, tileScale);
-      mctx.fillStyle = pat;
-      mctx.fillRect(0, 0, TEX_W / tileScale, TEX_H / tileScale);
-      mctx.restore();
-      // Darken borders (outside grid)
-      mctx.fillStyle = 'rgba(5,20,5,0.35)';
-      mctx.fillRect(0, 0, gridLeftPx, TEX_H);
-      mctx.fillRect(gridRightPx, 0, TEX_W - gridRightPx, TEX_H);
-      mctx.fillStyle = 'rgba(5,20,5,0.25)';
-      mctx.fillRect(0, 0, TEX_W, gridTopPx);
-      mctx.fillRect(0, gridBottomPx, TEX_W, TEX_H - gridBottomPx);
-    } else {
-      // Fallback: green grass
-      mctx.fillStyle = '#5A8A3A';
-      mctx.fillRect(0, 0, TEX_W, TEX_H);
-    }
-  };
-  _drawMapBg();
-
-  // Slightly darker playable area overlay
-  mctx.fillStyle = 'rgba(20,40,10,0.08)';
-  mctx.fillRect(gridLeftPx, gridTopPx, COLS * cellPx, ROWS * cellPx);
+  // Transparent canvas — background image handles terrain visuals
+  mctx.clearRect(0, 0, TEX_W, TEX_H);
 
   // ── GRID LINES (only inside playable area) ──
   mctx.strokeStyle = 'rgba(30,60,20,0.4)';
