@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗺 Dev Tool — Chọn Tọa Độ Ải</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0a0f;
+    color: #f0e8d0;
+    font-family: 'Courier New', monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Top toolbar ── */
+  #toolbar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: #12101a;
+    border-bottom: 1px solid #3a2a10;
+    flex-wrap: wrap;
+  }
+  #toolbar h1 { font-size: 13px; color: #c8960c; letter-spacing: 1px; white-space: nowrap; }
+  #toolbar label { font-size: 11px; color: #a09070; white-space: nowrap; }
+  #nodeSelect {
+    background: #1e1327; border: 1px solid #c8960c; color: #f0e8d0;
+    padding: 4px 8px; border-radius: 6px; font-size: 12px; cursor: pointer;
+  }
+  .tb-btn {
+    background: #1e1327; border: 1px solid #b87333; color: #c8960c;
+    padding: 5px 12px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    white-space: nowrap; letter-spacing: 0.5px;
+    transition: background 0.15s;
+  }
+  .tb-btn:hover { background: #2a1a10; }
+  .tb-btn.danger { border-color: #c0332e; color: #ff6b6b; }
+  #cursor-info {
+    font-size: 11px; color: #60c080; letter-spacing: 0.5px;
+    background: rgba(96,192,128,0.08); border: 1px solid rgba(96,192,128,0.25);
+    padding: 3px 10px; border-radius: 6px; white-space: nowrap;
+  }
+  #mode-badge {
+    font-size: 11px; padding: 3px 10px; border-radius: 6px;
+    border: 1px solid #c8960c; background: rgba(200,150,12,0.12);
+    color: #c8960c; white-space: nowrap; letter-spacing: 0.5px;
+  }
+
+  /* ── Main layout ── */
+  #main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Map area ── */
+  #map-area {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    background: #040208;
+    cursor: crosshair;
+  }
+
+  #map-container {
+    position: relative;
+    /* JS sets width/height to maintain 16:9 */
+    flex-shrink: 0;
+  }
+
+  #map-img {
+    display: block;
+    width: 100%; height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Crosshair overlay lines */
+  #crosshair-h, #crosshair-v {
+    position: absolute; pointer-events: none; z-index: 5;
+    opacity: 0.5;
+  }
+  #crosshair-h { height: 1px; left: 0; right: 0; background: rgba(96,192,128,0.7); }
+  #crosshair-v { width: 1px; top: 0; bottom: 0; background: rgba(96,192,128,0.7); }
+
+  /* Grid overlay (toggleable) */
+  #grid-overlay {
+    position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    display: none;
+    background-image:
+      linear-gradient(rgba(184,115,51,0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,115,51,0.12) 1px, transparent 1px);
+    background-size: 10% 10%;
+  }
+  #grid-overlay.visible { display: block; }
+
+  /* Percent labels on grid */
+  #grid-labels {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    display: none;
+  }
+  #grid-labels.visible { display: block; }
+
+  /* ── Node pins ── */
+  .map-pin {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    transition: filter 0.1s;
+  }
+  .map-pin:active { cursor: grabbing; }
+  .map-pin.selected .pin-body {
+    box-shadow: 0 0 0 3px #fff, 0 0 20px #fff, 0 0 30px rgba(255,255,200,0.5);
+    animation: none !important;
+  }
+  .map-pin.dragging { opacity: 0.85; filter: brightness(1.3); cursor: grabbing; z-index: 20; }
+
+  .pin-body {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%,
+      rgba(255,255,255,0.2) 0%,
+      rgba(180,80,10,0.85) 35%,
+      rgba(100,20,5,0.95) 100%);
+    border: 2.5px solid rgba(200,150,12,0.9);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 10px; line-height: 1.1;
+    box-shadow: 0 0 18px rgba(200,80,20,0.5), 0 0 0 1px rgba(0,0,0,0.7);
+    pointer-events: none;
+    animation: pinPulse 2.5s ease-in-out infinite;
+  }
+  .pin-num { font-size: 8px; font-weight: 700; color: #f0e8d0; letter-spacing: 0.5px; }
+  .pin-boss { font-size: 14px; line-height: 1; }
+  .pin-tip {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid rgba(100,20,5,0.95);
+    pointer-events: none;
+    margin-top: -1px;
+  }
+  .pin-label {
+    margin-top: 4px;
+    font-size: 9px; color: #f0c070; font-family: 'Courier New', monospace;
+    white-space: nowrap; pointer-events: none;
+    background: rgba(0,0,0,0.6); padding: 1px 5px; border-radius: 3px;
+    letter-spacing: 0.3px;
+  }
+  .pin-coords {
+    font-size: 8px; color: #60c080;
+    background: rgba(0,0,0,0.7); padding: 1px 5px; border-radius: 3px;
+    margin-top: 2px; white-space: nowrap; pointer-events: none;
+    letter-spacing: 0.3px;
+  }
+
+  @keyframes pinPulse {
+    0%, 100% { box-shadow: 0 0 18px rgba(200,80,20,0.5), 0 0 0 1px rgba(0,0,0,0.7); }
+    50%       { box-shadow: 0 0 28px rgba(200,80,20,0.8), 0 0 0 1px rgba(0,0,0,0.7); }
+  }
+
+  /* Click-to-place ghost */
+  #ghost-pin {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px dashed #60c080;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 15;
+    display: none;
+    background: rgba(96,192,128,0.15);
+  }
+
+  /* ── Side panel ── */
+  #side-panel {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: #0e0c16;
+    border-left: 1px solid #3a2a10;
+    overflow: hidden;
+  }
+
+  #panel-title {
+    padding: 10px 14px;
+    font-size: 11px; letter-spacing: 1px; color: #c8960c;
+    border-bottom: 1px solid #3a2a10;
+    background: #12101a;
+    flex-shrink: 0;
+  }
+
+  #coords-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  #coords-list::-webkit-scrollbar { width: 4px; }
+  #coords-list::-webkit-scrollbar-thumb { background: #3a2a10; border-radius: 2px; }
+
+  .coord-row {
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    border: 1px solid #2a1a08;
+    background: #13101a;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .coord-row:hover { border-color: #b87333; background: #1a1220; }
+  .coord-row.selected { border-color: #c8960c; background: #1e1620; }
+  .coord-row-header {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+  }
+  .coord-emoji { font-size: 14px; }
+  .coord-name { font-size: 11px; font-weight: 700; color: #f0e8d0; letter-spacing: 0.3px; }
+  .coord-ai { font-size: 10px; color: #a09070; }
+  .coord-values {
+    font-size: 11px; color: #60c080; letter-spacing: 0.5px;
+    font-family: 'Courier New', monospace;
+  }
+  .coord-hint { font-size: 9px; color: #605040; margin-top: 2px; }
+
+  #output-section {
+    flex-shrink: 0;
+    border-top: 1px solid #3a2a10;
+    padding: 10px;
+    background: #0a0810;
+  }
+  #output-label {
+    font-size: 10px; color: #a09070; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  #output-box {
+    background: #060408;
+    border: 1px solid #2a2040;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 9.5px;
+    color: #80d0a0;
+    white-space: pre;
+    overflow-x: auto;
+    max-height: 200px;
+    overflow-y: auto;
+    cursor: text;
+    line-height: 1.5;
+  }
+  #output-box::-webkit-scrollbar { width: 3px; height: 3px; }
+  #output-box::-webkit-scrollbar-thumb { background: #3a2a10; }
+  #copy-btn {
+    margin-top: 6px;
+    width: 100%;
+    background: rgba(200,150,12,0.15);
+    border: 1px solid #c8960c;
+    color: #c8960c;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.15s;
+  }
+  #copy-btn:hover { background: rgba(200,150,12,0.3); }
+  #copy-btn.copied { color: #60c080; border-color: #60c080; background: rgba(96,192,128,0.1); }
+
+  #apply-btn {
+    margin-top: 6px;
+    width: 100%;
+    background: rgba(96,192,128,0.15);
+    border: 1.5px solid #60c080;
+    color: #60c080;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.15s;
+  }
+  #apply-btn:hover { background: rgba(96,192,128,0.28); }
+  #apply-btn:disabled { opacity: 0.4; cursor: default; }
+  #apply-status {
+    font-size: 10px; color: #a09070; margin-top: 5px; text-align: center;
+    min-height: 14px;
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: rgba(96,192,128,0.9); color: #041408;
+    padding: 8px 20px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <h1>🗺 MAP COORD TOOL</h1>
+  <div id="mode-badge">CHẾ ĐỘ: KÉO NÚT</div>
+  <label>Chọn ải:</label>
+  <select id="nodeSelect" onchange="selectNodeById(+this.value)">
+    <option value="-1">— click vào nút trên map —</option>
+  </select>
+  <button class="tb-btn" onclick="toggleGrid()">⊞ Lưới %</button>
+  <button class="tb-btn" onclick="resetAll()">↺ Reset</button>
+  <div id="cursor-info">x: —  y: —</div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- MAP -->
+  <div id="map-area">
+    <div id="map-container">
+      <img id="map-img" src="assets/map-bg.jpg" alt="Bản đồ">
+      <div id="grid-overlay"></div>
+      <div id="grid-labels"></div>
+      <div id="crosshair-h"></div>
+      <div id="crosshair-v"></div>
+      <div id="ghost-pin"></div>
+      <!-- Pins rendered by JS -->
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div id="side-panel">
+    <div id="panel-title">📍 TỌA ĐỘ CÁC ẢI</div>
+    <div id="coords-list"></div>
+    <div id="output-section">
+      <div id="output-label">HTML snippet — copy vào map.html</div>
+      <div id="output-box"></div>
+      <button id="copy-btn" onclick="copyOutput()">⎘ Copy snippet</button>
+      <button id="apply-btn" onclick="applyToMapHtml()">✅ Apply → map.html</button>
+      <div id="apply-status"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast">✓ Đã copy!</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  NODE DATA  (tọa độ hiện tại từ map.html)
+// ─────────────────────────────────────────────
+const NODES = [
+  { id:7,  label:'Bí Ẩn Cổ Loa',  boss:'🐓', num:'ẢI 1', left:38, top:30, buoi:1 },
+  { id:8,  label:'Nỏ Thần',        boss:'🏹', num:'ẢI 2', left:36, top:44, buoi:2 },
+  { id:9,  label:'Mê Linh',        boss:'⚔️', num:'ẢI 3', left:11, top:37, buoi:3 },
+  { id:10, label:'Voi Chiến',      boss:'🐘', num:'ẢI 4', left:16, top:19, buoi:4 },
+  { id:11, label:'Bạch Đằng I',   boss:'⚓', num:'ẢI 5', left:79, top:18, buoi:5 },
+  { id:12, label:'Bạch Đằng II',  boss:'🔱', num:'ẢI 6', left:76, top:56, buoi:6 },
+  { id:13, label:'Cờ Lau',         boss:'👑', num:'ẢI 7', left:23, top:68, buoi:7 },
+];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let selectedId = -1;
+let gridVisible = false;
+let originalCoords = NODES.map(n => ({ id: n.id, left: n.left, top: n.top }));
+
+// ─────────────────────────────────────────────
+//  MAP SIZE
+// ─────────────────────────────────────────────
+const mapArea = document.getElementById('map-area');
+const mapContainer = document.getElementById('map-container');
+
+function sizeMap() {
+  const aW = mapArea.offsetWidth;
+  const aH = mapArea.offsetHeight;
+  let w = aH * (16 / 9);
+  let h = aH;
+  if (w < aW) { w = aW; h = aW * (9 / 16); }
+  mapContainer.style.width  = w + 'px';
+  mapContainer.style.height = h + 'px';
+  renderPins();
+  renderGridLabels();
+}
+window.addEventListener('resize', sizeMap);
+document.getElementById('map-img').addEventListener('load', sizeMap);
+sizeMap();
+
+// ─────────────────────────────────────────────
+//  GRID
+// ─────────────────────────────────────────────
+function toggleGrid() {
+  gridVisible = !gridVisible;
+  document.getElementById('grid-overlay').classList.toggle('visible', gridVisible);
+  document.getElementById('grid-labels').classList.toggle('visible', gridVisible);
+}
+
+function renderGridLabels() {
+  const el = document.getElementById('grid-labels');
+  el.innerHTML = '';
+  // Column labels (x): 0,10,...,100
+  for (let x = 10; x <= 90; x += 10) {
+    const d = document.createElement('div');
+    d.style.cssText = `position:absolute;left:${x}%;top:1px;transform:translateX(-50%);
+      font-size:8px;color:rgba(200,150,12,0.55);font-family:monospace;pointer-events:none;`;
+    d.textContent = x + '%';
+    el.appendChild(d);
+  }
+  // Row labels (y): 0,10,...,100
+  for (let y = 10; y <= 90; y += 10) {
+    const d = document.createElement('div');
+    d.style.cssText = `position:absolute;top:${y}%;left:1px;transform:translateY(-50%);
+      font-size:8px;color:rgba(200,150,12,0.55);font-family:monospace;pointer-events:none;`;
+    d.textContent = y + '%';
+    el.appendChild(d);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  CROSSHAIR
+// ─────────────────────────────────────────────
+const chH = document.getElementById('crosshair-h');
+const chV = document.getElementById('crosshair-v');
+const cursorInfo = document.getElementById('cursor-info');
+const ghost = document.getElementById('ghost-pin');
+
+mapContainer.addEventListener('mousemove', e => {
+  const rect = mapContainer.getBoundingClientRect();
+  const px = e.clientX - rect.left;
+  const py = e.clientY - rect.top;
+  const xPct = +(px / rect.width  * 100).toFixed(1);
+  const yPct = +(py / rect.height * 100).toFixed(1);
+
+  chH.style.top  = py + 'px';
+  chV.style.left = px + 'px';
+  cursorInfo.textContent = `left: ${xPct}%  top: ${yPct}%`;
+
+  ghost.style.left = px + 'px';
+  ghost.style.top  = py + 'px';
+  ghost.style.display = selectedId >= 0 ? 'block' : 'none';
+});
+
+mapContainer.addEventListener('mouseleave', () => {
+  chH.style.top  = '-999px';
+  chV.style.left = '-999px';
+  ghost.style.display = 'none';
+  cursorInfo.textContent = 'x: —  y: —';
+});
+
+// ─────────────────────────────────────────────
+//  CLICK TO PLACE (khi chọn ải từ dropdown)
+// ─────────────────────────────────────────────
+mapContainer.addEventListener('click', e => {
+  if (e.target.closest('.map-pin')) return; // handled by pin
+  if (selectedId < 0) return;
+
+  const rect = mapContainer.getBoundingClientRect();
+  const xPct = +((e.clientX - rect.left) / rect.width  * 100).toFixed(1);
+  const yPct = +((e.clientY - rect.top)  / rect.height * 100).toFixed(1);
+
+  const node = NODES.find(n => n.id === selectedId);
+  if (node) {
+    node.left = xPct;
+    node.top  = yPct;
+    renderPins();
+    renderList();
+    renderOutput();
+    showToast(`✓ ${node.num} → left:${xPct}% top:${yPct}%`);
+  }
+});
+
+// ─────────────────────────────────────────────
+//  RENDER PINS
+// ─────────────────────────────────────────────
+function renderPins() {
+  // Remove old pins
+  mapContainer.querySelectorAll('.map-pin').forEach(p => p.remove());
+
+  NODES.forEach(node => {
+    const pin = document.createElement('div');
+    pin.className = 'map-pin' + (node.id === selectedId ? ' selected' : '');
+    pin.id = 'pin-' + node.id;
+    pin.style.left = node.left + '%';
+    pin.style.top  = node.top  + '%';
+
+    pin.innerHTML = `
+      <div class="pin-body">
+        <span class="pin-num">${node.num}</span>
+        <span class="pin-boss">${node.boss}</span>
+      </div>
+      <div class="pin-tip"></div>
+      <div class="pin-label">${node.label}</div>
+      <div class="pin-coords">${node.left}%, ${node.top}%</div>
+    `;
+
+    // Click to select
+    pin.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      startDrag(e, node, pin);
+    });
+
+    mapContainer.appendChild(pin);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  DRAG
+// ─────────────────────────────────────────────
+let dragging = null;
+
+function startDrag(e, node, pin) {
+  e.preventDefault();
+  selectNodeById(node.id);
+
+  dragging = { node, pin };
+  pin.classList.add('dragging');
+
+  document.addEventListener('mousemove', onDragMove);
+  document.addEventListener('mouseup',   onDragEnd);
+
+  // Touch
+  document.addEventListener('touchmove',  onTouchMove, { passive: false });
+  document.addEventListener('touchend',   onTouchEnd);
+}
+
+function getMapPct(clientX, clientY) {
+  const rect = mapContainer.getBoundingClientRect();
+  const x = Math.max(0, Math.min(100, (clientX - rect.left) / rect.width  * 100));
+  const y = Math.max(0, Math.min(100, (clientY - rect.top)  / rect.height * 100));
+  return { x: +x.toFixed(1), y: +y.toFixed(1) };
+}
+
+function onDragMove(e) {
+  if (!dragging) return;
+  const { x, y } = getMapPct(e.clientX, e.clientY);
+  dragging.node.left = x;
+  dragging.node.top  = y;
+  dragging.pin.style.left = x + '%';
+  dragging.pin.style.top  = y + '%';
+  dragging.pin.querySelector('.pin-coords').textContent = `${x}%, ${y}%`;
+  cursorInfo.textContent = `left: ${x}%  top: ${y}%`;
+  renderList();
+  renderOutput();
+}
+
+function onDragEnd() {
+  if (!dragging) return;
+  dragging.pin.classList.remove('dragging');
+  dragging = null;
+  document.removeEventListener('mousemove', onDragMove);
+  document.removeEventListener('mouseup',   onDragEnd);
+  document.removeEventListener('touchmove',  onTouchMove);
+  document.removeEventListener('touchend',   onTouchEnd);
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  if (!dragging) return;
+  const t = e.touches[0];
+  const { x, y } = getMapPct(t.clientX, t.clientY);
+  dragging.node.left = x;
+  dragging.node.top  = y;
+  dragging.pin.style.left = x + '%';
+  dragging.pin.style.top  = y + '%';
+  dragging.pin.querySelector('.pin-coords').textContent = `${x}%, ${y}%`;
+  renderList();
+  renderOutput();
+}
+function onTouchEnd() { onDragEnd(); }
+
+// ─────────────────────────────────────────────
+//  SELECT NODE
+// ─────────────────────────────────────────────
+function selectNodeById(id) {
+  selectedId = id;
+  document.getElementById('nodeSelect').value = id;
+
+  // Update pin classes
+  NODES.forEach(n => {
+    const p = document.getElementById('pin-' + n.id);
+    if (p) p.classList.toggle('selected', n.id === id);
+  });
+
+  // Update list highlight
+  document.querySelectorAll('.coord-row').forEach(r => {
+    r.classList.toggle('selected', +r.dataset.id === id);
+  });
+
+  // Mode badge
+  const node = NODES.find(n => n.id === id);
+  const badge = document.getElementById('mode-badge');
+  if (node) {
+    badge.textContent = `CHỌN VỊ TRÍ: ${node.num}`;
+    badge.style.color = '#60c080';
+    badge.style.borderColor = '#60c080';
+    badge.style.background = 'rgba(96,192,128,0.08)';
+  } else {
+    badge.textContent = 'CHẾ ĐỘ: KÉO NÚT';
+    badge.style.color = '#c8960c';
+    badge.style.borderColor = '#c8960c';
+    badge.style.background = 'rgba(200,150,12,0.12)';
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SIDE PANEL — LIST
+// ─────────────────────────────────────────────
+function renderList() {
+  const list = document.getElementById('coords-list');
+  list.innerHTML = '';
+
+  NODES.forEach(node => {
+    const orig = originalCoords.find(o => o.id === node.id);
+    const changed = orig && (orig.left !== node.left || orig.top !== node.top);
+
+    const row = document.createElement('div');
+    row.className = 'coord-row' + (node.id === selectedId ? ' selected' : '');
+    row.dataset.id = node.id;
+    row.onclick = () => selectNodeById(node.id);
+    row.innerHTML = `
+      <div class="coord-row-header">
+        <span class="coord-emoji">${node.boss}</span>
+        <span class="coord-name">${node.label}</span>
+        <span class="coord-ai">${node.num}</span>
+        ${changed ? '<span style="color:#f0a060;font-size:9px;margin-left:auto">● sửa</span>' : ''}
+      </div>
+      <div class="coord-values">left:${node.left}%  top:${node.top}%</div>
+      <div class="coord-hint">nodeClick(${node.id}) · buoi=${node.buoi}</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  OUTPUT BOX
+// ─────────────────────────────────────────────
+function renderOutput() {
+  const lines = NODES.map(n =>
+    `<!-- NODE ${n.id} · ${n.label} · buoi=${n.buoi} -->\n` +
+    `<div class="map-node node-available" id="mapNode${n.id}" data-ai="${n.id}" data-buoi="${n.buoi}"\n` +
+    `     style="left:${n.left}%;top:${n.top}%" onclick="nodeClick(${n.id})">`
+  );
+  document.getElementById('output-box').textContent = lines.join('\n\n');
+}
+
+// ─────────────────────────────────────────────
+//  RESET
+// ─────────────────────────────────────────────
+function resetAll() {
+  if (!confirm('Đặt lại tất cả tọa độ về mặc định?')) return;
+  originalCoords.forEach(orig => {
+    const node = NODES.find(n => n.id === orig.id);
+    if (node) { node.left = orig.left; node.top = orig.top; }
+  });
+  renderPins();
+  renderList();
+  renderOutput();
+  showToast('↺ Đã reset về mặc định');
+}
+
+// ─────────────────────────────────────────────
+//  APPLY TO map.html
+// ─────────────────────────────────────────────
+async function applyToMapHtml() {
+  const btn = document.getElementById('apply-btn');
+  const status = document.getElementById('apply-status');
+  btn.disabled = true;
+  status.style.color = '#a09070';
+  status.textContent = 'Đang đọc map.html…';
+
+  let html;
+  try {
+    const res = await fetch('map.html?_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    html = await res.text();
+  } catch (e) {
+    status.style.color = '#ff6b6b';
+    status.textContent = '✗ Không fetch được map.html — mở từ localhost:8766';
+    btn.disabled = false;
+    return;
+  }
+
+  // Thay từng node: tìm đúng id="mapNodeX" rồi thay style="left:...%;top:...%"
+  let updated = html;
+  let changeCount = 0;
+  NODES.forEach(node => {
+    // Match: id="mapNodeN" ... style="left:XX%;top:YY%"
+    // Dùng regex bắt toàn bộ dòng có id và style, thay style mới
+    const pattern = new RegExp(
+      `(id="mapNode${node.id}"[^>]*?)style="left:[^"]*%[^"]*"`,
+      'g'
+    );
+    const replacement = `$1style="left:${node.left}%;top:${node.top}%"`;
+    const next = updated.replace(pattern, replacement);
+    if (next !== updated) changeCount++;
+    updated = next;
+  });
+
+  if (changeCount === 0) {
+    status.style.color = '#f0a060';
+    status.textContent = '⚠ Không tìm thấy node nào để thay — kiểm tra format';
+    btn.disabled = false;
+    return;
+  }
+
+  // Download file đã sửa
+  const blob = new Blob([updated], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'map.html';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  status.style.color = '#60c080';
+  status.textContent = `✓ Đã tạo map.html (${changeCount} node được cập nhật) — save đè file cũ`;
+  btn.disabled = false;
+  showToast(`✓ Download map.html — ${changeCount} node cập nhật`);
+}
+
+// ─────────────────────────────────────────────
+//  COPY
+// ─────────────────────────────────────────────
+function copyOutput() {
+  const text = document.getElementById('output-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Đã copy!';
+    btn.classList.add('copied');
+    showToast('✓ Đã copy vào clipboard!');
+    setTimeout(() => {
+      btn.textContent = '⎘ Copy tất cả';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ─────────────────────────────────────────────
+//  SELECT DROPDOWN — build options
+// ─────────────────────────────────────────────
+function buildSelect() {
+  const sel = document.getElementById('nodeSelect');
+  NODES.forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n.id;
+    opt.textContent = `${n.boss} ${n.num} — ${n.label}`;
+    sel.appendChild(opt);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+buildSelect();
+renderPins();
+renderList();
+renderOutput();
+</script>
+</body>
+</html>

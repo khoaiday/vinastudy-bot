@@ -1,0 +1,16 @@
+vector_hoavandaiviet/
+apk/
+đồ họa game/
+*.jpg
+*.png
+*.mp4
+*.zip
+*.psd
+*.ai
+.env
+.env.*
+scratch/
+__pycache__/
+*.pyc
+.git/
+node_modules/

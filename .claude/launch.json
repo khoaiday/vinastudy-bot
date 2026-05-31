@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8765", "--directory", "content/lop3/bai02"],
       "port": 8765
+    },
+    {
+      "name": "map-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "8766", "."],
+      "port": 8766
     }
   ]
 }

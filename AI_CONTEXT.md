@@ -104,3 +104,100 @@ Chỉ Zone Cổ Loa (Ải 7 + Ải 8):
 - Ải 8 (Buổi 2): minigame Ải 2 (TODO) + battle.html?ai=8 (TODO)
 
 Yêu cầu UX: mượt như Fieldrunners 2 + nhạc nền Suno + đồ họa Đại Việt cổ kính
+
+---
+
+## 9. GAME DESIGN MỚI — Đại Việt Defender (MVP Cổ Loa)
+
+### 9.1 Luồng chính (User Flow)
+
+```
+Telegram bot → Đăng ký → Được duyệt → Map
+→ Chọn Zone Cổ Loa (Ải 7/8)
+→ [INTRO SCREEN] Chọn chế độ:
+    ├── 🏗️ DỰNG NƯỚC (học + chơi)
+    └── ⚔️ GIỮ NƯỚC (chỉ chơi TD, không học)
+```
+
+### 9.2 Chế độ DỰNG NƯỚC (Learning Mode)
+
+**Bước 1 — Học Quiz:**
+- Màn học lý thuyết (battle.html intro/theory screens)
+- Quiz bài tập → đúng >80% = đủ điều kiện mở items
+- Mỗi câu đúng = +50 coins (dùng mua tower)
+- Đúng hết = +bonus 200 coins
+
+**Bước 2 — Minigame Tuyệt Chiêu:**
+- minigame.html = Tuyệt Chiêu 1 (items slot 1)
+- minigame2.html = Tuyệt Chiêu 2 (items slot 2)
+- Thắng minigame = unlock tuyệt chiêu tương ứng
+
+**Bước 3 — Pre-Game Loadout (FR2 style GameMissionPrepForm):**
+```
+┌─────────────────────────────────────┐
+│  CHỌN THÁP (6 slots)                │
+│  [Nỏ Liên Châu] [Bẫy Nhựa] [...]  │
+│  Mặc định: 2 tháp cơ bản           │
+│  Mua thêm = dùng coins từ quiz      │
+├─────────────────────────────────────┤
+│  TUYỆT CHIÊU (items, 3 slots)       │
+│  [Bom Thần] [Đông Băng] [Vàng Thêm]│
+│  Chỉ có nếu: minigame ✅ hoặc quiz >80% │
+└─────────────────────────────────────┘
+```
+
+**Bước 4 — Đại Việt Defender (Tower Defense):**
+- Có đủ towers và items đã chọn
+- Gameplay như Fieldrunners 2
+
+### 9.3 Chế độ GIỮ NƯỚC (Hard Mode)
+
+- Vào thẳng Đại Việt Defender
+- Chỉ có 2 towers cơ bản (Nỏ Liên Châu + Bẫy Nhựa)
+- Không có coins (không mua thêm được)
+- Không có tuyệt chiêu/items
+- Rất khó → thúc đẩy chơi lại theo chế độ Dựng Nước
+
+### 9.4 Mapping FR2 → Đại Việt Defense
+
+| FR2 | Đại Việt Defense | Nguồn unlock |
+|-----|-----------------|-------------|
+| Tower selection | Chọn tháp (6 slots) | Mua bằng coins quiz |
+| Items/Abilities | Tuyệt Chiêu (3 slots) | Minigame hoặc quiz >80% |
+| Airstrike meter | Đòn Trời (⚡ meter) | Tích lũy khi giết quân |
+| Combo kills | Chuỗi tiêu diệt | Giết liên tiếp < 1s |
+| Gold/coins | Vàng Đông Sơn | Từ quiz + giết quân |
+| Stars 1-3 | Sao Cổ Loa ⭐⭐⭐ | Hoàn thành wave, ít mất mạng |
+
+### 9.5 Screens cần build cho MVP Cổ Loa
+
+1. **Intro screen** — chọn Dựng nước / Giữ nước (NEW)
+2. **Quiz screen** — câu hỏi bài tập, cộng coins (dùng battle.html theory+boss)
+3. **Pre-game loadout** — chọn tower + items (NEW - GameMissionPrepForm)
+4. **Đại Việt Defender gameplay** — tower_defense.html nâng cấp
+5. **Win/Lose screen** — stars, coins earned, unlock Ải tiếp
+
+### 9.6 Coins Economy
+
+| Nguồn | Coins |
+|-------|-------|
+| Quiz đúng 1 câu | +50 |
+| Quiz đúng >80% bonus | +200 |
+| Giết quân trong TD | +10-50 |
+| Bắt đầu mỗi ải | +100 (cơ bản) |
+
+| Tower | Giá |
+|-------|-----|
+| Nỏ Liên Châu (mặc định) | Free |
+| Bẫy Nhựa (mặc định) | Free |
+| Thần Cơ Pháo | 150 coins |
+| Hỏa Tháp | 200 coins |
+| Lôi Tháp | 300 coins |
+| Trống Lệnh (buff) | 250 coins |
+
+### 9.7 Mapping Ải → Nội dung học
+
+| Ải | Zone | Quiz chủ đề | Tuyệt Chiêu |
+|-----|------|------------|-------------|
+| Ải 7 | Cổ Loa | Phân biệt Số/Chữ số + Cấu tạo số | TC1: Thần Nhãn Vị Số |
+| Ải 8 | Cổ Loa | Viết thêm chữ số + Tìm số ẩn | TC2: Bút Pháp Thiên Cơ |

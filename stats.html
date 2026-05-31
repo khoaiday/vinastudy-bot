@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Bảng Thành Tích — Chiến Binh Toán</title>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-void:   #07040A;
+  --bg-deep:   #0F0A14;
+  --bg-panel:  #160E1C;
+  --bg-card:   #1E1327;
+  --bg-lift:   #261A30;
+  --primary:      #C8960C;
+  --primary-glow: rgba(200,150,12,0.40);
+  --secondary:    #C0332E;
+  --success:      #5ABCAA;
+  --copper:       #B87333;
+  --copper-glow:  rgba(184,115,51,0.30);
+  --text-main:  #F5EED6;
+  --text-muted: #A08C70;
+  --border:     rgba(184,115,51,0.40);
+  --font-title: 'Philosopher', serif;
+  --font-body:  'Lora', serif;
+  --font-mono:  'Roboto Mono', monospace;
+}
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; font-family:var(--font-body); background:var(--bg-void); color:var(--text-main); }
+
+body {
+  display:flex; flex-direction:column;
+  background:
+    radial-gradient(ellipse 80% 30% at 50% 0%, rgba(180,100,20,0.10) 0%, transparent 70%),
+    var(--bg-void);
+}
+
+/* ── Header ── */
+.header {
+  padding:14px 16px 12px;
+  display:flex; align-items:center; gap:12px; flex-shrink:0;
+  background:linear-gradient(180deg, rgba(200,150,12,0.08) 0%, transparent 100%);
+  border-bottom:1.5px solid var(--border);
+  backdrop-filter:blur(8px);
+}
+.back-btn {
+  width:40px; height:40px; border-radius:10px;
+  background:rgba(200,150,12,0.08); border:1.5px solid var(--border);
+  color:var(--primary); font-size:22px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s; font-family:var(--font-title); flex-shrink:0;
+}
+.back-btn:active{ background:var(--primary); color:#000; }
+.header-info h1 {
+  font-family:var(--font-title); font-size:1.2rem; font-weight:700;
+  color:var(--primary); letter-spacing:2px; text-transform:uppercase;
+  text-shadow:0 0 18px rgba(200,150,12,.35);
+}
+.header-info p {
+  font-size:.7rem; color:var(--text-muted); font-family:var(--font-mono);
+  letter-spacing:1.5px; margin-top:1px;
+}
+
+/* ── Scroll body ── */
+.scroll {
+  flex:1; overflow-y:auto; padding:16px 14px 32px;
+  -webkit-overflow-scrolling:touch;
+}
+.scroll::-webkit-scrollbar{ width:4px; }
+.scroll::-webkit-scrollbar-track{ background:transparent; }
+.scroll::-webkit-scrollbar-thumb{ background:rgba(200,150,12,.3); border-radius:2px; }
+
+/* ── Hero stats ── */
+.hero-row {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:10px; margin-bottom:20px;
+}
+.hero-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+  padding:14px 10px 12px; text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+}
+.hero-card.gold { border-color:rgba(255,215,0,0.4); background:rgba(255,215,0,0.05); }
+.hero-card.teal { border-color:rgba(90,188,170,0.4); background:rgba(90,188,170,0.05); }
+.hero-card.red  { border-color:rgba(192,51,46,0.4);  background:rgba(192,51,46,0.05); }
+.hero-val {
+  font-family:var(--font-title); font-size:1.8rem; font-weight:700;
+  line-height:1.1; margin-bottom:4px;
+}
+.hero-card.gold .hero-val { color:#FFD700; text-shadow:0 0 12px rgba(255,215,0,0.4); }
+.hero-card.teal .hero-val { color:var(--success); }
+.hero-card.red  .hero-val { color:var(--secondary); }
+.hero-label {
+  font-family:var(--font-mono); font-size:9px; color:var(--text-muted);
+  letter-spacing:1px; text-transform:uppercase; line-height:1.3;
+}
+
+/* ── Section heading ── */
+.sec-head {
+  font-family:var(--font-title); font-size:13px; font-weight:700;
+  color:var(--copper); letter-spacing:2px; text-transform:uppercase;
+  margin:22px 0 10px; display:flex; align-items:center; gap:8px;
+}
+.sec-head::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg, var(--border) 0%, transparent 100%);
+}
+
+/* ── Ải progress list ── */
+.ai-list { display:flex; flex-direction:column; gap:8px; }
+.ai-card {
+  background:var(--bg-card); border:1px solid rgba(184,115,51,0.18);
+  border-radius:12px; padding:12px 14px;
+  display:grid; grid-template-columns:44px 1fr auto;
+  align-items:center; gap:12px;
+  transition:border-color 0.2s;
+}
+.ai-card.done    { border-color:rgba(200,150,12,0.40); background:rgba(200,150,12,0.06); }
+.ai-card.locked  { opacity:0.38; }
+.ai-num {
+  width:44px; height:44px; border-radius:50%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:var(--font-title); font-size:15px; font-weight:700;
+  background:var(--bg-lift); border:2px solid rgba(184,115,51,0.25);
+  flex-shrink:0;
+}
+.ai-card.done .ai-num {
+  background:radial-gradient(circle at 38% 32%, #FFE060 0%, #D4A010 55%, #946808 100%);
+  border-color:#FFD700; color:var(--bg-void);
+  box-shadow:0 0 12px rgba(255,215,0,0.5);
+}
+.ai-card.locked .ai-num { color:var(--text-muted); }
+.ai-boss { font-size:16px; line-height:1; }
+.ai-info-name {
+  font-family:var(--font-body); font-size:13px; font-weight:600;
+  color:var(--text-main); line-height:1.25;
+}
+.ai-info-sub {
+  font-family:var(--font-mono); font-size:9px; color:var(--text-muted);
+  margin-top:3px; letter-spacing:0.3px;
+}
+.ai-right { text-align:right; flex-shrink:0; }
+.ai-stars { font-size:13px; line-height:1.1; letter-spacing:-1px; margin-bottom:3px; }
+.ai-time {
+  font-family:var(--font-mono); font-size:9px; color:var(--copper);
+  letter-spacing:0.5px;
+}
+.ai-badge {
+  font-family:var(--font-mono); font-size:7.5px; color:var(--bg-void);
+  background:var(--primary); border-radius:4px; padding:1px 5px;
+  font-weight:700; letter-spacing:0.5px; white-space:nowrap;
+  display:inline-block; margin-top:3px;
+}
+.ai-badge.nohint { background:var(--success); }
+.ai-locked-label {
+  font-family:var(--font-mono); font-size:9px; color:var(--text-muted);
+  letter-spacing:0.5px;
+}
+
+/* ── Arsenal status ── */
+.arsenal-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.ars-card {
+  background:var(--bg-card); border:1px solid rgba(184,115,51,0.15);
+  border-radius:10px; padding:10px 12px;
+  display:flex; align-items:center; gap:10px;
+}
+.ars-card.owned { border-color:rgba(76,175,80,0.4); background:rgba(76,175,80,0.05); }
+.ars-icon {
+  font-size:20px; width:36px; text-align:center; flex-shrink:0;
+}
+.ars-name {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  color:var(--text-main); line-height:1.3;
+}
+.ars-status {
+  font-family:var(--font-mono); font-size:8.5px; margin-top:2px;
+}
+.ars-card.owned  .ars-status { color:var(--success); }
+.ars-card:not(.owned) .ars-status { color:var(--text-muted); }
+
+/* ── Tip banner ── */
+.tip-banner {
+  background:rgba(200,150,12,0.06); border:1px solid rgba(200,150,12,0.2);
+  border-radius:10px; padding:12px 14px; margin-top:20px;
+  font-family:var(--font-mono); font-size:10px; color:var(--text-muted);
+  line-height:1.6; letter-spacing:0.3px;
+}
+.tip-banner strong { color:var(--primary); }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from{ opacity:0; transform:translateY(12px); }
+  to  { opacity:1; transform:translateY(0); }
+}
+.ai-card { animation:fadeUp .25s ease both; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" onclick="goBack()">‹</button>
+  <div class="header-info">
+    <h1>📊 Bảng Thành Tích</h1>
+    <p>Hành trình xuyên thời gian của em</p>
+  </div>
+</div>
+
+<div class="scroll" id="mainScroll">
+
+  <!-- Hero stats -->
+  <div class="hero-row" id="heroRow">
+    <div class="hero-card gold">
+      <div class="hero-val" id="statTL">0</div>
+      <div class="hero-label">⚡ Toán Lực<br>hiện có</div>
+    </div>
+    <div class="hero-card teal">
+      <div class="hero-val" id="statDone">0</div>
+      <div class="hero-label">🏆 Ải<br>hoàn thành</div>
+    </div>
+    <div class="hero-card red">
+      <div class="hero-val" id="statNoHint">0</div>
+      <div class="hero-label">💎 Hoàn hảo<br>(no-hint)</div>
+    </div>
+  </div>
+
+  <!-- Ải progress -->
+  <div class="sec-head">⚔️ Tiến Độ Các Ải</div>
+  <div class="ai-list" id="aiList"></div>
+
+  <!-- Arsenal -->
+  <div class="sec-head">🏛️ Kho Vũ Khí</div>
+  <div class="arsenal-grid" id="arsenalGrid"></div>
+
+  <!-- Tip -->
+  <div class="tip-banner" id="tipBanner"></div>
+
+</div>
+
+<script>
+function goBack() {
+  if (history.length > 1) history.back();
+  else window.location.href = 'map.html';
+}
+
+/* ── Ải metadata ── */
+const AIS = [
+  { id:7,  boss:'🐓', ten:'Bí Ẩn Cổ Loa',         sub:'Chương 1 · Cấu tạo số · Chữ số' },
+  { id:8,  boss:'🗡️', ten:'Nỏ Thần Liên Châu',    sub:'Chương 2 · Cấu tạo số nâng cao · So sánh' },
+  { id:9,  boss:'⛓️', ten:'Hội Quân Mê Linh',     sub:'Chương 3 · Cộng trừ có nhớ trong 1000' },
+  { id:10, boss:'🐴', ten:'Chiến Thuật Voi Chiến', sub:'Chương 4 · Bảng nhân · Chia có dư' },
+  { id:11, boss:'⚓', ten:'Trận Bạch Đằng I',      sub:'Chương 5 · Nhân 2 chữ số · Chu vi' },
+  { id:12, boss:'🔱', ten:'Trận Bạch Đằng II',     sub:'Chương 6 · Chia có nhớ · Toán 2-3 bước' },
+  { id:13, boss:'👑', ten:'Cờ Lau Tập Trận',       sub:'Chương 7 · Tổng hợp · Ôn toàn bộ' },
+];
+
+/* ── Arsenal metadata ── */
+const TOWERS = [
+  { id:'arrow', icon:'🏹', name:'Nỏ Thần Cổ Loa',   type:'tower', free:true },
+  { id:'slow',  icon:'🌿', name:'Bẫy Độc Lục Bảo',  type:'tower' },
+  { id:'bomb',  icon:'💥', name:'Thần Cơ Pháo',      type:'tower' },
+  { id:'flame', icon:'🔥', name:'Hỏa Tháp Long',     type:'tower' },
+  { id:'tesla', icon:'⚡', name:'Lôi Tháp Kim',      type:'tower' },
+];
+const POWERUPS = [
+  { id:'gold_start',  icon:'💰', name:'Túi Vàng Khai Trận',       type:'powerup' },
+  { id:'extra_life',  icon:'❤️', name:'Bùa Bất Tử Thần Kim Quy', type:'powerup', stack:true },
+  { id:'speed_boost', icon:'🌪️', name:'Tốc Độ Thánh Gióng',      type:'powerup' },
+];
+
+/* ── Helpers ── */
+function ls(key) { return localStorage.getItem(key); }
+function fmtTime(s) {
+  if (!s || s >= 9999) return '—';
+  const m = Math.floor(s/60), sec = s%60;
+  return m > 0 ? `${m}p${sec < 10 ? '0'+sec : sec}s` : `${sec}s`;
+}
+function battleStars(id) {
+  if (!ls('cbToan_ai'+id+'_done')) return 0;
+  if (ls('cbToan_ai'+id+'_noHints') === '1') return 3;
+  const t = parseInt(ls('cbToan_ai'+id+'_bestTime')) || 9999;
+  return t < 120 ? 2 : 1;
+}
+
+/* ── Render ── */
+function render() {
+  // Hero stats
+  const tl = parseInt(ls('cbToan_toanLuc')) || 0;
+  const done = AIS.filter(a => ls('cbToan_ai'+a.id+'_done')).length;
+  const nohint = AIS.filter(a => ls('cbToan_ai'+a.id+'_noHints') === '1').length;
+  document.getElementById('statTL').textContent = tl.toLocaleString('vi-VN');
+  document.getElementById('statDone').textContent = done + '/' + AIS.length;
+  document.getElementById('statNoHint').textContent = nohint;
+
+  // Ải list
+  const list = document.getElementById('aiList');
+  list.innerHTML = '';
+  AIS.forEach((a, idx) => {
+    const isDone = !!ls('cbToan_ai'+a.id+'_done');
+    const stars  = battleStars(a.id);
+    const noHint = ls('cbToan_ai'+a.id+'_noHints') === '1';
+    const bestT  = parseInt(ls('cbToan_ai'+a.id+'_bestTime')) || 0;
+    const isLive = a.id <= 10; // ải đã có battle.html
+
+    const card = document.createElement('div');
+    card.className = 'ai-card ' + (isDone ? 'done' : (isLive ? '' : 'locked'));
+    card.style.animationDelay = (idx * 0.04) + 's';
+
+    let rightHtml = '';
+    if (isDone) {
+      rightHtml = `
+        <div class="ai-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+        <div class="ai-time">⏱ ${fmtTime(bestT)}</div>
+        ${noHint ? '<div class="ai-badge nohint">💎 NO HINT</div>' : '<div class="ai-badge">✓ XONG</div>'}
+      `;
+    } else if (isLive) {
+      rightHtml = `<div class="ai-locked-label">☆☆☆<br>Chưa chơi</div>`;
+    } else {
+      rightHtml = `<div class="ai-locked-label">🔒 SOON</div>`;
+    }
+
+    card.innerHTML = `
+      <div class="ai-num">
+        <span style="font-size:11px;font-family:var(--font-mono);font-weight:700;">C${a.id - 6}</span>
+        <span class="ai-boss">${a.boss}</span>
+      </div>
+      <div>
+        <div class="ai-info-name">${a.ten}</div>
+        <div class="ai-info-sub">${a.sub}</div>
+      </div>
+      <div class="ai-right">${rightHtml}</div>
+    `;
+
+    if (isDone || isLive) {
+      card.style.cursor = 'pointer';
+      card.onclick = () => { window.location.href = 'battle.html?ai=' + a.id; };
+    }
+    list.appendChild(card);
+  });
+
+  // Arsenal grid
+  const grid = document.getElementById('arsenalGrid');
+  grid.innerHTML = '';
+  [...TOWERS, ...POWERUPS].forEach(item => {
+    const owned = item.free || ls('cbToan_owned_'+item.id) === 'true';
+    const stack = item.stack ? (parseInt(ls('cbToan_owned_'+item.id+'_stack')) || 0) : null;
+
+    const card = document.createElement('div');
+    card.className = 'ars-card' + (owned ? ' owned' : '');
+    let statusText = owned
+      ? (stack !== null ? `✓ Có sẵn (×${stack} lượt)` : '✓ Đã mở khóa')
+      : '🔒 Chưa mua';
+    if (item.free) statusText = '✓ Miễn phí';
+
+    card.innerHTML = `
+      <div class="ars-icon">${item.icon}</div>
+      <div>
+        <div class="ars-name">${item.name}</div>
+        <div class="ars-status">${statusText}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Tip
+  const tipEl = document.getElementById('tipBanner');
+  if (done === 0) {
+    tipEl.innerHTML = '💡 <strong>Mẹo:</strong> Hoàn thành ải để nhận ⚡ Toán Lực. Dùng Toán Lực tại Kho Vũ Khí để mở tháp phòng thủ mạnh hơn!';
+  } else if (nohint === 0 && done > 0) {
+    tipEl.innerHTML = '💡 <strong>Thử thách:</strong> Hoàn thành ải mà không dùng gợi ý nào → nhận huy hiệu 💎 và +100⚡ Toán Lực thưởng thêm!';
+  } else if (done >= AIS.length) {
+    tipEl.innerHTML = '🏆 <strong>Xuất sắc!</strong> Em đã hoàn thành tất cả các ải. Thử chơi lại và đạt ⭐⭐⭐ cho từng ải để trở thành Chiến Binh Toán huyền thoại!';
+  } else {
+    const nextAi = AIS.find(a => !ls('cbToan_ai'+a.id+'_done') && a.id <= 10);
+    tipEl.innerHTML = nextAi
+      ? `💡 <strong>Tiếp theo:</strong> Ải ${nextAi.id} — ${nextAi.ten} (${nextAi.sub}). Nhấn vào ải để bắt đầu!`
+      : '🌟 Tiếp tục luyện tập để nâng cấp điểm ⭐ cho từng ải!';
+  }
+}
+
+render();
+</script>
+</body>
+</html>

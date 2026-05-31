@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Chiến Binh Toán — Cổ Loa</title>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; overflow: hidden;
+  background: #0a0400;
+  font-family: 'Philosopher', serif;
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── BACKGROUND ── */
+.bg {
+  position: fixed; inset: 0;
+  background: url('assets/loading-bg.jpg') center center / cover no-repeat;
+  z-index: 0;
+}
+/* dark overlay for readability */
+.bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0,0,0,0.25) 0%,
+    rgba(0,0,0,0.15) 40%,
+    rgba(0,0,0,0.55) 70%,
+    rgba(0,0,0,0.82) 100%
+  );
+}
+
+/* ── CONTENT ── */
+.screen {
+  position: fixed; inset: 0; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  padding-bottom: max(env(safe-area-inset-bottom), 40px);
+  padding: 0 24px max(env(safe-area-inset-bottom), 44px);
+}
+
+/* ── LOGO TOP ── */
+.logo-top {
+  position: fixed;
+  top: max(env(safe-area-inset-top), 20px);
+  left: 50%; transform: translateX(-50%);
+  z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.logo-game {
+  font-size: 13px; letter-spacing: 4px;
+  color: rgba(242,201,76,0.75);
+  font-family: 'Roboto Mono', monospace;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(242,201,76,0.4);
+}
+
+/* ── CENTER TITLE ── */
+.title-wrap {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -60%);
+  z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-align: center;
+}
+.title-main {
+  font-size: clamp(52px, 14vw, 80px);
+  font-weight: 700; line-height: 1;
+  color: #F5C518;
+  text-shadow:
+    0 0 20px rgba(245,197,24,0.9),
+    0 0 50px rgba(245,197,24,0.5),
+    0 0 100px rgba(245,197,24,0.2),
+    2px 3px 8px rgba(0,0,0,0.95);
+  letter-spacing: 6px;
+  animation: titlePulse 3s ease-in-out infinite;
+}
+@keyframes titlePulse {
+  0%,100% { text-shadow:
+    0 0 20px rgba(245,197,24,0.9), 0 0 50px rgba(245,197,24,0.5),
+    2px 3px 8px rgba(0,0,0,0.95); }
+  50% { text-shadow:
+    0 0 30px rgba(245,197,24,1), 0 0 70px rgba(245,197,24,0.7),
+    0 0 120px rgba(245,197,24,0.3), 2px 3px 8px rgba(0,0,0,0.95); }
+}
+
+.title-sub {
+  font-size: clamp(12px, 3vw, 15px);
+  color: rgba(245,220,160,0.80);
+  letter-spacing: 3px; font-weight: 400;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+}
+
+/* Ornamental divider */
+.ornament {
+  display: flex; align-items: center; gap: 10px;
+  color: rgba(184,115,51,0.6); font-size: 18px;
+}
+.ornament-line {
+  width: 50px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(184,115,51,0.5), transparent);
+}
+
+/* ── LOADING SECTION (bottom) ── */
+.loading-section {
+  width: 100%; max-width: 480px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 10px;
+}
+
+/* Bar frame (metallic border) */
+.bar-frame {
+  width: 100%; padding: 4px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 6px;
+  border: 2px solid rgba(184,115,51,0.5);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,220,100,0.15),
+    0 0 16px rgba(184,115,51,0.2);
+  position: relative;
+}
+
+/* Corner decorations */
+.bar-frame::before,
+.bar-frame::after {
+  content: '◆';
+  position: absolute; top: 50%; transform: translateY(-50%);
+  color: rgba(200,150,12,0.7); font-size: 10px;
+}
+.bar-frame::before { left: -14px; }
+.bar-frame::after  { right: -14px; }
+
+.bar-track {
+  width: 100%; height: 20px;
+  background: rgba(30,15,0,0.8);
+  border-radius: 3px; overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg,
+    #8A5A00 0%, #C8960C 30%, #F5C518 50%,
+    #FFE060 65%, #C8960C 80%, #8A5A00 100%);
+  border-radius: 3px;
+  transition: width 0.15s ease-out;
+  position: relative;
+  box-shadow: 0 0 10px rgba(245,197,24,0.6);
+}
+/* Shimmer on bar */
+.bar-fill::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+  animation: barShimmer 1.2s ease-in-out infinite;
+}
+@keyframes barShimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(200%); }
+}
+
+/* Percentage */
+.pct-row {
+  display: flex; justify-content: space-between;
+  width: 100%; align-items: center;
+}
+.pct-text {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px; letter-spacing: 2px;
+  color: rgba(200,150,12,0.8);
+}
+.pct-num {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px; font-weight: 600;
+  color: #F5C518;
+  text-shadow: 0 0 8px rgba(245,197,24,0.5);
+}
+
+/* Tips */
+.tip-row {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 10px; letter-spacing: 0.5px;
+  color: rgba(200,200,150,0.6);
+  text-align: center; line-height: 1.5;
+  min-height: 28px;
+  transition: opacity 0.4s;
+}
+.tip-label {
+  color: rgba(90,188,170,0.7);
+  font-weight: 600;
+}
+
+/* ── TRANSITION OUT ── */
+.fade-out {
+  animation: fadeOut 0.6s ease-in forwards;
+}
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+/* ── PARTICLES (embers) ── */
+.ember {
+  position: fixed;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #F5C518;
+  pointer-events: none;
+  z-index: 1;
+  animation: emberFloat var(--d,4s) ease-out forwards;
+}
+@keyframes emberFloat {
+  0%   { transform: translate(0,0) scale(1); opacity:0.8; }
+  100% { transform: translate(var(--dx,20px), var(--dy,-80px)) scale(0); opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<div class="logo-top">
+  <div class="logo-game">⚔ CHIẾN BINH TOÁN ⚔</div>
+</div>
+
+<div class="title-wrap">
+  <div class="title-main">CỔ LOA</div>
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <span>⚔</span>
+    <div class="ornament-line"></div>
+  </div>
+  <div class="title-sub">BỨC TƯỜNG THÀNH BẤT DIỆT</div>
+</div>
+
+<div class="screen">
+  <div class="loading-section">
+    <div class="pct-row">
+      <div class="pct-text" id="statusText">ĐANG TẢI DỮ LIỆU...</div>
+      <div class="pct-num" id="pctNum">0%</div>
+    </div>
+
+    <div class="bar-frame">
+      <div class="bar-track">
+        <div class="bar-fill" id="barFill"></div>
+      </div>
+    </div>
+
+    <div class="tip-row">
+      <span class="tip-label">MẸO: </span>
+      <span id="tipText"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Ember canvas -->
+<canvas id="embers" style="position:fixed;inset:0;z-index:0;pointer-events:none"></canvas>
+
+<script>
+'use strict';
+
+/* ── TIPS ── */
+const TIPS = [
+  'Trả lời đúng để nhận Toán Lực ⚡ xây tháp phòng thủ!',
+  'Mỗi ải có 3 tầng quiz — vượt tất cả để mở khoá Giữ Nước!',
+  'Toán Lực càng nhiều, tháp càng mạnh!',
+  'Tướng giỏi toán mới giữ được thành!',
+  'Học kỹ lý thuyết trước khi vào trận!',
+  'Quân Triệu Đà đang tiến — học thật nhanh để kịp bố trận!',
+];
+document.getElementById('tipText').textContent =
+  TIPS[Math.floor(Math.random() * TIPS.length)];
+
+/* ── LOADING PROGRESS ── */
+const bar  = document.getElementById('barFill');
+const pct  = document.getElementById('pctNum');
+const stat = document.getElementById('statusText');
+
+const STEPS = [
+  { target: 30, duration: 600,  label: 'ĐANG TẢI DỮ LIỆU...'   },
+  { target: 55, duration: 500,  label: 'CHUẨN BỊ CHIẾN TRƯỜNG...' },
+  { target: 75, duration: 700,  label: 'TRIỆU HỒI TƯỚNG SĨ...'  },
+  { target: 88, duration: 400,  label: 'KIỂM TRA VŨ KHÍ...'     },
+  { target: 96, duration: 500,  label: 'SẮP SẴN SÀNG...'        },
+  { target:100, duration: 300,  label: 'HOÀN TẤT!'              },
+];
+
+let current = 0;
+let stepIdx = 0;
+
+function animateStep(step) {
+  const start    = current;
+  const end      = step.target;
+  const duration = step.duration;
+  const startTs  = performance.now();
+  stat.textContent = step.label;
+
+  function tick(now) {
+    const elapsed = now - startTs;
+    const t = Math.min(elapsed / duration, 1);
+    const eased = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+    current = start + (end - start) * eased;
+
+    bar.style.width = current.toFixed(1) + '%';
+    pct.textContent = Math.round(current) + '%';
+
+    if (t < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      current = end;
+      stepIdx++;
+      if (stepIdx < STEPS.length) {
+        setTimeout(() => animateStep(STEPS[stepIdx]),
+          stepIdx === STEPS.length - 1 ? 200 : 80);
+      } else {
+        // Done — transition out
+        setTimeout(finish, 500);
+      }
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function finish() {
+  document.body.classList.add('fade-out');
+  setTimeout(() => {
+    window.location.href = 'welcome';
+  }, 650);
+}
+
+// Start
+setTimeout(() => animateStep(STEPS[0]), 400);
+
+/* ── EMBERS (floating sparks) ── */
+const cv = document.getElementById('embers');
+const cx = cv.getContext('2d');
+let W, H;
+const embers = [];
+
+function resizeCv() {
+  W = cv.width  = window.innerWidth;
+  H = cv.height = window.innerHeight;
+}
+resizeCv();
+window.addEventListener('resize', resizeCv);
+
+function spawnEmber() {
+  embers.push({
+    x: W * (0.2 + Math.random() * 0.6),
+    y: H * (0.5 + Math.random() * 0.5),
+    vx: (Math.random() - 0.5) * 1.2,
+    vy: -(1.5 + Math.random() * 2),
+    life: 1,
+    decay: 0.008 + Math.random() * 0.006,
+    size: 1 + Math.random() * 2,
+    hue: 30 + Math.random() * 30,
+  });
+}
+
+function drawEmbers() {
+  cx.clearRect(0, 0, W, H);
+  for (let i = embers.length - 1; i >= 0; i--) {
+    const e = embers[i];
+    e.x  += e.vx;
+    e.y  += e.vy;
+    e.vy += 0.02; // slight gravity slow
+    e.life -= e.decay;
+    if (e.life <= 0) { embers.splice(i, 1); continue; }
+
+    cx.beginPath();
+    cx.arc(e.x, e.y, e.size * e.life, 0, Math.PI * 2);
+    cx.fillStyle = `hsla(${e.hue}, 100%, 65%, ${e.life * 0.8})`;
+    cx.fill();
+  }
+  if (Math.random() < 0.25) spawnEmber();
+  requestAnimationFrame(drawEmbers);
+}
+drawEmbers();
+
+/* Telegram */
+if (window.Telegram?.WebApp) {
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+}
+</script>
+</body>
+</html>

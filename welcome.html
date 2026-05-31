@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Chiến Binh Toán — Bảo Vệ Đại Việt</title>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; overflow: hidden;
+  background: #0a0400;
+  font-family: 'Philosopher', serif;
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── BACKGROUND ── */
+.bg {
+  position: fixed; inset: 0; z-index: 0;
+  background: url('assets/loading-bg.jpg') center 30% / cover no-repeat;
+}
+.bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0,0,0,0.50) 0%,
+    rgba(0,0,0,0.20) 35%,
+    rgba(0,0,0,0.25) 55%,
+    rgba(0,0,0,0.75) 80%,
+    rgba(0,0,0,0.92) 100%
+  );
+}
+
+/* ── VIGNETTE ── */
+.vignette {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse 90% 90% at 50% 50%,
+    transparent 20%, rgba(5,2,10,0.5) 100%);
+}
+
+/* ── UI ── */
+.ui {
+  position: fixed; inset: 0; z-index: 3;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: space-between;
+  padding: max(env(safe-area-inset-top),48px) 24px
+           max(env(safe-area-inset-bottom),36px);
+}
+
+/* Top */
+.ui-top { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+.badge {
+  font-family: 'Roboto Mono', monospace; font-size: 9px;
+  letter-spacing: 3px; color: rgba(184,115,51,0.8);
+  border: 1px solid rgba(184,115,51,0.35); padding: 3px 16px;
+  border-radius: 20px; background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px); text-transform: uppercase;
+}
+
+.title {
+  font-size: clamp(38px, 10.5vw, 56px);
+  font-weight: 700; line-height: 1.05; letter-spacing: 3px;
+  text-align: center; color: #F5C518;
+  text-shadow:
+    0 0 18px rgba(245,197,24,0.9),
+    0 0 50px rgba(245,197,24,0.4),
+    0 2px 8px rgba(0,0,0,0.95);
+}
+.title em {
+  font-style: normal; color: #F5EED6; opacity: 0.92;
+  font-size: 90%; letter-spacing: 1px;
+}
+
+.sub {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 12px; color: rgba(245,238,214,0.60);
+  letter-spacing: 1px; text-align: center;
+}
+
+/* Alert strip */
+.alert {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(200,40,30,0.18);
+  border: 1px solid rgba(220,60,40,0.45);
+  border-radius: 24px; padding: 5px 16px;
+  backdrop-filter: blur(4px);
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  color: #F09090; letter-spacing: 0.5px;
+  animation: alertGlow 2s ease-in-out infinite;
+}
+.adot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #E84040;
+  box-shadow: 0 0 7px #E84040, 0 0 14px rgba(232,64,64,0.5);
+  animation: blink 1s ease-in-out infinite;
+}
+@keyframes alertGlow {
+  50% { box-shadow: 0 0 0 5px rgba(220,60,40,0.1); }
+}
+@keyframes blink { 50% { opacity: 0.15; } }
+
+/* Bottom */
+.ui-bot { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.btn-start {
+  position: relative; overflow: hidden;
+  padding: 17px 52px;
+  font-family: 'Philosopher', serif; font-size: 17px; font-weight: 700;
+  letter-spacing: 2px; color: #0A0600;
+  background: linear-gradient(180deg, #FFE060 0%, #C8960C 52%, #8A6200 100%);
+  border: none; border-radius: 10px; cursor: pointer;
+  box-shadow:
+    0 5px 0 #5A3E00,
+    0 8px 24px rgba(200,150,12,0.45),
+    0 0 60px rgba(200,150,12,0.18);
+  transition: transform 0.1s, box-shadow 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-start::before {
+  content: '';
+  position: absolute; top: 0; left: -120%; width: 55%; height: 100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+  animation: shine 2.8s ease-in-out infinite;
+}
+@keyframes shine { 100% { left: 220%; } }
+.btn-start:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #5A3E00, 0 0 20px rgba(200,150,12,0.3);
+}
+
+.btn-map {
+  background: transparent; border: none;
+  font-family: 'Roboto Mono', monospace; font-size: 11px;
+  color: rgba(184,115,51,0.6); cursor: pointer; letter-spacing: 1px;
+  padding: 4px 8px; transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-map:hover { color: #B87333; }
+
+/* Divider */
+.divider { font-size: 11px; color: rgba(184,115,51,0.35); letter-spacing: 4px; }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="vignette"></div>
+
+<div class="ui">
+  <div class="ui-top">
+    <div class="badge">⚔ Chiến Dịch Lịch Sử ⚔</div>
+    <div class="title">CHIẾN BINH<br><em>TOÁN</em></div>
+    <div class="sub">Học Toán · Giữ Nước · Dựng Đại Việt</div>
+    <div class="alert">
+      <div class="adot"></div>
+      QUÂN TRIỆU ĐÀ ĐANG TIẾN VÀO THÀNH CỔ LOA!
+    </div>
+  </div>
+
+  <div class="ui-bot">
+    <div class="divider">— ⚔ —</div>
+    <button class="btn-start" onclick="goStart()">⚔&nbsp; BẮT ĐẦU CHIẾN ĐẤU</button>
+    <button class="btn-map" onclick="goMap()">Xem bản đồ chiến dịch →</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ── NAV ── */
+function goStart() {
+  document.querySelector('.ui').style.transition = 'opacity .35s';
+  document.querySelector('.ui').style.opacity = '0';
+  setTimeout(() => { window.location.href = 'map'; }, 380);
+}
+function goMap() { window.location.href = 'map'; }
+
+/* Telegram */
+if (window.Telegram?.WebApp) {
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+}
+</script>
+</body>
+</html>

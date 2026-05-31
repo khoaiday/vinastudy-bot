@@ -1303,4 +1303,22 @@
                         <button class="start-btn" onclick="startGame()" style="margin-top: 0;">THỬ LẠI</button>
                         <button class="yt-btn" onclick="openVideo()" style="margin-top: 0;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21.582 6.186a2.506 2.506 0 0 0-1.762-1.766C18.265 4 12 4 12 4s-6.264 0-7.82.42a2.506 2.506 0 0 0-1.76 1.766C2 7.74 2 12 2 12s0 4.26.42 5.814a2.506 2.506 0 0 0 1.76 1.766C5.736 20 12 20 12 20s6.265 0 7.
+                                <path d="M21.582 6.186a2.506 2.506 0 0 0-1.762-1.766C18.265 4 12 4 12 4s-6.264 0-7.82.42a2.506 2.506 0 0 0-1.76 1.766C2 7.74 2 12 2 12s0 4.26.42 5.814a2.506 2.506 0 0 0 1.76 1.766C5.736 20 12 20 12 20s6.265 0 7.82-.42a2.506 2.506 0 0 0 1.762-1.766C22 16.26 22 12 22 12s0-4.26-.418-5.814zM9.99 15.47V8.529L16 12l-6.01 3.47z"/>
+                            </svg>
+                            XEM BÀI GIẢNG
+                        </button>
+                        <button class="start-btn" onclick="exitMinigame()" style="margin-top: 0; background: transparent; border: 2px solid var(--primary); color: var(--primary);">QUAY LẠI ẢI</button>
+                    </div>
+                `;
+            }
+        }
+    </script>
+
+    <script>
+        // Start the quick tour when page is ready
+        window.addEventListener('load', () => {
+            setTimeout(tourInit, 200); // slight delay so layout is settled
+        });
+    </script>
+</body>
+</html>

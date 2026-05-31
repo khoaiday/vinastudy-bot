@@ -1,3 +1,18 @@
+## [Claude] 2026-05-30 — Tích Hợp Backend: Game Progress + Auth + Leaderboard + Bot Notification
+
+- `[x]` 1. DB: thêm bảng `game_progress` (telegram_id, ai_num, score, stars, completed_at)
+- `[x]` 2. CRUD: `get_game_progress`, `upsert_game_progress` (giữ điểm cao nhất), `get_leaderboard_progress`
+- `[x]` 3. API `POST /api/student/tg-auth` — xác thực `initData` Telegram HMAC-SHA256
+- `[x]` 4. API `GET /api/student/progress?tg_id=` — lấy toàn bộ ải đã hoàn thành
+- `[x]` 5. API `POST /api/student/complete-ai` — lưu kết quả + cộng XP + gửi bot Telegram chúc mừng
+- `[x]` 6. API `GET /api/student/leaderboard-progress` — BXH theo tổng điểm + số ải
+- `[x]` 7. `map.html`: `syncProgressFromServer()` — tải tiến độ từ server, merge vào localStorage, re-render map
+- `[x]` 8. `minigame.html` + `minigame2.html`: gọi `/complete-ai` khi thắng (fire-and-forget)
+- `[x]` 9. Commit `3d10465` trên branch `dev`
+
+---
+---
+
 ## [Gemini] 2026-05-27 — Trang cá nhân và nút Thoát
 
 - `[x]` 1. Sửa lỗi giao diện và cấu trúc trong `profile.html`
@@ -180,3 +195,61 @@
 
 ---
 ---
+
+## [Gemini] 2026-05-28 — Tái Thiết Kế Mỹ Thuật Đồ Họa & Giao Diện Theo Phong Cách Fieldrunners 2
+
+- `[/]` 1. Cải tiến giao diện UI/UX lơ lửng (Floating Command HUD)
+  - `[ ]` Thay thế header cũ bằng bảng điều khiển nổi trong suốt, định dạng phông chữ clamp.
+  - `[ ]` Thiết kế lại shop tháp (khay tròn nổi) ở góc dưới với hiệu ứng 3D hover và giá vàng nổi.
+  - `[ ]` Biến đổi Details Panel thành ngăn kéo nâng cấp/bán cơ khí trượt lên mượt mà.
+- `[/]` 2. Nâng cấp đồ họa Canvas: Pháo đài xoay (Rotating Turrets)
+  - `[ ]` Cập nhật lớp `Tower` hỗ trợ xoay nòng pháo mượt mà theo góc kẻ địch (`angle`, `currentAngle`).
+  - `[ ]` Vẽ đế tháp đồng cổ kính và nòng súng/turret xoay riêng biệt, hỗ trợ hiệu ứng giật nòng (`recoil`).
+- `[/]` 3. Nâng cấp hiệu ứng chiến đấu rực rỡ (Trails & Waves)
+  - `[ ]` Vẽ đường đạn mượt mà: vệt lao tre mờ ảo, bọt nhựa xanh lá bám dính, pháo cối bay parabol xoay vòng.
+  - `[ ]` Thêm hiệu ứng nổ lan: vòng sóng xung kích (Explosion Shockwave) lan rộng và tàn lửa cho Thần Cơ Pháo.
+  - `[ ]` Thêm trạng thái nhấp nhô (wobble) khi đi của kẻ địch, vòng mục tiêu đỏ, và bao phủ băng tuyết khi bị làm chậm.
+  - `[ ]` Vẽ lưới hướng đi di động (Marching Glowing Chevron Arrows) lấp lánh dọc lộ trình quái.
+
+---
+---
+
+
+---
+---
+[Claude] 2026-05-28
+## Zone-Based Character System — Implementation Complete
+
+### Changes Made
+**register.html**
+- Removed Step 2 character selection (4-class grid: Lạc Tướng/Đạo Sĩ/Nỏ Thần/Thần Tướng)
+- Step indicator: 3 dots → 2 dots (Thông tin → ✓)
+- Step 1 CTA: `goStep2()` → `submitDirect()` — submits directly from info form
+- Removed: `step2bg`, `step2Overlay` divs, `currentChar`, `currentFolder` state vars
+- Removed: `selectChar()`, `updateAvatarImages()`, `updateCharPreview()`, `goStep2()` functions
+- `_submitProfile()` → `submitDirect()`: reads step1 form, defaults `character_type='chien_binh'`
+- `goStep()` simplified: handles only step1, step3, steprejected
+
+**map.html**
+- Header: `justify-content: flex-end` → `space-between`
+- Header HTML: replaced avatar `<img>` with zone character badge (emoji circle + name + title)
+- Header: added 🏛️ Kho button (calls `openVault()`)
+- Added `ZONE_CHARACTERS` array (6 zones, each with nodes, buois, name, emoji, color, zone_name)
+- Replaced `loadSelectedCharacter()` with `loadZoneCharacter()` — reads active zone from `ZONE_CHARACTERS`
+- Auth gate: removed old class-map + vsSelectedChar logic, calls `loadZoneCharacter()` instead
+- Added vault CSS: `.vault-modal`, `.vault-panel`, `.vault-grid`, `.vault-char-card`, `.vault-unlock-badge`
+- Added vault HTML: `#vaultModal` bottom sheet before `#introModal`
+- Added `openVault()`: builds 6 character cards from `ZONE_CHARACTERS` + `cbToan_badges`, shows unlocked/in-progress/locked states
+- Added `closeVault()`
+
+### Zone → Character Mapping
+| Zone | Nodes (ải) | Buois (live) | Character |
+|------|-----------|-------------|-----------|
+| 0 | 1–3 | — | Lạc Long Quân |
+| 1 | 4–6 | — | Thánh Gióng |
+| 2 | 7–8 | 1, 2 | Cao Lỗ ← LIVE |
+| 3 | 9–10 | — | Trưng Trắc |
+| 4 | 11–12 | — | Ngô Quyền |
+| 5 | 13 | — | Đinh Bộ Lĩnh |
+
+### Status: ✅ Complete

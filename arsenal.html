@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Kho Vũ Khí — VInaStudy</title>
+<style>
+/* ══════════════════════════════════════════════════
+   DESIGN SYSTEM
+══════════════════════════════════════════════════ */
+:root {
+  --primary:       #C8960C;
+  --primary-glow:  rgba(200,150,12,.35);
+  --secondary:     #C0332E;
+  --copper:        #B87333;
+  --copper-glow:   rgba(184,115,51,.25);
+  --bg-void:       #07040A;
+  --bg-card:       rgba(255,255,255,.04);
+  --bg-card-hover: rgba(255,255,255,.07);
+  --text:          #E8D5A3;
+  --text-muted:    rgba(212,196,160,.5);
+  --font-title:    'Philosopher', 'Palatino Linotype', Georgia, serif;
+  --font-body:     'Lora', Georgia, serif;
+  --font-mono:     'Roboto Mono', 'Courier New', monospace;
+  --gold: #FFD700;
+  --owned: #4CAF50;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg-void);
+  color: var(--text);
+  font-family: var(--font-body);
+  display: flex; flex-direction: column;
+  max-width: 480px; margin: 0 auto;
+  height: 100dvh;
+}
+
+/* ══ HEADER ══ */
+.header {
+  padding: 14px 16px 10px;
+  background: linear-gradient(180deg, rgba(200,150,12,.1) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(200,150,12,.15);
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+}
+.back-btn {
+  background: none; border: 1px solid rgba(184,115,51,.4);
+  color: var(--primary); font-size: 20px; border-radius: 8px;
+  width: 36px; height: 36px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.header-info { flex: 1; min-width: 0; }
+.header-title {
+  font-family: var(--font-title); font-size: 18px; font-weight: 700;
+  color: var(--primary); letter-spacing: 1px;
+  text-shadow: 0 0 16px var(--primary-glow);
+}
+.header-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.tl-badge {
+  flex-shrink: 0;
+  background: rgba(255,215,0,.08); border: 1px solid rgba(255,215,0,.35);
+  border-radius: 20px; padding: 6px 14px;
+  color: var(--gold); font-family: var(--font-mono);
+  font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; gap: 4px;
+  box-shadow: 0 0 10px rgba(255,215,0,.1);
+}
+
+/* ══ SCROLL AREA ══ */
+.scroll {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.scroll::-webkit-scrollbar { width: 3px; }
+.scroll::-webkit-scrollbar-thumb { background: rgba(200,150,12,.3); border-radius: 2px; }
+
+/* ══ SECTION ══ */
+.section-title {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 2.5px; color: var(--copper); text-transform: uppercase;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(184,115,51,.2);
+  margin-bottom: 4px;
+}
+
+/* ══ TOWER CARD ══ */
+.tower-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 14px;
+  display: flex; gap: 14px; align-items: flex-start;
+  transition: all .2s;
+  position: relative; overflow: hidden;
+}
+.tower-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 60%, rgba(200,150,12,.04));
+  pointer-events: none;
+}
+.tower-card.owned {
+  border-color: rgba(76,175,80,.35);
+  background: rgba(76,175,80,.06);
+}
+.tower-card.locked {
+  opacity: 0.85;
+}
+.tower-card.starter {
+  border-color: rgba(200,150,12,.3);
+  background: rgba(200,150,12,.06);
+}
+
+.tower-icon {
+  width: 52px; height: 52px; flex-shrink: 0;
+  background: rgba(255,255,255,.05);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.tower-card.owned .tower-icon { border-color: rgba(76,175,80,.4); background: rgba(76,175,80,.08); }
+.tower-card.starter .tower-icon { border-color: rgba(200,150,12,.4); }
+
+.tower-body { flex: 1; min-width: 0; }
+.tower-name {
+  font-family: var(--font-title); font-size: 15px; font-weight: 700;
+  color: var(--text); line-height: 1.2; margin-bottom: 3px;
+}
+.tower-lore {
+  font-size: 11px; color: var(--text-muted); line-height: 1.45;
+  margin-bottom: 8px;
+}
+.tower-stats {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.stat-chip {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px; padding: 2px 8px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+}
+
+.tower-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tower-price {
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--gold); font-weight: 600;
+  display: flex; align-items: center; gap: 3px;
+}
+.tower-price.free { color: var(--copper); }
+
+.btn-buy {
+  padding: 7px 16px; border-radius: 8px;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none; transition: all .2s;
+  letter-spacing: 0.5px;
+}
+.btn-buy.buy {
+  background: linear-gradient(135deg, var(--primary), #a67c0a);
+  color: #000;
+}
+.btn-buy.buy:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--primary-glow); }
+.btn-buy.buy:active { transform: translateY(0); }
+.btn-buy.owned-btn {
+  background: rgba(76,175,80,.15); border: 1px solid rgba(76,175,80,.4);
+  color: var(--owned); cursor: default;
+}
+.btn-buy.starter-btn {
+  background: rgba(200,150,12,.1); border: 1px solid rgba(200,150,12,.35);
+  color: var(--primary); cursor: default; font-size: 11px;
+}
+.btn-buy.disabled {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  color: var(--text-muted); cursor: not-allowed;
+}
+
+/* ══ POWERUP CARD ══ */
+.powerup-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: all .2s;
+}
+.powerup-card.owned { border-color: rgba(76,175,80,.3); background: rgba(76,175,80,.05); }
+.powerup-icon { font-size: 24px; flex-shrink: 0; width: 36px; text-align: center; }
+.powerup-body { flex: 1; }
+.powerup-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.powerup-desc { font-size: 11px; color: var(--text-muted); }
+.powerup-price { font-family: var(--font-mono); font-size: 12px; color: var(--gold); font-weight: 600; }
+
+/* ══ EMPTY STATE ══ */
+.earn-tip {
+  background: rgba(200,150,12,.06); border: 1px solid rgba(200,150,12,.2);
+  border-radius: 12px; padding: 14px; text-align: center;
+  font-size: 12px; color: var(--text-muted); line-height: 1.6;
+}
+.earn-tip strong { color: var(--primary); }
+
+/* ══ TOAST ══ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: rgba(10,8,14,.95); border: 1px solid rgba(200,150,12,.4);
+  border-radius: 24px; padding: 10px 20px;
+  font-family: var(--font-mono); font-size: 13px; color: var(--text);
+  white-space: nowrap; pointer-events: none;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+  opacity: 0; z-index: 999;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ══ CONFIRM MODAL ══ */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.65);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 800; opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+.overlay.show { opacity: 1; pointer-events: auto; }
+.confirm-sheet {
+  width: 100%; max-width: 480px;
+  background: #0F0B14;
+  border: 1px solid rgba(200,150,12,.25);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px 32px;
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.32,0,.15,1);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.overlay.show .confirm-sheet { transform: translateY(0); }
+.confirm-drag { width: 36px; height: 4px; background: rgba(200,150,12,.3); border-radius: 2px; margin: 0 auto 4px; }
+.confirm-icon { font-size: 40px; text-align: center; }
+.confirm-title { font-family: var(--font-title); font-size: 18px; font-weight: 700; color: var(--primary); text-align: center; }
+.confirm-desc { font-size: 13px; color: var(--text-muted); text-align: center; line-height: 1.5; }
+.confirm-cost { font-family: var(--font-mono); font-size: 20px; color: var(--gold); font-weight: 700; text-align: center; }
+.confirm-balance { font-size: 12px; color: var(--text-muted); text-align: center; }
+.confirm-btns { display: flex; gap: 10px; }
+.btn-cancel {
+  flex: 1; padding: 13px; border-radius: 10px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: var(--text-muted); font-family: var(--font-mono); font-size: 13px;
+  cursor: pointer;
+}
+.btn-confirm {
+  flex: 2; padding: 13px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), #a67c0a);
+  border: none; color: #000;
+  font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.btn-confirm:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ══ PARTICLE ══ */
+@keyframes particle-fly {
+  0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; }
+}
+.particle { position: fixed; pointer-events: none; font-size: 20px; z-index: 9999;
+  animation: particle-fly .7s ease-out forwards; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <button class="back-btn" onclick="goBack()">‹</button>
+  <div class="header-info">
+    <div class="header-title">⚔️ KHO VŨ KHÍ</div>
+    <div class="header-sub">Mua vũ khí cho Trận Địa Phòng Thủ</div>
+  </div>
+  <div class="tl-badge">⚡ <span id="tlDisplay">0</span></div>
+</div>
+
+<!-- SCROLL CONTENT -->
+<div class="scroll">
+
+  <!-- TOWERS SECTION -->
+  <div>
+    <div class="section-title">🏹 Tháp Chiến Đấu</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;" id="towerList">
+      <!-- JS-rendered -->
+    </div>
+  </div>
+
+  <!-- POWER-UPS SECTION -->
+  <div>
+    <div class="section-title">✨ Phù Trợ Chiến Trận</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;" id="powerupList">
+      <!-- JS-rendered -->
+    </div>
+  </div>
+
+  <!-- EARN TIP -->
+  <div class="earn-tip">
+    💡 Kiếm <strong>Toán Lực ⚡</strong> bằng cách chiến thắng các ải boss trong bản đồ.<br>
+    Lần đầu thắng ải → <strong>+200 ⚡ bonus</strong> · Không dùng gợi ý → <strong>+100 ⚡</strong>
+  </div>
+
+</div>
+
+<!-- CONFIRM OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeConfirm(event)">
+  <div class="confirm-sheet" id="confirmSheet">
+    <div class="confirm-drag"></div>
+    <div class="confirm-icon" id="cIcon">⚔️</div>
+    <div class="confirm-title" id="cTitle">Mua vũ khí</div>
+    <div class="confirm-desc" id="cDesc">—</div>
+    <div class="confirm-cost" id="cCost">— ⚡</div>
+    <div class="confirm-balance" id="cBalance">Số dư sau khi mua: — ⚡</div>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">Thôi</button>
+      <button class="btn-confirm" id="btnConfirm" onclick="confirmBuy()">Mua ngay</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════ */
+const TL_KEY = 'cbToan_toanLuc';
+const OWNED_PREFIX = 'cbToan_owned_';
+
+const TOWERS = [
+  {
+    id: 'arrow',
+    name: 'Nỏ Thần Cổ Loa',
+    icon: '🏹',
+    lore: 'Nỏ Liên Hoàn huyền thoại do Cao Lỗ chế tạo từ vuốt Rùa Vàng — bắn liên châu tốc độ cao, tầm xa vừa phải.',
+    stats: ['Tốc: ●●●○○', 'Sát thương: ●●○○○', 'Tầm: ●●●○○'],
+    cost: 0,
+    starter: true,
+    tdType: 'arrow',
+  },
+  {
+    id: 'slow',
+    name: 'Bẫy Độc Lục Bảo',
+    icon: '🕸️',
+    lore: 'Bẫy nhựa độc màu lục ngọc lấy cảm hứng từ pháp thuật Hồ Tinh — làm địch chậm lại đáng kể khi bước vào tầm.',
+    stats: ['Tốc: ●●○○○', 'Làm chậm: ●●●●○', 'Tầm: ●●●●○'],
+    cost: 200,
+    tdType: 'slow',
+  },
+  {
+    id: 'bomb',
+    name: 'Thần Cơ Pháo',
+    icon: '💣',
+    lore: 'Súng thần công đời đầu của Âu Lạc — sát thương diện rộng kiểu nổ, hiệu quả nhất với nhóm địch dày đặc.',
+    stats: ['Tốc: ●●○○○', 'Sát thương: ●●●●○', 'AOE: ●●●○○'],
+    cost: 450,
+    tdType: 'bomb',
+  },
+  {
+    id: 'flame',
+    name: 'Hỏa Tháp Long',
+    icon: '🔥',
+    lore: 'Lấy cảm hứng từ Hỏa Xa của Trưng Vương — phun lửa liên tục gây sát thương theo thời gian (DoT) cực kỳ cao.',
+    stats: ['Tốc: ●●●●○', 'DoT: ●●●●●', 'Tầm: ●●○○○'],
+    cost: 800,
+    tdType: 'flame',
+  },
+  {
+    id: 'tesla',
+    name: 'Lôi Tháp Kim',
+    icon: '⚡',
+    lore: 'Trống Đồng Thiên Lôi — phóng điện sét xích giữa nhiều mục tiêu, mô phỏng sấm sét từ thần thoại Lạc Việt.',
+    stats: ['Tốc: ●●●○○', 'Chain: ●●●●●', 'Tầm: ●●●●○'],
+    cost: 1200,
+    tdType: 'tesla',
+  },
+];
+
+const POWERUPS = [
+  {
+    id: 'gold_start',
+    name: 'Túi Vàng Khai Trận',
+    icon: '💰',
+    desc: 'Bắt đầu Trận Địa Phòng Thủ với thêm 100 vàng — đủ xây thêm 2 tháp ngay từ đầu.',
+    cost: 150,
+    repeatable: false,
+  },
+  {
+    id: 'extra_life',
+    name: 'Bùa Bất Tử Thần Kim Quy',
+    icon: '🐢',
+    desc: 'Thêm 1 mạng (lives) trong Trận Địa Phòng Thủ — địch phá tường 1 lần thêm ta vẫn còn cơ hội.',
+    cost: 250,
+    repeatable: true,
+    maxStack: 3,
+  },
+  {
+    id: 'speed_boost',
+    name: 'Tốc Độ Thánh Gióng',
+    icon: '🥁',
+    desc: 'Tất cả tháp bắn nhanh hơn 20% trong trận đầu tiên mỗi ngày.',
+    cost: 300,
+    repeatable: false,
+  },
+];
+
+/* ══════════════════════════════════════════════════
+   STORAGE
+══════════════════════════════════════════════════ */
+function getBalance() { return parseInt(localStorage.getItem(TL_KEY)) || 0; }
+function setBalance(v) { localStorage.setItem(TL_KEY, String(v)); }
+function isOwned(id) { return !!localStorage.getItem(OWNED_PREFIX + id); }
+function setOwned(id) { localStorage.setItem(OWNED_PREFIX + id, '1'); }
+function getStack(id) { return parseInt(localStorage.getItem(OWNED_PREFIX + id + '_stack')) || 0; }
+function addStack(id) {
+  const s = getStack(id) + 1;
+  localStorage.setItem(OWNED_PREFIX + id + '_stack', String(s));
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════════════ */
+function renderAll() {
+  const bal = getBalance();
+  document.getElementById('tlDisplay').textContent = bal.toLocaleString('vi-VN');
+
+  // Towers
+  const tList = document.getElementById('towerList');
+  tList.innerHTML = TOWERS.map(t => {
+    const owned = t.starter || isOwned(t.id);
+    const canAfford = bal >= t.cost;
+    let cardClass = t.starter ? 'starter' : (owned ? 'owned' : 'locked');
+    let btnHTML;
+    if (t.starter) {
+      btnHTML = `<button class="btn-buy starter-btn">🏠 Mặc định</button>`;
+    } else if (owned) {
+      btnHTML = `<button class="btn-buy owned-btn">✅ Đã có</button>`;
+    } else {
+      btnHTML = `<button class="btn-buy ${canAfford ? 'buy' : 'disabled'}"
+        onclick="${canAfford ? `openConfirm('tower','${t.id}')` : ''}"
+        ${canAfford ? '' : 'title="Chưa đủ Toán Lực"'}>
+        ${canAfford ? 'Mua ngay' : '🔒 Chưa đủ ⚡'}
+      </button>`;
+    }
+    return `
+    <div class="tower-card ${cardClass}">
+      <div class="tower-icon">${t.icon}</div>
+      <div class="tower-body">
+        <div class="tower-name">${t.name}</div>
+        <div class="tower-lore">${t.lore}</div>
+        <div class="tower-stats">
+          ${t.stats.map(s => `<span class="stat-chip">${s}</span>`).join('')}
+        </div>
+        <div class="tower-footer">
+          <div class="tower-price ${t.cost === 0 ? 'free' : ''}">
+            ${t.cost === 0 ? '🎁 Miễn phí' : `⚡ ${t.cost.toLocaleString('vi-VN')}`}
+          </div>
+          ${btnHTML}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Powerups
+  const pList = document.getElementById('powerupList');
+  pList.innerHTML = POWERUPS.map(p => {
+    const stack = getStack(p.id);
+    const owned = !p.repeatable && isOwned(p.id);
+    const atMax = p.repeatable && stack >= (p.maxStack || 1);
+    const canBuy = !owned && !atMax;
+    const canAfford = bal >= p.cost;
+    let countBadge = p.repeatable && stack > 0 ? ` <span style="color:var(--owned);font-size:11px;">(${stack}/${p.maxStack || 1})</span>` : '';
+    let btnHTML;
+    if (!canBuy) {
+      btnHTML = `<button class="btn-buy owned-btn" style="font-size:10px;padding:5px 10px;">✅ ${atMax ? 'Tối đa' : 'Đã có'}</button>`;
+    } else {
+      btnHTML = `<button class="btn-buy ${canAfford ? 'buy' : 'disabled'}" style="font-size:11px;padding:5px 12px;"
+        onclick="${canAfford ? `openConfirm('powerup','${p.id}')` : ''}"
+        ${canAfford ? '' : 'title="Chưa đủ Toán Lực"'}>
+        ${canAfford ? 'Mua' : '🔒'}
+      </button>`;
+    }
+    return `
+    <div class="powerup-card ${(!canBuy) ? 'owned' : ''}">
+      <div class="powerup-icon">${p.icon}</div>
+      <div class="powerup-body">
+        <div class="powerup-name">${p.name}${countBadge}</div>
+        <div class="powerup-desc">${p.desc}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+        <div class="powerup-price">⚡ ${p.cost}</div>
+        ${btnHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   CONFIRM MODAL
+══════════════════════════════════════════════════ */
+let _pending = null;
+
+function openConfirm(type, id) {
+  const item = type === 'tower'
+    ? TOWERS.find(t => t.id === id)
+    : POWERUPS.find(p => p.id === id);
+  if (!item) return;
+  _pending = { type, id, item };
+
+  const bal = getBalance();
+  document.getElementById('cIcon').textContent = item.icon;
+  document.getElementById('cTitle').textContent = item.name;
+  document.getElementById('cDesc').textContent = item.lore || item.desc;
+  document.getElementById('cCost').textContent = `⚡ ${item.cost.toLocaleString('vi-VN')} Toán Lực`;
+  document.getElementById('cBalance').textContent =
+    `Số dư sau khi mua: ${(bal - item.cost).toLocaleString('vi-VN')} ⚡`;
+  document.getElementById('btnConfirm').disabled = bal < item.cost;
+
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeConfirm(e) {
+  if (e && e.target !== document.getElementById('overlay')) return;
+  document.getElementById('overlay').classList.remove('show');
+  _pending = null;
+}
+
+function confirmBuy() {
+  if (!_pending) return;
+  const { type, id, item } = _pending;
+  const bal = getBalance();
+  if (bal < item.cost) { showToast('❌ Không đủ Toán Lực!'); return; }
+
+  setBalance(bal - item.cost);
+  if (type === 'tower') {
+    setOwned(id);
+  } else {
+    if (item.repeatable) addStack(id);
+    else setOwned(id);
+  }
+
+  document.getElementById('overlay').classList.remove('show');
+  _pending = null;
+
+  spawnParticles(item.icon, 8);
+  showToast(`✅ Đã mua ${item.name}!`);
+  setTimeout(renderAll, 100);
+}
+
+/* ══════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════ */
+let _toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ══════════════════════════════════════════════════
+   PARTICLES
+══════════════════════════════════════════════════ */
+function spawnParticles(emoji, count) {
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = emoji;
+    const angle = (i / count) * Math.PI * 2;
+    const dist = 60 + Math.random() * 60;
+    el.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+    el.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+    el.style.left = cx + 'px';
+    el.style.top = cy + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   NAV
+══════════════════════════════════════════════════ */
+function goBack() {
+  if (history.length > 1) history.back();
+  else window.location.href = 'map.html';
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderAll();
+
+  // Cập nhật khi focus (sau khi thắng battle)
+  window.addEventListener('focus', renderAll);
+});
+
+// Telegram WebApp
+if (window.Telegram?.WebApp) {
+  window.Telegram.WebApp.expand();
+  window.Telegram.WebApp.ready();
+}
+</script>
+</body>
+</html>

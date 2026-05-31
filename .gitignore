@@ -4,6 +4,7 @@ data lop 3/
 # Env & secrets
 .env
 *.env
+.env.keys
 
 # Python
 __pycache__/

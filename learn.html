@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>📚 Dựng Nước — Học Toán</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-void:    #07040A;
+  --bg-deep:    #0F0A14;
+  --bg-panel:   #160E1C;
+  --bg-card:    #1E1327;
+  --primary:    #C8960C;
+  --primary-glow: rgba(200,150,12,0.40);
+  --secondary:  #C0332E;
+  --success:    #5ABCAA;
+  --copper:     #B87333;
+  --copper-glow:rgba(184,115,51,0.30);
+  --text-main:  #F5EED6;
+  --text-muted: #A08C70;
+  --border:     rgba(184,115,51,0.40);
+  --font-title: 'Philosopher', serif;
+  --font-body:  'Lora', serif;
+  --font-mono:  'Roboto Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  min-height: 100vh;
+  font-family: var(--font-body);
+  background: var(--bg-void);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+/* ── Grid bg ── */
+.grid-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(184,115,51,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184,115,51,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Layout ── */
+.app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; }
+
+/* ── Header ── */
+.header {
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,4,10,0.8);
+  backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: 10;
+}
+.btn-back {
+  background: rgba(184,115,51,0.1);
+  border: 1px solid var(--border);
+  color: var(--copper);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--font-body);
+  white-space: nowrap;
+}
+.btn-back:hover { background: rgba(184,115,51,0.2); }
+.header-title { flex: 1; font-family: var(--font-title); font-size: 14px; color: var(--copper); }
+.header-tl {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(200,150,12,0.08);
+  border: 1px solid rgba(200,150,12,0.35);
+  padding: 4px 10px; border-radius: 20px;
+  font-family: var(--font-mono); font-size: 13px;
+  color: #FFD700;
+}
+
+/* ── Main ── */
+.main { flex: 1; padding: 16px; }
+
+/* ──────────────────────────────────────────
+   SCREEN: TIER SELECTION
+────────────────────────────────────────── */
+#screenTier { display: block; }
+
+.ai-banner {
+  text-align: center; padding: 28px 16px 24px;
+  background: linear-gradient(135deg, rgba(139,0,0,0.25) 0%, rgba(184,115,51,0.15) 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px; margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.ai-banner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--copper), transparent);
+}
+.ai-banner-emoji { font-size: 44px; margin-bottom: 10px; display: block; }
+.ai-banner-title { font-family: var(--font-title); font-size: 22px; font-weight: 700; color: #FFD700; margin-bottom: 6px; }
+.ai-banner-sub { font-size: 13px; color: var(--text-muted); }
+.ai-banner-topic {
+  display: inline-block; margin-top: 10px; padding: 4px 14px;
+  background: rgba(184,115,51,0.15); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 12px; color: var(--copper);
+  font-family: var(--font-mono);
+}
+
+.tang-section-label {
+  font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+}
+.tang-list { display: flex; flex-direction: column; gap: 10px; }
+
+.tang-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 14px;
+}
+.tang-card:hover:not(.locked) { background: rgba(184,115,51,0.08); border-color: var(--copper); transform: translateY(-1px); }
+.tang-card.done { border-color: rgba(90,188,170,0.5); }
+.tang-card.locked { opacity: 0.5; cursor: not-allowed; }
+
+.tang-icon {
+  width: 50px; height: 50px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.tang-icon.t1 { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); }
+.tang-icon.t2 { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); }
+.tang-icon.t3 { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); }
+.tang-icon.done-bg { background: rgba(90,188,170,0.15); border: 1px solid rgba(90,188,170,0.3); }
+
+.tang-info { flex: 1; min-width: 0; }
+.tang-name { font-family: var(--font-title); font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.tang-desc { font-size: 12px; color: var(--text-muted); }
+.tang-score { font-size: 11px; color: var(--success); margin-top: 3px; font-family: var(--font-mono); }
+
+.tang-badge {
+  font-size: 12px; padding: 4px 10px; border-radius: 20px;
+  font-weight: 600; white-space: nowrap; flex-shrink: 0;
+}
+.tang-badge.done { background: rgba(90,188,170,0.15); color: var(--success); border: 1px solid rgba(90,188,170,0.35); }
+.tang-badge.new  { background: rgba(200,150,12,0.12); color: var(--primary); border: 1px solid rgba(200,150,12,0.35); }
+.tang-badge.lock { background: rgba(100,100,100,0.15); color: #666; border: 1px solid rgba(100,100,100,0.25); }
+
+.tl-total-box {
+  margin-top: 16px;
+  background: linear-gradient(135deg, rgba(200,150,12,0.1), rgba(184,115,51,0.08));
+  border: 1px solid rgba(200,150,12,0.35);
+  border-radius: 12px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.tl-total-label { flex: 1; font-size: 13px; color: var(--text-muted); }
+.tl-total-value { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: #FFD700; }
+
+/* ──────────────────────────────────────────
+   SCREEN: QUESTION
+────────────────────────────────────────── */
+#screenQuestion { display: none; }
+
+.progress-wrap { margin-bottom: 4px; }
+.progress-track { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--copper), var(--primary)); border-radius: 3px; transition: width 0.4s ease; }
+.progress-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; margin-bottom: 18px; }
+.progress-qnum { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.progress-tang-name { font-size: 12px; color: var(--copper); font-family: var(--font-title); }
+
+.question-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 22px 20px;
+  margin-bottom: 14px; position: relative; overflow: hidden;
+  min-height: 90px;
+}
+.question-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--copper), transparent);
+}
+.question-label { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 10px; letter-spacing: 0.05em; }
+.question-text { font-size: 17px; line-height: 1.65; color: var(--text-main); font-family: var(--font-body); }
+
+.options-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+
+.opt-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(184,115,51,0.2);
+  color: var(--text-main); padding: 13px 16px;
+  border-radius: 12px; cursor: pointer;
+  text-align: left; font-size: 15px; line-height: 1.45;
+  transition: background 0.15s, border-color 0.15s;
+  display: flex; align-items: flex-start; gap: 12px;
+  font-family: var(--font-body);
+}
+.opt-btn:hover:not(:disabled) { background: rgba(184,115,51,0.1); border-color: var(--copper); }
+.opt-btn:disabled { cursor: default; }
+.opt-btn.correct { background: rgba(90,188,170,0.12); border-color: var(--success); color: #7eddcc; }
+.opt-btn.wrong   { background: rgba(192,51,46,0.12);  border-color: var(--secondary); color: #e08080; }
+.opt-letter {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+  font-family: var(--font-mono); margin-top: 1px;
+}
+
+/* Feedback */
+.feedback-bar {
+  border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 12px; display: none;
+  align-items: flex-start; gap: 10px;
+}
+.feedback-bar.show { display: flex; }
+.feedback-bar.fb-correct { background: rgba(90,188,170,0.1); border: 1px solid rgba(90,188,170,0.3); }
+.feedback-bar.fb-wrong   { background: rgba(192,51,46,0.1);  border: 1px solid rgba(192,51,46,0.3); }
+.fb-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.fb-body { flex: 1; }
+.fb-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.fb-correct .fb-title { color: var(--success); }
+.fb-wrong   .fb-title { color: #e08080; }
+.fb-note { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.btn-video {
+  background: rgba(200,150,12,0.12); border: 1px solid rgba(200,150,12,0.35);
+  color: var(--primary); padding: 7px 12px; border-radius: 8px;
+  cursor: pointer; font-size: 13px; white-space: nowrap; flex-shrink: 0;
+  font-family: var(--font-body); margin-top: 4px; display: inline-block;
+}
+.btn-video:hover { background: rgba(200,150,12,0.2); }
+
+.btn-next {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, #8B0000 0%, #C0332E 100%);
+  border: none; border-radius: 12px;
+  color: #FAF0DC; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: opacity 0.2s;
+  font-family: var(--font-title);
+  box-shadow: 0 4px 16px rgba(192,51,46,0.3);
+}
+.btn-next:hover { opacity: 0.9; }
+
+/* ──────────────────────────────────────────
+   VIDEO POPUP
+────────────────────────────────────────── */
+#videoPopup {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88); z-index: 100;
+  align-items: center; justify-content: center;
+  padding: 16px;
+}
+#videoPopup.show { display: flex; }
+.video-modal {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  width: 100%; max-width: 560px;
+}
+.video-modal-header {
+  padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(184,115,51,0.2);
+}
+.video-modal-title { flex: 1; font-family: var(--font-title); font-size: 14px; color: var(--copper); }
+.video-modal-ts { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.btn-close-vid {
+  background: rgba(192,51,46,0.15); border: 1px solid rgba(192,51,46,0.35);
+  color: #e08080; width: 32px; height: 32px; border-radius: 8px;
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+.btn-close-vid:hover { background: rgba(192,51,46,0.25); }
+.video-ratio { position: relative; padding-bottom: 56.25%; height: 0; }
+.video-ratio iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
+
+/* ──────────────────────────────────────────
+   SCREEN: RESULT
+────────────────────────────────────────── */
+#screenResult { display: none; }
+
+.result-banner {
+  text-align: center; padding: 28px 16px 22px;
+  background: linear-gradient(135deg, rgba(139,0,0,0.2), rgba(184,115,51,0.12));
+  border: 1px solid var(--border); border-radius: 16px; margin-bottom: 18px;
+}
+.result-emoji { font-size: 60px; display: block; margin-bottom: 12px; }
+.result-title { font-family: var(--font-title); font-size: 22px; font-weight: 700; color: #FFD700; margin-bottom: 6px; }
+.result-sub { font-size: 14px; color: var(--text-muted); }
+
+.result-stats {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px; margin-bottom: 14px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+}
+.stat-cell { text-align: center; }
+.stat-val { font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--primary); }
+.stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+.tl-earned-box {
+  background: linear-gradient(135deg, rgba(200,150,12,0.15), rgba(184,115,51,0.1));
+  border: 1px solid rgba(200,150,12,0.4); border-radius: 14px;
+  padding: 20px; text-align: center; margin-bottom: 18px;
+}
+.tl-earned-label { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.tl-earned-val { font-family: var(--font-mono); font-size: 38px; font-weight: 800; color: #FFD700; }
+.tl-earned-sub { font-size: 12px; color: rgba(255,215,0,0.6); margin-top: 4px; }
+
+.result-actions { display: flex; flex-direction: column; gap: 10px; }
+.btn-result-primary {
+  padding: 16px; background: linear-gradient(135deg, #8B0000, #C0332E);
+  border: none; border-radius: 12px; color: #FAF0DC;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  font-family: var(--font-title);
+  box-shadow: 0 4px 16px rgba(192,51,46,0.3);
+}
+.btn-result-secondary {
+  padding: 14px; background: rgba(184,115,51,0.1);
+  border: 1px solid var(--border); border-radius: 12px;
+  color: var(--copper); font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: var(--font-title);
+}
+.btn-result-back {
+  padding: 12px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  color: var(--text-muted); font-size: 14px; cursor: pointer;
+  font-family: var(--font-body);
+}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="app">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <button class="btn-back" onclick="goBack()">← Quay lại</button>
+    <div class="header-title" id="headerTitle">📚 Dựng Nước</div>
+    <div class="header-tl">⚡ <span id="headerTL">0</span></div>
+  </div>
+
+  <div class="main">
+
+    <!-- ══════════════════════════════
+         SCREEN: TIER SELECTION
+    ══════════════════════════════ -->
+    <div id="screenTier">
+      <div class="ai-banner">
+        <span class="ai-banner-emoji" id="aiBannerEmoji">🏰</span>
+        <div class="ai-banner-title" id="aiBannerTitle">Ải 1 — Cổ Loa</div>
+        <div class="ai-banner-sub" id="aiBannerSub">Học Toán để dựng nước</div>
+        <div class="ai-banner-topic" id="aiBannerTopic">Cấu tạo số tự nhiên</div>
+      </div>
+
+      <div class="tang-section-label">Chọn tầng học</div>
+      <div class="tang-list" id="tangList">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="tl-total-box">
+        <div class="tl-total-label">⚡ Toán Lực tích lũy ải này</div>
+        <div class="tl-total-value" id="tlTotalDisplay">0</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         SCREEN: QUESTION
+    ══════════════════════════════ -->
+    <div id="screenQuestion">
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-meta">
+          <span class="progress-qnum" id="progressLabel">Câu 1 / 7</span>
+          <span class="progress-tang-name" id="progressTangName">Tầng 1</span>
+        </div>
+      </div>
+
+      <div class="question-box">
+        <div class="question-label" id="qLabel">CÂU HỎI</div>
+        <div class="question-text" id="qText"></div>
+      </div>
+
+      <div class="options-list" id="optsList"></div>
+
+      <div class="feedback-bar" id="feedbackBar">
+        <div class="fb-icon" id="fbIcon"></div>
+        <div class="fb-body">
+          <div class="fb-title" id="fbTitle"></div>
+          <div class="fb-note" id="fbNote"></div>
+          <button class="btn-video" id="btnVideo" onclick="openVideo()" style="display:none">🎬 Xem thầy giảng tại đây</button>
+        </div>
+      </div>
+
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()" style="display:none">Câu tiếp theo →</button>
+    </div>
+
+    <!-- ══════════════════════════════
+         SCREEN: RESULT
+    ══════════════════════════════ -->
+    <div id="screenResult">
+      <div class="result-banner">
+        <span class="result-emoji" id="resultEmoji">🎉</span>
+        <div class="result-title" id="resultTitle">Hoàn thành!</div>
+        <div class="result-sub" id="resultSub"></div>
+      </div>
+
+      <div class="result-stats">
+        <div class="stat-cell">
+          <div class="stat-val" id="statCorrect">0</div>
+          <div class="stat-lbl">Đúng</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val" id="statWrong">0</div>
+          <div class="stat-lbl">Sai</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val" id="statPct">0%</div>
+          <div class="stat-lbl">Điểm</div>
+        </div>
+      </div>
+
+      <div class="tl-earned-box">
+        <div class="tl-earned-label">Toán Lực nhận được</div>
+        <div class="tl-earned-val">+<span id="tlEarnedVal">0</span></div>
+        <div class="tl-earned-sub" id="tlEarnedSub">⚡</div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-result-primary" id="btnNextTang" onclick="goNextTang()">📖 Tầng tiếp theo →</button>
+        <button class="btn-result-primary" id="btnGiuNuocResult" onclick="goGiuNuocFromLearn()"
+          style="display:none;background:linear-gradient(135deg,#4a1a0a,#8B2200);box-shadow:0 4px 16px rgba(139,34,0,0.4)">
+          🏰 Giữ Nước — Thủ Thành
+        </button>
+        <button class="btn-result-secondary" id="btnRetry" onclick="retryTang()">🔄 Làm lại tầng này</button>
+        <button class="btn-result-back" onclick="showTierSelect()">← Về chọn tầng</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── Video Popup ── -->
+<div id="videoPopup">
+  <div class="video-modal">
+    <div class="video-modal-header">
+      <div class="video-modal-title">🎬 Thầy Long giảng bài</div>
+      <div class="video-modal-ts" id="videoTimestamp"></div>
+      <button class="btn-close-vid" onclick="closeVideo()">✕</button>
+    </div>
+    <div class="video-ratio">
+      <iframe id="videoIframe" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//   QUIZ DATA — Ải 1: Buổi 1 (Cấu tạo số tự nhiên)
+// ═══════════════════════════════════════════════════════
+const QUIZ_DATA = {
+  1: {
+    title: 'Ải 1 — Cổ Loa',
+    emoji: '🏰',
+    topic: 'Cấu tạo số tự nhiên',
+    sub: 'Vua An Dương Vương xây thành Cổ Loa',
+    tdAi: 7,  // tower_defense.html?ai=7
+    tang: [
+      // ─── Tầng 1: Lý thuyết ───
+      {
+        name: 'Tầng 1 — Lý Thuyết',
+        desc: 'Kiến thức cần nhớ từ bài giảng Buổi 1',
+        icon: '📖',
+        tlPer: 10,
+        bonus: 30,
+        qs: [
+          {
+            q: 'Trong hệ thống số tự nhiên, có tất cả bao nhiêu chữ số?',
+            opts: [
+              '9 chữ số (1, 2, 3, ..., 9)',
+              '10 chữ số (0, 1, 2, ..., 9)',
+              'Vô số chữ số',
+              '100 chữ số'
+            ],
+            ans: 1,
+            ts: 120, vid: 'Tkx5Tf3Omks',
+            note: 'Chúng ta chỉ có đúng 10 chữ số: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9. Không nhiều hơn, không ít hơn.'
+          },
+          {
+            q: '"Chữ số" và "số tự nhiên" khác nhau như thế nào?',
+            opts: [
+              'Chữ số và số tự nhiên là như nhau',
+              'Số tự nhiên chỉ có 9 loại, chữ số có vô số',
+              'Chữ số chỉ có 10 loại (0–9); còn số tự nhiên thì có vô số',
+              'Chữ số nhiều hơn số tự nhiên'
+            ],
+            ans: 2,
+            ts: 290, vid: 'Tkx5Tf3Omks',
+            note: '10 chữ số tạo ra vô số các số tự nhiên: 1, 15, 195, 1000, ... Chữ số là "nguyên liệu", số là "sản phẩm".'
+          },
+          {
+            q: 'Phân tích cấu tạo số 457 theo hàng, kết quả đúng là:',
+            opts: [
+              '4 + 5 + 7',
+              '400 + 50 + 70',
+              '4 × 1000 + 5 × 10 + 7',
+              '4 × 100 + 5 × 10 + 7'
+            ],
+            ans: 3,
+            ts: 450, vid: 'Tkx5Tf3Omks',
+            note: '4 ở hàng trăm → 4×100 = 400. 5 ở hàng chục → 5×10 = 50. 7 ở hàng đơn vị → 7. Tổng: 400 + 50 + 7 = 457.'
+          },
+          {
+            q: 'Số ABC (3 chữ số: hàng trăm = A, hàng chục = B, hàng đơn vị = C) viết dưới dạng tổng theo hàng là:',
+            opts: [
+              'A + B + C',
+              'A × 10 + B × 100 + C',
+              'A × 100 + B × 10 + C',
+              'A × 1000 + B × 100 + C × 10'
+            ],
+            ans: 2,
+            ts: 570, vid: 'Tkx5Tf3Omks',
+            note: 'ABC = A×100 + B×10 + C. Đây là công thức gốc — nền tảng của mọi bài toán cấu tạo số.'
+          },
+          {
+            q: 'Thầy Long dặn: khi đứng trước một bài toán, thói quen đúng đắn đầu tiên là gì?',
+            opts: [
+              'Tính ngay để tiết kiệm thời gian',
+              'Làm theo đúng công thức mà thầy cô đã cho',
+              'Hỏi bạn bên cạnh xem bạn làm thế nào',
+              'Quan sát và phân tích: đề bài cho gì, đề bài hỏi gì'
+            ],
+            ans: 3,
+            ts: 770, vid: 'Tkx5Tf3Omks',
+            note: '"Quan sát tức là chúng ta phải nhìn và suy nghĩ. Chứ còn nhìn mà không nghĩ thì không gọi là quan sát." — Thầy Long.'
+          },
+          {
+            q: 'Bài toán: A43 + 4B6 + 25C. Sau khi phân tích cấu tạo số xong, tổng của các số còn lại (không tính phần ABC) bằng bao nhiêu?',
+            opts: [
+              '700',
+              '699',
+              '799',
+              '749'
+            ],
+            ans: 1,
+            ts: 1380, vid: 'Tkx5Tf3Omks',
+            note: '43 + 406 + 250 = 699. Vì vậy A = ABC + 699, và vì 699 < 700 nên A < B.'
+          },
+          {
+            q: 'Thầy lưu ý cuối buổi: "tổng của chục và đơn vị" so với "tổng của trăm, chục và đơn vị" thì:',
+            opts: [
+              'Hai cách viết đó bằng nhau, không có gì khác',
+              'Tổng chục + đơn vị luôn lớn hơn',
+              'Hai cái này khác nhau — dễ nhầm, phải phân biệt cẩn thận',
+              'Tổng trăm + chục + đơn vị luôn lớn hơn'
+            ],
+            ans: 2,
+            ts: 2028, vid: 'Tkx5Tf3Omks',
+            note: 'Thầy nhắc trong phần BTVN: câu yêu cầu "tổng chục và đơn vị" khác với "tổng trăm, chục, đơn vị". Đây là bẫy hay gặp!'
+          }
+        ]
+      },
+
+      // ─── Tầng 2: Luyện tập ───
+      {
+        name: 'Tầng 2 — Luyện Tập',
+        desc: 'Bài tập trên lớp Buổi 1',
+        icon: '⚔️',
+        tlPer: 12,
+        bonus: 35,
+        qs: [
+          {
+            q: 'Bài toán: A43 + 4B6 + 25C so sánh với ABC + 700. Khi quan sát đề bài, điều nào sau đây là nhận xét đúng và hữu ích nhất?',
+            opts: [
+              'A, B, C là ba số riêng biệt, cần tính từng cái',
+              'Không thể làm vì chưa biết giá trị A, B, C',
+              'Cả vế A lẫn vế B đều chứa ABC — có thể phân tích và tách ra',
+              'Chỉ cần so sánh 43 + 6 + 25 là đủ'
+            ],
+            ans: 2,
+            ts: 1160, vid: 'Tkx5Tf3Omks',
+            note: 'Quan sát kỹ: A43 = A×100 + 43, 4B6 = 400 + B×10 + 6. Cộng lại ta thấy cả vế đều có phần ABC — đây là chìa khóa giải bài!'
+          },
+          {
+            q: 'Phân tích cấu tạo: 4B6 = ?',
+            opts: [
+              '4 × B × 6',
+              '4 + B + 6',
+              '400 + B + 60',
+              '400 + B × 10 + 6'
+            ],
+            ans: 3,
+            ts: 1160, vid: 'Tkx5Tf3Omks',
+            note: '4 ở hàng trăm = 400. B ở hàng chục = B×10. 6 ở hàng đơn vị = 6. Tổng: 400 + B×10 + 6.'
+          },
+          {
+            q: 'Sau khi tính: A = ABC + 699 và B = ABC + 700. Kết luận so sánh A và B?',
+            opts: [
+              'A = B',
+              'A > B (A lớn hơn B)',
+              'A < B (A nhỏ hơn B)',
+              'Không so sánh được vì chưa biết A, B, C'
+            ],
+            ans: 2,
+            ts: 1500, vid: 'Tkx5Tf3Omks',
+            note: '699 < 700, nên ABC + 699 < ABC + 700, tức là A < B. Lập luận đơn giản nhưng cần thấy được!'
+          },
+          {
+            q: '"Viết tổng thành số": A × 100 + 2 × 100 + B × 10 + 9 = ?',
+            opts: [
+              'AB29',
+              'A2B9',
+              '2AB9',
+              'A29B'
+            ],
+            ans: 1,
+            ts: 1740, vid: 'Tkx5Tf3Omks',
+            note: 'Đặt theo cột dọc: hàng trăm = A+2 (viết A2), hàng chục = B, hàng đơn vị = 9. Kết quả: A2B9.'
+          },
+          {
+            q: '"Viết tổng thành số": 7000 + 400 + A × 10 + B = ?',
+            opts: [
+              '74AB',
+              '7A4B',
+              '7B4A',
+              '740AB'
+            ],
+            ans: 0,
+            ts: 1800, vid: 'Tkx5Tf3Omks',
+            note: 'Hàng nghìn = 7, hàng trăm = 4, hàng chục = A, hàng đơn vị = B. Ghép lại: 74AB.'
+          },
+          {
+            q: '"Viết tổng thành số": A × 1000 + B × 100 + 5 × 10 + 3 = ?',
+            opts: [
+              '5AB3',
+              'A5B3',
+              'AB53',
+              'AB35'
+            ],
+            ans: 2,
+            ts: 1850, vid: 'Tkx5Tf3Omks',
+            note: 'Hàng nghìn = A, hàng trăm = B, hàng chục = 5, hàng đơn vị = 3. Ghép lại: AB53.'
+          },
+          {
+            q: 'Kết luận bài toán: Vì 699 < 700, nên ABC + 699 ____ ABC + 700?',
+            opts: [
+              '= (bằng)',
+              '> (lớn hơn)',
+              '< (nhỏ hơn)',
+              'Không xác định được'
+            ],
+            ans: 2,
+            ts: 1500, vid: 'Tkx5Tf3Omks',
+            note: 'Khi hai vế cùng có ABC, ta chỉ cần so sánh phần còn lại: 699 < 700. Vậy A < B.'
+          }
+        ]
+      },
+
+      // ─── Tầng 3: BTVN ───
+      {
+        name: 'Tầng 3 — Bài Tập Về Nhà',
+        desc: 'BTVN Buổi 1 — chữa đầu Buổi 2',
+        icon: '🏆',
+        tlPer: 15,
+        bonus: 40,
+        qs: [
+          {
+            q: 'BTVN Buổi 1: Viết 237 thành tổng các trăm, chục, đơn vị:',
+            opts: [
+              '200 + 37',
+              '23 + 7',
+              '200 + 30 + 7',
+              '2 + 3 + 7'
+            ],
+            ans: 2,
+            ts: 12, vid: 'tQPklWVzur8',
+            note: '237: hàng trăm = 200, hàng chục = 30, hàng đơn vị = 7. Vậy 237 = 200 + 30 + 7.'
+          },
+          {
+            q: 'BTVN: Viết 109 thành tổng trăm, chục, đơn vị. Lưu ý số này!',
+            opts: [
+              '1 + 0 + 9',
+              '10 + 9',
+              '100 + 9',
+              '100 + 00 + 9'
+            ],
+            ans: 2,
+            ts: 20, vid: 'tQPklWVzur8',
+            note: '109: hàng trăm = 100, hàng chục = 0 (không có hàng chục), hàng đơn vị = 9. Vậy 109 = 100 + 9.'
+          },
+          {
+            q: 'BTVN: Số 1BC (hàng trăm = 1, hàng chục = B, hàng đơn vị = C). Viết dưới dạng tổng:',
+            opts: [
+              '1 + B + C',
+              '100 + B × 10 + C',
+              '100 + B + C × 10',
+              '10 + B × 10 + C'
+            ],
+            ans: 1,
+            ts: 34, vid: 'tQPklWVzur8',
+            note: 'Áp dụng công thức ABC = A×100 + B×10 + C: 1BC = 1×100 + B×10 + C = 100 + B×10 + C.'
+          },
+          {
+            q: 'BTVN: Số A0C (hàng chục = 0). Phân tích cấu tạo đúng là:',
+            opts: [
+              'A × 100 + C × 10',
+              'A + C',
+              'A × 100 + C',
+              'A × 10 + C'
+            ],
+            ans: 2,
+            ts: 44, vid: 'tQPklWVzur8',
+            note: 'A0C = A×100 + 0×10 + C = A×100 + C. Hàng chục bằng 0 nên không cần viết thêm.'
+          },
+          {
+            q: 'BTVN: Số 4AB7 có 4 chữ số. Chữ số hàng NGHÌN là chữ số nào?',
+            opts: [
+              'A',
+              'B',
+              '7',
+              '4'
+            ],
+            ans: 3,
+            ts: 55, vid: 'tQPklWVzur8',
+            note: '4AB7: chữ số đứng đầu (hàng nghìn) là 4. A là hàng trăm, B là hàng chục, 7 là hàng đơn vị.'
+          },
+          {
+            q: 'Thầy cảnh báo: 4AB7 "rất dễ nhầm lẫn". Phân tích đúng của 4AB7 là:',
+            opts: [
+              '400 + A × 100 + B × 10 + 7 (nhầm 4 là trăm)',
+              '4000 + A × 100 + B × 10 + 7',
+              '4 × 100 + A × 10 + B + 7',
+              '40000 + A + B + 7'
+            ],
+            ans: 1,
+            ts: 64, vid: 'tQPklWVzur8',
+            note: '4AB7: 4 ở hàng NGHÌN nên = 4000 (không phải 400). 4000 + A×100 + B×10 + 7. Nhiều bạn nhầm 4 là hàng trăm!'
+          },
+          {
+            q: 'Từ 4AB7 = 4000 + A×100 + B×10 + 7, nhóm phần trăm lại: = (40+A)×100 + B×10 + 7. Vậy trong 4AB7, chữ số A đứng ở hàng nào?',
+            opts: [
+              'Hàng nghìn',
+              'Hàng trăm',
+              'Hàng chục',
+              'Hàng đơn vị'
+            ],
+            ans: 1,
+            ts: 78, vid: 'tQPklWVzur8',
+            note: 'A là chữ số đứng ở hàng trăm của 4AB7. Nhưng giá trị phần trăm là (40+A) — gồm cả 40 từ số 4000. Đây là điểm tinh tế!'
+          }
+        ]
+      }
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+//   QUIZ DATA — Ải 2: Buổi 2 (Bài toán cấu tạo số)
+// ═══════════════════════════════════════════════════════
+QUIZ_DATA[2] = {
+  title: 'Ải 2 — Nỏ Thần Liên Châu',
+  emoji: '🏹',
+  topic: 'Bài toán cấu tạo số',
+  sub: 'Cao Lỗ chế nỏ thần — mỗi mũi tên là một bài toán',
+  tdAi: 8,
+  tang: [
+    /* ─── Tầng 1: Lý Thuyết ─── */
+    {
+      name: 'Tầng 1 — Lý Thuyết',
+      tlPer: 10, bonus: 30,
+      qs: [
+        {
+          q: 'Viết thêm chữ số 0 vào bên PHẢI số 73, ta được số nào?',
+          opts: ['730', '703', '073', '370'],
+          ans: 0,
+          ts: 45, vid: 'tQPklWVzur8',
+          note: 'Viết thêm 0 vào bên phải = nhân 10. 73 × 10 = 730'
+        },
+        {
+          q: 'Số 260 được tạo bằng cách viết thêm 0 vào bên phải số nào?',
+          opts: ['26', '206', '62', '2600'],
+          ans: 0,
+          ts: 60, vid: 'tQPklWVzur8',
+          note: '26 → thêm 0 bên phải → 260. Ngược lại: 260 bỏ 0 cuối → 26'
+        },
+        {
+          q: 'Cao Lỗ ghi số 48 rồi thêm chữ số 5 vào bên PHẢI. Số mới là bao nhiêu?',
+          opts: ['485', '548', '458', '845'],
+          ans: 0,
+          ts: 90, vid: 'tQPklWVzur8',
+          note: '48 → thêm 5 bên phải → 485 (4 hàng trăm, 8 hàng chục, 5 hàng đơn vị)'
+        },
+        {
+          q: 'Trong số 4AB7, chữ số A đứng ở hàng nào?',
+          opts: ['Hàng trăm', 'Hàng chục', 'Hàng nghìn', 'Hàng đơn vị'],
+          ans: 0,
+          ts: 120, vid: 'tQPklWVzur8',
+          note: '4AB7: chữ 4 hàng nghìn → A hàng trăm → B hàng chục → 7 hàng đơn vị'
+        },
+        {
+          q: 'Số 4AB7 khi A = 3, B = 1 bằng số nào?',
+          opts: ['4317', '4137', '4371', '3147'],
+          ans: 0,
+          ts: 150, vid: 'tQPklWVzur8',
+          note: '4000 + 3×100 + 1×10 + 7 = 4000 + 300 + 10 + 7 = 4317'
+        },
+        {
+          q: 'Viết thêm chữ số 0 vào ĐẦU số 85 (085), giá trị của số đó thay đổi thế nào?',
+          opts: ['Vẫn là 85', 'Thành 850', 'Thành 805', 'Tăng gấp đôi'],
+          ans: 0,
+          ts: 180, vid: 'tQPklWVzur8',
+          note: '085 = 85. Chữ số 0 đứng đầu không có giá trị — số không thay đổi'
+        },
+        {
+          q: 'Mật mã nỏ thần ghi số 3□6. Điền chữ số nào vào □ để được số LỚN NHẤT?',
+          opts: ['9', '0', '1', '6'],
+          ans: 0,
+          ts: 210, vid: 'tQPklWVzur8',
+          note: 'Hàng trăm = 3 và hàng đơn vị = 6 đã cố định. Để lớn nhất: □ = 9 → số 396'
+        }
+      ]
+    },
+    /* ─── Tầng 2: Luyện Tập ─── */
+    {
+      name: 'Tầng 2 — Luyện Tập',
+      tlPer: 12, bonus: 35,
+      qs: [
+        {
+          q: 'Nỏ thần bắn 25 mũi tên mỗi lần. Sau 10 lần bắn có bao nhiêu mũi tên? (Dùng quy tắc viết thêm chữ số)',
+          opts: ['250', '2500', '205', '25'],
+          ans: 0,
+          ts: 260, vid: 'tQPklWVzur8',
+          note: '25 × 10 = 250. Tương đương viết thêm 0 vào bên phải 25 → 250'
+        },
+        {
+          q: 'Số AB (2 chữ số) có A + B = 7 và A > B. Số AB lớn nhất là?',
+          opts: ['70', '61', '52', '43'],
+          ans: 0,
+          ts: 300, vid: 'tQPklWVzur8',
+          note: 'A+B=7, A>B: (7,0)→70 | (6,1)→61 | (5,2)→52 | (4,3)→43. Lớn nhất: 70'
+        },
+        {
+          q: 'Từ số 64, Cao Lỗ viết thêm chữ số 9 vào GIỮA (giữa 6 và 4). Số mới là?',
+          opts: ['694', '649', '946', '964'],
+          ans: 0,
+          ts: 330, vid: 'tQPklWVzur8',
+          note: '6_4 → thêm 9 vào giữa → 694 (6 trăm, 9 chục, 4 đơn vị)'
+        },
+        {
+          q: 'Số 4A7 (A là chữ số hàng chục). Điều kiện nào đúng để 4A7 > 457?',
+          opts: ['A > 5, tức A ∈ {6, 7, 8, 9}', 'A = 5', 'A < 5', 'A là số bất kỳ'],
+          ans: 0,
+          ts: 360, vid: 'tQPklWVzur8',
+          note: 'Hàng trăm (4=4) và hàng đơn vị (7=7) bằng nhau → so hàng chục: A so với 5. Cần A > 5'
+        },
+        {
+          q: 'Số AB: chữ số hàng chục gấp đôi chữ số hàng đơn vị (A = 2×B). Số AB lớn nhất là?',
+          opts: ['84', '63', '42', '21'],
+          ans: 0,
+          ts: 390, vid: 'tQPklWVzur8',
+          note: 'A=2B, cả hai là chữ số (0–9). B=4→A=8→84 ✓. B=5→A=10 (loại). Lớn nhất: 84'
+        },
+        {
+          q: 'Trong số 4□8, điền chữ số nào vào □ để được số lớn nhất có thể?',
+          opts: ['9', '0', '8', '5'],
+          ans: 0,
+          ts: 420, vid: 'tQPklWVzur8',
+          note: 'Hàng trăm = 4 và hàng đơn vị = 8 cố định. Để lớn nhất: □ = 9 → 498'
+        },
+        {
+          q: 'Mật hiệu "A5B" chia hết cho 2 và A + B = 7. Giá trị A5B lớn nhất là?',
+          opts: ['750', '552', '354', '156'],
+          ans: 0,
+          ts: 450, vid: 'tQPklWVzur8',
+          note: 'Chia hết 2 → B chẵn. A+B=7, B chẵn: B=0,A=7→750; B=2,A=5→552; B=4,A=3→354; B=6,A=1→156. Lớn nhất: 750'
+        }
+      ]
+    },
+    /* ─── Tầng 3: Bài Tập Về Nhà ─── */
+    {
+      name: 'Tầng 3 — Bài Tập Về Nhà',
+      tlPer: 15, bonus: 40,
+      qs: [
+        {
+          q: 'Tìm số AB (2 chữ số) NHỎ NHẤT biết AB = 4 × (A + B).',
+          opts: ['12', '24', '36', '48'],
+          ans: 0,
+          ts: 510, vid: 'tQPklWVzur8',
+          note: 'AB=4(A+B) → 10A+B=4A+4B → 6A=3B → B=2A. Nhỏ nhất: A=1,B=2 → 12. KT: 1+2=3, 4×3=12 ✓'
+        },
+        {
+          q: 'Số 4AB7 có tổng tất cả chữ số bằng 20. Tính A + B.',
+          opts: ['9', '11', '7', '13'],
+          ans: 0,
+          ts: 540, vid: 'tQPklWVzur8',
+          note: '4 + A + B + 7 = 20 → A + B = 20 − 11 = 9'
+        },
+        {
+          q: 'Tìm số AB (2 chữ số) biết AB bằng 5 lần tổng các chữ số của nó.',
+          opts: ['Chỉ có số 45', 'Chỉ có số 54', 'Cả 45 và 54', 'Không tồn tại'],
+          ans: 0,
+          ts: 570, vid: 'tQPklWVzur8',
+          note: '10A+B=5(A+B) → 5A=4B. Giải: A=4,B=5 → 45 ✓. A=8,B=10 loại (B>9). Chỉ có 45'
+        },
+        {
+          q: 'Số □76 chia hết cho 9. Tìm chữ số □.',
+          opts: ['5', '4', '8', '2'],
+          ans: 0,
+          ts: 600, vid: 'tQPklWVzur8',
+          note: 'Chia hết 9 → tổng chữ số chia hết 9. □+7+6=□+13. Cần □+13=18 → □=5'
+        },
+        {
+          q: 'Số có 3 chữ số: hàng trăm gấp đôi hàng chục, hàng đơn vị là 4, tổng 3 chữ số là 10. Tìm số đó.',
+          opts: ['424', '442', '244', '422'],
+          ans: 0,
+          ts: 630, vid: 'tQPklWVzur8',
+          note: 'Gọi H=hàng trăm, C=hàng chục. H=2C, C+H+4=10 → 3C=6 → C=2, H=4. Số: 424'
+        },
+        {
+          q: 'Dùng đúng 3 chữ số 1, 2, 3 (mỗi chữ số 1 lần), số 3 chữ số LỚN NHẤT tạo được là?',
+          opts: ['321', '312', '231', '132'],
+          ans: 0,
+          ts: 660, vid: 'tQPklWVzur8',
+          note: 'Để số lớn nhất: xếp chữ số lớn nhất ở hàng trăm → 3, rồi 2, rồi 1 → 321'
+        },
+        {
+          q: 'Số AB (2 chữ số). Viết thêm chữ số 3 vào bên phải AB được số AB3. Biết AB3 − AB = 507. Tìm AB.',
+          opts: ['56', '65', '45', '54'],
+          ans: 0,
+          ts: 690, vid: 'tQPklWVzur8',
+          note: 'AB3 = 10×AB+3. AB3−AB = 9×AB+3 = 507 → 9×AB = 504 → AB = 56. KT: 563−56=507 ✓'
+        }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+//   QUIZ DATA — Ải 3: Buổi 3 (Viết số tự nhiên thỏa mãn điều kiện)
+// ═══════════════════════════════════════════════════════
+QUIZ_DATA[3] = {
+  title: 'Ải 3 — Hội Quân Mê Linh',
+  emoji: '🔥',
+  topic: 'Viết số tự nhiên thỏa mãn điều kiện',
+  sub: 'Hai Bà Trưng tập hợp 40 tướng lĩnh khởi nghĩa',
+  tdAi: 9,
+  tang: [
+    {
+      name: 'Tầng 1 — Lý Thuyết',
+      tlPer: 10, bonus: 30,
+      qs: [
+        {
+          q: 'Số có 2 chữ số với chữ số hàng chục là 5. Có bao nhiêu số như vậy?',
+          opts: ['10 số (50–59)', '5 số', '9 số', '1 số'],
+          ans: 0, ts: 30, vid: 'fMegXvbsYPk',
+          note: 'Hàng chục = 5 cố định, hàng đơn vị = 0,1,2,...,9 → 10 số: 50,51,52,...,59'
+        },
+        {
+          q: 'Số có 2 chữ số, tổng 2 chữ số bằng 10. Số LỚN NHẤT là?',
+          opts: ['91', '19', '55', '82'],
+          ans: 0, ts: 60, vid: 'fMegXvbsYPk',
+          note: 'A+B=10, A∈{1..9}, B∈{0..9}: (1,9)→19, (2,8)→28, ..., (9,1)→91. Lớn nhất: 91'
+        },
+        {
+          q: 'Số 2 chữ số có 2 chữ số giống nhau. Có bao nhiêu số như vậy?',
+          opts: ['9 số', '10 số', '5 số', '8 số'],
+          ans: 0, ts: 90, vid: 'fMegXvbsYPk',
+          note: '11, 22, 33, 44, 55, 66, 77, 88, 99 → đúng 9 số (không tính 00)'
+        },
+        {
+          q: 'Số nhỏ nhất có 2 chữ số chia hết cho 7 là?',
+          opts: ['14', '7', '21', '17'],
+          ans: 0, ts: 120, vid: 'fMegXvbsYPk',
+          note: '7×1=7 (1 chữ số), 7×2=14 (2 chữ số) ✓. Số nhỏ nhất: 14'
+        },
+        {
+          q: 'Trong các số từ 1 đến 50, có bao nhiêu số có chữ số hàng đơn vị là 5?',
+          opts: ['5 số', '10 số', '4 số', '6 số'],
+          ans: 0, ts: 150, vid: 'fMegXvbsYPk',
+          note: '5, 15, 25, 35, 45 → đúng 5 số'
+        },
+        {
+          q: 'Số có 2 chữ số, chữ số hàng chục LỚN HƠN chữ số hàng đơn vị. Có bao nhiêu số?',
+          opts: ['45 số', '36 số', '54 số', '40 số'],
+          ans: 0, ts: 180, vid: 'fMegXvbsYPk',
+          note: 'A>B: A=1→1 số; A=2→2; ...; A=9→9. Tổng: 1+2+...+9=45 số'
+        },
+        {
+          q: 'Số có 2 chữ số chia hết cho 5 VÀ chữ số hàng chục là 3. Số đó là?',
+          opts: ['30 và 35', 'Chỉ có 30', 'Chỉ có 35', 'Không tồn tại'],
+          ans: 0, ts: 210, vid: 'fMegXvbsYPk',
+          note: 'Chia hết cho 5 → đơn vị = 0 hoặc 5. Hàng chục = 3 → 30 (đơn vị=0) và 35 (đơn vị=5)'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 2 — Luyện Tập',
+      tlPer: 12, bonus: 35,
+      qs: [
+        {
+          q: 'Hai Bà Trưng ghi số quân AB vào sổ. Biết A−B=2 và A+B=8. Số quân AB là?',
+          opts: ['53', '35', '62', '26'],
+          ans: 0, ts: 260, vid: 'fMegXvbsYPk',
+          note: 'A−B=2 và A+B=8 → cộng: 2A=10 → A=5. Trừ: 2B=6 → B=3. AB=53'
+        },
+        {
+          q: 'Số có 3 chữ số LỚN NHẤT mà tổng 3 chữ số bằng 5 là?',
+          opts: ['500', '410', '320', '104'],
+          ans: 0, ts: 300, vid: 'fMegXvbsYPk',
+          note: 'Để lớn nhất: đặt chữ số lớn nhất ở hàng trăm. 5+0+0=5 → 500 ✓. 4+1+0=5 → 410 < 500'
+        },
+        {
+          q: 'Số có 2 chữ số, 2 chữ số liên tiếp nhau (hơn kém nhau đúng 1). Có bao nhiêu số?',
+          opts: ['17 số', '16 số', '18 số', '9 số'],
+          ans: 0, ts: 330, vid: 'fMegXvbsYPk',
+          note: 'Đơn vị=Chục+1: 12,23,34,45,56,67,78,89 (8 số). Chục=Đơn vị+1: 10,21,32,43,54,65,76,87,98 (9 số). Tổng: 17'
+        },
+        {
+          q: 'Số có 3 chữ số, hàng trăm gấp đôi hàng đơn vị, tổng 3 chữ số là 9. Có bao nhiêu số?',
+          opts: ['3 số: 261, 432, 603', '2 số: 261, 432', '4 số', '1 số'],
+          ans: 0, ts: 360, vid: 'fMegXvbsYPk',
+          note: 'H=2U, H+C+U=9 → 3U+C=9. U=1,C=6,H=2→261; U=2,C=3,H=4→432; U=3,C=0,H=6→603. Đúng 3 số'
+        },
+        {
+          q: 'Số có 2 chữ số lớn hơn 60, chia hết cho cả 2 và 3. Có bao nhiêu số?',
+          opts: ['6 số', '5 số', '7 số', '4 số'],
+          ans: 0, ts: 390, vid: 'fMegXvbsYPk',
+          note: 'Chia hết cho cả 2 và 3 = chia hết cho 6. >60: 66, 72, 78, 84, 90, 96 → 6 số'
+        },
+        {
+          q: 'Số 2 chữ số: hàng chục là số lẻ, hàng đơn vị là số chẵn. Có bao nhiêu số?',
+          opts: ['25 số', '20 số', '30 số', '10 số'],
+          ans: 0, ts: 420, vid: 'fMegXvbsYPk',
+          note: 'Chục lẻ: {1,3,5,7,9}=5 lựa chọn. Đơn vị chẵn: {0,2,4,6,8}=5. Tổng: 5×5=25 số'
+        },
+        {
+          q: 'Số 2 chữ số mà tích hai chữ số bằng 12. Tất cả các số đó là?',
+          opts: ['26, 34, 43, 62 (4 số)', 'Chỉ 26 và 62', 'Chỉ 34 và 43', '3 số'],
+          ans: 0, ts: 450, vid: 'fMegXvbsYPk',
+          note: 'A×B=12: (2,6)→26; (3,4)→34; (4,3)→43; (6,2)→62. (1,12) loại vì B>9. Đúng 4 số'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 3 — Bài Tập Về Nhà',
+      tlPer: 15, bonus: 40,
+      qs: [
+        {
+          q: 'Số có 3 chữ số với tổng 3 chữ số bằng 3. Có bao nhiêu số như vậy?',
+          opts: ['6 số', '3 số', '9 số', '4 số'],
+          ans: 0, ts: 510, vid: 'fMegXvbsYPk',
+          note: 'H+C+U=3, H≥1: H=1,C+U=2→(0,2),(1,1),(2,0)=3 số; H=2,C+U=1→2 số; H=3,C+U=0→1. Tổng: 6'
+        },
+        {
+          q: 'Số tự nhiên nhỏ hơn 100 chia hết cho cả 6 và 8. Có bao nhiêu số?',
+          opts: ['4 số', '3 số', '6 số', '2 số'],
+          ans: 0, ts: 540, vid: 'fMegXvbsYPk',
+          note: 'BCNN(6,8)=24. Bội của 24 nhỏ hơn 100: 24, 48, 72, 96 → đúng 4 số'
+        },
+        {
+          q: 'Số nhỏ nhất có 2 chữ số khi chia cho 7 dư 5 là?',
+          opts: ['12', '5', '19', '26'],
+          ans: 0, ts: 570, vid: 'fMegXvbsYPk',
+          note: 'N=7k+5, N≥10: k=1→N=12 ✓. Kiểm tra: 12÷7=1 dư 5 ✓'
+        },
+        {
+          q: 'Số 3 chữ số, hàng trăm = hàng đơn vị + 2, tổng chữ số = 12. Số có hàng chục nhỏ nhất là?',
+          opts: ['750', '381', '462', '534'],
+          ans: 0, ts: 600, vid: 'fMegXvbsYPk',
+          note: 'H=U+2, 2U+C=10. U=5→C=0,H=7→750 (chục=0 nhỏ nhất). Kiểm tra: 7+0+5=12 ✓'
+        },
+        {
+          q: 'Số 2 chữ số mà tích hai chữ số bằng 0. Có bao nhiêu số?',
+          opts: ['9 số', '10 số', '18 số', '1 số'],
+          ans: 0, ts: 630, vid: 'fMegXvbsYPk',
+          note: 'A×B=0, A≠0 (hàng chục≥1) → B=0. Các số: 10,20,30,40,50,60,70,80,90 → 9 số'
+        },
+        {
+          q: 'Số 2 chữ số AB với A²+B²=65. Tìm tất cả số đó.',
+          opts: ['18, 47, 74, 81 (4 số)', 'Chỉ 47 và 74', '3 số', 'Không có'],
+          ans: 0, ts: 660, vid: 'fMegXvbsYPk',
+          note: 'A²+B²=65: (1,8)→18; (4,7)→47; (7,4)→74; (8,1)→81. (vì 1+64=16+49=65) → 4 số'
+        },
+        {
+          q: 'Số AB và số BA (đảo chữ số). Biết AB+BA=121. Số AB lớn nhất thỏa mãn là?',
+          opts: ['92', '29', '83', '56'],
+          ans: 0, ts: 690, vid: 'fMegXvbsYPk',
+          note: 'AB+BA=(10A+B)+(10B+A)=11(A+B)=121 → A+B=11. Lớn nhất: A=9,B=2 → 92'
+        }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+//   QUIZ DATA — Ải 4: Buổi 4 (Dãy số cách đều)
+// ═══════════════════════════════════════════════════════
+QUIZ_DATA[4] = {
+  title: 'Ải 4 — Chiến Thuật Voi Chiến',
+  emoji: '🐘',
+  topic: 'Dãy số cách đều',
+  sub: 'Bà Triệu xếp đội hình voi trận theo quy luật',
+  tdAi: 10,
+  tang: [
+    {
+      name: 'Tầng 1 — Lý Thuyết',
+      tlPer: 10, bonus: 30,
+      qs: [
+        {
+          q: 'Dãy 2, 4, 6, 8, 10 — khoảng cách giữa 2 số liên tiếp là bao nhiêu?',
+          opts: ['2', '4', '1', '10'],
+          ans: 0, ts: 30, vid: 'TcJ50kKlyg0',
+          note: '4−2=6−4=8−6=10−8=2. Dãy cách đều với khoảng cách (công sai) d=2'
+        },
+        {
+          q: 'Số hạng tiếp theo của dãy 5, 10, 15, 20, ... là?',
+          opts: ['25', '22', '30', '24'],
+          ans: 0, ts: 60, vid: 'TcJ50kKlyg0',
+          note: 'Khoảng cách d=5. Số tiếp theo: 20+5=25'
+        },
+        {
+          q: 'Dãy 100, 90, 80, 70, ... Số hạng tiếp theo là?',
+          opts: ['60', '65', '50', '75'],
+          ans: 0, ts: 90, vid: 'TcJ50kKlyg0',
+          note: 'Dãy giảm dần, d=−10. Số tiếp theo: 70−10=60'
+        },
+        {
+          q: 'Dãy 1, 3, 5, 7, ... Số hạng thứ 5 là?',
+          opts: ['9', '11', '7', '10'],
+          ans: 0, ts: 120, vid: 'TcJ50kKlyg0',
+          note: 'd=2. Số hạng thứ 5: 1+(5−1)×2=1+8=9'
+        },
+        {
+          q: 'Dãy 3, 8, 13, 18, ... Số hạng tiếp theo là?',
+          opts: ['23', '21', '25', '20'],
+          ans: 0, ts: 150, vid: 'TcJ50kKlyg0',
+          note: 'd=5. 18+5=23'
+        },
+        {
+          q: 'Số nào KHÔNG thuộc dãy 2, 6, 10, 14, 18, ...?',
+          opts: ['25', '22', '26', '30'],
+          ans: 0, ts: 180, vid: 'TcJ50kKlyg0',
+          note: 'd=4, bắt đầu từ 2. Số thứ n: 2+(n−1)×4=4n−2. Kiểm tra 25: (25+2)/4=6.75 → không thuộc dãy'
+        },
+        {
+          q: 'Dãy 3, 7, 11, 15, ... Số hạng thứ 6 là?',
+          opts: ['23', '19', '27', '25'],
+          ans: 0, ts: 210, vid: 'TcJ50kKlyg0',
+          note: 'd=4. Số hạng thứ 6: 3+(6−1)×4=3+20=23'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 2 — Luyện Tập',
+      tlPer: 12, bonus: 35,
+      qs: [
+        {
+          q: 'Dãy số cách đều từ 5 đến 50 với khoảng cách 5. Có bao nhiêu số?',
+          opts: ['10', '9', '11', '5'],
+          ans: 0, ts: 260, vid: 'TcJ50kKlyg0',
+          note: 'Số hạng: (50−5)÷5+1=9+1=10. Đó là: 5,10,15,20,25,30,35,40,45,50'
+        },
+        {
+          q: 'Đội voi: hàng 1 có 3 voi, mỗi hàng tăng thêm 2. Hàng thứ 4 có bao nhiêu voi?',
+          opts: ['9', '7', '11', '8'],
+          ans: 0, ts: 300, vid: 'TcJ50kKlyg0',
+          note: 'Dãy: 3,5,7,9,... d=2. Hàng 4: 3+(4−1)×2=3+6=9 voi'
+        },
+        {
+          q: 'Số hạng thứ 10 của dãy 4, 7, 10, 13, ... là?',
+          opts: ['31', '28', '34', '37'],
+          ans: 0, ts: 330, vid: 'TcJ50kKlyg0',
+          note: 'd=3. Số hạng thứ 10: 4+(10−1)×3=4+27=31'
+        },
+        {
+          q: 'Dãy cách đều, số đầu 8, số cuối 48, khoảng cách 8. Có bao nhiêu số hạng?',
+          opts: ['6', '5', '7', '4'],
+          ans: 0, ts: 360, vid: 'TcJ50kKlyg0',
+          note: 'Số hạng: (48−8)÷8+1=5+1=6. Dãy: 8,16,24,32,40,48'
+        },
+        {
+          q: 'Điền vào: 5, ___, 15, ___, 25. Tổng 2 số cần điền là?',
+          opts: ['30', '25', '20', '35'],
+          ans: 0, ts: 390, vid: 'TcJ50kKlyg0',
+          note: 'd=5. Số thiếu: 10 và 20. Tổng: 10+20=30'
+        },
+        {
+          q: 'Dãy A, A+3, A+6, A+9. Tổng 4 số hạng bằng 54. Tìm A.',
+          opts: ['9', '12', '6', '15'],
+          ans: 0, ts: 420, vid: 'TcJ50kKlyg0',
+          note: 'Tổng: A+(A+3)+(A+6)+(A+9)=4A+18=54 → 4A=36 → A=9'
+        },
+        {
+          q: 'Dãy 100, 91, 82, 73, ... Số hạng thứ 6 là?',
+          opts: ['55', '64', '46', '60'],
+          ans: 0, ts: 450, vid: 'TcJ50kKlyg0',
+          note: 'd=−9. Số hạng thứ 6: 100+(6−1)×(−9)=100−45=55'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 3 — Bài Tập Về Nhà',
+      tlPer: 15, bonus: 40,
+      qs: [
+        {
+          q: 'Dãy số tự nhiên chẵn từ 2 đến 100. Có bao nhiêu số?',
+          opts: ['50', '49', '51', '100'],
+          ans: 0, ts: 510, vid: 'TcJ50kKlyg0',
+          note: '(100−2)÷2+1=49+1=50 số. Đó là 2,4,6,...,100'
+        },
+        {
+          q: 'Dãy 5, 10, 15, ..., 100. Có bao nhiêu số hạng?',
+          opts: ['20', '19', '21', '100'],
+          ans: 0, ts: 540, vid: 'TcJ50kKlyg0',
+          note: '(100−5)÷5+1=19+1=20 số hạng'
+        },
+        {
+          q: 'Số hạng thứ 50 của dãy 3, 5, 7, 9, ... là?',
+          opts: ['101', '99', '103', '100'],
+          ans: 0, ts: 570, vid: 'TcJ50kKlyg0',
+          note: 'd=2. Số hạng thứ 50: 3+(50−1)×2=3+98=101'
+        },
+        {
+          q: 'Dãy cách đều bắt đầu từ 5, khoảng cách 8. Số hạng thứ mấy bằng 77?',
+          opts: ['10', '9', '11', '8'],
+          ans: 0, ts: 600, vid: 'TcJ50kKlyg0',
+          note: '5+(n−1)×8=77 → (n−1)×8=72 → n−1=9 → n=10'
+        },
+        {
+          q: 'Đội voi 5 hàng: hàng 1 có 4 voi, mỗi hàng sau thêm 3. Tổng 5 hàng có bao nhiêu voi?',
+          opts: ['50', '40', '45', '55'],
+          ans: 0, ts: 630, vid: 'TcJ50kKlyg0',
+          note: 'Dãy: 4,7,10,13,16. Tổng: 4+7+10+13+16=50 voi'
+        },
+        {
+          q: 'Dãy: 2, □, □, □, 18 là dãy cách đều. Tổng 3 số ở giữa là?',
+          opts: ['30', '24', '36', '28'],
+          ans: 0, ts: 660, vid: 'TcJ50kKlyg0',
+          note: 'd=(18−2)÷4=4. Dãy: 2,6,10,14,18. Tổng 3 số giữa: 6+10+14=30'
+        },
+        {
+          q: 'Ngày 1 tập trận có 10 lính, mỗi ngày tăng thêm 5. Ngày thứ 7 có bao nhiêu lính?',
+          opts: ['40', '35', '45', '70'],
+          ans: 0, ts: 690, vid: 'TcJ50kKlyg0',
+          note: 'd=5. Ngày thứ 7: 10+(7−1)×5=10+30=40 lính'
+        }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+//   QUIZ DATA — Ải 5: Buổi 5 (Biểu thức số)
+// ═══════════════════════════════════════════════════════
+QUIZ_DATA[5] = {
+  title: 'Ải 5 — Cắm Cọc Bạch Đằng',
+  emoji: '⚓',
+  topic: 'Biểu thức số',
+  sub: 'Ngô Quyền tính toán trận địa cọc ngầm',
+  tdAi: 11,
+  tang: [
+    {
+      name: 'Tầng 1 — Lý Thuyết',
+      tlPer: 10, bonus: 30,
+      qs: [
+        {
+          q: 'Tính: 5 + 3 × 4 = ?',
+          opts: ['17', '32', '20', '27'],
+          ans: 0, ts: 30, vid: 'placeholder_b5',
+          note: 'Thứ tự tính: nhân trước, cộng sau. 3×4=12, rồi 5+12=17'
+        },
+        {
+          q: 'Tính: (5 + 3) × 4 = ?',
+          opts: ['32', '17', '20', '28'],
+          ans: 0, ts: 60, vid: 'placeholder_b5',
+          note: 'Ngoặc tính trước: (5+3)=8, rồi 8×4=32. So sánh với 5+3×4=17: ngoặc thay đổi kết quả!'
+        },
+        {
+          q: 'Tính: 20 − 4 × 3 = ?',
+          opts: ['8', '48', '12', '16'],
+          ans: 0, ts: 90, vid: 'placeholder_b5',
+          note: 'Nhân trước: 4×3=12. Rồi trừ: 20−12=8'
+        },
+        {
+          q: 'Tính: (20 − 4) × 3 = ?',
+          opts: ['48', '8', '52', '36'],
+          ans: 0, ts: 120, vid: 'placeholder_b5',
+          note: 'Ngoặc trước: 20−4=16. Rồi 16×3=48'
+        },
+        {
+          q: 'Tính: 2 × (7 − 3) + 5 = ?',
+          opts: ['13', '19', '10', '18'],
+          ans: 0, ts: 150, vid: 'placeholder_b5',
+          note: 'Ngoặc: 7−3=4. Nhân: 2×4=8. Cộng: 8+5=13'
+        },
+        {
+          q: '□ × 3 + 4 = 19. Tìm □.',
+          opts: ['5', '7', '4', '6'],
+          ans: 0, ts: 180, vid: 'placeholder_b5',
+          note: '□×3=19−4=15 → □=15÷3=5. KT: 5×3+4=15+4=19 ✓'
+        },
+        {
+          q: '3 × (□ + 2) = 18. Tìm □.',
+          opts: ['4', '6', '3', '8'],
+          ans: 0, ts: 210, vid: 'placeholder_b5',
+          note: '□+2=18÷3=6 → □=6−2=4. KT: 3×(4+2)=3×6=18 ✓'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 2 — Luyện Tập',
+      tlPer: 12, bonus: 35,
+      qs: [
+        {
+          q: 'Điền dấu (+, −, ×, ÷) vào □ để: 4 □ 2 = 8.',
+          opts: ['×', '+', '−', '÷'],
+          ans: 0, ts: 260, vid: 'placeholder_b5',
+          note: '4×2=8 ✓. 4+2=6 ✗. 4−2=2 ✗. 4÷2=2 ✗. Đáp án: ×'
+        },
+        {
+          q: 'Tính: 15 − (3 + 4) × 2 = ?',
+          opts: ['1', '23', '8', '16'],
+          ans: 0, ts: 300, vid: 'placeholder_b5',
+          note: 'Ngoặc: 3+4=7. Nhân: 7×2=14. Trừ: 15−14=1'
+        },
+        {
+          q: 'A + B × 2 = 20 và A = 6. Tìm B.',
+          opts: ['7', '14', '4', '8'],
+          ans: 0, ts: 330, vid: 'placeholder_b5',
+          note: '6+B×2=20 → B×2=14 → B=7. KT: 6+7×2=6+14=20 ✓'
+        },
+        {
+          q: 'Ngô Quyền cắm □ cọc/ngày. Sau 5 ngày, 3 đội cắm được 60 cọc. Tìm □.',
+          opts: ['4', '12', '6', '3'],
+          ans: 0, ts: 360, vid: 'placeholder_b5',
+          note: '□×5×3=60 → □×15=60 → □=4 cọc/ngày/đội'
+        },
+        {
+          q: '(A + 5) × 4 = 32. Tìm A.',
+          opts: ['3', '8', '2', '4'],
+          ans: 0, ts: 390, vid: 'placeholder_b5',
+          note: 'A+5=32÷4=8 → A=8−5=3. KT: (3+5)×4=8×4=32 ✓'
+        },
+        {
+          q: '100 − 4 × □ = 60. Tìm □.',
+          opts: ['10', '15', '8', '40'],
+          ans: 0, ts: 420, vid: 'placeholder_b5',
+          note: '4×□=100−60=40 → □=40÷4=10. KT: 100−4×10=100−40=60 ✓'
+        },
+        {
+          q: 'Biểu thức P = A × (B + C). Khi A=5, B=3, C=7. P = ?',
+          opts: ['50', '22', '35', '40'],
+          ans: 0, ts: 450, vid: 'placeholder_b5',
+          note: 'B+C=3+7=10. P=5×10=50'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 3 — Bài Tập Về Nhà',
+      tlPer: 15, bonus: 40,
+      qs: [
+        {
+          q: 'A × B = 36, A ≤ B, A và B là số tự nhiên ≥ 1. Có bao nhiêu cặp (A,B)?',
+          opts: ['5 cặp', '4 cặp', '6 cặp', '3 cặp'],
+          ans: 0, ts: 510, vid: 'placeholder_b5',
+          note: '1×36, 2×18, 3×12, 4×9, 6×6 → đúng 5 cặp (A≤B)'
+        },
+        {
+          q: '(A − B) × C = 18. Biết B=3, C=6. Tìm A.',
+          opts: ['6', '9', '3', '12'],
+          ans: 0, ts: 540, vid: 'placeholder_b5',
+          note: '(A−3)×6=18 → A−3=3 → A=6. KT: (6−3)×6=3×6=18 ✓'
+        },
+        {
+          q: 'S = A + B × C. Biết S=29, A=5, C=3. Tìm B.',
+          opts: ['8', '7', '9', '6'],
+          ans: 0, ts: 570, vid: 'placeholder_b5',
+          note: '5+B×3=29 → B×3=24 → B=8. KT: 5+8×3=5+24=29 ✓'
+        },
+        {
+          q: 'Mỗi hàng có (n+2) cọc, đặt 6 hàng. Tổng = 48 cọc. Tìm n.',
+          opts: ['6', '8', '4', '5'],
+          ans: 0, ts: 600, vid: 'placeholder_b5',
+          note: '6×(n+2)=48 → n+2=8 → n=6. KT: 6×(6+2)=6×8=48 ✓'
+        },
+        {
+          q: '3 × (A + 4) − 2 × A = 20. Tìm A.',
+          opts: ['8', '5', '4', '12'],
+          ans: 0, ts: 630, vid: 'placeholder_b5',
+          note: '3A+12−2A=20 → A=20−12=8. KT: 3×(8+4)−2×8=36−16=20 ✓'
+        },
+        {
+          q: '(A × B) + (A + B) = 23, A=3. Tìm B.',
+          opts: ['5', '4', '6', '7'],
+          ans: 0, ts: 660, vid: 'placeholder_b5',
+          note: '3B+3+B=23 → 4B=20 → B=5. KT: (3×5)+(3+5)=15+8=23 ✓'
+        },
+        {
+          q: '5 nhóm quân, mỗi nhóm có (a+3) người, thêm (b−1) người trực chiến. Tổng = 5×(a+3)+(b−1). Khi a=7, b=4. Tổng là?',
+          opts: ['53', '50', '43', '63'],
+          ans: 0, ts: 690, vid: 'placeholder_b5',
+          note: '5×(7+3)+(4−1)=5×10+3=50+3=53'
+        }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+//   QUIZ DATA — Ải 6: Buổi 6 (Tính tổng dãy số ghép cặp)
+// ═══════════════════════════════════════════════════════
+QUIZ_DATA[6] = {
+  title: 'Ải 6 — Trận Bạch Đằng I',
+  emoji: '⛵',
+  topic: 'Tính tổng dãy số — Ghép cặp',
+  sub: 'Ngô Quyền ghép cọc thành cặp, tính tổng tài nguyên',
+  tdAi: 12,
+  tang: [
+    {
+      name: 'Tầng 1 — Lý Thuyết',
+      tlPer: 10, bonus: 30,
+      qs: [
+        {
+          q: 'Ghép cặp: 1+10=11, 2+9=11, 3+8=11, 4+7=11, 5+6=11. Tổng 1+2+3+...+10 = ?',
+          opts: ['55', '50', '45', '60'],
+          ans: 0, ts: 30, vid: 'h1lHS_SGSjA',
+          note: '5 cặp, mỗi cặp = 11. Tổng = 5×11 = 55'
+        },
+        {
+          q: 'Tính 1+2+3+4+5+6 bằng ghép cặp: (1+6)+(2+5)+(3+4) = ?',
+          opts: ['21', '18', '24', '15'],
+          ans: 0, ts: 60, vid: 'h1lHS_SGSjA',
+          note: '7+7+7=3×7=21'
+        },
+        {
+          q: 'Tính 2+4+6+8+10 bằng ghép cặp.',
+          opts: ['30', '25', '35', '20'],
+          ans: 0, ts: 90, vid: 'h1lHS_SGSjA',
+          note: '(2+10)+(4+8)+6=12+12+6=30'
+        },
+        {
+          q: 'Tính 1+3+5+7+9 bằng ghép cặp.',
+          opts: ['25', '20', '30', '15'],
+          ans: 0, ts: 120, vid: 'h1lHS_SGSjA',
+          note: '(1+9)+(3+7)+5=10+10+5=25'
+        },
+        {
+          q: 'Công thức tổng dãy cách đều: (số đầu+số cuối)×số hạng÷2. Tổng 1+2+...+20 = ?',
+          opts: ['210', '200', '190', '220'],
+          ans: 0, ts: 150, vid: 'h1lHS_SGSjA',
+          note: '(1+20)×20÷2=21×10=210'
+        },
+        {
+          q: 'Tổng 10+20+30+...+100 = ?',
+          opts: ['550', '500', '600', '450'],
+          ans: 0, ts: 180, vid: 'h1lHS_SGSjA',
+          note: 'n=10, (10+100)×10÷2=110×5=550'
+        },
+        {
+          q: 'Tổng nổi tiếng: 1+2+3+...+100 = ?',
+          opts: ['5050', '5000', '4950', '5100'],
+          ans: 0, ts: 210, vid: 'h1lHS_SGSjA',
+          note: '(1+100)×100÷2=101×50=5050 (bài toán của Gauss)'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 2 — Luyện Tập',
+      tlPer: 12, bonus: 35,
+      qs: [
+        {
+          q: 'Tổng các số lẻ từ 1 đến 19: 1+3+5+...+19 = ?',
+          opts: ['100', '90', '110', '81'],
+          ans: 0, ts: 260, vid: 'h1lHS_SGSjA',
+          note: 'n=(19−1)÷2+1=10. Tổng=(1+19)×10÷2=20×5=100'
+        },
+        {
+          q: 'Tổng các số chẵn từ 2 đến 20: 2+4+6+...+20 = ?',
+          opts: ['110', '100', '120', '90'],
+          ans: 0, ts: 300, vid: 'h1lHS_SGSjA',
+          note: 'n=10. Tổng=(2+20)×10÷2=22×5=110'
+        },
+        {
+          q: 'Tổng số cọc cắm từng ngày: 1+2+3+...+15 = ?',
+          opts: ['120', '105', '135', '150'],
+          ans: 0, ts: 330, vid: 'h1lHS_SGSjA',
+          note: '(1+15)×15÷2=16×15÷2=120'
+        },
+        {
+          q: 'Tổng 5+10+15+...+50 = ?',
+          opts: ['275', '250', '300', '225'],
+          ans: 0, ts: 360, vid: 'h1lHS_SGSjA',
+          note: 'n=(50−5)÷5+1=10. Tổng=(5+50)×10÷2=55×5=275'
+        },
+        {
+          q: 'Tổng 3+6+9+...+30 = ?',
+          opts: ['165', '150', '180', '135'],
+          ans: 0, ts: 390, vid: 'h1lHS_SGSjA',
+          note: 'n=10. Tổng=(3+30)×10÷2=33×5=165'
+        },
+        {
+          q: 'Tổng 100+99+98+...+91 = ?',
+          opts: ['955', '900', '1000', '910'],
+          ans: 0, ts: 420, vid: 'h1lHS_SGSjA',
+          note: 'n=10. Tổng=(100+91)×10÷2=191×5=955'
+        },
+        {
+          q: 'Biết tổng 1+2+3+...+n = 78. Tìm n.',
+          opts: ['12', '13', '11', '15'],
+          ans: 0, ts: 450, vid: 'h1lHS_SGSjA',
+          note: 'n(n+1)÷2=78 → n(n+1)=156. Thử n=12: 12×13=156 ✓'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 3 — Bài Tập Về Nhà',
+      tlPer: 15, bonus: 40,
+      qs: [
+        {
+          q: 'Tổng 1+2+3+...+50 = ?',
+          opts: ['1275', '1250', '1300', '1225'],
+          ans: 0, ts: 510, vid: 'h1lHS_SGSjA',
+          note: '(1+50)×50÷2=51×25=1275'
+        },
+        {
+          q: 'Tổng các số lẻ từ 1 đến 99: 1+3+5+...+99 = ?',
+          opts: ['2500', '2450', '2550', '5000'],
+          ans: 0, ts: 540, vid: 'h1lHS_SGSjA',
+          note: 'n=50. Tổng=(1+99)×50÷2=100×25=2500. Cũng bằng 50²=2500'
+        },
+        {
+          q: 'Tổng 2+4+6+...+200 = ?',
+          opts: ['10100', '10000', '10200', '9900'],
+          ans: 0, ts: 570, vid: 'h1lHS_SGSjA',
+          note: 'n=100. Tổng=(2+200)×100÷2=202×50=10100'
+        },
+        {
+          q: 'Tổng 2+4+6+...+2n = n×(n+1). Tìm n khi tổng = 110.',
+          opts: ['10', '11', '9', '12'],
+          ans: 0, ts: 600, vid: 'h1lHS_SGSjA',
+          note: 'n(n+1)=110. Thử n=10: 10×11=110 ✓'
+        },
+        {
+          q: 'Tổng n số lẻ đầu tiên = n². Tính 1+3+5+...+21 = ?',
+          opts: ['121', '110', '100', '132'],
+          ans: 0, ts: 630, vid: 'h1lHS_SGSjA',
+          note: '21=2×11−1 → có 11 số lẻ. Tổng = 11²=121'
+        },
+        {
+          q: 'Tổng dãy 3, 5, 7, ..., 51 = ?',
+          opts: ['675', '650', '700', '625'],
+          ans: 0, ts: 660, vid: 'h1lHS_SGSjA',
+          note: 'n=(51−3)÷2+1=25. Tổng=(3+51)×25÷2=54×25÷2=675'
+        },
+        {
+          q: 'Ngày 1: 100 lính, mỗi ngày giảm 5, đến khi còn 10. Tổng lính cộng dồn tất cả các ngày = ?',
+          opts: ['1045', '1000', '950', '1100'],
+          ans: 0, ts: 690, vid: 'h1lHS_SGSjA',
+          note: 'Dãy 100,95,...,10. n=(100−10)÷5+1=19. Tổng=(100+10)×19÷2=110×19÷2=1045'
+        }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+//   QUIZ DATA — Ải 7: Buổi 7 (Tổng dãy số ghép cặp - tiếp)
+// ═══════════════════════════════════════════════════════
+QUIZ_DATA[7] = {
+  title: 'Ải 7 — Cờ Lau Tập Trận',
+  emoji: '👑',
+  topic: 'Tổng dãy số — Nâng Cao',
+  sub: 'Đinh Bộ Lĩnh dùng cờ lau tập trận, tính binh lực',
+  tdAi: 13,
+  tang: [
+    {
+      name: 'Tầng 1 — Lý Thuyết',
+      tlPer: 10, bonus: 30,
+      qs: [
+        {
+          q: 'Tính nhanh 1+2+3+...+20 = ?',
+          opts: ['210', '200', '220', '190'],
+          ans: 0, ts: 30, vid: '69v3vUYp3U8',
+          note: '(1+20)×20÷2=21×10=210'
+        },
+        {
+          q: 'Tổng 11+12+13+...+20 = (tổng 1..20) − (tổng 1..10) = ?',
+          opts: ['155', '150', '160', '145'],
+          ans: 0, ts: 60, vid: '69v3vUYp3U8',
+          note: 'Tổng 1..20=210. Tổng 1..10=55. Hiệu: 210−55=155'
+        },
+        {
+          q: 'Tổng dãy 4+8+12+...+40 = ?',
+          opts: ['220', '200', '240', '180'],
+          ans: 0, ts: 90, vid: '69v3vUYp3U8',
+          note: 'n=10. Tổng=(4+40)×10÷2=44×5=220'
+        },
+        {
+          q: 'Tổng n số tự nhiên liên tiếp từ 1: n(n+1)÷2. Tính 1+2+...+15 = ?',
+          opts: ['120', '105', '135', '150'],
+          ans: 0, ts: 120, vid: '69v3vUYp3U8',
+          note: '15×16÷2=120'
+        },
+        {
+          q: 'Đinh Bộ Lĩnh xếp hàng tam giác: hàng 1: 1 người, hàng 2: 2, ..., hàng 7: 7. Tổng = ?',
+          opts: ['28', '21', '35', '14'],
+          ans: 0, ts: 150, vid: '69v3vUYp3U8',
+          note: '1+2+3+4+5+6+7=7×8÷2=28 người'
+        },
+        {
+          q: 'Tổng 1+2+3+...+n = 300. Tìm n.',
+          opts: ['24', '25', '20', '30'],
+          ans: 0, ts: 180, vid: '69v3vUYp3U8',
+          note: 'n(n+1)÷2=300 → n(n+1)=600. Thử n=24: 24×25=600 ✓'
+        },
+        {
+          q: 'Tổng 50+51+52+...+60 = ?',
+          opts: ['605', '550', '660', '600'],
+          ans: 0, ts: 210, vid: '69v3vUYp3U8',
+          note: 'n=11. Tổng=(50+60)×11÷2=110×11÷2=605'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 2 — Luyện Tập',
+      tlPer: 12, bonus: 35,
+      qs: [
+        {
+          q: 'Tổng các bội của 3 từ 3 đến 99 = ?',
+          opts: ['1683', '1650', '1700', '1600'],
+          ans: 0, ts: 260, vid: '69v3vUYp3U8',
+          note: 'n=(99−3)÷3+1=33. Tổng=(3+99)×33÷2=102×33÷2=1683'
+        },
+        {
+          q: 'Tính tổng 1+2+3+...+40 = ?',
+          opts: ['820', '800', '840', '780'],
+          ans: 0, ts: 300, vid: '69v3vUYp3U8',
+          note: '40×41÷2=820'
+        },
+        {
+          q: 'Tính 1+3+5+...+41 (dãy số lẻ). Biết tổng n số lẻ đầu = n². Kết quả = ?',
+          opts: ['441', '420', '400', '484'],
+          ans: 0, ts: 330, vid: '69v3vUYp3U8',
+          note: '41=2×21−1 → có 21 số lẻ. Tổng=21²=441'
+        },
+        {
+          q: '1+2+3+...+100 = 5050. Đúng hay sai?',
+          opts: ['Đúng, = 5050', 'Sai, = 4950', 'Sai, = 5000', 'Sai, = 5100'],
+          ans: 0, ts: 360, vid: '69v3vUYp3U8',
+          note: '(1+100)×100÷2=101×50=5050. Đây là bài toán nổi tiếng của Gauss!'
+        },
+        {
+          q: 'Tính nhanh: 1+2+3+...+(n−1)+n+(n−1)+...+2+1 = n². Khi n=15, tổng = ?',
+          opts: ['225', '210', '240', '120'],
+          ans: 0, ts: 390, vid: '69v3vUYp3U8',
+          note: 'Dãy lên rồi xuống qua n=15: tổng = 15²=225'
+        },
+        {
+          q: 'Tổng 2+5+8+...+59 = ?',
+          opts: ['610', '600', '620', '590'],
+          ans: 0, ts: 420, vid: '69v3vUYp3U8',
+          note: 'd=3, a=2. n=(59−2)÷3+1=20. Tổng=(2+59)×20÷2=61×10=610'
+        },
+        {
+          q: 'Tổng 1+2+3+...+99 bằng cách ghép cặp (1+99)+(2+98)+...+49+50 = ?',
+          opts: ['4950', '5050', '4900', '5000'],
+          ans: 0, ts: 450, vid: '69v3vUYp3U8',
+          note: '49 cặp mỗi cặp =100, cộng 50 đứng giữa: 49×100+50=4950'
+        }
+      ]
+    },
+    {
+      name: 'Tầng 3 — Bài Tập Về Nhà',
+      tlPer: 15, bonus: 40,
+      qs: [
+        {
+          q: 'Tổng 1+2+3+...+200 = ?',
+          opts: ['20100', '20000', '20200', '10100'],
+          ans: 0, ts: 510, vid: '69v3vUYp3U8',
+          note: '200×201÷2=100×201=20100'
+        },
+        {
+          q: '(Tổng số chẵn 2..100) − (Tổng số lẻ 1..99) = ?',
+          opts: ['50', '100', '0', '25'],
+          ans: 0, ts: 540, vid: '69v3vUYp3U8',
+          note: 'Chẵn: (2+100)×50÷2=2550. Lẻ: (1+99)×50÷2=2500. Hiệu: 2550−2500=50'
+        },
+        {
+          q: 'Tổng 1+2+3+...+n = 1225. Tìm n.',
+          opts: ['49', '50', '48', '45'],
+          ans: 0, ts: 570, vid: '69v3vUYp3U8',
+          note: 'n(n+1)÷2=1225 → n(n+1)=2450. Thử n=49: 49×50=2450 ✓'
+        },
+        {
+          q: 'Đinh Bộ Lĩnh: ải thứ k có (1+3×(k−1)) lính (dãy 1,4,7,10,...). Ải 12 có bao nhiêu lính?',
+          opts: ['34', '33', '37', '31'],
+          ans: 0, ts: 600, vid: '69v3vUYp3U8',
+          note: 'a₁₂=1+(12−1)×3=1+33=34 lính'
+        },
+        {
+          q: 'Tổng lính của 12 ải Đinh Bộ Lĩnh (dãy 1,4,7,...,34) = ?',
+          opts: ['210', '200', '220', '180'],
+          ans: 0, ts: 630, vid: '69v3vUYp3U8',
+          note: 'n=12. Tổng=(1+34)×12÷2=35×6=210'
+        },
+        {
+          q: 'Đội hình bậc thang: hàng k có (2k−1) viên. 10 hàng, tổng viên = 10² = ?',
+          opts: ['100', '90', '110', '55'],
+          ans: 0, ts: 660, vid: '69v3vUYp3U8',
+          note: 'Tổng n số lẻ đầu = n². 10 hàng: 1+3+5+...+19=10²=100'
+        },
+        {
+          q: 'Bài boss: Tính 1+2+3+...+49+50+49+...+2+1 = ?',
+          opts: ['2500', '2450', '2550', '5000'],
+          ans: 0, ts: 690, vid: '69v3vUYp3U8',
+          note: '2×(1+2+...+49)+50=2×(49×50÷2)+50=2×1225+50=2500=50²'
+        }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+//   STATE
+// ═══════════════════════════════════════════════════════
+let aiId    = 1;
+let tangIdx = 0;  // 0-based
+let qIdx    = 0;
+let correct = 0;
+let answered = false;
+let currentQ = null;
+let currentVid = null;
+let currentTs  = 0;
+
+const TANG_ICONS_CLASS = ['t1','t2','t3'];
+
+// ═══════════════════════════════════════════════════════
+//   TL HELPERS
+// ═══════════════════════════════════════════════════════
+function getTL(ai) {
+  return parseInt(localStorage.getItem(`cbToan_tl_ai${ai}`)) || 0;
+}
+function addTL(ai, amount) {
+  const cur = getTL(ai);
+  localStorage.setItem(`cbToan_tl_ai${ai}`, cur + amount);
+  updateHeaderTL();
+}
+function updateHeaderTL() {
+  document.getElementById('headerTL').textContent = getTL(aiId);
+  document.getElementById('tlTotalDisplay').textContent = getTL(aiId);
+}
+function isTangDone(ai, tang1based) {
+  return localStorage.getItem(`cbToan_ai${ai}_tang${tang1based}_done`) === '1';
+}
+function markTangDone(ai, tang1based) {
+  localStorage.setItem(`cbToan_ai${ai}_tang${tang1based}_done`, '1');
+}
+function getBestScore(ai, tang1based) {
+  return parseInt(localStorage.getItem(`cbToan_ai${ai}_tang${tang1based}_best`)) || 0;
+}
+function saveBestScore(ai, tang1based, score) {
+  const prev = getBestScore(ai, tang1based);
+  if (score > prev) localStorage.setItem(`cbToan_ai${ai}_tang${tang1based}_best`, score);
+}
+
+// ═══════════════════════════════════════════════════════
+//   INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  const params = new URLSearchParams(location.search);
+  aiId = parseInt(params.get('ai')) || 1;
+  const tang = parseInt(params.get('tang'));  // 1-based if provided
+
+  const data = QUIZ_DATA[aiId];
+  if (!data) { document.body.innerHTML = '<p style="color:#fff;padding:20px">Ải không tồn tại</p>'; return; }
+
+  // Populate banner
+  document.getElementById('headerTitle').textContent = `📚 ${data.title}`;
+  document.getElementById('aiBannerEmoji').textContent = data.emoji;
+  document.getElementById('aiBannerTitle').textContent = data.title;
+  document.getElementById('aiBannerSub').textContent   = data.sub;
+  document.getElementById('aiBannerTopic').textContent = data.topic;
+
+  updateHeaderTL();
+
+  if (tang >= 1 && tang <= data.tang.length) {
+    startTang(tang - 1);
+  } else {
+    showTierSelect();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//   TIER SELECTION
+// ═══════════════════════════════════════════════════════
+function showTierSelect() {
+  show('screenTier'); hide('screenQuestion'); hide('screenResult');
+  updateHeaderTL();
+
+  const data = QUIZ_DATA[aiId];
+  const list = document.getElementById('tangList');
+  list.innerHTML = '';
+
+  data.tang.forEach((t, i) => {
+    const t1 = i + 1;
+    const done = isTangDone(aiId, t1);
+    const best = getBestScore(aiId, t1);
+    const total = t.qs.length;
+    // Lock tầng 2 until tầng 1 done; lock tầng 3 until tầng 2 done
+    const locked = (i > 0) && !isTangDone(aiId, i);
+
+    const card = document.createElement('div');
+    card.className = `tang-card${done ? ' done' : ''}${locked ? ' locked' : ''}`;
+
+    const iconClass = done ? 'done-bg' : TANG_ICONS_CLASS[i];
+    const badgeClass = locked ? 'lock' : (done ? 'done' : 'new');
+    const badgeText = locked ? '🔒 Chưa mở' : (done ? '✓ Hoàn thành' : '→ Bắt đầu');
+    const scoreText = done ? `Điểm cao nhất: ${best}/${total}` : '';
+
+    card.innerHTML = `
+      <div class="tang-icon ${iconClass}">${done ? '✅' : t.icon}</div>
+      <div class="tang-info">
+        <div class="tang-name">${t.name}</div>
+        <div class="tang-desc">${t.desc}</div>
+        ${scoreText ? `<div class="tang-score">${scoreText}</div>` : ''}
+      </div>
+      <div class="tang-badge ${badgeClass}">${badgeText}</div>`;
+
+    if (!locked) {
+      card.addEventListener('click', () => startTang(i));
+    }
+    list.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//   QUIZ FLOW
+// ═══════════════════════════════════════════════════════
+function startTang(idx) {
+  tangIdx = idx;
+  qIdx = 0;
+  correct = 0;
+  hide('screenTier'); hide('screenResult'); show('screenQuestion');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const t = QUIZ_DATA[aiId].tang[tangIdx];
+  const q = t.qs[qIdx];
+  currentQ = q;
+  answered = false;
+
+  const total = t.qs.length;
+  const pct = Math.round((qIdx / total) * 100);
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Câu ${qIdx + 1} / ${total}`;
+  document.getElementById('progressTangName').textContent = t.name;
+  document.getElementById('qLabel').textContent = `CÂU ${qIdx + 1}`;
+  document.getElementById('qText').textContent = q.q;
+
+  const optsList = document.getElementById('optsList');
+  optsList.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.addEventListener('click', () => selectOption(i, btn));
+    optsList.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBar');
+  fb.className = 'feedback-bar';
+  document.getElementById('btnNext').style.display = 'none';
+  document.getElementById('btnVideo').style.display = 'none';
+}
+
+function selectOption(idx, btn) {
+  if (answered) return;
+  answered = true;
+
+  const q = currentQ;
+  const opts = document.querySelectorAll('.opt-btn');
+  opts.forEach(b => b.disabled = true);
+
+  const isCorrect = idx === q.ans;
+  if (isCorrect) correct++;
+
+  // Highlight
+  opts[q.ans].classList.add('correct');
+  if (!isCorrect) btn.classList.add('wrong');
+
+  // Feedback bar
+  const fb = document.getElementById('feedbackBar');
+  const fbIcon  = document.getElementById('fbIcon');
+  const fbTitle = document.getElementById('fbTitle');
+  const fbNote  = document.getElementById('fbNote');
+  const btnVid  = document.getElementById('btnVideo');
+
+  if (isCorrect) {
+    fb.className = 'feedback-bar fb-correct show';
+    fbIcon.textContent  = '✅';
+    fbTitle.textContent = 'Chính xác!';
+    fbNote.textContent  = q.note;
+    btnVid.style.display = 'none';
+  } else {
+    fb.className = 'feedback-bar fb-wrong show';
+    fbIcon.textContent  = '❌';
+    fbTitle.textContent = 'Chưa đúng rồi!';
+    fbNote.textContent  = q.note;
+    currentVid = q.vid;
+    currentTs  = q.ts;
+    btnVid.style.display = 'inline-block';
+  }
+
+  // Next button
+  const total = QUIZ_DATA[aiId].tang[tangIdx].qs.length;
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent = (qIdx + 1 < total) ? 'Câu tiếp theo →' : 'Xem kết quả 🏆';
+  btnNext.style.display = 'block';
+}
+
+function nextQuestion() {
+  const total = QUIZ_DATA[aiId].tang[tangIdx].qs.length;
+  qIdx++;
+  if (qIdx < total) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//   RESULT
+// ═══════════════════════════════════════════════════════
+function showResult() {
+  hide('screenQuestion'); show('screenResult');
+
+  const t = QUIZ_DATA[aiId].tang[tangIdx];
+  const total = t.qs.length;
+  const wrong = total - correct;
+  const pct = Math.round((correct / total) * 100);
+  const t1 = tangIdx + 1;
+
+  // TL earned
+  const tlBase  = correct * t.tlPer;
+  const tlBonus = (correct === total) ? t.bonus : 0;
+  const tlTotal = tlBase + tlBonus;
+
+  // Save
+  saveBestScore(aiId, t1, correct);
+  if (correct >= Math.ceil(total * 0.7)) markTangDone(aiId, t1);  // 70%+ = done
+  if (tlTotal > 0) addTL(aiId, tlTotal);
+
+  // Emoji & message
+  let emoji, title, sub;
+  if (pct === 100) { emoji = '🏆'; title = 'Xuất sắc!'; sub = 'Toàn đúng! Thầy Long tự hào!'; }
+  else if (pct >= 70) { emoji = '⭐'; title = 'Tốt lắm!'; sub = `${correct}/${total} câu đúng — Tiếp tục phát huy!`; }
+  else if (pct >= 50) { emoji = '💪'; title = 'Cố gắng thêm!'; sub = `${correct}/${total} câu đúng — Xem lại video nhé!`; }
+  else { emoji = '📖'; title = 'Cần ôn lại!'; sub = `${correct}/${total} câu đúng — Xem lại bài giảng là sẽ được!`; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent   = sub;
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent   = wrong;
+  document.getElementById('statPct').textContent     = pct + '%';
+  document.getElementById('tlEarnedVal').textContent = tlTotal;
+  document.getElementById('tlEarnedSub').textContent =
+    tlBonus > 0 ? `${tlBase} (đúng) + ${tlBonus} (thưởng điểm tuyệt đối) ⚡` : `${tlBase} Toán Lực ⚡`;
+
+  // Next tang button
+  const hasNext = (tangIdx + 1 < QUIZ_DATA[aiId].tang.length);
+  const nextBtn   = document.getElementById('btnNextTang');
+  const tdBtn     = document.getElementById('btnGiuNuocResult');
+  const isLastTier = !hasNext;
+
+  if (hasNext && isTangDone(aiId, t1)) {
+    const nextName = QUIZ_DATA[aiId].tang[tangIdx + 1].name;
+    nextBtn.textContent = `📖 ${nextName} →`;
+    nextBtn.style.display = 'block';
+    tdBtn.style.display = 'none';
+  } else if (isLastTier && QUIZ_DATA[aiId].tdAi) {
+    nextBtn.style.display = 'none';
+    tdBtn.style.display = 'block';
+  } else {
+    nextBtn.style.display = 'none';
+    tdBtn.style.display = 'none';
+  }
+}
+
+function goGiuNuocFromLearn() {
+  const tdAi = QUIZ_DATA[aiId]?.tdAi || 7;
+  window.location.href = `tower_defense.html?ai=${tdAi}`;
+}
+
+function goNextTang() {
+  if (tangIdx + 1 < QUIZ_DATA[aiId].tang.length) {
+    startTang(tangIdx + 1);
+  }
+}
+
+function retryTang() {
+  startTang(tangIdx);
+}
+
+// ═══════════════════════════════════════════════════════
+//   VIDEO POPUP
+// ═══════════════════════════════════════════════════════
+function openVideo() {
+  if (!currentVid) return;
+  const ts = currentTs || 0;
+  const src = `https://www.youtube.com/embed/${currentVid}?start=${ts}&autoplay=1&rel=0`;
+  document.getElementById('videoIframe').src = src;
+  document.getElementById('videoTimestamp').textContent = formatTime(ts);
+  document.getElementById('videoPopup').classList.add('show');
+}
+
+function closeVideo() {
+  document.getElementById('videoPopup').classList.remove('show');
+  document.getElementById('videoIframe').src = '';
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const ss = s % 60;
+  return `${m}:${ss.toString().padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//   NAVIGATION
+// ═══════════════════════════════════════════════════════
+function goBack() {
+  const s = document.getElementById('screenTier');
+  const q = document.getElementById('screenQuestion');
+  const r = document.getElementById('screenResult');
+  if (q.style.display !== 'none' || r.style.display !== 'none') {
+    showTierSelect();
+  } else {
+    // On tier select — go back to map
+    const mapUrl = 'map.html?ai=' + aiId;
+    if (window.Telegram?.WebApp?.initData) {
+      window.location.href = mapUrl;
+    } else {
+      window.history.length > 1 ? window.history.back() : (window.location.href = mapUrl);
+    }
+  }
+}
+
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+// Close video on backdrop click
+document.getElementById('videoPopup').addEventListener('click', function(e) {
+  if (e.target === this) closeVideo();
+});
+
+// ── Boot ──
+window.addEventListener('DOMContentLoaded', () => {
+  init();
+  _devToolInit();
+});
+
+// ═══════════════════════════════════════════════════════
+//   DEV TOOL — chỉ hiện khi URL có ?dev=1
+// ═══════════════════════════════════════════════════════
+function _devToolInit() {
+  if (new URLSearchParams(location.search).get('dev') !== '1') return;
+
+  /* Panel HTML */
+  const panel = document.createElement('div');
+  panel.id = 'devPanel';
+  panel.style.cssText = [
+    'position:fixed;bottom:12px;right:12px;z-index:9999',
+    'background:#0d0d18;border:1px solid #C8960C',
+    'border-radius:12px;padding:10px 12px;min-width:200px',
+    'font-family:monospace;font-size:12px;color:#C8960C',
+    'box-shadow:0 0 18px rgba(200,150,12,.35)'
+  ].join(';');
+
+  panel.innerHTML = `
+    <div style="font-weight:700;margin-bottom:8px;font-size:13px">
+      🔧 DEV — Ải <span id="devAiLabel"></span>
+    </div>
+    <div id="devState" style="color:#aaa;font-size:10px;margin-bottom:8px;line-height:1.6"></div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <button onclick="_devReset()" style="background:#3a1a0a;border:1px solid #C0332E;color:#ff8866;
+        padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:monospace">
+        🗑 Reset Ải này
+      </button>
+      <button onclick="_devSetTL(200)" style="background:#0a2a1a;border:1px solid #5ABCAA;color:#5ABCAA;
+        padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:monospace">
+        ⚡ Set TL = 200
+      </button>
+      <button onclick="_devUnlockAll()" style="background:#1a1a3a;border:1px solid #7777dd;color:#aaaaff;
+        padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:monospace">
+        🔓 Mở khoá cả 3 tầng
+      </button>
+      <button onclick="_devResetAll()" style="background:#1a0a0a;border:1px solid #666;color:#888;
+        padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:monospace">
+        💣 Reset TẤT CẢ ải
+      </button>
+    </div>
+  `;
+  document.body.appendChild(panel);
+  _devRefresh();
+}
+
+function _devRefresh() {
+  const lbl = document.getElementById('devAiLabel');
+  const st  = document.getElementById('devState');
+  if (!lbl || !st) return;
+  lbl.textContent = aiId;
+  const tl = localStorage.getItem(`cbToan_tl_ai${aiId}`) || '0';
+  const t1 = localStorage.getItem(`cbToan_ai${aiId}_tang1_done`) ? '✅' : '❌';
+  const t2 = localStorage.getItem(`cbToan_ai${aiId}_tang2_done`) ? '✅' : '❌';
+  const t3 = localStorage.getItem(`cbToan_ai${aiId}_tang3_done`) ? '✅' : '❌';
+  const b1 = localStorage.getItem(`cbToan_ai${aiId}_tang1_best`) || '-';
+  const b2 = localStorage.getItem(`cbToan_ai${aiId}_tang2_best`) || '-';
+  const b3 = localStorage.getItem(`cbToan_ai${aiId}_tang3_best`) || '-';
+  st.innerHTML =
+    `TL: <b style="color:#C8960C">${tl} ⚡</b><br>` +
+    `T1: ${t1} best=${b1} &nbsp; T2: ${t2} best=${b2}<br>T3: ${t3} best=${b3}`;
+}
+
+function _devReset() {
+  ['tang1_done','tang2_done','tang3_done','tang1_best','tang2_best','tang3_best'].forEach(k =>
+    localStorage.removeItem(`cbToan_ai${aiId}_${k}`)
+  );
+  localStorage.removeItem(`cbToan_tl_ai${aiId}`);
+  _devRefresh();
+  showTierSelect();
+  console.log(`[dev] Reset Ải ${aiId} xong`);
+}
+
+function _devSetTL(amount) {
+  localStorage.setItem(`cbToan_tl_ai${aiId}`, String(amount));
+  updateHeaderTL();
+  _devRefresh();
+  console.log(`[dev] Set TL Ải ${aiId} = ${amount}`);
+}
+
+function _devUnlockAll() {
+  for (let t = 1; t <= 3; t++) {
+    localStorage.setItem(`cbToan_ai${aiId}_tang${t}_done`, '1');
+  }
+  _devRefresh();
+  showTierSelect();
+  console.log(`[dev] Mở khoá cả 3 tầng Ải ${aiId}`);
+}
+
+function _devResetAll() {
+  if (!confirm('Reset TOÀN BỘ progress tất cả ải?')) return;
+  for (let ai = 1; ai <= 7; ai++) {
+    ['tang1_done','tang2_done','tang3_done','tang1_best','tang2_best','tang3_best'].forEach(k =>
+      localStorage.removeItem(`cbToan_ai${ai}_${k}`)
+    );
+    localStorage.removeItem(`cbToan_tl_ai${ai}`);
+  }
+  _devRefresh();
+  showTierSelect();
+  console.log('[dev] Reset TẤT CẢ xong');
+}
+</script>
+</body>
+</html>
