@@ -442,7 +442,7 @@ const skyCtx = skyCanvas.getContext('2d');
 // Dark bamboo green — matches map outer border
 scene.background = new THREE.Color(0x2d5a1b);
 
-scene.fog = new THREE.FogExp2(0x4a3a30, 0.008);
+// scene.fog removed — was causing orange/brown tint
 
 // ── ORTHOGRAPHIC CAMERA: square cells, map fills viewport ──
 // Camera frustum maps 1 world unit = same pixels in X and Z → cells are SQUARE always.
