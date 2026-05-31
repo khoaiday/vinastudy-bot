@@ -877,41 +877,7 @@ function buildMap() {
   backdrop.receiveShadow = true;
   scene.add(backdrop);
 
-  // ── DECORATION SCENERY ROW (bottom strip below grid) ──
-  // Place trees, rocks, banners in the strip z = ROWS .. ROWS + DECOR_ROW_HEIGHT
-  const decorRowZ = ROWS + DECOR_ROW_HEIGHT / 2;
-  const decorTypes = ['detail-tree', 'detail-tree-large', 'detail-rocks', 'detail-crystal'];
-  // Place ~16 decorations spread across the bottom row
-  for (let i = 0; i < 18; i++) {
-    const type = decorTypes[Math.floor(Math.random() * decorTypes.length)];
-    const decor = cloneModel(type);
-    if (!decor) continue;
-    // Spread X across the wider extended map area
-    const x = -3 + (i / 17) * (COLS + 6) + (Math.random() - 0.5) * 0.6;
-    const z = decorRowZ + (Math.random() - 0.5) * (DECOR_ROW_HEIGHT * 0.6);
-    decor.position.set(x, 0, z);
-    decor.rotation.y = Math.random() * Math.PI * 2;
-    decor.scale.setScalar(0.6 + Math.random() * 0.5);
-    scene.add(decor);
-  }
-  // (Top decoration line removed — grid top stays clean against viewport top)
-
-  // Spawn gate (left)
-  const spawnGate = cloneModel('spawn-round');
-  if (spawnGate) {
-    spawnGate.position.set(START.x + 0.5, 0.05, START.y + 0.5);
-    spawnGate.scale.setScalar(1.2);
-    spawnGate.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color(0x5ABCAA); o.material.emissiveIntensity = 0.5; }});
-    scene.add(spawnGate);
-  }
-  // Exit gate (right) — red
-  const exitGate = cloneModel('spawn-square');
-  if (exitGate) {
-    exitGate.position.set(EXIT.x + 0.5, 0.05, EXIT.y + 0.5);
-    exitGate.scale.setScalar(1.2);
-    exitGate.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color(0xC0332E); o.material.emissiveIntensity = 0.5; }});
-    scene.add(exitGate);
-  }
+  // Decorations removed — background image handles visual borders
 
   // Path glow line on the ground
   const pathPoints = [];
