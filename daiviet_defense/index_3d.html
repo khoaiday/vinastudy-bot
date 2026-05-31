@@ -493,10 +493,8 @@ window.addEventListener('resize', () => {
   composer.setSize(w, h);
 });
 
-// ── Post-processing — bloom removed (caused orange tint) ──
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new OutputPass());
+// No post-processing — render direct to avoid any color grading
+const composer = { render: () => renderer.render(scene, camera), setSize: () => {} };
 
 // Orbit controls — locked top-down, PAN only (zoom handled manually)
 const controls = new OrbitControls(camera, renderer.domElement);
