@@ -200,10 +200,11 @@
 <!-- ══ BUILD BAR BOTTOM (FR2 style) ══ -->
 <div id="buildBar" style="
   position:fixed;bottom:0;left:0;right:0;z-index:10;
-  display:flex;align-items:center;gap:0;
-  background:linear-gradient(0deg,rgba(10,6,14,0.9) 0%,rgba(18,10,28,0.85) 100%);
-  border-top:2px solid rgba(200,150,12,0.3);
+  display:flex;align-items:center;
+  background:transparent;
   padding:6px 8px;
+  padding-bottom:max(6px, env(safe-area-inset-bottom));
+  box-sizing:border-box;
 ">
   <!-- Play/Speed controls (left, like FR2) -->
   <div style="display:flex;flex-direction:column;gap:4px;margin-right:8px;">
