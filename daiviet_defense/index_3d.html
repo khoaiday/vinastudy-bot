@@ -927,7 +927,8 @@ function buildMap() {
 
   // Path glow line on the ground
   const pathPoints = [];
-  for (let c = 0; c < COLS; c++) pathPoints.push(new THREE.Vector3(c + 0.5, 0.05, START.y + 0.5));
+  // Include outside-grid entry (left) and exit (right → castle gate)
+  for (let c = -6; c < COLS + 7; c++) pathPoints.push(new THREE.Vector3(c + 0.5, 0.05, START.y + 0.5));
   const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
   const pathMat = new THREE.LineBasicMaterial({ color: 0xC8960C, transparent:true, opacity:0.5 });
   const pathLine = new THREE.Line(pathGeo, pathMat);
