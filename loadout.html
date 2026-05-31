@@ -271,10 +271,7 @@ body {
 }
 .bb-btn:active{transform:scale(0.96);}
 
-/* Slot circles */
-.bb-slots{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
-}
+/* Slot circles — now in separate row */
 .bb-slot{
   width:54px;height:54px;border-radius:50%;
   background:linear-gradient(135deg,#2A1E38,#1A1228);
@@ -368,9 +365,11 @@ body {
 
   <!-- BOTTOM BAR -->
   <div id="bottomBar">
-    <button class="bb-btn" id="btnBack" onclick="handleBack()">BACK</button>
-    <div class="bb-slots" id="bbSlots"></div>
-    <button class="bb-next" id="btnNext" onclick="handleNext()">NEXT</button>
+    <div class="bb-row-slots" id="bbSlots"></div>
+    <div class="bb-row-btns">
+      <button class="bb-btn" id="btnBack" onclick="handleBack()">BACK</button>
+      <button class="bb-next" id="btnNext" onclick="handleNext()" style="flex:1">NEXT</button>
+    </div>
   </div>
 
 </div>
