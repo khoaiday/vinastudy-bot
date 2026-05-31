@@ -840,8 +840,10 @@ function buildMap() {
   };
   _drawBg();
 
-  // ── GRID LINES (only inside playable area) ──
-  mctx.strokeStyle = 'rgba(30,60,20,0.4)';
+  // ── GRID & PATH OVERLAY (function so it can be called after bg loads) ──
+  function _drawGridOverlay() {
+
+  mctx.strokeStyle = 'rgba(30,60,20,0.35)';
   mctx.lineWidth = 1.5;
   for (let c = 0; c <= COLS; c++) {
     mctx.beginPath();
