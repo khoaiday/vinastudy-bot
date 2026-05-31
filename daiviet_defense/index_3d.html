@@ -802,8 +802,8 @@ function cloneModel(name) {
 function buildMap() {
   // ── 2D FLAT MAP TEXTURE (Fieldrunners style, EXTENDED to fill wide viewport) ──
   // Plane is wider than the playable grid so sides aren't empty.
-  const EXTEND_X = 3.0;   // extra units of sand on EACH side of the grid horizontally
-  const EXTEND_Z = 0.8;   // extra units top/bottom (minimal — grid touches top/bottom)
+  const EXTEND_X = 6.0;   // wider to cover viewport edges
+  const EXTEND_Z = 3.0;   // taller to cover viewport edges
   const PLANE_W = COLS + EXTEND_X * 2;
   const PLANE_H = ROWS + EXTEND_Z * 2;
 
