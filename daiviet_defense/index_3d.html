@@ -439,8 +439,8 @@ const scene = new THREE.Scene();
 const skyCanvas = document.createElement('canvas');
 skyCanvas.width = 2; skyCanvas.height = 256;
 const skyCtx = skyCanvas.getContext('2d');
-// Neutral dark background — no color tint
-scene.background = new THREE.Color(0x1a1a2e);
+// Match map border color so no visible gap
+scene.background = new THREE.Color(0x4a7a28);
 
 scene.fog = new THREE.FogExp2(0x4a3a30, 0.008);
 
