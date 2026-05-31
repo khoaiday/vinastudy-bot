@@ -1,3 +1,26 @@
+## [Claude] 2026-05-31 — Build loadout.html (GameMissionPrepForm)
+
+- `[x]` Tạo `loadout.html` — màn chuẩn bị xuất trận FR2-style
+  - `[x]` Tab 1 Chọn Tháp: 6 slots, 2 tháp mặc định free, 5 tháp mua bằng quiz coins
+  - `[x]` Tab 2 Tuyệt Chiêu: 3 items, Bom Thần luôn có, Đông Băng/Vàng Thêm cần tc1/tc2 hoặc quiz >80%
+  - `[x]` Chế độ Giữ Nước: chỉ 2 tháp mặc định, items bị khoá
+  - `[x]` Đọc state: `vs_coins_ai{N}`, `vs_quiz_pct_ai{N}`, `vs_tc1_ai{N}`, `vs_tc2_ai{N}`
+  - `[x]` Ghi state: `vs_loadout_towers`, `vs_loadout_items` trước khi vào tower_defense.html
+  - `[x]` Đăng ký route `/loadout` + `/loadout.html` trong web_server.py
+  - `[x]` Slot counter 6 chấm hiển thị tháp đã chọn
+  - `[x]` Logic `HasPlayerEquippedGoodTowers()`: cần ít nhất 1 tháp (mặc định đã có)
+
+---
+---
+
+## [Claude] 2026-05-31 — Sửa lỗi nhạc nền không tắt được (daiviet_defense/index_3d.html)
+
+- `[x]` Xác định nguyên nhân: `document.addEventListener('click', ...)` với `once: false` play lại nhạc mỗi lần click, override nút tắt
+- `[x]` Sửa: đổi `once: false` → `once: true` (dòng 1710) — listener chỉ kick nhạc lần đầu để bypass autoplay policy, không can thiệp sau đó
+
+---
+---
+
 ## [Claude] 2026-05-30 — Tích Hợp Backend: Game Progress + Auth + Leaderboard + Bot Notification
 
 - `[x]` 1. DB: thêm bảng `game_progress` (telegram_id, ai_num, score, stars, completed_at)

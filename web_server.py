@@ -150,6 +150,32 @@ async def tower_defense_page_no_ext():
     return await tower_defense_page()
 
 
+@app.get("/loadout.html", response_class=HTMLResponse)
+@app.get("/loadout", response_class=HTMLResponse)
+async def loadout_page():
+    """Màn chuẩn bị xuất trận — chọn tháp + tuyệt chiêu."""
+    p = BASE_DIR / "loadout.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+
+@app.get("/daiviet_defense/index_3d.html", response_class=HTMLResponse)
+async def daiviet_defense_3d():
+    """Game 3D Đại Việt Defender."""
+    p = BASE_DIR / "daiviet_defense" / "index_3d.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
+@app.get("/daiviet_defense/index.html", response_class=HTMLResponse)
+async def daiviet_defense_2d():
+    """Game 2D Đại Việt Defender."""
+    p = BASE_DIR / "daiviet_defense" / "index.html"
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("...", status_code=503)
+
 
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page():

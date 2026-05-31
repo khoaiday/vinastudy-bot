@@ -1707,7 +1707,7 @@ document.addEventListener('click', function startMusic() {
     bgm.volume = 0.5;
     bgm.play().then(() => { musicOn = true; document.getElementById('musicIcon').textContent = '🔊'; }).catch(() => {});
   }
-}, { once: false });
+}, { once: true });
 </script>
 </body>
 </html>
