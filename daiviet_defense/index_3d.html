@@ -587,7 +587,7 @@ const ambient = new THREE.AmbientLight(0xffffff, 0.8);
 scene.add(ambient);
 
 // Main sun — warm afternoon
-const sun = new THREE.DirectionalLight(0xfff0c8, 1.8);
+const sun = new THREE.DirectionalLight(0xffffff, 0.6);
 sun.position.set(10, 16, 4);
 sun.castShadow = true;
 sun.shadow.mapSize.width = 2048;
@@ -609,7 +609,7 @@ fill.position.set(-10, 8, -4);
 scene.add(fill);
 
 // Rim back-light — color accent
-const rim = new THREE.DirectionalLight(0xff9070, 0.3);
+const rim = new THREE.DirectionalLight(0xffffff, 0.1);
 rim.position.set(-8, 6, 12);
 scene.add(rim);
 
