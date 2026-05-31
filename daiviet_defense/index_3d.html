@@ -117,11 +117,20 @@
     const twa = Telegram.WebApp;
     twa.ready();
     twa.expand();
-    // Fullscreen API (Telegram 7.7+)
     if (twa.requestFullscreen) twa.requestFullscreen();
-    // Disable closing confirmation & vertical swipe
-    if (twa.disableClosingConfirmation) twa.disableClosingConfirmation();
     if (twa.disableVerticalSwipes) twa.disableVerticalSwipes();
+
+    // Tính toán offset header Telegram để HUD không bị che
+    const calcOffset = () => {
+      const stableH = twa.viewportStableHeight || window.innerHeight;
+      const offset  = Math.max(0, window.innerHeight - stableH);
+      document.documentElement.style.setProperty('--tg-header-offset', offset + 'px');
+    };
+    twa.onEvent('viewportChanged', calcOffset);
+    setTimeout(calcOffset, 300);
+  } else {
+    // Browser thường — không cần offset
+    document.documentElement.style.setProperty('--tg-header-offset', '0px');
   }
   // Block ALL touch scroll/overscroll — must be passive:false
   document.addEventListener('touchstart', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive:false });
