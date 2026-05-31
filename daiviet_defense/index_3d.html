@@ -1708,11 +1708,7 @@ function animate() {
   camera.lookAt(controls.target.x, 0, controls.target.z);
   camera.up.set(0, 0, -1);
 
-  // Animate mist
-  if (mistPlane) {
-    mistPlane.position.y = 0.6 + Math.sin(time * 0.3) * 0.1;
-    mistPlane.material.opacity = 0.06 + Math.sin(time * 0.5) * 0.02;
-  }
+  // mistPlane removed
 
   composer.render();
 }
