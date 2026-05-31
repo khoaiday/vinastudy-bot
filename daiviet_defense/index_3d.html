@@ -140,58 +140,159 @@
 <!-- Scene container -->
 <div id="scene"></div>
 
-<!-- HUD -->
-<div id="hud">
-  <div class="stat">❤️ HP: <span id="hpStat">30</span></div>
-  <div class="stat">💰 <span id="goldStat">350</span></div>
-  <div class="stat">🌊 Đợt: <span id="waveStat">0</span>/10</div>
-  <div id="hudTitle">ĐẠI VIỆT DEFENSE — 3D PROTOTYPE</div>
-  <div class="stat">⚔️ Kills: <span id="killStat">0</span></div>
+<!-- ══ HUD TOP ══ -->
+<div id="hud" style="
+  position:fixed;top:0;left:0;right:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 10px;pointer-events:none;
+">
+  <!-- Left: gold + settings -->
+  <div style="display:flex;align-items:center;gap:6px;pointer-events:auto;">
+    <div style="display:flex;align-items:center;gap:4px;
+      background:rgba(10,6,14,0.75);border:1px solid var(--primary);
+      border-radius:8px;padding:4px 10px;
+      font-family:var(--font-mono);font-size:15px;font-weight:700;color:#F5C842;">
+      💰 <span id="goldStat">350</span>
+    </div>
+    <button onclick="openPauseMenu()" style="
+      background:rgba(10,6,14,0.75);border:1px solid var(--border);
+      border-radius:8px;width:36px;height:36px;cursor:pointer;
+      font-size:18px;color:var(--text-muted);
+      display:flex;align-items:center;justify-content:center;">⚙️</button>
+  </div>
+
+  <!-- Center: wave + score -->
+  <div style="text-align:center;pointer-events:none;">
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--primary);font-weight:700;
+      background:rgba(10,6,14,0.75);border:1px solid rgba(200,150,12,0.3);
+      border-radius:8px;padding:4px 14px;">
+      <div style="font-size:16px;font-weight:700;color:#F5EED6;" id="scoreStat">0</div>
+      <div>Đợt <span id="waveStat">1</span> / <span id="maxWaveStat">15</span></div>
+    </div>
+  </div>
+
+  <!-- Right: airstrike + HP -->
+  <div style="display:flex;align-items:center;gap:6px;pointer-events:auto;">
+    <div style="display:flex;align-items:center;gap:4px;
+      background:rgba(10,6,14,0.75);border:1px solid rgba(90,100,200,0.5);
+      border-radius:8px;padding:4px 10px;
+      font-family:var(--font-mono);font-size:13px;color:#8AB4FF;">
+      ✈️ <span id="airStat">0</span>%
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;
+      background:rgba(10,6,14,0.75);border:1px solid rgba(192,51,46,0.5);
+      border-radius:8px;padding:4px 10px;
+      font-family:var(--font-mono);font-size:15px;font-weight:700;color:#FF6060;">
+      ❤️ <span id="hpStat">30</span>
+    </div>
+  </div>
 </div>
 
-<!-- Reset camera button -->
-<button id="resetCamBtn" onclick="resetCamera()" title="Reset Camera (R)" style="position:fixed;top:10px;right:90px;z-index:11;background:rgba(22,14,28,0.7);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;color:var(--primary);cursor:pointer;font-size:14px;">⟲</button>
+<!-- ══ BUILD BAR BOTTOM (FR2 style) ══ -->
+<div id="buildBar" style="
+  position:fixed;bottom:0;left:0;right:0;z-index:10;
+  display:flex;align-items:center;gap:0;
+  background:linear-gradient(0deg,rgba(10,6,14,0.9) 0%,rgba(18,10,28,0.85) 100%);
+  border-top:2px solid rgba(200,150,12,0.3);
+  padding:6px 8px;
+">
+  <!-- Play/Speed controls (left, like FR2) -->
+  <div style="display:flex;flex-direction:column;gap:4px;margin-right:8px;">
+    <button onclick="startNextWave()" id="playBtn" style="
+      background:rgba(220,160,0,0.2);border:2px solid var(--primary);
+      border-radius:8px;width:44px;height:44px;cursor:pointer;
+      font-size:20px;color:var(--primary);">▶</button>
+    <button onclick="toggleSpeed()" id="speedBtn" style="
+      background:rgba(10,6,14,0.6);border:1px solid var(--border);
+      border-radius:8px;width:44px;height:44px;cursor:pointer;
+      font-size:16px;color:var(--text-muted);" title="2x speed">⏩</button>
+  </div>
 
-<!-- Help button -->
-<button id="helpBtn" onclick="document.getElementById('helpPanel').classList.toggle('visible')">?</button>
-<div id="helpPanel">
-  <strong>🎮 Cách chơi:</strong><br>
-  • <kbd>Click</kbd> chọn tháp ở dưới<br>
-  • <kbd>Click ô đất</kbd> đặt tháp<br>
-  • <kbd>Click tháp đã đặt</kbd> nâng cấp / bán<br>
-  • <kbd>Phải chuột + kéo</kbd> xoay camera<br>
-  • <kbd>Lăn chuột</kbd> zoom in/out<br>
-  • <kbd>Phím space</kbd> bắt đầu wave<br>
-  <br>
-  <strong>🏰 Tháp:</strong> Arrow (nhanh), Cannon (AoE), Tesla (chain)
+  <!-- Tower circles (center, scrollable) -->
+  <div style="flex:1;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:0 4px;">
+    <div class="btn" data-tower="arrow" onpointerdown="onTowerPointerDown('arrow',event)" style="flex-shrink:0;width:64px;border-radius:50%;">
+      <span class="btn-icon">🏹</span>
+      <span class="btn-name" style="font-size:9px;">NỎ THẦN</span>
+      <span class="btn-cost">💰 50</span>
+    </div>
+    <div class="btn" data-tower="cannon" onpointerdown="onTowerPointerDown('cannon',event)" style="flex-shrink:0;width:64px;border-radius:50%;">
+      <span class="btn-icon">💣</span>
+      <span class="btn-name" style="font-size:9px;">PHÁO ĐỒNG</span>
+      <span class="btn-cost">💰 100</span>
+    </div>
+    <div class="btn" data-tower="tesla" onpointerdown="onTowerPointerDown('tesla',event)" style="flex-shrink:0;width:64px;border-radius:50%;">
+      <span class="btn-icon">⚡</span>
+      <span class="btn-name" style="font-size:9px;">LÔI THÁP</span>
+      <span class="btn-cost">💰 200</span>
+    </div>
+  </div>
+
+  <!-- Music button (right) -->
+  <div style="margin-left:8px;">
+    <button id="musicBtn" onclick="toggleMusic()" style="
+      background:rgba(200,150,12,0.15);border:1px solid var(--primary);
+      border-radius:8px;width:44px;height:44px;cursor:pointer;font-size:20px;">
+      <span id="musicIcon">🔊</span>
+    </button>
+  </div>
 </div>
 
-<!-- Build bar -->
-<div id="buildBar">
-  <div class="btn" data-tower="arrow" onpointerdown="onTowerPointerDown('arrow',event)">
-    <span class="btn-icon">🏹</span>
-    <span class="btn-name">NỎ THẦN</span>
-    <span class="btn-cost">💰 50</span>
-  </div>
-  <div class="btn" data-tower="cannon" onpointerdown="onTowerPointerDown('cannon',event)">
-    <span class="btn-icon">💣</span>
-    <span class="btn-name">PHÁO ĐỒNG</span>
-    <span class="btn-cost">💰 100</span>
-  </div>
-  <div class="btn" data-tower="tesla" onpointerdown="onTowerPointerDown('tesla',event)">
-    <span class="btn-icon">⚡</span>
-    <span class="btn-name">LÔI THÁP</span>
-    <span class="btn-cost">💰 200</span>
-  </div>
-  <div class="btn btn-play" id="playBtn" onclick="startNextWave()">
-    <span class="btn-icon">▶️</span>
-    <span class="btn-name">XUẤT QUÂN</span>
-  </div>
-  <div class="btn" id="musicBtn" onclick="toggleMusic()" style="background:rgba(200,150,12,0.15);border-color:var(--primary);">
-    <span class="btn-icon" id="musicIcon">🔊</span>
-    <span class="btn-name">NHẠC</span>
-  </div>
+<!-- ══ PAUSE MENU (FR2 style) ══ -->
+<div id="pauseMenu" style="
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(7,4,10,0.82);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;flex-direction:column;gap:12px;
+">
+  <div style="font-family:var(--font-title);font-size:22px;font-weight:700;
+    color:#F5C842;letter-spacing:2px;text-shadow:0 0 20px rgba(200,150,12,0.6);
+    margin-bottom:4px;" id="pauseTitle">ĐẠI VIỆT DEFENDER</div>
+  <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);
+    letter-spacing:3px;margin-bottom:16px;" id="pauseSub">ĐỢT 1 · CỔ LOA</div>
+
+  <button class="pmenu-btn" onclick="closePauseMenu()">▶ TIẾP TỤC</button>
+  <button class="pmenu-btn" onclick="restartGame()">↺ CHƠI LẠI</button>
+  <button class="pmenu-btn pmenu-exit" onclick="exitToMap()">✕ THOÁT VỀ BẢN ĐỒ</button>
 </div>
+
+<style>
+.pmenu-btn {
+  width:220px;padding:14px;
+  background:linear-gradient(135deg,#2A1A38,#1C1228);
+  border:2px solid var(--primary);border-radius:10px;
+  font-family:var(--font-title);font-size:16px;font-weight:700;
+  color:#F5C842;letter-spacing:1px;cursor:pointer;
+  box-shadow:0 0 12px rgba(200,150,12,0.2),0 3px 0 #3A2400;
+  transition:all .12s;
+}
+.pmenu-btn:active { transform:scale(0.97); box-shadow:none; }
+.pmenu-btn:hover  { background:linear-gradient(135deg,#3A2A48,#2C1E38); }
+.pmenu-exit { border-color:var(--secondary); color:#FF8080;
+  box-shadow:0 0 12px rgba(192,51,46,0.2),0 3px 0 #3A0000; }
+</style>
+
+<script>
+let _gamePaused = false;
+function openPauseMenu(){
+  _gamePaused = true;
+  const m = document.getElementById('pauseMenu');
+  m.style.display='flex';
+  const w = document.getElementById('waveStat');
+  if(w) document.getElementById('pauseSub').textContent = `ĐỢT ${w.textContent} · CỔ LOA`;
+}
+function closePauseMenu(){
+  _gamePaused = false;
+  document.getElementById('pauseMenu').style.display='none';
+}
+function restartGame(){ location.reload(); }
+function exitToMap(){ location.href='../map.html'; }
+function toggleSpeed(){
+  const btn = document.getElementById('speedBtn');
+  window._gameSpeed = window._gameSpeed === 2 ? 1 : 2;
+  btn.style.background = window._gameSpeed===2 ? 'rgba(200,150,12,0.25)' : 'rgba(10,6,14,0.6)';
+  btn.style.borderColor = window._gameSpeed===2 ? 'var(--primary)' : 'var(--border)';
+}
+window._gameSpeed = 1;
+</script>
 
 <!-- Background Music -->
 <audio id="bgm" loop preload="auto">
