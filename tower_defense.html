@@ -537,6 +537,72 @@
 </head>
 <body>
 
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="
+  position:fixed;inset:0;z-index:9999;
+  background:#07040A url('assets/loading-bg.jpg') center/cover no-repeat;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:60px;
+">
+  <div style="
+    background:rgba(7,4,10,0.75);border-radius:16px;
+    padding:20px 32px;text-align:center;
+    border:1px solid rgba(200,150,12,0.4);
+    backdrop-filter:blur(6px);
+  ">
+    <div style="font-family:'Philosopher',serif;font-size:22px;font-weight:700;
+      color:#F5C842;letter-spacing:2px;text-shadow:0 0 20px rgba(200,150,12,0.8);
+      margin-bottom:6px;">ĐẠI VIỆT DEFENDER</div>
+    <div style="font-family:'Lora',serif;font-size:13px;color:#C4B090;
+      font-style:italic;margin-bottom:16px;" id="loadingQuote">Đang chuẩn bị trận địa...</div>
+    <div style="width:220px;height:6px;background:rgba(255,255,255,0.1);
+      border-radius:3px;overflow:hidden;margin:0 auto;">
+      <div id="loadingBar" style="height:100%;width:0%;
+        background:linear-gradient(90deg,#C8960C,#F5C842);
+        border-radius:3px;transition:width 0.3s ease;
+        box-shadow:0 0 10px rgba(200,150,12,0.6);"></div>
+    </div>
+    <div id="loadingPct" style="font-family:'Roboto Mono',monospace;
+      font-size:11px;color:#8A7A60;margin-top:6px;">0%</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const quotes = [
+    "Dựng tháp phòng thủ...",
+    "Triệu tập quân lính...",
+    "Trang bị vũ khí...",
+    "Chuẩn bị trận địa...",
+    "Sắp sẵn tuyệt chiêu..."
+  ];
+  let pct = 0;
+  const bar = document.getElementById('loadingBar');
+  const pctEl = document.getElementById('loadingPct');
+  const quoteEl = document.getElementById('loadingQuote');
+  let qi = 0;
+  const iv = setInterval(()=>{
+    pct += Math.random()*18 + 8;
+    if(pct > 95) pct = 95;
+    bar.style.width = pct + '%';
+    pctEl.textContent = Math.round(pct) + '%';
+    qi = (qi+1) % quotes.length;
+    quoteEl.textContent = quotes[qi];
+  }, 350);
+  window._hideLoading = function(){
+    clearInterval(iv);
+    bar.style.width='100%';
+    pctEl.textContent='100%';
+    setTimeout(()=>{
+      const s = document.getElementById('loadingScreen');
+      s.style.transition='opacity 0.6s';
+      s.style.opacity='0';
+      setTimeout(()=>s.remove(), 600);
+    }, 300);
+  };
+})();
+</script>
+
     <!-- Header -->
     <div class="header">
         <div class="header-title-box">
