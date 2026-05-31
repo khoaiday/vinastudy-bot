@@ -1288,13 +1288,16 @@ function open_(buoi, title, path, el, ai, battle) {
 
 function goDungNuoc() {
   closeIntroModal();
-  window.location.href = `learn.html?ai=${currentBuoi}`;
+  const aiNode = _pending.ai || 7;
+  localStorage.setItem(`vs_mode_ai${aiNode}`, 'dungnuoc');
+  window.location.href = `battle.html?ai=${aiNode}`;
 }
 
 function goGiuNuoc() {
   closeIntroModal();
   const aiNode = _pending.ai || 7;
-  window.location.href = `tower_defense.html?ai=${aiNode}`;
+  localStorage.setItem(`vs_mode_ai${aiNode}`, 'giunuoc');
+  window.location.href = `loadout.html?ai=${aiNode}`;
 }
 
 function closeIntroModal() {
