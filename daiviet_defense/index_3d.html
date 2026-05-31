@@ -439,16 +439,8 @@ const scene = new THREE.Scene();
 const skyCanvas = document.createElement('canvas');
 skyCanvas.width = 2; skyCanvas.height = 256;
 const skyCtx = skyCanvas.getContext('2d');
-const skyGrad = skyCtx.createLinearGradient(0, 0, 0, 256);
-skyGrad.addColorStop(0,   '#2a3a55'); // deeper blue top
-skyGrad.addColorStop(0.4, '#8a6850'); // warm horizon
-skyGrad.addColorStop(0.7, '#5a3e2a'); // earth tone mid
-skyGrad.addColorStop(1,   '#2a1810'); // dark earth bottom
-skyCtx.fillStyle = skyGrad;
-skyCtx.fillRect(0, 0, 2, 256);
-const skyTex = new THREE.CanvasTexture(skyCanvas);
-scene.background = skyTex;
-scene.environment = skyTex; // use as env map for subtle reflections
+// Neutral dark background — no color tint
+scene.background = new THREE.Color(0x1a1a2e);
 
 scene.fog = new THREE.FogExp2(0x4a3a30, 0.008);
 
