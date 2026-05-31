@@ -1,3 +1,12 @@
+## [Claude] 2026-05-31 — Kết nối luồng map → Dựng Nước / Giữ Nước
+
+- `[x]` `goDungNuoc()`: lưu mode=dungnuoc → `battle.html?ai={N}` (quiz trước)
+- `[x]` `goGiuNuoc()`: lưu mode=giunuoc → `loadout.html?ai={N}` (thẳng vào loadout)
+- `[x]` Loading screen `tower_defense.html`: ảnh chiến binh + progress bar + fallback 4s
+
+---
+---
+
 ## [Claude] 2026-05-31 — Rebuild loadout.html clone FR2 layout chính xác
 
 - `[x]` List rows dọc scroll (không phải grid) — giống FR2
