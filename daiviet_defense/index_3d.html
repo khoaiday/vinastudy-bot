@@ -27,8 +27,8 @@
   #scene { touch-action:none; overflow:hidden; }
   * { overscroll-behavior:none; }
 
-  /* HUD */
-  #hud { position:fixed; top:0; left:0; right:0; z-index:10; padding:10px 16px;
+  /* HUD — rebuilt inline, keeping old rules for legacy */
+  #hud { position:fixed; top:0; left:0; right:0; z-index:10; padding:6px 10px;
     background:transparent; pointer-events:none;
     display:flex; gap:12px; align-items:center; font-family:var(--font-mono); }
   #hud > * { pointer-events:auto; }
