@@ -118,6 +118,9 @@
     twa.ready();
     twa.expand();
     if (twa.requestFullscreen) twa.requestFullscreen();
+    // Match header color to game background so X button blends in
+    if (twa.setHeaderColor) twa.setHeaderColor('#07040A');
+    if (twa.setBackgroundColor) twa.setBackgroundColor('#07040A');
     if (twa.disableVerticalSwipes) twa.disableVerticalSwipes();
 
     // Tính toán offset header Telegram để HUD không bị che
