@@ -14,7 +14,11 @@
     --font-title:'Philosopher',serif; --font-body:'Lora',serif; --font-mono:'Roboto Mono',monospace;
   }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; }
-  html,body { height:100%; overflow:hidden; background:var(--bg-void); color:var(--text-main); font-family:var(--font-body); }
+  html,body {
+    width:100%; height:100%; height:100dvh;
+    overflow:hidden; touch-action:none;
+    background:var(--bg-void); color:var(--text-main); font-family:var(--font-body);
+  }
   body { display:flex; flex-direction:column; }
 
   /* HUD */
