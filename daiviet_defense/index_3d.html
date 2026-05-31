@@ -572,7 +572,44 @@ function loadAsset(entry) {
 }
 
 async function loadAllAssets() {
-  await Promise.all(ASSETS_TO_LOAD.map(loadAsset));
+  // MVP: dùng BoxGeometry placeholder — load ngay, không cần GLB
+  // Tạo placeholder models cho tất cả assets
+  const COLORS = {
+    tile: 0x5A4A2A, 'tile-bump': 0x6B5A3A,
+    'tower-round-base': 0xB87333, 'tower-round-bottom-a': 0xC8960C,
+    'tower-round-bottom-b': 0xC8960C, 'tower-round-top-a': 0xD4A40E,
+    'tower-round-top-b': 0xD4A40E, 'tower-round-roof-a': 0xC0332E,
+    'tower-round-roof-b': 0xC0332E, 'tower-round-build-a': 0xB87333,
+    'tower-round-crystals': 0x3AAFA9,
+    'enemy-ufo-a': 0xFF4444, 'enemy-ufo-b': 0xFF6600, 'enemy-ufo-c': 0xFF0088,
+    'spawn-round': 0x444444, 'spawn-square': 0x444444,
+    'weapon-ammo-cannonball': 0x333333, 'weapon-ammo-bullet': 0x888888,
+    'weapon-ammo-arrow': 0xC8960C,
+    'detail-tree': 0x2D5A1B, 'detail-tree-large': 0x1E3D12,
+    'detail-rocks': 0x666666, 'detail-crystal': 0x3AAFA9,
+  };
+  for (const entry of ASSETS_TO_LOAD) {
+    const name = entry.name;
+    const color = COLORS[name] || 0x888888;
+    const geo = name.startsWith('tile') ? new THREE.BoxGeometry(1, 0.15, 1)
+              : name.startsWith('tower') ? new THREE.CylinderGeometry(0.25, 0.3, 0.8, 8)
+              : name.startsWith('enemy') ? new THREE.SphereGeometry(0.3, 8, 6)
+              : name.startsWith('detail-tree') ? new THREE.ConeGeometry(0.25, 0.8, 6)
+              : name.startsWith('weapon') ? new THREE.SphereGeometry(0.1, 6, 4)
+              : new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const mat = new THREE.MeshStandardMaterial({color, metalness:0.3, roughness:0.7});
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    const group = new THREE.Group(); group.add(mesh);
+    models[name] = group;
+    loadedCount++;
+    document.getElementById('loadingFill').style.width = (loadedCount / ASSETS_TO_LOAD.length * 100) + '%';
+    document.getElementById('loadingText').textContent = `Khởi tạo ${loadedCount}/${ASSETS_TO_LOAD.length}`;
+  }
+  // Try loading custom Đại Việt models in background (non-blocking)
+  ASSETS_TO_LOAD.filter(e => e.path.includes('custom')).forEach(entry => {
+    loadAsset(entry); // background load, swap when ready
+  });
   document.getElementById('loading').style.display = 'none';
   buildMap();
   animate();
