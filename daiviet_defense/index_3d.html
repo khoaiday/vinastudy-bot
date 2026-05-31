@@ -810,9 +810,17 @@ function buildMap() {
   const gridRightPx = gridLeftPx + COLS * cellPx;
   const gridBottomPx = gridTopPx + ROWS * cellPx;
 
-  // Sand fallback while image loads
-  mctx.fillStyle = '#7AAA44';
+  // Green fallback while image loads
+  mctx.fillStyle = '#5A9A32';
   mctx.fillRect(0, 0, TEX_W, TEX_H);
+
+  // Path row tint OUTSIDE grid (left entry lane)
+  mctx.fillStyle = 'rgba(200,170,100,0.4)';
+  mctx.fillRect(0, gridTopPx + START.y*cellPx, gridLeftPx, cellPx);
+
+  // Path row tint OUTSIDE grid (right exit lane → castle gate)
+  mctx.fillStyle = 'rgba(200,170,100,0.4)';
+  mctx.fillRect(gridRightPx, gridTopPx + START.y*cellPx, TEX_W - gridRightPx, cellPx);
 
   // Grid lines
   mctx.strokeStyle = 'rgba(40,80,20,0.4)';
