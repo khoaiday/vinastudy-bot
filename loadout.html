@@ -3,783 +3,652 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chuẩn Bị Xuất Trận — Đại Việt Defender</title>
+<title>Loadout</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Roboto+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary:     #C8960C;
-  --primary-glow:rgba(200,150,12,0.35);
-  --red:         #C0332E;
-  --red-glow:    rgba(192,51,46,0.35);
-  --copper:      #B87333;
-  --bg:          #07040A;
-  --bg2:         #110D16;
-  --text:        #F5EED6;
-  --muted:       #A08C70;
-  --locked:      #3A3040;
-  --locked-text: #6A5A70;
-  --success:     #5ABCAA;
-  --font-title:  'Philosopher', serif;
-  --font-body:   'Lora', serif;
-  --font-mono:   'Roboto Mono', monospace;
+  --gold:   #C8960C;
+  --gold2:  #F5C842;
+  --red:    #C0332E;
+  --bg:     #0A0608;
+  --panel:  #181018;
+  --row:    #1E1428;
+  --row2:   #160F20;
+  --border: #3A2A48;
+  --metal:  #2A1E38;
+  --text:   #F5EED6;
+  --sub:    #9A8A70;
+  --locked: #3A2A48;
+  --lt:     #5A4A60;
+  --success:#5ABCAA;
+  --ft: 'Philosopher', serif;
+  --fm: 'Roboto Mono', monospace;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body {
-  width: 100%; height: 100%; overflow: hidden;
-  background: var(--bg); color: var(--text);
-  font-family: var(--font-body); font-size: 14px;
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--fm);}
+
+#app{
+  width:100vw;height:100vh;height:100dvh;
+  max-width:480px;margin:0 auto;
+  display:flex;flex-direction:column;overflow:hidden;
+  background: linear-gradient(180deg,#130A1A 0%,#0A0608 100%);
 }
 
-/* ── LAYOUT ── */
-#app {
-  display: flex; flex-direction: column;
-  width: 100%; height: 100vh; height: 100dvh;
-  max-width: 480px; margin: 0 auto;
+/* ── TOP BAR ── */
+#topBar{
+  flex-shrink:0;
+  background:linear-gradient(180deg,#2A1535 0%,#1A0D28 50%,#120A1C 100%);
+  border-bottom:2px solid var(--border);
+  padding:7px 10px 6px;
+  display:flex;align-items:center;gap:8px;
+}
+.screen-title-badge{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#3A2040 0%,#28163A 100%);
+  border:2px solid var(--gold);
+  border-radius:6px;padding:4px 12px;
+  font-family:var(--ft);font-size:15px;font-weight:700;
+  color:var(--gold2);letter-spacing:1px;
+  box-shadow:0 0 8px rgba(200,150,12,0.3),inset 0 1px 0 rgba(255,255,255,0.05);
+  text-shadow:0 0 10px rgba(200,150,12,0.5);
+}
+.top-mission{
+  flex:1;overflow:hidden;
+  display:flex;flex-direction:column;gap:1px;
+}
+.top-ai{font-size:9px;color:var(--sub);letter-spacing:1.5px;text-transform:uppercase;}
+.top-boss{
+  display:flex;align-items:center;gap:4px;
+  font-size:11px;color:var(--text);font-family:var(--ft);
+}
+.top-coins{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#2A1A00,#1A1000);
+  border:1px solid var(--gold);border-radius:5px;
+  padding:3px 8px;font-size:12px;color:var(--gold2);
+  display:flex;align-items:center;gap:4px;
+  box-shadow:0 0 6px rgba(200,150,12,0.2);
+}
+.top-coins.hidden{display:none;}
+
+/* ── SLIDES ── */
+#slides{flex:1;overflow:hidden;position:relative;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+}
+#s1{transform:translateX(0);}
+#s2{transform:translateX(100%);}
+#slides.s2 #s1{transform:translateX(-100%);}
+#slides.s2 #s2{transform:translateX(0);}
+
+/* ── LIST AREA ── */
+.list-area{
+  flex:1;overflow-y:auto;
+  padding:6px 0;
+}
+.list-area::-webkit-scrollbar{display:none;}
+
+/* Tower / Item Row */
+.list-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;
+  border-bottom:1px solid rgba(58,42,72,0.5);
+  cursor:pointer;user-select:none;
+  transition:background .12s;
+  position:relative;
+  min-height:64px;
+}
+.list-row:active{background:rgba(200,150,12,0.06);}
+.list-row.selected{
+  background:linear-gradient(90deg,rgba(200,150,12,0.12) 0%,rgba(200,150,12,0.04) 100%);
+  border-left:3px solid var(--gold);
+}
+.list-row.selected-default{
+  background:linear-gradient(90deg,rgba(90,188,170,0.1) 0%,rgba(90,188,170,0.03) 100%);
+  border-left:3px solid var(--success);
+}
+.list-row.locked{
+  opacity:0.5;cursor:not-allowed;
+  background:rgba(20,12,28,0.5);
+}
+.list-row.giunuoc-locked{
+  opacity:0.4;cursor:not-allowed;
 }
 
-/* ── HEADER ── */
-#header {
-  background: linear-gradient(135deg, #1A0A0A 0%, #0D0510 100%);
-  border-bottom: 2px solid var(--red);
-  padding: 10px 14px 8px;
-  flex-shrink: 0;
+/* Icon circle */
+.row-icon{
+  flex-shrink:0;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#2E1E42,#1C1228);
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;position:relative;
+  box-shadow:0 2px 8px rgba(0,0,0,0.5);
 }
-.header-top {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 4px;
+.list-row.selected .row-icon{
+  border-color:var(--gold);
+  box-shadow:0 0 10px var(--gold),0 0 20px rgba(200,150,12,0.2);
 }
-.ai-badge {
-  background: var(--red); color: var(--text);
-  font-family: var(--font-title); font-size: 11px; font-weight: 700;
-  padding: 2px 8px; border-radius: 3px; letter-spacing: 1px;
+.list-row.selected-default .row-icon{
+  border-color:var(--success);
+  box-shadow:0 0 10px var(--success),0 0 20px rgba(90,188,170,0.2);
 }
-.coins-badge {
-  display: flex; align-items: center; gap: 5px;
-  background: rgba(200,150,12,0.15); border: 1px solid var(--primary);
-  border-radius: 20px; padding: 3px 10px;
-  font-family: var(--font-mono); font-size: 13px; color: var(--primary);
+.icon-cost{
+  position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
+  background:#1A0D00;border:1px solid var(--gold);
+  border-radius:8px;padding:0 5px;
+  font-size:9px;color:var(--gold2);font-weight:700;
+  white-space:nowrap;
 }
-.ai-title {
-  font-family: var(--font-title); font-size: 18px; font-weight: 700;
-  color: var(--text); line-height: 1.2;
-}
-.ai-subtitle {
-  font-size: 11px; color: var(--muted); font-style: italic; margin-top: 1px;
-}
-.boss-preview {
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(192,51,46,0.1); border: 1px solid rgba(192,51,46,0.3);
-  border-radius: 6px; padding: 4px 8px; margin-top: 6px;
-  font-size: 12px; color: var(--muted);
-}
-.boss-preview .boss-emoji { font-size: 18px; }
-.boss-preview .boss-info { line-height: 1.3; }
-.boss-preview .boss-name { color: var(--red); font-family: var(--font-title); font-size: 13px; }
-
-/* Mode badge */
-.mode-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 11px; padding: 2px 8px; border-radius: 3px;
-  font-family: var(--font-mono); letter-spacing: 0.5px; margin-top: 4px;
-}
-.mode-badge.dungnuoc { background: rgba(90,188,170,0.15); border: 1px solid var(--success); color: var(--success); }
-.mode-badge.giunuoc  { background: rgba(192,51,46,0.15);  border: 1px solid var(--red);     color: var(--red); }
-
-/* ── TABS ── */
-#tabs {
-  display: flex; border-bottom: 1px solid rgba(200,150,12,0.2);
-  flex-shrink: 0; background: var(--bg2);
-}
-.tab-btn {
-  flex: 1; padding: 10px 4px; background: none; border: none; cursor: pointer;
-  font-family: var(--font-title); font-size: 13px; color: var(--muted);
-  border-bottom: 2px solid transparent; transition: all .2s;
-  letter-spacing: 0.5px;
-}
-.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-.tab-btn .tab-count {
-  display: inline-block; background: rgba(200,150,12,0.2);
-  border-radius: 10px; padding: 1px 6px; font-size: 11px; margin-left: 4px;
-}
-.tab-btn.active .tab-count { background: rgba(200,150,12,0.4); }
-
-/* ── CONTENT AREA ── */
-#content {
-  flex: 1; overflow-y: auto; padding: 12px;
-  -webkit-overflow-scrolling: touch;
-}
-#content::-webkit-scrollbar { display: none; }
-
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ── SECTION LABEL ── */
-.section-label {
-  font-family: var(--font-title); font-size: 12px;
-  color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase;
-  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-}
-.section-label::after {
-  content: ''; flex: 1; height: 1px; background: rgba(200,150,12,0.2);
+.icon-cost.free{border-color:var(--success);color:var(--success);}
+.icon-lock{
+  position:absolute;inset:0;border-radius:50%;
+  background:rgba(10,6,14,0.6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
 }
 
-/* ── TOWER GRID ── */
-.tower-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-  margin-bottom: 16px;
+/* Row info */
+.row-info{flex:1;overflow:hidden;}
+.row-name{
+  font-family:var(--ft);font-size:14px;font-weight:700;
+  color:var(--gold2);letter-spacing:0.5px;
+  margin-bottom:2px;
 }
-.tower-card {
-  position: relative; border-radius: 10px; cursor: pointer;
-  border: 2px solid rgba(184,115,51,0.3);
-  background: linear-gradient(160deg, #180D20 0%, #0F0A14 100%);
-  padding: 10px 8px; text-align: center;
-  transition: all .2s; user-select: none;
-}
-.tower-card:active { transform: scale(0.96); }
-.tower-card.selected {
-  border-color: var(--primary);
-  background: linear-gradient(160deg, #2A1E06 0%, #1A1206 100%);
-  box-shadow: 0 0 12px var(--primary-glow);
-}
-.tower-card.locked {
-  border-color: var(--locked); background: var(--locked);
-  cursor: not-allowed; opacity: 0.7;
-}
-.tower-card.locked * { color: var(--locked-text) !important; }
-.tower-card.default-tower {
-  border-color: rgba(90,188,170,0.4);
-}
-.tower-card.default-tower.selected {
-  border-color: var(--success);
-  box-shadow: 0 0 10px rgba(90,188,170,0.3);
+.list-row.selected-default .row-name{color:var(--success);}
+.list-row.locked .row-name,.list-row.giunuoc-locked .row-name{color:var(--lt);}
+.row-desc{font-size:11px;color:var(--sub);line-height:1.4;}
+.list-row.locked .row-desc,.list-row.giunuoc-locked .row-desc{color:var(--locked);}
+.row-tags{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;}
+.tag{
+  font-size:9px;padding:1px 5px;border-radius:3px;
+  background:rgba(58,42,72,0.6);color:var(--sub);border:1px solid rgba(58,42,72,0.8);
 }
 
-.tower-emoji { font-size: 28px; margin-bottom: 4px; display: block; }
-.tower-name {
-  font-family: var(--font-title); font-size: 11px;
-  color: var(--text); line-height: 1.3; min-height: 28px;
-  display: flex; align-items: center; justify-content: center;
+/* Row price (right) */
+.row-price{
+  flex-shrink:0;text-align:right;
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
 }
-.tower-price {
-  font-family: var(--font-mono); font-size: 11px;
-  margin-top: 4px; color: var(--primary);
+.price-badge{
+  background:linear-gradient(135deg,#2A1A00,#1A1000);
+  border:1px solid var(--gold);border-radius:6px;
+  padding:4px 8px;font-size:12px;font-weight:700;
+  color:var(--gold2);white-space:nowrap;
+  box-shadow:0 0 6px rgba(200,150,12,0.2);
+  display:flex;align-items:center;gap:3px;
 }
-.tower-price.free { color: var(--success); }
-.tower-price.locked { color: var(--locked-text); }
-.tower-dps {
-  font-size: 10px; color: var(--muted); margin-top: 2px;
+.price-badge.selected-badge{
+  background:linear-gradient(135deg,#0A1A0E,#051008);
+  border-color:var(--success);color:var(--success);
+  box-shadow:0 0 6px rgba(90,188,170,0.2);
 }
+.price-badge.cant-badge{
+  background:rgba(20,12,28,0.6);border-color:var(--locked);
+  color:var(--lt);box-shadow:none;
+}
+.check-mark{font-size:16px;color:var(--gold);}
+.list-row.selected-default .check-mark{color:var(--success);}
 
-/* Selected checkmark */
-.tower-card .check {
-  position: absolute; top: 4px; right: 5px;
-  font-size: 14px; display: none;
+/* Giữ Nước banner */
+.gn-banner{
+  margin:10px;border-radius:10px;
+  background:rgba(192,51,46,0.1);border:1px solid rgba(192,51,46,0.3);
+  padding:14px;text-align:center;
 }
-.tower-card.selected .check { display: block; color: var(--primary); }
-.tower-card.default-tower.selected .check { color: var(--success); }
-
-/* Slot counter */
-.slot-counter {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  margin-bottom: 10px;
-}
-.slot-dot {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 2px solid rgba(200,150,12,0.3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--muted); background: var(--bg2);
-  transition: all .2s;
-}
-.slot-dot.filled {
-  border-color: var(--primary); background: rgba(200,150,12,0.15);
-  color: var(--primary);
-}
-.slot-dot.filled-default {
-  border-color: var(--success); background: rgba(90,188,170,0.1);
-}
-
-/* ── ITEMS GRID ── */
-.items-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-  margin-bottom: 16px;
-}
-.item-card {
-  position: relative; border-radius: 12px; cursor: pointer;
-  border: 2px solid rgba(184,115,51,0.3);
-  background: linear-gradient(160deg, #180D20 0%, #0F0A14 100%);
-  padding: 14px 8px; text-align: center;
-  transition: all .2s; user-select: none;
-}
-.item-card:active { transform: scale(0.96); }
-.item-card.selected {
-  border-color: var(--primary);
-  background: linear-gradient(160deg, #2A1E06 0%, #1A1206 100%);
-  box-shadow: 0 0 14px var(--primary-glow);
-}
-.item-card.locked {
-  border-color: var(--locked); background: var(--locked);
-  cursor: not-allowed;
-}
-.item-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
-.item-name {
-  font-family: var(--font-title); font-size: 12px; color: var(--text);
-  line-height: 1.3; min-height: 30px;
-  display: flex; align-items: center; justify-content: center;
-}
-.item-desc { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
-.item-card.locked .item-name,
-.item-card.locked .item-desc { color: var(--locked-text); }
-.lock-icon {
-  position: absolute; top: 6px; right: 6px; font-size: 14px;
-}
-.item-card .check {
-  position: absolute; top: 5px; right: 6px;
-  font-size: 14px; color: var(--primary); display: none;
-}
-.item-card.selected .check { display: block; }
-.item-card.locked .check { display: none; }
+.gn-banner-title{font-family:var(--ft);font-size:15px;color:var(--red);margin-bottom:6px;}
+.gn-banner-desc{font-size:11px;color:var(--sub);line-height:1.7;}
 
 /* Unlock hint */
-.unlock-hint {
-  background: rgba(192,51,46,0.1); border: 1px solid rgba(192,51,46,0.2);
-  border-radius: 8px; padding: 10px 12px; font-size: 11px;
-  color: var(--muted); line-height: 1.6; text-align: center;
+.unlock-hint{
+  margin:6px 10px 0;padding:9px 12px;
+  background:rgba(192,51,46,0.07);border:1px solid rgba(192,51,46,0.2);
+  border-radius:8px;font-size:11px;color:var(--sub);line-height:1.7;
+  text-align:center;
 }
-.unlock-hint strong { color: var(--primary); }
-
-/* Info box */
-.info-box {
-  background: rgba(200,150,12,0.07); border: 1px solid rgba(200,150,12,0.2);
-  border-radius: 8px; padding: 10px 12px; font-size: 11px;
-  color: var(--muted); line-height: 1.6; margin-bottom: 12px;
-}
-.info-box strong { color: var(--primary); }
-
-/* Stats mini */
-.tower-stats-row {
-  display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;
-  margin-top: 4px;
-}
-.stat-pill {
-  background: rgba(200,150,12,0.1); border: 1px solid rgba(200,150,12,0.2);
-  border-radius: 10px; padding: 1px 5px; font-size: 9px;
-  font-family: var(--font-mono); color: var(--muted);
-}
+.unlock-hint strong{color:var(--gold2);}
 
 /* ── BOTTOM BAR ── */
-#bottom {
-  background: var(--bg2); border-top: 1px solid rgba(200,150,12,0.2);
-  padding: 10px 12px; flex-shrink: 0;
-  display: flex; gap: 8px; align-items: center;
+#bottomBar{
+  flex-shrink:0;z-index:10;
+  background:linear-gradient(0deg,#1A0D28 0%,#120A1C 100%);
+  border-top:2px solid var(--border);
+  padding:8px 10px;
+  display:flex;align-items:center;gap:8px;
 }
-#btn-back {
-  background: transparent; border: 1px solid rgba(184,115,51,0.4);
-  color: var(--muted); font-family: var(--font-title); font-size: 14px;
-  padding: 10px 14px; border-radius: 8px; cursor: pointer;
-  flex-shrink: 0;
+.bb-btn{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#2A1A38,#1C1228);
+  border:2px solid var(--border);color:var(--sub);
+  font-family:var(--ft);font-size:14px;font-weight:700;
+  padding:10px 14px;border-radius:8px;cursor:pointer;
+  letter-spacing:0.5px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:all .12s;
 }
-#btn-start {
-  flex: 1; background: linear-gradient(135deg, #9B2020 0%, #C0332E 100%);
-  border: none; color: var(--text); font-family: var(--font-title);
-  font-size: 16px; font-weight: 700; padding: 12px;
-  border-radius: 8px; cursor: pointer; letter-spacing: 1px;
-  box-shadow: 0 4px 16px rgba(192,51,46,0.4);
-  transition: all .2s;
-}
-#btn-start:active { transform: scale(0.98); }
-#btn-start:disabled {
-  background: var(--locked); color: var(--locked-text);
-  box-shadow: none; cursor: not-allowed;
-}
+.bb-btn:active{transform:scale(0.96);}
 
-/* ── GIUNUOC BANNER ── */
-.giunuoc-banner {
-  background: linear-gradient(135deg, rgba(192,51,46,0.15) 0%, rgba(184,115,51,0.1) 100%);
-  border: 1px solid rgba(192,51,46,0.3); border-radius: 10px;
-  padding: 12px; text-align: center; margin-bottom: 14px;
+/* Slot circles */
+.bb-slots{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
 }
-.giunuoc-banner .g-title {
-  font-family: var(--font-title); font-size: 15px;
-  color: var(--red); margin-bottom: 4px;
+.bb-slot{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,#2A1E38,#1A1228);
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;position:relative;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:all .15s;
 }
-.giunuoc-banner .g-desc {
-  font-size: 11px; color: var(--muted); line-height: 1.6;
+.bb-slot.active{
+  border-color:var(--gold);
+  box-shadow:0 0 8px rgba(200,150,12,0.4),inset 0 1px 0 rgba(255,255,255,0.06);
+  background:linear-gradient(135deg,#2A1A00,#1A1000);
 }
+.bb-slot.active-default{
+  border-color:var(--success);
+  box-shadow:0 0 8px rgba(90,188,170,0.4);
+  background:linear-gradient(135deg,#0A1E18,#061210);
+}
+.bb-slot-price{
+  position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  background:#0A0608;border:1px solid var(--gold);
+  border-radius:6px;padding:0 4px;
+  font-size:8px;color:var(--gold2);font-weight:700;white-space:nowrap;
+}
+.bb-slot-price.free-p{border-color:var(--success);color:var(--success);}
+
+.bb-next{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#7A1A08,#A02010,#C0332E);
+  border:2px solid #E05040;color:var(--text);
+  font-family:var(--ft);font-size:15px;font-weight:700;
+  padding:10px 16px;border-radius:8px;cursor:pointer;
+  letter-spacing:0.5px;
+  box-shadow:0 0 12px rgba(192,51,46,0.4),0 3px 0 #6A0E04,inset 0 1px 0 rgba(255,255,255,0.1);
+  text-shadow:0 1px 3px rgba(0,0,0,0.5);
+  transition:all .12s;
+}
+.bb-start{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#5C3800,#8A5A00,#C8960C);
+  border:2px solid #E0B030;color:#07040A;
+  font-family:var(--ft);font-size:15px;font-weight:700;
+  padding:10px 16px;border-radius:8px;cursor:pointer;
+  letter-spacing:0.5px;
+  box-shadow:0 0 14px rgba(200,150,12,0.5),0 3px 0 #3A2400,inset 0 1px 0 rgba(255,255,255,0.15);
+  text-shadow:0 1px 2px rgba(0,0,0,0.3);
+  transition:all .12s;
+}
+.bb-next:active,.bb-start:active{transform:scale(0.97);box-shadow:none;}
 
 /* Toast */
-#toast {
-  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
-  background: rgba(30,20,40,0.95); border: 1px solid var(--primary);
-  border-radius: 20px; padding: 8px 16px; font-size: 12px;
-  color: var(--text); opacity: 0; transition: all .3s; z-index: 999;
-  pointer-events: none; white-space: nowrap;
+#toast{
+  position:fixed;bottom:72px;left:50%;
+  transform:translateX(-50%) translateY(6px);
+  background:rgba(18,10,26,0.96);border:1px solid var(--gold);
+  border-radius:16px;padding:6px 14px;font-size:12px;
+  color:var(--text);opacity:0;transition:all .22s;z-index:999;
+  pointer-events:none;white-space:nowrap;
 }
-#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- HEADER -->
-  <div id="header">
-    <div class="header-top">
-      <span class="ai-badge" id="aiBadge">ẢI 7</span>
-      <div class="coins-badge" id="coinsDisplay">
-        <span>💰</span><span id="coinsVal">0</span><span style="font-size:10px;color:var(--muted)">xu học</span>
-      </div>
+
+  <!-- TOP BAR -->
+  <div id="topBar">
+    <div class="screen-title-badge" id="screenTitle">THÁP</div>
+    <div class="top-mission">
+      <div class="top-ai" id="topAi">ẢI 7 · CỔ LOA</div>
+      <div class="top-boss"><span id="topBossEmoji">🐓</span> <span id="topBossName">Bạch Kê Tinh</span></div>
     </div>
-    <div class="ai-title" id="aiTitle">Bí Ẩn Cổ Loa</div>
-    <div class="ai-subtitle" id="aiSubtitle">Thành Cổ Loa · ~257 TCN</div>
-    <div class="boss-preview">
-      <span class="boss-emoji" id="bossEmoji">🐓</span>
-      <div class="boss-info">
-        <div class="boss-name" id="bossName">Bạch Kê Tinh</div>
-        <div style="font-size:10px" id="bossTitle">Tinh Gà Trắng — Phong Ấn Tri Thức Số Học</div>
-      </div>
-    </div>
-    <div id="modeBadge" class="mode-badge dungnuoc">🏗️ DỰNG NƯỚC</div>
+    <div class="top-coins" id="topCoins">💰 <span id="coinsVal">0</span></div>
   </div>
 
-  <!-- TABS -->
-  <div id="tabs">
-    <button class="tab-btn active" onclick="switchTab('towers')">
-      ⚔️ Chọn Tháp <span class="tab-count" id="towerCount">2/6</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('items')">
-      ✨ Tuyệt Chiêu <span class="tab-count" id="itemCount">0/3</span>
-    </button>
-  </div>
+  <!-- SLIDES -->
+  <div id="slides">
 
-  <!-- CONTENT -->
-  <div id="content">
-
-    <!-- TAB: TOWERS -->
-    <div class="tab-panel active" id="panel-towers">
-
-      <!-- Slot indicator -->
-      <div class="slot-counter" id="slotCounter"></div>
-
-      <div class="section-label">Tháp mặc định</div>
-      <div class="tower-grid" id="defaultTowers"></div>
-
-      <div class="section-label">Mua thêm bằng xu học</div>
-      <div class="info-box">
-        Xu học kiếm từ bài tập quiz. <strong id="coinsLeft">0 xu</strong> còn lại.
-        Chọn tháp nào muốn mang vào trận — tối đa <strong>6 tháp</strong>.
-      </div>
-      <div class="tower-grid" id="shopTowers"></div>
-
+    <!-- SCREEN 1: TOWERS -->
+    <div class="slide" id="s1">
+      <div class="list-area" id="towerList"></div>
     </div>
 
-    <!-- TAB: ITEMS -->
-    <div class="tab-panel" id="panel-items">
-
-      <div id="giunuocItemBanner" class="giunuoc-banner" style="display:none">
-        <div class="g-title">⚔️ Chế Độ Giữ Nước</div>
-        <div class="g-desc">Không có tuyệt chiêu — chỉ dựa vào sức mạnh bản thân.<br>Chọn <strong>Dựng Nước</strong> để mở khoá tuyệt chiêu.</div>
-      </div>
-
-      <div id="itemsSection">
-        <div class="section-label">Tuyệt Chiêu</div>
-        <div class="info-box" id="itemsInfoBox">
-          Mỗi tuyệt chiêu dùng được <strong>1 lần</strong> trong trận. Dùng đúng lúc sẽ xoay chuyển cục diện.
-        </div>
-        <div class="items-grid" id="itemsGrid"></div>
-        <div class="unlock-hint" id="unlockHint" style="display:none"></div>
-      </div>
-
+    <!-- SCREEN 2: ITEMS -->
+    <div class="slide" id="s2">
+      <div class="list-area" id="itemList"></div>
     </div>
+
   </div>
 
-  <!-- BOTTOM -->
-  <div id="bottom">
-    <button id="btn-back" onclick="goBack()">← Quay lại</button>
-    <button id="btn-start" onclick="startGame()">⚔️ XUẤT TRẬN!</button>
+  <!-- BOTTOM BAR -->
+  <div id="bottomBar">
+    <button class="bb-btn" id="btnBack" onclick="handleBack()">BACK</button>
+    <div class="bb-slots" id="bbSlots"></div>
+    <button class="bb-next" id="btnNext" onclick="handleNext()">NEXT</button>
   </div>
+
 </div>
-
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 // DATA
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 
 const AI_DATA = {
-  7: {
-    title: 'Bí Ẩn Cổ Loa', subtitle: 'Thành Cổ Loa · ~257 TCN',
-    bossEmoji: '🐓', bossName: 'Bạch Kê Tinh',
-    bossTitle: 'Tinh Gà Trắng — Phong Ấn Tri Thức Số Học',
-    tc1: { name: 'Thần Nhãn Vị Số', emoji: '🔍', desc: 'Nhìn xuyên bản số — xác định vị trí trong nháy mắt' },
-    tc2: { name: 'Bút Pháp Thiên Cơ', emoji: '✍️', desc: 'Viết thêm chữ số — mở rộng đội hình tức thời' },
-  },
-  8: {
-    title: 'Rèn Nỏ Thần Liên Châu', subtitle: 'Thành Cổ Loa · ~257 TCN',
-    bossEmoji: '👤', bossName: 'Ám Toán Sứ',
-    bossTitle: 'Viết Số Giả Vào Bản Vẽ Kỹ Thuật',
-    tc1: { name: 'Tìm Số Ẩn Lv.1', emoji: '🔢', desc: 'Tìm số ẩn 1 chữ số trong phương trình' },
-    tc2: { name: 'Giải Mã Cơ Số', emoji: '🧮', desc: 'Phân tích số ẩn 2-3 chữ số nâng cao' },
-  }
+  7:{ zone:'ẢI 7 · CỔ LOA', bossEmoji:'🐓', bossName:'Bạch Kê Tinh' },
+  8:{ zone:'ẢI 8 · CỔ LOA', bossEmoji:'👤', bossName:'Ám Toán Sứ'  },
 };
 
 const TOWERS = [
-  // Default (free, always included)
-  { id: 'no_lien_chau', name: 'Nỏ Liên Châu', emoji: '🏹', price: 0, isDefault: true,
-    dps: 35, range: 2.5, rate: '0.5s', special: 'Bắn nhanh', color: 'var(--success)' },
-  { id: 'bay_nhua', name: 'Bẫy Nhựa', emoji: '💧', price: 0, isDefault: true,
-    dps: 12, range: 2.5, rate: '1.0s', special: 'Làm chậm 40%', color: 'var(--success)' },
-  // Shop towers
-  { id: 'than_co_phao', name: 'Thần Cơ Pháo', emoji: '💣', price: 150,
-    dps: 100, range: 3.5, rate: '1.6s', special: 'Sát thương diện' },
-  { id: 'hoa_thap', name: 'Hỏa Tháp', emoji: '🔥', price: 200,
-    dps: 300, range: 2.5, rate: 'DoT', special: 'Đốt liên tục' },
-  { id: 'loi_thap', name: 'Lôi Tháp', emoji: '⚡', price: 300,
-    dps: 700, range: 2.5, rate: '0.85s', special: 'Dây chuyền 3 địch' },
-  { id: 'trong_lenh', name: 'Trống Lệnh', emoji: '🥁', price: 250,
-    dps: 0, range: 1.5, rate: '—', special: '+25% buff tháp lân cận' },
-  { id: 'bay_chong', name: 'Bẫy Chông', emoji: '🪤', price: 90,
-    dps: 1500, range: 1.0, rate: '1 lần', special: 'Sát thương khi dẫm' },
+  { id:'no_lien_chau', name:'NỎ LIÊN CHÂU', emoji:'🏹', price:0,   isDefault:true,
+    desc:'Bắn liên thanh, 1 mục tiêu. Tầm 2.5 ô. Tốc độ 0.5s/phát.',
+    tags:['Nhanh','Single-target'] },
+  { id:'bay_nhua',     name:'BẪY NHỰA',     emoji:'💧', price:0,   isDefault:true,
+    desc:'Làm chậm địch 40%. Diện tích nhỏ. Không gây sát thương.',
+    tags:['Làm chậm','Support'] },
+  { id:'bay_chong',    name:'BẪY CHÔNG',    emoji:'🪤', price:90,  isDefault:false,
+    desc:'1500 sát thương khi địch dẫm lên. Kích hoạt 1 lần.',
+    tags:['Bẫy','Burst'] },
+  { id:'than_co_phao', name:'THẦN CƠ PÁO',  emoji:'💣', price:150, isDefault:false,
+    desc:'Pháo nổ diện, sát thương vùng bán kính 1.8 ô. Tầm 3.5 ô.',
+    tags:['AoE','Chậm'] },
+  { id:'trong_lenh',   name:'TRỐNG LỆNH',   emoji:'🥁', price:250, isDefault:false,
+    desc:'Tăng sức mạnh tháp lân cận +25%. Không tấn công trực tiếp.',
+    tags:['Buff','Support'] },
+  { id:'hoa_thap',     name:'HỎA THÁP',     emoji:'🔥', price:200, isDefault:false,
+    desc:'Đốt cháy liên tục, gây 300 sát thương/s. Hiệu quả vs đám đông.',
+    tags:['DoT','AoE'] },
+  { id:'loi_thap',     name:'LÔI THÁP',     emoji:'⚡', price:300, isDefault:false,
+    desc:'Sét dây chuyền 3 mục tiêu, 700 sát thương. Hiệu quả nhất game.',
+    tags:['Chain','Elite'] },
 ];
 
 const ITEMS = [
-  { id: 'bom_than',   name: 'Bom Thần',   emoji: '💥',
-    desc: 'Diệt toàn bộ địch trong 3×3 ô — dùng 1 lần', tc: null },
-  { id: 'dong_bang',  name: 'Đông Băng',  emoji: '❄️',
-    desc: 'Đóng băng tất cả địch trong 5 giây', tc: 'tc1' },
-  { id: 'vang_them',  name: 'Vàng Thêm',  emoji: '💰',
-    desc: '+150 Vàng Đông Sơn tức thì trong trận', tc: 'tc2' },
+  { id:'bom_than',  name:'BOM THẦN',   emoji:'💥', uses:1, tc:null, alwaysOpen:true,
+    desc:'Tiêu diệt toàn bộ địch trong vùng 3×3 ô. Sử dụng khi bị áp đảo.' },
+  { id:'dong_bang', name:'ĐÔNG BĂNG',  emoji:'❄️', uses:1, tc:'tc1', alwaysOpen:false,
+    desc:'Đóng băng TẤT CẢ địch trên bản đồ trong 5 giây. Cực mạnh mid-game.' },
+  { id:'vang_them', name:'VÀNG THÊM',  emoji:'💰', uses:1, tc:'tc2', alwaysOpen:false,
+    desc:'+150 Vàng Đông Sơn tức thì. Cho phép mua thêm tháp trong trận.' },
 ];
 
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 // STATE
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 
-let aiNum = 7;
-let mode  = 'dungnuoc'; // 'dungnuoc' | 'giunuoc'
-let coins = 0;
-let quizPct = 0;
-let tc1Unlocked = false;
-let tc2Unlocked = false;
-
-let selectedTowers = new Set(['no_lien_chau', 'bay_nhua']); // defaults always in
+let aiNum=7, mode='dungnuoc', coins=0, quizPct=0;
+let tc1=false, tc2=false;
+let selectedTowers = new Set(['no_lien_chau','bay_nhua']);
 let selectedItems  = new Set();
-let spentCoins = 0; // coins spent on towers this session
+let spentCoins=0, screen=1;
 
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 // INIT
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 
-function init() {
-  if (window.Telegram?.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-  }
+function init(){
+  if(window.Telegram?.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}
+  const p=new URLSearchParams(location.search);
+  aiNum=parseInt(p.get('ai')||'7');
+  if(![7,8].includes(aiNum))aiNum=7;
 
-  // Read URL params
-  const params = new URLSearchParams(location.search);
-  aiNum = parseInt(params.get('ai') || '7');
-  if (![7, 8].includes(aiNum)) aiNum = 7;
+  mode    =localStorage.getItem(`vs_mode_ai${aiNum}`)||'dungnuoc';
+  coins   =parseInt(localStorage.getItem(`vs_coins_ai${aiNum}`)||'0');
+  quizPct =parseInt(localStorage.getItem(`vs_quiz_pct_ai${aiNum}`)||'0');
+  tc1     =localStorage.getItem(`vs_tc1_ai${aiNum}`)==='true';
+  tc2     =localStorage.getItem(`vs_tc2_ai${aiNum}`)==='true';
+  if(quizPct>=80){tc1=true;tc2=true;}
 
-  // Read localStorage state
-  mode       = localStorage.getItem(`vs_mode_ai${aiNum}`) || 'dungnuoc';
-  coins      = parseInt(localStorage.getItem(`vs_coins_ai${aiNum}`) || '0');
-  quizPct    = parseInt(localStorage.getItem(`vs_quiz_pct_ai${aiNum}`) || '0');
-  tc1Unlocked = localStorage.getItem(`vs_tc1_ai${aiNum}`) === 'true';
-  tc2Unlocked = localStorage.getItem(`vs_tc2_ai${aiNum}`) === 'true';
+  const d=AI_DATA[aiNum]||AI_DATA[7];
+  document.getElementById('topAi').textContent       = d.zone;
+  document.getElementById('topBossEmoji').textContent= d.bossEmoji;
+  document.getElementById('topBossName').textContent = d.bossName;
 
-  // Also unlock via quiz >80%
-  if (quizPct >= 80) { tc1Unlocked = true; tc2Unlocked = true; }
+  if(mode==='giunuoc') document.getElementById('topCoins').classList.add('hidden');
 
-  // Populate header
-  const data = AI_DATA[aiNum] || AI_DATA[7];
-  document.getElementById('aiBadge').textContent    = `ẢI ${aiNum}`;
-  document.getElementById('aiTitle').textContent    = data.title;
-  document.getElementById('aiSubtitle').textContent = data.subtitle;
-  document.getElementById('bossEmoji').textContent  = data.bossEmoji;
-  document.getElementById('bossName').textContent   = data.bossName;
-  document.getElementById('bossTitle').textContent  = data.bossTitle;
-  document.title = `Chuẩn Bị — Ải ${aiNum} ${data.title}`;
-
-  // Mode badge
-  const badge = document.getElementById('modeBadge');
-  if (mode === 'giunuoc') {
-    badge.className = 'mode-badge giunuoc';
-    badge.textContent = '⚔️ GIỮ NƯỚC';
-  } else {
-    badge.className = 'mode-badge dungnuoc';
-    badge.textContent = '🏗️ DỰNG NƯỚC';
-  }
-
-  // Hide coins display in giữ nước
-  if (mode === 'giunuoc') {
-    document.getElementById('coinsDisplay').style.display = 'none';
-  }
-
-  updateCoinsDisplay();
   renderTowers();
   renderItems();
-  updateSlotCounter();
-  updateStartBtn();
+  renderBottomSlots();
+  updateCoins();
 }
 
-// ══════════════════════════════════════════════════════
-// RENDER TOWERS
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
+// TOWERS
+// ══════════════════════════════════
 
-function renderTowers() {
-  const defaultEl = document.getElementById('defaultTowers');
-  const shopEl    = document.getElementById('shopTowers');
-  defaultEl.innerHTML = '';
-  shopEl.innerHTML    = '';
+function renderTowers(){
+  const list=document.getElementById('towerList');
+  list.innerHTML='';
+  TOWERS.forEach(t=>{
+    const isSel   = selectedTowers.has(t.id);
+    const canBuy  = availableCoins()>=t.price||isSel;
+    const isGN    = mode==='giunuoc'&&!t.isDefault;
 
-  TOWERS.forEach(t => {
-    const isSelected = selectedTowers.has(t.id);
-    const canBuy     = mode === 'dungnuoc' && (t.isDefault || availableCoins() >= t.price || isSelected);
-    const isLocked   = !t.isDefault && (mode === 'giunuoc' || (!isSelected && availableCoins() < t.price));
+    const row=document.createElement('div');
+    let cls='list-row';
+    if(isSel&&t.isDefault) cls+=' selected-default';
+    else if(isSel)         cls+=' selected';
+    else if(isGN)          cls+=' giunuoc-locked';
+    else if(!t.isDefault&&!canBuy) cls+=' locked';
+    row.className=cls;
 
-    const card = document.createElement('div');
-    card.className = 'tower-card' +
-      (isSelected ? ' selected' : '') +
-      (isLocked   ? ' locked'   : '') +
-      (t.isDefault ? ' default-tower' : '');
-    card.dataset.id = t.id;
+    // Icon
+    let iconExtra='';
+    if(isGN||(!t.isDefault&&!canBuy&&!isSel))
+      iconExtra='<div class="icon-lock">🔒</div>';
+    const costLabel = t.isDefault
+      ? `<div class="icon-cost free">Mặc định</div>`
+      : isSel||canBuy
+        ? `<div class="icon-cost">💰${t.price}</div>`
+        : `<div class="icon-cost" style="border-color:var(--locked);color:var(--lt)">💰${t.price}</div>`;
 
-    // Price label
-    let priceHtml = '';
-    if (t.isDefault) {
-      priceHtml = `<div class="tower-price free">✓ Mặc định</div>`;
-    } else if (isSelected) {
-      priceHtml = `<div class="tower-price">💰 ${t.price} xu</div>`;
-    } else if (mode === 'giunuoc') {
-      priceHtml = `<div class="tower-price locked">🔒 Giữ Nước</div>`;
-    } else if (availableCoins() < t.price) {
-      priceHtml = `<div class="tower-price locked">💰 ${t.price} xu</div>`;
+    // Right side
+    let rightHtml='';
+    if(isSel){
+      rightHtml=`<span class="check-mark">✓</span>`;
+    } else if(t.isDefault){
+      rightHtml=`<div class="price-badge selected-badge">✓ Có sẵn</div>`;
+    } else if(isGN){
+      rightHtml=`<div class="price-badge cant-badge">🔒</div>`;
+    } else if(!canBuy){
+      rightHtml=`<div class="price-badge cant-badge">💰 ${t.price}</div>`;
     } else {
-      priceHtml = `<div class="tower-price">💰 ${t.price} xu</div>`;
+      rightHtml=`<div class="price-badge">💰 ${t.price}</div>`;
     }
 
-    card.innerHTML = `
-      <span class="check">✓</span>
-      <span class="tower-emoji">${t.emoji}</span>
-      <div class="tower-name">${t.name}</div>
-      ${priceHtml}
-      <div class="tower-dps">${t.special}</div>
+    row.innerHTML=`
+      <div class="row-icon">
+        <span>${t.emoji}</span>
+        ${iconExtra}
+        ${costLabel}
+      </div>
+      <div class="row-info">
+        <div class="row-name">${t.name}</div>
+        <div class="row-desc">${t.desc}</div>
+        <div class="row-tags">${t.tags.map(g=>`<span class="tag">${g}</span>`).join('')}</div>
+      </div>
+      <div class="row-price">${rightHtml}</div>
     `;
 
-    if (!t.isDefault && mode !== 'giunuoc') {
-      card.addEventListener('click', () => toggleTower(t));
-    }
-
-    if (t.isDefault) defaultEl.appendChild(card);
-    else shopEl.appendChild(card);
+    if(!t.isDefault&&!isGN) row.addEventListener('click',()=>toggleTower(t));
+    list.appendChild(row);
   });
 }
 
-function toggleTower(tower) {
-  if (mode === 'giunuoc') return;
-  if (tower.isDefault) return;
-
-  if (selectedTowers.has(tower.id)) {
-    // Deselect — refund coins
-    selectedTowers.delete(tower.id);
-    spentCoins -= tower.price;
-    showToast(`✓ Bỏ ${tower.name}`);
+function toggleTower(t){
+  if(mode==='giunuoc') return;
+  if(selectedTowers.has(t.id)){
+    selectedTowers.delete(t.id);
+    spentCoins-=t.price;
+    showToast(`Bỏ ${t.name} · +${t.price} xu`);
   } else {
-    // Check slots
-    if (selectedTowers.size >= 6) {
-      showToast('⚠️ Tối đa 6 tháp!'); return;
-    }
-    // Check coins
-    if (availableCoins() < tower.price) {
-      showToast(`❌ Không đủ xu (cần ${tower.price})`); return;
-    }
-    selectedTowers.add(tower.id);
-    spentCoins += tower.price;
-    showToast(`✓ Thêm ${tower.name} (−${tower.price} xu)`);
+    if(selectedTowers.size>=6){showToast('⚠️ Tối đa 6 tháp!');return;}
+    if(availableCoins()<t.price){showToast(`❌ Cần ${t.price} xu`);return;}
+    selectedTowers.add(t.id);
+    spentCoins+=t.price;
+    showToast(`✓ ${t.name} · −${t.price} xu`);
   }
-
-  updateCoinsDisplay();
-  renderTowers();
-  updateSlotCounter();
-  updateStartBtn();
+  updateCoins();renderTowers();renderBottomSlots();
 }
 
-// ══════════════════════════════════════════════════════
-// RENDER ITEMS
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
+// ITEMS
+// ══════════════════════════════════
 
-function renderItems() {
-  const grid     = document.getElementById('itemsGrid');
-  const hint     = document.getElementById('unlockHint');
-  const banner   = document.getElementById('giunuocItemBanner');
-  const section  = document.getElementById('itemsSection');
-  grid.innerHTML = '';
+function renderItems(){
+  const list=document.getElementById('itemList');
+  list.innerHTML='';
 
-  if (mode === 'giunuoc') {
-    banner.style.display  = 'block';
-    section.style.display = 'none';
+  if(mode==='giunuoc'){
+    list.innerHTML=`<div class="gn-banner">
+      <div class="gn-banner-title">⚔️ Chế Độ Giữ Nước</div>
+      <div class="gn-banner-desc">Không có tuyệt chiêu.<br>Dựa vào kỹ năng và tháp mặc định.<br><br>Chọn <strong style="color:var(--gold2)">Dựng Nước</strong> để mở khoá.</div>
+    </div>`;
     return;
   }
-  banner.style.display  = 'none';
-  section.style.display = 'block';
 
-  // Check if any items unlocked
-  const anyUnlocked = tc1Unlocked || tc2Unlocked ||
-    ITEMS.some(i => i.tc === null); // Bom Thần always available in Dựng Nước
+  const lockedItems=[];
+  ITEMS.forEach(itm=>{
+    let unlocked=itm.alwaysOpen;
+    if(itm.id==='dong_bang') unlocked=tc1;
+    if(itm.id==='vang_them') unlocked=tc2;
+    if(!unlocked) lockedItems.push(itm);
 
-  let lockedCount = 0;
+    const isSel=selectedItems.has(itm.id);
+    const row=document.createElement('div');
+    row.className='list-row'+(isSel?' selected':'')+(unlocked?'':' locked');
 
-  ITEMS.forEach(itm => {
-    let unlocked = false;
-    if (itm.id === 'bom_than')  unlocked = true;              // always in Dựng Nước
-    if (itm.id === 'dong_bang') unlocked = tc1Unlocked;
-    if (itm.id === 'vang_them') unlocked = tc2Unlocked;
+    let rightHtml=isSel
+      ? `<span class="check-mark">✓</span>`
+      : unlocked
+        ? `<div class="price-badge">× ${itm.uses}</div>`
+        : `<div class="price-badge cant-badge">🔒</div>`;
 
-    if (!unlocked) lockedCount++;
-
-    const isSelected = selectedItems.has(itm.id);
-    const card = document.createElement('div');
-    card.className = 'item-card' +
-      (isSelected ? ' selected' : '') +
-      (!unlocked  ? ' locked'   : '');
-
-    card.innerHTML = `
-      ${!unlocked ? '<span class="lock-icon">🔒</span>' : '<span class="check">✓</span>'}
-      <span class="item-emoji">${itm.emoji}</span>
-      <div class="item-name">${itm.name}</div>
-      <div class="item-desc">${itm.desc}</div>
+    row.innerHTML=`
+      <div class="row-icon">
+        <span>${itm.emoji}</span>
+        ${!unlocked?'<div class="icon-lock">🔒</div>':''}
+        <div class="icon-cost${unlocked?' free':''}" style="${unlocked?'':'border-color:var(--locked);color:var(--lt)'}">×${itm.uses}</div>
+      </div>
+      <div class="row-info">
+        <div class="row-name" style="${!unlocked?'color:var(--lt)':''}">${itm.name}</div>
+        <div class="row-desc">${itm.desc}</div>
+      </div>
+      <div class="row-price">${rightHtml}</div>
     `;
-
-    if (unlocked) {
-      card.addEventListener('click', () => toggleItem(itm));
-    }
-    grid.appendChild(card);
+    if(unlocked) row.addEventListener('click',()=>toggleItem(itm));
+    list.appendChild(row);
   });
 
-  // Show hint if some locked
-  if (lockedCount > 0) {
-    hint.style.display = 'block';
-    const parts = [];
-    if (!tc1Unlocked) parts.push(`Thắng <strong>Minigame Tuyệt Chiêu 1</strong>`);
-    if (!tc2Unlocked) parts.push(`Thắng <strong>Minigame Tuyệt Chiêu 2</strong>`);
-    if (quizPct < 80)  parts.push(`Làm đúng <strong>>80% bài tập</strong> (hiện ${quizPct}%)`);
-    hint.innerHTML = `🔓 Để mở khoá thêm: ${parts.join(' hoặc ')}`;
-  } else {
-    hint.style.display = 'none';
+  // Unlock hint
+  if(lockedItems.length){
+    const hints=[];
+    if(!tc1) hints.push('Thắng <strong>Minigame TC1</strong>');
+    if(!tc2) hints.push('Thắng <strong>Minigame TC2</strong>');
+    if(quizPct<80) hints.push(`Quiz <strong>>80%</strong> (${quizPct}%)`);
+    const h=document.createElement('div');
+    h.className='unlock-hint';
+    h.innerHTML='🔓 Mở khoá: '+hints.join(' hoặc ');
+    list.appendChild(h);
   }
 }
 
-function toggleItem(item) {
-  if (selectedItems.has(item.id)) {
-    selectedItems.delete(item.id);
-    showToast(`✓ Bỏ ${item.name}`);
-  } else {
-    selectedItems.add(item.id);
-    showToast(`✓ Chọn ${item.name}!`);
-  }
-  renderItems();
-  updateItemCount();
-  updateStartBtn();
+function toggleItem(itm){
+  if(selectedItems.has(itm.id)) selectedItems.delete(itm.id);
+  else selectedItems.add(itm.id);
+  renderItems();renderBottomSlots();
 }
 
-// ══════════════════════════════════════════════════════
-// UI HELPERS
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
+// BOTTOM SLOTS
+// ══════════════════════════════════
 
-function availableCoins() {
-  return coins - spentCoins;
-}
+function renderBottomSlots(){
+  const bar=document.getElementById('bbSlots');
+  bar.innerHTML='';
+  const maxSlots = screen===1 ? 6 : 3;
+  const selArr   = screen===1 ? [...selectedTowers] : [...selectedItems];
+  const allData  = screen===1 ? TOWERS : ITEMS;
 
-function updateCoinsDisplay() {
-  document.getElementById('coinsVal').textContent = availableCoins();
-  document.getElementById('coinsLeft').textContent = `${availableCoins()} xu`;
-}
-
-function updateSlotCounter() {
-  const counter = document.getElementById('slotCounter');
-  const tab = document.querySelector('.tab-btn:first-child .tab-count');
-  counter.innerHTML = '';
-  for (let i = 0; i < 6; i++) {
-    const dot = document.createElement('div');
-    const towersArr = Array.from(selectedTowers);
-    const tid = towersArr[i];
-    const isDefault = tid && TOWERS.find(t => t.id === tid)?.isDefault;
-    if (tid) {
-      const t = TOWERS.find(x => x.id === tid);
-      dot.className = 'slot-dot ' + (isDefault ? 'filled-default' : 'filled');
-      dot.title = t?.name || '';
-      dot.textContent = t?.emoji || '?';
+  for(let i=0;i<maxSlots;i++){
+    const tid=selArr[i];
+    const slot=document.createElement('div');
+    if(tid){
+      const d=allData.find(x=>x.id===tid);
+      const isDefault=d&&d.isDefault;
+      slot.className='bb-slot '+(isDefault?'active-default':'active');
+      slot.textContent=d?d.emoji:'?';
+      const priceEl=document.createElement('div');
+      priceEl.className='bb-slot-price'+(isDefault?' free-p':'');
+      priceEl.textContent=isDefault?'✓':(d.price||d.uses?`×${d.uses||d.price}`:'×1');
+      slot.appendChild(priceEl);
     } else {
-      dot.className = 'slot-dot';
-      dot.textContent = '+';
+      slot.className='bb-slot';
     }
-    counter.appendChild(dot);
+    bar.appendChild(slot);
   }
-  if (tab) tab.textContent = `${selectedTowers.size}/6`;
 }
 
-function updateItemCount() {
-  const tab = document.querySelector('.tab-btn:last-child .tab-count');
-  if (tab) tab.textContent = `${selectedItems.size}/3`;
-}
-
-function updateStartBtn() {
-  const btn = document.getElementById('btn-start');
-  // Need at least 1 tower (defaults always there)
-  btn.disabled = selectedTowers.size === 0;
-}
-
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (tab === 'towers' && i === 0) || (tab === 'items' && i === 1));
-  });
-  document.getElementById('panel-towers').classList.toggle('active', tab === 'towers');
-  document.getElementById('panel-items').classList.toggle('active',  tab === 'items');
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 1800);
-}
-
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 // NAVIGATION
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════
 
-function goBack() {
-  // Go back to battle/quiz if dungnuoc, else intro
-  if (mode === 'dungnuoc') {
-    location.href = `battle.html?ai=${aiNum}`;
+function handleBack(){
+  if(screen===2){
+    screen=1;
+    document.getElementById('slides').classList.remove('s2');
+    document.getElementById('screenTitle').textContent='THÁP';
+    document.getElementById('btnBack').textContent='BACK';
+    const nb=document.getElementById('btnNext');
+    nb.className='bb-next'; nb.textContent='NEXT'; nb.onclick=handleNext;
+    renderBottomSlots();
   } else {
-    location.href = `intro.html?ai=${aiNum}`;
+    location.href=mode==='giunuoc'?`intro.html?ai=${aiNum}`:`battle.html?ai=${aiNum}`;
   }
 }
 
-function startGame() {
-  // Save loadout to localStorage
-  localStorage.setItem('vs_loadout_towers', JSON.stringify(Array.from(selectedTowers)));
-  localStorage.setItem('vs_loadout_items',  JSON.stringify(Array.from(selectedItems)));
-  localStorage.setItem('vs_loadout_ai',     String(aiNum));
-  localStorage.setItem('vs_loadout_mode',   mode);
-  // Deduct spent coins
-  localStorage.setItem(`vs_coins_ai${aiNum}`, String(availableCoins()));
-
-  // Animate button
-  const btn = document.getElementById('btn-start');
-  btn.textContent = '⚔️ Chuẩn bị...';
-  btn.disabled = true;
-
-  setTimeout(() => {
-    location.href = `tower_defense.html?ai=${aiNum}&mode=${mode}`;
-  }, 400);
+function handleNext(){
+  screen=2;
+  document.getElementById('slides').classList.add('s2');
+  document.getElementById('screenTitle').textContent='TUYỆT CHIÊU';
+  document.getElementById('btnBack').textContent='BACK';
+  const nb=document.getElementById('btnNext');
+  nb.className='bb-start'; nb.textContent='START'; nb.onclick=startGame;
+  renderBottomSlots();
 }
 
-// ══════════════════════════════════════════════════════
-// START
-// ══════════════════════════════════════════════════════
+function startGame(){
+  localStorage.setItem('vs_loadout_towers',JSON.stringify([...selectedTowers]));
+  localStorage.setItem('vs_loadout_items', JSON.stringify([...selectedItems]));
+  localStorage.setItem('vs_loadout_ai',    String(aiNum));
+  localStorage.setItem('vs_loadout_mode',  mode);
+  localStorage.setItem(`vs_coins_ai${aiNum}`,String(availableCoins()));
+  const nb=document.getElementById('btnNext');
+  nb.textContent='...';nb.disabled=true;
+  setTimeout(()=>{location.href=`tower_defense.html?ai=${aiNum}&mode=${mode}`;},350);
+}
+
+// ══════════════════════════════════
+// HELPERS
+// ══════════════════════════════════
+
+function availableCoins(){return coins-spentCoins;}
+function updateCoins(){
+  document.getElementById('coinsVal').textContent=availableCoins();
+}
+function showToast(m){
+  const t=document.getElementById('toast');
+  t.textContent=m;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1500);
+}
+
 init();
 </script>
 </body>

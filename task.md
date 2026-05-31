@@ -1,3 +1,30 @@
+## [Claude] 2026-05-31 — Rebuild loadout.html clone FR2 layout chính xác
+
+- `[x]` List rows dọc scroll (không phải grid) — giống FR2
+- `[x]` Icon tròn bên trái + cost badge dưới icon
+- `[x]` Tên tower CAPS vàng + desc + tags giữa
+- `[x]` Price badge bên phải
+- `[x]` Bottom slot circles (6 slots màn tháp, 3 slots màn tuyệt chiêu)
+- `[x]` Top bar: screen title badge kim loại + mission info + coins
+- `[x]` BACK / NEXT / START buttons kiểu FR2
+- `[x]` Slide transition giữa 2 màn
+
+---
+---
+
+## [Claude] 2026-05-31 — Redesign loadout.html FR2-style (2 màn slide)
+
+- `[x]` Chia thành 2 màn slide ngang (không dùng tab)
+  - `[x]` Màn 1: 6 slot tháp đã chọn (top) + shop scroll (bottom)
+  - `[x]` Màn 2: 3 item cards lớn kiểu FR2
+- `[x]` Slide transition CSS `translateX` 0.35s cubic-bezier
+- `[x]` Bottom nav thay đổi: Màn 1 → [← Quay lại] [Tuyệt Chiêu →], Màn 2 → [← Tháp] [⚔️ XUẤT TRẬN]
+- `[x]` Page dots indicator
+- `[x]` Chế độ Giữ Nước: overlay block items
+
+---
+---
+
 ## [Claude] 2026-05-31 — Build loadout.html (GameMissionPrepForm)
 
 - `[x]` Tạo `loadout.html` — màn chuẩn bị xuất trận FR2-style
