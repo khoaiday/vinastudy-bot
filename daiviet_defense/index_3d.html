@@ -105,6 +105,16 @@
   .btn { touch-action: none; }
 </style>
 </head>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    if (Telegram.WebApp.requestFullscreen) Telegram.WebApp.requestFullscreen();
+  }
+  // Block all scroll/pull-to-refresh on body
+  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+</script>
 <body>
 
 <!-- Loading -->
