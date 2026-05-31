@@ -135,6 +135,10 @@
     // Browser thường — không cần offset
     document.documentElement.style.setProperty('--tg-header-offset', '0px');
   }
+  // Preload map tile image before game init
+  window._mapTileImg = new Image();
+  window._mapTileImg.src = 'assets/map_tile.png';
+
   // Block ALL touch scroll/overscroll — must be passive:false
   document.addEventListener('touchstart', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive:false });
   document.addEventListener('touchmove',  e => e.preventDefault(), { passive:false });
