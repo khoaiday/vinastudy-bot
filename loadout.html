@@ -26,13 +26,46 @@
   --fm: 'Roboto Mono', monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--fm);}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  background:#050308;color:var(--text);font-family:var(--fm);
+}
+
+/* Desktop 16:9 — center panel */
+body {
+  display:flex;align-items:center;justify-content:center;
+  background: radial-gradient(ellipse at center, #1A0A28 0%, #050308 70%);
+}
 
 #app{
-  width:100vw;height:100vh;height:100dvh;
-  max-width:480px;margin:0 auto;
+  width:100%;
+  height:100vh;height:100dvh;
+  /* Mobile portrait: full width, max 480px */
+  max-width:480px;
+  /* Desktop landscape: fixed width + height based on aspect */
   display:flex;flex-direction:column;overflow:hidden;
-  background: linear-gradient(180deg,#130A1A 0%,#0A0608 100%);
+  background:linear-gradient(180deg,#130A1A 0%,#0A0608 100%);
+  position:relative;
+  box-shadow:0 0 60px rgba(200,150,12,0.15);
+}
+
+/* Desktop: cap height to viewport, ensure bottom bar visible */
+@media (min-aspect-ratio: 4/3) {
+  #app {
+    max-width:420px;
+    max-height:100vh;
+    border-left:1px solid rgba(58,42,72,0.5);
+    border-right:1px solid rgba(58,42,72,0.5);
+  }
+}
+
+/* Ensure slides + list scroll properly on all screen sizes */
+#slides {
+  min-height:0; /* critical for flex children to scroll */
+}
+.list-area {
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
 }
 
 /* ── TOP BAR ── */
