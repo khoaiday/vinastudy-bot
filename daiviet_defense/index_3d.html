@@ -1648,10 +1648,8 @@ loadAllAssets();
 updateUI();
 </script>
 
-</body>
-</html>
 
-
+<script>
 // ── Background Music ─────────────────────────────────────────────────────
 const bgm = document.getElementById('bgm');
 let musicOn = false;
@@ -1659,10 +1657,7 @@ let musicOn = false;
 window.toggleMusic = function() {
   if (!musicOn) {
     bgm.volume = 0.5;
-    bgm.play().then(() => {
-      musicOn = true;
-      document.getElementById('musicIcon').textContent = '🔊';
-    }).catch(() => {});
+    bgm.play().then(() => { musicOn = true; document.getElementById('musicIcon').textContent = '🔊'; }).catch(() => {});
   } else {
     bgm.pause();
     musicOn = false;
@@ -1670,15 +1665,10 @@ window.toggleMusic = function() {
   }
 };
 
-// Auto-play on first user interaction
 document.addEventListener('click', function startMusic() {
   if (!musicOn) {
     bgm.volume = 0.5;
-    bgm.play().then(() => {
-      musicOn = true;
-      document.getElementById('musicIcon').textContent = '🔊';
-    }).catch(() => {});
-    document.removeEventListener('click', startMusic);
+    bgm.play().then(() => { musicOn = true; document.getElementById('musicIcon').textContent = '🔊'; }).catch(() => {});
   }
 }, { once: false });
 </script>
