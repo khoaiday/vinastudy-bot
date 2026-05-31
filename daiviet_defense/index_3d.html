@@ -802,12 +802,12 @@ function buildMap() {
   mctx.fillStyle = '#5A9A32';
   mctx.fillRect(0, 0, TEX_W, TEX_H);
 
-  // Path row tint OUTSIDE grid (left entry lane)
-  mctx.fillStyle = 'rgba(200,170,100,0.4)';
+  // Path row tint OUTSIDE grid (left entry lane) — earthy dirt, không cam
+  mctx.fillStyle = 'rgba(120,100,60,0.3)';
   mctx.fillRect(0, gridTopPx + START.y*cellPx, gridLeftPx, cellPx);
 
   // Path row tint OUTSIDE grid (right exit lane → castle gate)
-  mctx.fillStyle = 'rgba(200,170,100,0.4)';
+  mctx.fillStyle = 'rgba(120,100,60,0.3)';
   mctx.fillRect(gridRightPx, gridTopPx + START.y*cellPx, TEX_W - gridRightPx, cellPx);
 
   // Grid lines
@@ -825,8 +825,8 @@ function buildMap() {
     mctx.lineTo(gridRightPx, gridTopPx + r*cellPx);
     mctx.stroke();
   }
-  // Path row tint
-  mctx.fillStyle = 'rgba(200,170,100,0.5)';
+  // Path row tint — dirt road, tông đất tự nhiên, không cam
+  mctx.fillStyle = 'rgba(140,110,65,0.35)';
   mctx.fillRect(gridLeftPx, gridTopPx + START.y*cellPx, COLS*cellPx, cellPx);
   // Chevron arrows
   mctx.fillStyle = 'rgba(100,160,220,0.8)';
@@ -870,7 +870,7 @@ function buildMap() {
   const backdropW = 60, backdropH = 30;
   const backdrop = new THREE.Mesh(
     new THREE.PlaneGeometry(backdropW, backdropH),
-    new THREE.MeshStandardMaterial({ color: 0xa07040, roughness: 1.0 })
+    new THREE.MeshStandardMaterial({ color: 0x4a7a28, roughness: 1.0 })
   );
   backdrop.rotation.x = -Math.PI / 2;
   backdrop.position.set(COLS/2, -0.02, ROWS/2);
