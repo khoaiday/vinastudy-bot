@@ -820,8 +820,25 @@ function buildMap() {
   const gridRightPx = gridLeftPx + COLS * cellPx;
   const gridBottomPx = gridTopPx + ROWS * cellPx;
 
-  // Transparent canvas — background image handles terrain visuals
-  mctx.clearRect(0, 0, TEX_W, TEX_H);
+  // Draw background image into canvas (composite approach)
+  const bgImg = new Image();
+  bgImg.src = 'assets/map_bg_coloa_1.jpg';
+  const _drawBg = () => {
+    if (bgImg.complete && bgImg.naturalWidth > 0) {
+      mctx.drawImage(bgImg, 0, 0, TEX_W, TEX_H);
+    } else {
+      mctx.fillStyle = '#5A8A3A';
+      mctx.fillRect(0, 0, TEX_W, TEX_H);
+    }
+  };
+  bgImg.onload = () => {
+    mctx.clearRect(0, 0, TEX_W, TEX_H);
+    _drawBg();
+    // Redraw grid/path on top after image loads
+    _drawGridOverlay();
+    mapTex.needsUpdate = true;
+  };
+  _drawBg();
 
   // ── GRID LINES (only inside playable area) ──
   mctx.strokeStyle = 'rgba(30,60,20,0.4)';
