@@ -72,6 +72,34 @@ SFX footsteps: `daiviet_defense/audio/impact/` (ogg format, kenney pack)
 
 ---
 
+## 6b. FR2 Map Architecture — Bài học từ reverse engineering APK
+
+XOR key: **0xF8** (single byte). Decrypt: `bytes(b ^ 0xF8 for b in raw)`
+
+### Thiết kế map FR2 (đã xác nhận qua giải mã):
+- **Map = ảnh JPG vẽ tay** (~900KB, ~1200×800px). Path được paint trực tiếp vào background.
+- **Không có canvas grid lines** — engine biết grid tọa độ, player chỉ thấy artwork liền mạch.
+- **Decoration strips** = PNG riêng ghép lên viền (rooftop, cliff, etc.)
+- **Công thức**: Background JPG + enemy/tower sprites render đè lên + grid ẩn (chỉ highlight khi hover)
+
+### Áp dụng cho Đại Việt Defender:
+- Thay canvas texture hiện tại bằng **ảnh background painted** (Midjourney/DALL-E)
+- Path = đường đá cuội vẽ vào scene, không phải canvas overlay
+- Grid lines bỏ hoặc cực mờ, chỉ hiện khi đặt tháp
+- Midjourney prompt: *"Vietnamese ancient fortress Cổ Loa top-down game map, stone brick winding path through rice fields, bamboo groves, spiral fortress walls, pagoda watchtowers, warm earth tones, hand-painted TD game art, 16:9, no text --ar 16:9"*
+
+### Assets đã giải mã (trong apk/fr2_extracted/assets/):
+| File | Nội dung |
+|------|---------|
+| 00000393 | Map grassland + river |
+| 01621 | Map farm fields |
+| 01256 | Map city cobblestone |
+| 00000081 | Map crystal cave |
+| 00000541 | Map lava industrial |
+| 00000140 | Decoration strip (rooftop PNG) |
+
+---
+
 ## 7. Tower Defense Game — daiviet_defense/
 
 Đây là game thủ thành riêng biệt (KHÔNG phải battle.html). Đã có:
