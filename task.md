@@ -1,3 +1,14 @@
+## [Claude] 2026-05-31 — Rebuild HUD game 3D theo FR2 + Pause Menu
+
+- `[x]` HUD top: 💰 gold + ⚙️ settings (left) · đợt/score (center) · ✈️ airstrike + ❤️ HP (right)
+- `[x]` Build bar bottom: ▶/⏩ controls (left) · tower circles scroll (center) · 🔊 music (right)
+- `[x]` Xóa nút "?" help và nút close gây nhầm lẫn
+- `[x]` Pause menu FR2-style: TIẾP TỤC · CHƠI LẠI · THOÁT VỀ BẢN ĐỒ
+- `[x]` `toggleSpeed()` cho nút ⏩ 2x
+
+---
+---
+
 ## [Claude] 2026-05-31 — Kết nối luồng map → Dựng Nước / Giữ Nước
 
 - `[x]` `goDungNuoc()`: lưu mode=dungnuoc → `battle.html?ai={N}` (quiz trước)
