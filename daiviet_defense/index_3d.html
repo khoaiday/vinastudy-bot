@@ -893,19 +893,14 @@ function buildMap() {
     mctx.closePath();
     mctx.fill();
   }
+  } // end _drawGridOverlay
 
-  // Build canvas overlay texture (grid + path indicators, semi-transparent)
+  _drawGridOverlay();
+
+  // Build texture from canvas (bg image + grid overlay composited)
   const mapTex = new THREE.CanvasTexture(mapCanvas);
   mapTex.colorSpace = THREE.SRGBColorSpace;
   mapTex.anisotropy = 8;
-
-  // Load painted background image
-  const bgTex = new THREE.TextureLoader().load('assets/map_bg_coloa_1.jpg', (tex) => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 8;
-    mapPlane.material.map = tex;
-    mapPlane.material.needsUpdate = true;
-  });
 
   const mapMat = new THREE.MeshStandardMaterial({
     map: bgTex,
