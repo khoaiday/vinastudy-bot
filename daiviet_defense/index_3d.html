@@ -714,6 +714,10 @@ async function loadAllAssets() {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true; mesh.receiveShadow = true;
     const group = new THREE.Group(); group.add(mesh);
+    // Hide decorative/spawn/weapon placeholders — only show tower/enemy
+    if (name.startsWith('detail') || name.startsWith('spawn') || name.startsWith('weapon')) {
+      group.visible = false;
+    }
     models[name] = group;
     loadedCount++;
     document.getElementById('loadingFill').style.width = (loadedCount / ASSETS_TO_LOAD.length * 100) + '%';
