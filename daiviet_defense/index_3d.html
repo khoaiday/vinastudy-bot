@@ -1127,8 +1127,9 @@ class Enemy {
     this.speed = this.spec.speed;
     this.isDead = false;
 
-    this.position = new THREE.Vector3(START.x - 0.5, 0.3, START.y + 0.5);
-    this.target = new THREE.Vector3(EXIT.x + 1.5, 0.3, EXIT.y + 0.5);
+    // Spawn outside left edge, target outside right edge (castle gate)
+    this.position = new THREE.Vector3(-6.5, 0.3, START.y + 0.5);
+    this.target   = new THREE.Vector3(EXIT.x + 7.0, 0.3, EXIT.y + 0.5);
 
     // Model
     this.mesh = cloneModel(this.spec.model);
