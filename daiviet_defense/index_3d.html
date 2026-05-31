@@ -218,19 +218,19 @@
       font-size:16px;color:var(--text-muted);" title="2x speed">⏩</button>
   </div>
 
-  <!-- Tower circles (center, scrollable) -->
-  <div style="flex:1;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:0 4px;">
-    <div class="btn" data-tower="arrow" onpointerdown="onTowerPointerDown('arrow',event)" style="flex-shrink:0;width:64px;border-radius:50%;">
+  <!-- Tower circles (center) — evenly spread -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:space-evenly;padding:0 6px;">
+    <div class="btn" data-tower="arrow" onpointerdown="onTowerPointerDown('arrow',event)" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;">
       <span class="btn-icon">🏹</span>
       <span class="btn-name" style="font-size:9px;">NỎ THẦN</span>
       <span class="btn-cost">💰 50</span>
     </div>
-    <div class="btn" data-tower="cannon" onpointerdown="onTowerPointerDown('cannon',event)" style="flex-shrink:0;width:64px;border-radius:50%;">
+    <div class="btn" data-tower="cannon" onpointerdown="onTowerPointerDown('cannon',event)" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;">
       <span class="btn-icon">💣</span>
       <span class="btn-name" style="font-size:9px;">PHÁO ĐỒNG</span>
       <span class="btn-cost">💰 100</span>
     </div>
-    <div class="btn" data-tower="tesla" onpointerdown="onTowerPointerDown('tesla',event)" style="flex-shrink:0;width:64px;border-radius:50%;">
+    <div class="btn" data-tower="tesla" onpointerdown="onTowerPointerDown('tesla',event)" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;">
       <span class="btn-icon">⚡</span>
       <span class="btn-name" style="font-size:9px;">LÔI THÁP</span>
       <span class="btn-cost">💰 200</span>
@@ -238,13 +238,12 @@
   </div>
 
   <!-- Music button (right) -->
-  <div style="margin-left:8px;">
-    <button id="musicBtn" onclick="toggleMusic()" style="
-      background:rgba(200,150,12,0.15);border:1px solid var(--primary);
-      border-radius:8px;width:44px;height:44px;cursor:pointer;font-size:20px;">
-      <span id="musicIcon">🔊</span>
-    </button>
-  </div>
+  <button id="musicBtn" onclick="toggleMusic()" style="
+    flex-shrink:0;
+    background:rgba(10,6,14,0.7);border:1px solid var(--primary);
+    border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:20px;">
+    <span id="musicIcon">🔊</span>
+  </button>
 </div>
 
 <!-- ══ PAUSE MENU (FR2 style) ══ -->
