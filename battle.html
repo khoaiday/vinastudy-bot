@@ -1,0 +1,2876 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chiến Binh Toán — Trận Đấu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════ */
+:root {
+  --primary:   #C8960C;
+  --secondary: #C0332E;
+  --copper:    #B87333;
+  --bg-void:   #07040A;
+  --bg-card:   #110C1A;
+  --text-main: #F5EED6;
+  --text-muted:#A08C70;
+  --gold-glow: rgba(200,150,12,0.35);
+  --red-glow:  rgba(192,51,46,0.45);
+  --teal:      #3AAFA9;
+  --blue-royal:#1A5A8C;
+  --correct:   #22C55E;
+  --wrong:     #EF4444;
+  --font-title:  'Philosopher', serif;
+  --font-body:   'Lora', serif;
+  --font-mono:   'Roboto Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; overflow: hidden;
+  background: var(--bg-void);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════════════════════ */
+.screen {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center;
+  overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 32px;
+}
+.screen.active { display: flex; }
+
+/* ═══════════════════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════════════════ */
+.btn {
+  border: none; cursor: pointer;
+  font-family: var(--font-title);
+  font-weight: 700;
+  border-radius: 8px;
+  transition: transform .12s, opacity .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(.96); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #A07008);
+  color: #000;
+  padding: 14px 28px;
+  font-size: 17px;
+  box-shadow: 0 4px 20px var(--gold-glow);
+  width: 100%; max-width: 360px;
+}
+.btn-secondary {
+  background: rgba(200,150,12,.12);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.section-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   INTRO SCREEN (Narrative dialogue)
+═══════════════════════════════════════════════════════ */
+#scIntro {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(184,115,51,.15) 0%, transparent 60%),
+    var(--bg-void);
+  justify-content: flex-end;
+  gap: 0;
+}
+
+.intro-visual {
+  flex: 1;
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+.intro-scene-emoji {
+  font-size: 72px;
+  filter: drop-shadow(0 0 24px var(--gold-glow));
+  animation: breathe 3s ease-in-out infinite;
+}
+.intro-scene-label {
+  position: absolute; bottom: 8px;
+  font-size: 11px; letter-spacing: 2px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+@keyframes breathe {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+
+/* Dialogue bubble */
+.dialogue-bubble {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: 16px 16px 0 0;
+  padding: 20px 20px 0;
+  border: 1px solid rgba(200,150,12,.2);
+  border-bottom: none;
+  min-height: 210px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.dialogue-speaker {
+  display: flex; align-items: center; gap: 10px;
+}
+.dialogue-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  border: 2px solid;
+}
+.dialogue-avatar.thay-long  { border-color: var(--primary); background: rgba(200,150,12,.15); }
+.dialogue-avatar.co-may     { border-color: var(--teal);    background: rgba(58,175,169,.15); }
+.dialogue-avatar.npc        { border-color: var(--blue-royal); background: rgba(26,90,140,.15); }
+.dialogue-avatar.narrator   { border-color: var(--copper); background: rgba(184,115,51,.15); }
+
+.dialogue-name {
+  font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+.dialogue-name.thay-long { color: var(--primary); }
+.dialogue-name.co-may    { color: var(--teal); }
+.dialogue-name.npc       { color: #7EB8DC; }
+.dialogue-name.narrator  { color: var(--copper); font-style: italic; }
+
+.dialogue-text {
+  font-size: 15px; line-height: 1.65;
+  color: var(--text-main);
+  font-family: var(--font-body);
+}
+.dialogue-text em {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.dialogue-text strong { color: var(--primary); font-style: normal; }
+
+.dialogue-step-dots {
+  display: flex; gap: 6px; justify-content: center;
+  padding: 8px 0;
+}
+.step-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(200,150,12,.25);
+  transition: background .2s;
+}
+.step-dot.active { background: var(--primary); }
+
+.dialogue-actions {
+  display: flex; gap: 8px; padding: 12px 0 20px;
+  width: 100%;
+}
+.dialogue-actions .btn-primary { flex: 1; }
+
+/* ═══════════════════════════════════════════════════════
+   THEORY SCREEN
+═══════════════════════════════════════════════════════ */
+#scTheory {
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(184,115,51,.12) 0%, transparent 55%),
+    var(--bg-void);
+  gap: 16px;
+  padding-top: 24px;
+}
+
+.theory-header {
+  text-align: center;
+  width: 100%;
+}
+.theory-header h2 {
+  font-family: var(--font-title);
+  font-size: 22px;
+  color: var(--primary);
+}
+.theory-header .subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.theory-progress {
+  display: flex; gap: 6px;
+  justify-content: center;
+  margin: 4px 0;
+}
+.theory-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(200,150,12,.25);
+  transition: background .25s;
+}
+.theory-dot.active   { background: var(--primary); box-shadow: 0 0 6px var(--gold-glow); }
+.theory-dot.done     { background: rgba(200,150,12,.55); }
+
+.theory-card {
+  width: 100%; max-width: 440px;
+  background: var(--bg-card);
+  border: 1px solid rgba(200,150,12,.22);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.theory-card-title {
+  font-family: var(--font-title);
+  font-size: 18px;
+  color: var(--primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.theory-box {
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(184,115,51,.35);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: #D4C4A8;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.theory-box strong { color: var(--primary); }
+.theory-box em     { color: var(--teal); font-style: normal; }
+
+.theory-quote {
+  background: rgba(200,150,12,.06);
+  border-left: 3px solid var(--primary);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-main);
+  line-height: 1.6;
+  border-radius: 0 8px 8px 0;
+}
+.theory-quote .speaker {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--primary);
+  font-style: normal;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.theory-nav {
+  display: flex; gap: 10px;
+  width: 100%; max-width: 440px;
+}
+.theory-nav .btn-primary  { flex: 2; }
+.theory-nav .btn-secondary{ flex: 1; }
+
+/* ═══════════════════════════════════════════════════════
+   BOSS SCENE SCREEN
+═══════════════════════════════════════════════════════ */
+#scBossScene {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(192,51,46,.2) 0%, transparent 65%),
+    var(--bg-void);
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.boss-scene-title {
+  text-align: center;
+}
+.boss-scene-title h2 {
+  font-family: var(--font-title);
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--secondary);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.boss-scene-title h1 {
+  font-family: var(--font-title);
+  font-size: 28px;
+  color: var(--text-main);
+}
+.boss-scene-title .danh-hieu {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.boss-scene-portrait {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192,51,46,.25) 0%, rgba(7,4,10,.8) 70%);
+  border: 2px solid rgba(192,51,46,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 72px;
+  box-shadow: 0 0 40px rgba(192,51,46,.4), 0 0 80px rgba(192,51,46,.2);
+  animation: boss-float 2.5s ease-in-out infinite;
+}
+@keyframes boss-float {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-8px) scale(1.04); }
+}
+
+.boss-scene-dialogue {
+  width: 100%; max-width: 380px;
+  background: rgba(192,51,46,.1);
+  border: 1px solid rgba(192,51,46,.3);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-main);
+  line-height: 1.6;
+  text-align: center;
+}
+.boss-scene-dialogue .boss-name-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--secondary);
+  font-style: normal;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.boss-coche {
+  width: 100%; max-width: 380px;
+  background: rgba(58,175,169,.08);
+  border: 1px solid rgba(58,175,169,.3);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #A8DDD9;
+  line-height: 1.55;
+}
+.boss-coche .co-may-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--teal);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.btn-fight {
+  background: linear-gradient(135deg, var(--secondary), #8B1210);
+  color: #fff;
+  padding: 15px 28px;
+  font-size: 17px;
+  border: none; cursor: pointer;
+  border-radius: 10px;
+  font-family: var(--font-title);
+  font-weight: 700;
+  box-shadow: 0 4px 20px var(--red-glow);
+  width: 100%; max-width: 380px;
+  animation: pulse-fight 2s ease-in-out infinite;
+}
+.btn-fight:active { transform: scale(.96); }
+@keyframes pulse-fight {
+  0%,100% { box-shadow: 0 4px 20px var(--red-glow); }
+  50%      { box-shadow: 0 6px 32px rgba(192,51,46,.7); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   BATTLE SCREEN
+═══════════════════════════════════════════════════════ */
+#scBattle {
+  background: var(--bg-void);
+  gap: 0;
+  padding: 0;
+  justify-content: flex-start;
+}
+
+/* HUD */
+.battle-hud {
+  width: 100%;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(8px);
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(200,150,12,.15);
+  flex-shrink: 0;
+}
+.hud-student {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+}
+.hud-student-label {
+  font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 1px;
+  color: var(--text-muted); text-transform: uppercase;
+}
+.hud-hearts { font-size: 18px; line-height: 1; letter-spacing: 1px; }
+
+.hud-center {
+  text-align: center;
+  flex: 1;
+}
+.hud-q-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+}
+.hud-ai-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.hud-boss {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.hud-boss-label {
+  font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 1px;
+  color: var(--text-muted); text-transform: uppercase;
+}
+.hud-boss-hp { font-size: 14px; line-height: 1; letter-spacing: 1px; }
+
+/* Boss arena */
+.battle-arena {
+  width: 100%;
+  height: 130px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgba(192,51,46,.15) 0%, transparent 70%);
+}
+.battle-boss-sprite {
+  font-size: 64px;
+  filter: drop-shadow(0 0 12px rgba(192,51,46,.5));
+  transition: transform .15s;
+  position: relative; z-index: 2;
+}
+.battle-boss-sprite.shake {
+  animation: boss-shake .4s ease;
+}
+.battle-boss-sprite.hit {
+  animation: boss-hit .3s ease;
+}
+@keyframes boss-shake {
+  0%,100%{ transform: translateX(0); }
+  20%    { transform: translateX(-8px) rotate(-3deg); }
+  40%    { transform: translateX(8px) rotate(3deg); }
+  60%    { transform: translateX(-5px); }
+  80%    { transform: translateX(5px); }
+}
+@keyframes boss-hit {
+  0%   { transform: scale(1) rotate(0); filter: drop-shadow(0 0 12px rgba(192,51,46,.5)); }
+  30%  { transform: scale(1.15) rotate(-5deg); filter: drop-shadow(0 0 28px rgba(255,200,0,.9)) brightness(2); }
+  100% { transform: scale(1) rotate(0); filter: drop-shadow(0 0 12px rgba(192,51,46,.5)); }
+}
+.battle-boss-name {
+  position: absolute; bottom: 8px;
+  font-family: var(--font-title);
+  font-size: 12px; letter-spacing: 2px;
+  color: rgba(255,160,140,.7);
+  text-transform: uppercase;
+}
+
+/* Question card */
+.battle-question-area {
+  flex: 1;
+  width: 100%;
+  display: flex; flex-direction: column;
+  background: var(--bg-card);
+  border-top: 1px solid rgba(200,150,12,.15);
+  border-radius: 20px 20px 0 0;
+  padding: 16px 14px 24px;
+  gap: 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.question-meta {
+  display: flex; align-items: center; gap: 8px;
+}
+.difficulty-badge {
+  font-size: 18px; line-height: 1;
+}
+.question-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.question-setup {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text-muted);
+  line-height: 1.5;
+  padding: 8px 12px;
+  background: rgba(0,0,0,.3);
+  border-radius: 8px;
+  border-left: 2px solid rgba(200,150,12,.3);
+}
+
+.question-text {
+  font-size: 16px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.55;
+}
+.question-text strong { color: var(--primary); }
+
+/* Answer buttons */
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.answer-btn {
+  background: rgba(255,255,255,.05);
+  border: 1.5px solid rgba(200,150,12,.25);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 13px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: background .15s, border-color .15s, transform .1s;
+  line-height: 1.3;
+  min-height: 52px;
+  display: flex; align-items: center; justify-content: center;
+}
+.answer-btn:hover:not(:disabled) {
+  background: rgba(200,150,12,.12);
+  border-color: var(--primary);
+}
+.answer-btn:active:not(:disabled) {
+  transform: scale(.96);
+}
+.answer-btn.correct {
+  background: rgba(34,197,94,.18);
+  border-color: var(--correct);
+  color: #86EFAC;
+  animation: correct-flash .4s ease;
+}
+.answer-btn.wrong {
+  background: rgba(239,68,68,.15);
+  border-color: var(--wrong);
+  color: #FCA5A5;
+  animation: wrong-shake .3s ease;
+}
+.answer-btn.reveal-correct {
+  background: rgba(34,197,94,.1);
+  border-color: rgba(34,197,94,.5);
+  color: #86EFAC;
+}
+.answer-btn:disabled { cursor: not-allowed; opacity: .6; }
+@keyframes correct-flash {
+  0%  { background: rgba(34,197,94,.5); transform: scale(1.04); }
+  100%{ background: rgba(34,197,94,.18); transform: scale(1); }
+}
+@keyframes wrong-shake {
+  0%,100%{ transform: translateX(0); }
+  25%    { transform: translateX(-6px); }
+  75%    { transform: translateX(6px); }
+}
+
+/* Feedback panel */
+.feedback-panel {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  display: none;
+  gap: 6px;
+  flex-direction: column;
+}
+.feedback-panel.correct-fb {
+  display: flex;
+  background: rgba(34,197,94,.1);
+  border: 1px solid rgba(34,197,94,.3);
+  color: #A7F3D0;
+}
+.feedback-panel.wrong-fb {
+  display: flex;
+  background: rgba(239,68,68,.08);
+  border: 1px solid rgba(239,68,68,.25);
+  color: #FCA5A5;
+}
+.feedback-speaker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+/* Scaffolding */
+.scaffolding-box {
+  background: rgba(58,175,169,.08);
+  border: 1px solid rgba(58,175,169,.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #A8DDD9;
+  line-height: 1.6;
+  display: none;
+}
+.scaffolding-box.visible { display: block; }
+.scaffolding-step {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--teal);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.btn-next-q {
+  background: linear-gradient(135deg, var(--primary), #A07008);
+  color: #000;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  box-shadow: 0 3px 16px var(--gold-glow);
+}
+.btn-next-q:active { transform: scale(.97); }
+.btn-next-q.visible { display: block; }
+
+/* ═══════════════════════════════════════════════════════
+   WIN SCREEN
+═══════════════════════════════════════════════════════ */
+#scWin {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(200,150,12,.22) 0%, transparent 60%),
+    var(--bg-void);
+  align-items: center; justify-content: center;
+  gap: 20px;
+  text-align: center;
+}
+.win-trophy { font-size: 80px; animation: trophy-pop .5s cubic-bezier(.34,1.56,.64,1) forwards; }
+@keyframes trophy-pop {
+  0%  { transform: scale(0) rotate(-15deg); opacity: 0; }
+  100%{ transform: scale(1) rotate(0); opacity: 1; }
+}
+.win-title {
+  font-family: var(--font-title);
+  font-size: 26px; color: var(--primary);
+}
+.win-subtitle { font-size: 15px; color: var(--text-muted); }
+.win-stats {
+  width: 100%; max-width: 360px;
+  background: var(--bg-card);
+  border: 1px solid rgba(200,150,12,.2);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.win-stat-row {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.win-stat-label { font-size: 13px; color: var(--text-muted); }
+.win-stat-value { font-family: var(--font-mono); font-size: 15px; color: var(--primary); font-weight: 600; }
+
+/* Toán Lực earn banner */
+.win-toan-luc {
+  width: 100%; max-width: 360px;
+  background: linear-gradient(135deg, rgba(200,150,12,.18), rgba(184,115,51,.12));
+  border: 1px solid rgba(200,150,12,.5);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+.win-tl-label { font-size: 13px; color: var(--text-muted); }
+.win-tl-earned {
+  font-family: var(--font-mono); font-size: 22px;
+  color: #FFD700; font-weight: 700;
+  text-shadow: 0 0 12px rgba(255,215,0,.4);
+  animation: tl-pop .5s cubic-bezier(.34,1.56,.64,1) .3s both;
+}
+@keyframes tl-pop {
+  0%  { transform: scale(0.5); opacity: 0; }
+  100%{ transform: scale(1); opacity: 1; }
+}
+.win-tl-balance { font-size: 12px; color: var(--text-muted); }
+.win-tl-breakdown {
+  font-size: 11px; color: rgba(200,150,12,.7);
+  margin-top: 4px; font-family: var(--font-mono);
+}
+.win-tl-first { color: #FFD700; }
+
+.win-badges { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.badge {
+  background: rgba(200,150,12,.1);
+  border: 1px solid rgba(200,150,12,.3);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--primary);
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GAME OVER SCREEN
+═══════════════════════════════════════════════════════ */
+#scGameOver {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(192,51,46,.18) 0%, transparent 60%),
+    var(--bg-void);
+  align-items: center; justify-content: center;
+  gap: 20px; text-align: center;
+}
+.gameover-icon  { font-size: 72px; }
+.gameover-title { font-family: var(--font-title); font-size: 26px; color: var(--secondary); }
+.gameover-sub   { font-size: 14px; color: var(--text-muted); max-width: 300px; }
+.gameover-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 340px; }
+
+/* ═══════════════════════════════════════════════════════
+   TRANSITIONS + MISC
+═══════════════════════════════════════════════════════ */
+.fade-in { animation: fadeIn .35s ease; }
+@keyframes fadeIn { from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+.screen-slide-up { animation: slideUp .3s ease; }
+@keyframes slideUp { from{ opacity:0; transform:translateY(20px); } to{ opacity:1; transform:translateY(0); } }
+
+/* floating particles */
+.particle {
+  position: fixed; pointer-events: none; z-index: 9999;
+  font-size: 18px;
+  animation: particle-fly 1.2s ease-out forwards;
+}
+@keyframes particle-fly {
+  0%  { opacity: 1; transform: translateY(0) scale(1); }
+  100%{ opacity: 0; transform: translateY(-80px) scale(.4); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 1: INTRO NARRATIVE
+═══════════════════════════════════════════════════ -->
+<div id="scIntro" class="screen active fade-in">
+  <div class="intro-visual">
+    <div id="introEmoji" class="intro-scene-emoji">🏛️</div>
+    <div id="introSceneLabel" class="intro-scene-label">Thành Cổ Loa · ~257 TCN</div>
+  </div>
+
+  <div class="dialogue-bubble">
+    <div class="dialogue-speaker">
+      <div class="dialogue-avatar" id="dialogueAvatar">🥁</div>
+      <div>
+        <div class="dialogue-name" id="dialogueName">THẦY LONG</div>
+      </div>
+    </div>
+    <div class="dialogue-text" id="dialogueText">
+      Đang tải kịch bản...
+    </div>
+    <div class="dialogue-step-dots" id="dialogueDots"></div>
+    <div class="dialogue-actions">
+      <button class="btn btn-primary" id="btnDialogueNext" onclick="nextDialogue()">Tiếp →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 2: THEORY CARDS
+═══════════════════════════════════════════════════ -->
+<div id="scTheory" class="screen">
+  <div class="theory-header">
+    <div class="section-badge">📖 Kiến thức cần nắm</div>
+    <h2 id="theoryCardTitle">—</h2>
+    <p class="subtitle" id="theoryCardSub">Thầy Long giảng bài</p>
+  </div>
+  <div class="theory-progress" id="theoryDots"></div>
+
+  <div class="theory-card fade-in" id="theoryCard">
+    <!-- dynamic content -->
+  </div>
+
+  <div class="theory-nav">
+    <button class="btn btn-secondary" id="btnTheoryBack" onclick="prevTheory()" style="display:none">← Quay lại</button>
+    <button class="btn btn-primary" id="btnTheoryNext" onclick="nextTheory()">Tiếp theo →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 3: BOSS SCENE
+═══════════════════════════════════════════════════ -->
+<div id="scBossScene" class="screen">
+  <div class="boss-scene-title">
+    <h2>⚔️ KẺ THÙ XUẤT HIỆN ⚔️</h2>
+    <h1 id="bossSceneName">—</h1>
+    <p class="danh-hieu" id="bossSceneDanh">—</p>
+  </div>
+
+  <div class="boss-scene-portrait" id="bossScenePortrait">🐓</div>
+
+  <div class="boss-scene-dialogue">
+    <span class="boss-name-tag" id="bossDialogueName">BẠCH KÊ TINH</span>
+    <span id="bossSceneDialogue">"Ngươi lại đây làm gì?"</span>
+  </div>
+
+  <div class="boss-coche">
+    <span class="co-may-tag">🥁 CỖ MÁY ĐÔNG SƠN</span>
+    <span id="bossCoche">Phân tích cơ chế Boss...</span>
+  </div>
+
+  <button class="btn-fight" onclick="startBattle()">⚔️ Bắt đầu chiến đấu!</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 4: BATTLE
+═══════════════════════════════════════════════════ -->
+<div id="scBattle" class="screen">
+  <!-- HUD -->
+  <div class="battle-hud">
+    <div class="hud-student">
+      <span class="hud-student-label">HP của em</span>
+      <span class="hud-hearts" id="hudHearts">❤️❤️❤️</span>
+    </div>
+    <div class="hud-center">
+      <div class="hud-q-count" id="hudQCount">1 / 6</div>
+      <div class="hud-ai-name" id="hudAiName">Ải 7</div>
+    </div>
+    <div class="hud-boss">
+      <span class="hud-boss-label" id="hudBossLabel">Bạch Kê Tinh</span>
+      <span class="hud-boss-hp" id="hudBossHP">🪶🪶🪶🪶🪶🪶</span>
+    </div>
+  </div>
+
+  <!-- Boss arena -->
+  <div class="battle-arena">
+    <div class="battle-boss-sprite" id="battleBossSprite">🐓</div>
+    <div class="battle-boss-name" id="battleBossName">BẠCH KÊ TINH</div>
+  </div>
+
+  <!-- Question area -->
+  <div class="battle-question-area" id="battleQuestionArea">
+
+    <div class="question-meta">
+      <span class="difficulty-badge" id="qDifficulty">🌱</span>
+      <span class="question-label" id="qLabel">Câu 1 / 6</span>
+    </div>
+
+    <div class="question-setup" id="qSetup" style="display:none"></div>
+
+    <div class="question-text" id="qText">—</div>
+
+    <div class="answer-grid" id="answerGrid">
+      <button class="answer-btn" id="ans0" onclick="answerQ(0)"></button>
+      <button class="answer-btn" id="ans1" onclick="answerQ(1)"></button>
+      <button class="answer-btn" id="ans2" onclick="answerQ(2)"></button>
+      <button class="answer-btn" id="ans3" onclick="answerQ(3)"></button>
+    </div>
+
+    <!-- Scaffolding -->
+    <div class="scaffolding-box" id="scaffoldingBox">
+      <span class="scaffolding-step" id="scaffoldingStep">💡 GỢI Ý BƯỚC 1</span>
+      <span id="scaffoldingText">...</span>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback-panel" id="feedbackPanel">
+      <span class="feedback-speaker" id="feedbackSpeaker">THẦY LONG</span>
+      <span id="feedbackText">...</span>
+    </div>
+
+    <button class="btn-next-q" id="btnNextQ" onclick="nextQuestion()">Câu tiếp →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 5: WIN
+═══════════════════════════════════════════════════ -->
+<div id="scWin" class="screen">
+  <div class="win-trophy">🏆</div>
+  <div>
+    <div class="win-title" id="winTitle">Chiến thắng!</div>
+    <div class="win-subtitle" id="winSubtitle">Thành Cổ Loa đứng vững rồi!</div>
+  </div>
+
+  <div class="win-stats">
+    <div class="win-stat-row">
+      <span class="win-stat-label">Câu đúng</span>
+      <span class="win-stat-value" id="statCorrect">6 / 6</span>
+    </div>
+    <div class="win-stat-row">
+      <span class="win-stat-label">Gợi ý đã dùng</span>
+      <span class="win-stat-value" id="statHints">0 lần</span>
+    </div>
+    <div class="win-stat-row">
+      <span class="win-stat-label">Thời gian</span>
+      <span class="win-stat-value" id="statTime">—</span>
+    </div>
+  </div>
+
+  <!-- Toán Lực earned -->
+  <div class="win-toan-luc" id="winToanLuc">
+    <div>
+      <div class="win-tl-label">⚡ Toán Lực nhận được</div>
+      <div class="win-tl-breakdown" id="winTlBreakdown">—</div>
+      <div class="win-tl-balance" id="winTlBalance">Số dư: — ⚡</div>
+    </div>
+    <div class="win-tl-earned" id="winTlEarned">+0</div>
+  </div>
+
+  <div class="win-badges" id="winBadges"></div>
+
+  <div style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;">
+    <button id="btnThuThanh" class="btn btn-primary" onclick="goThuThanh()" style="display:none;background:linear-gradient(135deg,#1E3A8A 0%,#2563EB 100%);box-shadow:0 0 18px rgba(37,99,235,.45);border-color:#2563EB;">🏰 Thủ Thành — Bảo Vệ Lịch Sử</button>
+    <button class="btn btn-primary" onclick="goMap()">🗺️ Về bản đồ</button>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary" onclick="restartBattle()" style="flex:1;">🔄 Chơi lại</button>
+      <button class="btn btn-secondary" onclick="window.location.href='stats.html'" style="flex:1;">📊 Thành tích</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 6: GAME OVER
+═══════════════════════════════════════════════════ -->
+<div id="scGameOver" class="screen">
+  <div class="gameover-icon">💔</div>
+  <div class="gameover-title">Thất bại!</div>
+  <div class="gameover-sub" id="gameoverSub">
+    Bạch Kê Tinh đã thắng lần này. Nhưng tri thức vẫn còn đây!
+  </div>
+  <div class="gameover-actions">
+    <button class="btn btn-primary" onclick="restartBattle()">🔄 Thử lại Boss</button>
+    <button class="btn btn-secondary" onclick="goMap()">🗺️ Về bản đồ</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   SCENARIO DATA — Ải 7: Bí Ẩn Cổ Loa
+   (Format sẵn sàng để swap với data từ API endpoint)
+═══════════════════════════════════════════════════════ */
+const SCENARIOS = {
+  7: {
+    id: 7, buoi: 7,
+    ten: "Bí Ẩn Cổ Loa",
+    subtitle: "Tiếng Gà Gáy Lúc Bình Minh",
+    scene_emoji: "🏛️",
+    scene_label: "Thành Cổ Loa · ~257 TCN",
+    nhan_vat: "Cao Lỗ",
+    tuyet_chieu: { emoji: "🔍", ten: "Thần Nhãn Vị Số" },
+
+    // Narrative dialogue (CẢNH MỞ)
+    intro: [
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `Hôm nay em sẽ không chỉ học Toán — em sẽ <strong>trở thành Cao Lỗ</strong>. Tổng công trình sư thiên tài của nước Âu Lạc. Người thiết kế thành Cổ Loa 3 vòng xoắn ốc hùng vĩ.`,
+      },
+      {
+        speaker: "narrator", avatar: "📜", name: "CỐT TRUYỆN",
+        text: `<em>Năm 210 TCN. Quân Tần vừa bị đánh bật sau 10 năm kháng chiến. An Dương Vương giao cho Cao Lỗ — giao cho em — một sứ mệnh: xây thành Cổ Loa làm pháo đài bảo vệ nền độc lập.</em>`,
+      },
+      {
+        speaker: "npc", avatar: "👑", name: "AN DƯƠNG VƯƠNG",
+        text: `"Cao Lỗ. Hai năm rồi. Hai năm mà tường thành cứ xây xong ban ngày, sáng sớm lại <strong>đổ sập hoàn toàn</strong>. Hai triệu mét khối đất — như chưa từng xây. Trẫm tin tưởng ngươi. Hãy tìm ra nguyên nhân."`,
+      },
+      {
+        speaker: "co_may", avatar: "⚙️", name: "CỖ MÁY ĐÔNG SƠN",
+        text: `"Phân tích hoàn tất, tướng quân. Có yêu vật phương Bắc ẩn trong làng — <strong>Bạch Kê Tinh</strong>. Tiếng gáy của nó xóa tri thức số học khỏi tâm trí toàn bộ thợ thuyền. Sáng ra họ không phân biệt được chữ số với số → đọc sai bản vẽ → tường đổ."`,
+      },
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `"Nghe rõ chưa, Cao Lỗ? Kẻ thù biết rằng: <strong>phá được bộ óc của em — chúng đã thắng mà không cần một mũi tên</strong>. Hãy ôn lại kiến thức để không tiếng gáy nào lấy đi được nữa."`,
+      },
+    ],
+
+    // Theory cards (CẢNH 2)
+    theory: [
+      {
+        icon: "🔢",
+        title: "Phân biệt Số và Chữ số",
+        box: `CHỮ SỐ = KÝ HIỆU (như chữ cái trong bảng chữ)
+Chỉ có 10 chữ số: <strong>0  1  2  3  4  5  6  7  8  9</strong>
+→ Chúng là TÊN, không phải GIÁ TRỊ
+
+SỐ = GIÁ TRỊ thực sự — có vô số các số
+Số 345 dùng 3 chữ số: "3", "4", "5"
+Nhưng mỗi chữ số có GIÁ TRỊ khác nhau:
+  "3" ở hàng TRĂM  →  <em>300</em>
+  "4" ở hàng CHỤC  →   <em>40</em>
+  "5" ở hàng ĐƠN VỊ →    <em>5</em>
+                    = 345`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Chữ số giống như viên gạch — cùng một viên gạch đặt ở vị trí khác nhau thì vai trò hoàn toàn khác. Chữ số 3 ở hàng trăm = 300; ở hàng chục = 30; ở hàng đơn vị = 3!",
+        },
+      },
+      {
+        icon: "🏛️",
+        title: "Ba vòng thành = Ba hàng số",
+        box: `🔴 VÒNG NGOÀI  — lớn nhất, bảo vệ cả vương quốc
+             = HÀNG TRĂM  (giá trị lớn nhất)
+               Chu vi 8km — sai 1 tấc = sai 300 tấc!
+
+🟡 VÒNG GIỮA   — bảo vệ trung tâm quân sự
+             = HÀNG CHỤC  (giá trị bậc giữa)
+               Chu vi 6,5km
+
+🟢 VÒNG TRONG  — nhỏ nhất, bảo vệ hoàng cung
+             = HÀNG ĐƠN VỊ  (nền tảng)
+               Chu vi 1,6km`,
+        quote: {
+          speaker: "CAO LỖ",
+          text: "Vậy là '3 hàng trăm, 4 hàng chục, 5 đơn vị' có nghĩa là 345 tấc! Ta đã đào móng chỉ 12 tấc — sai hơn 333 lần! Không trách tường đổ như cát!",
+        },
+      },
+      {
+        icon: "⚙️",
+        title: "Phân tích cấu tạo số",
+        box: `123 = 1×100 + 2×10 + 3
+457 = 4×100 + 5×10 + 7
+    = <em>400</em>  +  <em>50</em>  + <em>7</em>
+
+Tổng quát:
+<em>ABC = A×100 + B×10 + C</em>`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Hiểu được phân tích cấu tạo số, em sẽ đọc được mọi bản vẽ. Đó là thứ vũ khí Bạch Kê Tinh sợ nhất.",
+        },
+      },
+    ],
+
+    // Boss data
+    boss: {
+      ten: "Bạch Kê Tinh", emoji: "🐓",
+      danh_hieu: "Tinh Gà Trắng — Phong Ấn Tri Thức Số Học",
+      don_vi_hp: "🪶", so_hp: 6,
+      dialogue: `"Ngươi lại đây làm gì? Ta chỉ cần gáy một tiếng — tri thức số học của các ngươi sẽ tan như sương. Không phân biệt được số và chữ số... thành này sẽ đổ đến muôn đời!"`,
+      coche: `Chín lông đuôi của nó đang phong ấn 9 chữ số! Mỗi câu trả lời đúng → một lông đuôi bốc cháy → một chữ số được giải phóng!`,
+      defeated_line: "KHÔNG! Tri thức số học... không thể bị phục hồi...!",
+    },
+
+    // Boss questions
+    questions: [
+      {
+        do_kho: "🌱",
+        setup: `Cao Lỗ cầm bản vẽ, trỏ vào con số 345: "Bản vẽ này dùng mấy chữ số?"`,
+        text: `Số <strong>345</strong> có bao nhiêu chữ số?`,
+        options: ["12", "3", "2", "345"],
+        correct: 1,
+        hints: [
+          "💡 Đếm xem trong số 345 có bao nhiêu ký hiệu riêng lẻ (0–9)? Mỗi ký hiệu là một chữ số.",
+          "💡 345 có ba ký hiệu: '3', '4', '5'. Vậy có <strong>3 chữ số</strong>. (Chú ý: 345 là một SỐ, nhưng dùng 3 CHỮ SỐ)",
+        ],
+        explain: "Số 345 dùng đúng 3 chữ số: '3', '4', '5'. Chỉ 10 chữ số mà tạo ra vô số các số!",
+      },
+      {
+        do_kho: "🌱",
+        setup: `Cao Lỗ hỏi thợ cả: "Chữ số 4 đứng ở đâu trong số 345?"`,
+        text: `Trong số <strong>345</strong>, chữ số <strong>4</strong> đứng ở hàng nào?`,
+        options: ["Hàng trăm", "Hàng chục", "Hàng đơn vị", "Hàng nghìn"],
+        correct: 1,
+        hints: [
+          "💡 Đếm từ phải sang trái: chữ số tận cùng phải = hàng đơn vị, tiếp theo = hàng chục, tiếp nữa = hàng trăm.",
+          "💡 Trong 345: '5' = hàng đơn vị, '4' = hàng tiếp theo = <strong>hàng chục</strong>, '3' = hàng trăm.",
+        ],
+        explain: "Đúng! 4 ở hàng chục → giá trị thật của nó là 40, không phải 4. Chữ số giống viên gạch: đặt vị trí khác thì giá trị hoàn toàn khác!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Bạch Kê Tinh tức giận. Cỗ máy Đông Sơn chiếu lên số 345.`,
+        text: `Chữ số <strong>3</strong> trong số <strong>345</strong> có giá trị bằng bao nhiêu?`,
+        options: ["3", "30", "300", "3000"],
+        correct: 2,
+        hints: [
+          "💡 Ta biết '3' ở hàng trăm. Hàng trăm = nhân với bao nhiêu?",
+          "💡 Hàng trăm = ×100. Vậy '3' ở hàng trăm → giá trị = 3 × 100 = <strong>300</strong>.",
+        ],
+        explain: "Chính xác! '3' ở hàng trăm → 3 × 100 = 300. Không phải 3, không phải 30!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Cao Lỗ đọc bản vẽ: "Móng vòng giữa cần: 2 trăm, 6 chục, 1 đơn vị tấc."`,
+        text: `Móng vòng giữa cần: <strong>2 trăm + 6 chục + 1 đơn vị</strong> tấc.<br>Đó là bao nhiêu tấc?`,
+        options: ["961", "216", "261", "621"],
+        correct: 2,
+        hints: [
+          "💡 Tính từng phần: 2 trăm = 200. 6 chục = 60. 1 đơn vị = 1. Cộng lại.",
+          "💡 200 + 60 + 1 = <strong>261</strong>. Chữ số hàng trăm = 2, hàng chục = 6, hàng ĐV = 1 → số 261.",
+        ],
+        explain: "261 tấc! Chứ không phải 9 tấc (2+6+1). Đào tiếp — tường lần này sẽ không đổ!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Bạch Kê Tinh hung hăng vẽ lên không trung một bài toán so sánh.`,
+        text: `So sánh: <strong>A43 + 4B6 + 25C</strong> ☐ <strong>ABC + 700</strong><br><small style="color:var(--text-muted)">(A, B, C là các chữ số, giữ nguyên ở cả hai vế)</small>`,
+        options: ["Lớn hơn (>)", "Bằng nhau (=)", "Nhỏ hơn (<)", "Không xác định"],
+        correct: 2,
+        hints: [
+          "💡 Phân tích từng số: A43 = A×100+43. 4B6 = 400+B×10+6. 25C = 250+C. Gộp phần chứa A,B,C và cộng số cố định.",
+          "💡 A43+4B6+25C = (A×100+B×10+C) + (43+406+250) = ABC + <strong>699</strong>. Mà 699 < 700 → vế trái nhỏ hơn!",
+        ],
+        explain: "Xuất sắc! A43+4B6+25C = ABC+699. Mà 699 < 700 nên vế trái nhỏ hơn. Đây là bài nhiều học sinh lớp 4-5 vẫn bị nhầm!",
+      },
+      {
+        do_kho: "🏆",
+        setup: `Bạch Kê Tinh dồn hết sức. Nó vẫy đuôi tạo ra một màn khói số học.`,
+        text: `Tìm số <strong>X</strong> biết: <strong>X = 3×100 + 7×10 + 5</strong>`,
+        options: ["372", "350", "375", "305"],
+        correct: 2,
+        hints: [
+          "💡 Tính từng phần: 3×100 = ? &emsp; 7×10 = ? &emsp; Sau đó cộng lại với 5.",
+          "💡 3×100 = 300. 7×10 = 70. Vậy X = 300 + 70 + 5 = <strong>375</strong>.",
+        ],
+        explain: "3×100=300, 7×10=70, cộng thêm 5 → X = 375. Lông đuôi cuối bốc cháy — Bạch Kê Tinh thất bại!",
+      },
+    ],
+
+    // Win messages
+    win_title: "Thành Cổ Loa Đứng Vững!",
+    win_subtitle: "Hai năm đổ mồ hôi — Cổ Loa hoàn thành trong nửa tháng!",
+    win_thay_long: "Tuyệt vời, Cao Lỗ! Thành Cổ Loa — kinh đô Âu Lạc — đã được bảo vệ. Bài học hôm nay: Chữ số là ký hiệu · Số là giá trị · Vị trí của chữ số quyết định giá trị của nó.",
+
+    gameover_sub: "Bạch Kê Tinh thắng lần này. Nhưng tri thức vẫn còn đây — thử lại và lần này em biết cách phân tích từng chữ số!",
+  },
+
+  8: {
+    id: 8, buoi: 8,
+    ten: "Nỏ Thần Liên Châu",
+    subtitle: "Vũ Khí Hộ Quốc Từ Vuốt Rùa Vàng",
+    scene_emoji: "⚙️",
+    scene_label: "Xưởng Đúc Bí Mật · Cổ Loa ~257 TCN",
+    nhan_vat: "Cao Lỗ",
+    tuyet_chieu: { emoji: "🏹", ten: "Liên Châu Bách Phát" },
+
+    intro: [
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `Cao Lỗ! Thành Cổ Loa đứng vững rồi — nhưng An Dương Vương cần thứ còn mạnh hơn tường thành: một <strong>vũ khí hộ quốc</strong>. Thần Kim Quy đã trao vuốt thần, ngài tin tưởng giao cho em — Cao Lỗ — chế tạo <strong>Nỏ Liên Hoàn</strong>. Mỗi thông số sai một chữ số thôi, toàn bộ bánh răng sẽ không khớp, nỏ sẽ không bắn được!`,
+      },
+      {
+        speaker: "narrator", avatar: "📜", name: "CỐT TRUYỆN",
+        text: `<em>Xưởng đúc đồng sâu dưới lòng thành Cổ Loa. Ánh lửa lò rèn bập bùng màu cam-đỏ. Tiếng búa gõ đều nhịp. Trên bàn gỗ rộng: hàng chục bản vẽ khuôn đúc, la liệt số liệu kỹ thuật 3 chữ số.</em>`,
+      },
+      {
+        speaker: "npc", avatar: "🔨", name: "THỢ TRƯỞNG MINH",
+        text: `"Tướng quân! Khuôn bánh răng số 1 ghi '<strong>4 hàng trăm, 3 hàng chục, 2 đơn vị</strong>' — nhưng khuôn số 2 cạnh đó lại ghi '<strong>234</strong>'. Chúng phải bằng nhau mới khớp, nhưng hai cách ghi này... có bằng nhau không?"`,
+      },
+      {
+        speaker: "co_may", avatar: "⚙️", name: "CỖ MÁY ĐÔNG SƠN",
+        text: `"⚠️ Phát hiện xâm nhập! Bản vẽ bị can thiệp — thông số cấu tạo số bị viết theo nhiều dạng để gây nhầm lẫn. Nếu thợ đúc đọc sai, bánh răng sai kích thước 1mm thôi — cả hệ thống nỏ thần sụp đổ."`,
+      },
+      {
+        speaker: "npc", avatar: "🗡️", name: "TRIỆU ĐÀ NỘI GIÁN",
+        text: `"Cao Lỗ! Bản vẽ nỏ thần của ngươi chỉ là giấy lộn thôi. Nếu thợ đúc không phân biệt được '<strong>4 trăm 3 chục 2 đơn vị</strong>' với '<strong>234</strong>', hay không biết số nào lớn hơn số nào — nỏ thần của ngươi sẽ mãi mãi chỉ là đống đồng phế liệu!"`,
+      },
+    ],
+
+    theory: [
+      {
+        icon: "⚙️",
+        title: "Cấu tạo số 3 chữ số — Các cách viết tương đương",
+        box: `Số ABC = A×100 + B×10 + C×1
+
+Ví dụ: 432 = 4×100 + 3×10 + 2×1
+            = 400  +  30  +  2  = 432
+
+Các cách viết BẰNG NHAU:
+  • "4 trăm 3 chục 2 đơn vị"  = 432
+  • "4×100 + 3×10 + 2"         = 432
+  • "4 trăm + 32"               = 432
+→ TẤT CẢ đều bằng nhau!`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Triệu Đà muốn gây nhầm lẫn bằng cách viết số theo nhiều dạng — nhưng dù viết cách nào, giá trị vẫn là một. '4 trăm 3 chục 2 đơn vị' và '432' là MỘT!",
+        },
+      },
+      {
+        icon: "🏹",
+        title: "So sánh số 3 chữ số",
+        box: `So sánh hai số 3 chữ số — quy tắc 3 bước:
+
+Bước 1: So hàng TRĂM trước
+  → Số có trăm lớn hơn là lớn hơn
+  → Nếu bằng nhau → tiếp tục
+
+Bước 2: So hàng CHỤC
+  → Nếu bằng nhau → tiếp tục
+
+Bước 3: So hàng ĐƠN VỊ
+
+Ví dụ: 463 ☐ 432
+  Trăm: 4 = 4 → bằng
+  Chục:  6 > 3 → 463 > 432 ✓`,
+        quote: {
+          speaker: "CAO LỖ",
+          text: "Khuôn bánh răng lớn phải có đường kính lớn hơn khuôn bánh răng nhỏ. So sánh sai → bánh răng kẹt cứng — nỏ thần không bắn được!",
+        },
+      },
+      {
+        icon: "🎯",
+        title: "Tìm số thỏa điều kiện",
+        box: `Dạng bài: Tìm X thỏa: A < X < B
+
+Ví dụ: 250 < X < 260
+  → X phải LỚN HƠN 250 (không kể 250)
+  → X phải NHỎ HƠN 260 (không kể 260)
+  → X hợp lệ: 251, 252, 253, 254, 255,
+               256, 257, 258, 259
+
+Dạng ẩn số: 6□8 < 700
+  → Hàng trăm 6 < 7 → luôn nhỏ hơn 700
+  → □ có thể là 0, 1, ..., 9
+  → □ lớn nhất = 9 → số 698`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Dấu '<' nghĩa là nhỏ hơn THẬT SỰ — không kể bằng. Kiểm tra từng đáp án một, như Cao Lỗ kiểm tra từng bánh răng!",
+        },
+      },
+    ],
+
+    boss: {
+      ten: "Triệu Đà Nội Gián", emoji: "🗡️",
+      danh_hieu: "Kẻ Cài Cắm Từ Phương Bắc — Phá Hủy Bản Vẽ Nỏ Thần",
+      don_vi_hp: "⚙️", so_hp: 6,
+      dialogue: `"Dù ngươi có bảo vệ bản vẽ — nỏ thần vẫn không thể hoàn thành! Ta đã phá hủy 6 khuôn đúc quan trọng nhất. Chỉ cần thợ đúc tính sai MỘT lần, cả 6 bánh răng sẽ không khớp!"`,
+      coche: `6 khuôn đúc chủ chốt bị can thiệp! Mỗi câu trả lời đúng → 1 khuôn được phục hồi → 1 bánh răng ⚙️ của Triệu Đà bị phá!`,
+      defeated_line: "Không thể... các thông số đã bị xóa... sao ngươi vẫn đọc được?!",
+    },
+
+    questions: [
+      {
+        do_kho: "🌱",
+        setup: `Khuôn đúc số 1 — bánh răng lớn nhất. Bản vẽ ghi: "Đường kính = 5 trăm 0 chục 8 đơn vị (li)"`,
+        text: `Bản vẽ ghi <strong>"5 trăm 0 chục 8 đơn vị"</strong> — đó là số mấy?`,
+        options: ["580", "58", "508", "5008"],
+        correct: 2,
+        hints: [
+          "💡 Đọc từng hàng: 5 trăm = bao nhiêu? 0 chục = bao nhiêu? 8 đơn vị = bao nhiêu? Cộng lại!",
+          "💡 5 trăm = 500. 0 chục = 0. 8 đơn vị = 8. Tổng: 500 + 0 + 8 = <strong>508</strong>.",
+        ],
+        explain: "Xuất sắc! 5 hàng trăm = 500, 0 hàng chục = 0, 8 đơn vị = 8 → 508. Khuôn bánh răng lớn đã được phục hồi!",
+      },
+      {
+        do_kho: "🌱",
+        setup: `Khuôn số 2 — bánh răng trung. Bản vẽ còn sót dạng: "3×100 + 7×10 + 4"`,
+        text: `Bản vẽ ghi <strong>"3×100 + 7×10 + 4"</strong> — đây là số nào?`,
+        options: ["3074", "374", "347", "3740"],
+        correct: 1,
+        hints: [
+          "💡 Tính từng phần: 3×100 = ? Rồi 7×10 = ? Rồi cộng tất cả lại.",
+          "💡 3×100 = 300. 7×10 = 70. 300 + 70 + 4 = <strong>374</strong>.",
+        ],
+        explain: "Đúng! 3×100=300, 7×10=70, +4 → 374. Bánh răng thứ hai khớp hoàn hảo!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Hai khuôn đúc cạnh nhau: Khuôn A đường kính 463 li, Khuôn B đường kính 432 li.`,
+        text: `Khuôn A: đường kính <strong>463 li</strong>. Khuôn B: đường kính <strong>432 li</strong>.<br>Khuôn nào <strong>RỘNG hơn</strong>?`,
+        options: ["Khuôn A (463 li)", "Khuôn B (432 li)", "Bằng nhau", "Không xác định được"],
+        correct: 0,
+        hints: [
+          "💡 So sánh từ hàng lớn nhất trước: hàng trăm của cả hai số là mấy?",
+          "💡 Hàng trăm: 4 = 4 (bằng nhau). Hàng chục: 6 và 3 — số nào lớn hơn? → 6 > 3 → 463 > 432.",
+        ],
+        explain: "Chính xác! Hàng trăm bằng nhau (4=4), so hàng chục: 6 > 3 → 463 > 432. Khuôn A rộng hơn — đúng vị trí trong bản vẽ!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Bản vẽ quy định chiều dày bánh răng phải thỏa: 250 < X < 260 (không kể hai đầu).`,
+        text: `Chiều dày bánh răng phải thỏa: <strong>250 &lt; X &lt; 260</strong>.<br>Số nào dưới đây là chiều dày <strong>HỢP LỆ</strong>?`,
+        options: ["250", "260", "255", "261"],
+        correct: 2,
+        hints: [
+          "💡 Dấu '<' nghĩa là nhỏ hơn THẬT SỰ — không kể bằng. Kiểm tra từng đáp án: 250 có nhỏ hơn 250 không?",
+          "💡 250 < 250? Không! 250 = 250, không thỏa. 255 > 250 và 255 < 260 — thỏa cả hai điều kiện → <strong>255</strong> ✓.",
+        ],
+        explain: "Đúng! 250 < 255 < 260 — thỏa điều kiện. 250 và 260 bị loại vì không kể hai đầu. 261 quá lớn.",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Bản vẽ bị xóa một chữ số: "Chu vi lò xo = 6□8 li". Yêu cầu: số này phải nhỏ hơn 700.`,
+        text: `Số <strong>6□8</strong> phải nhỏ hơn 700. Chữ số hàng chục <strong>□ lớn nhất có thể</strong> là mấy?`,
+        options: ["0", "8", "9", "10"],
+        correct: 2,
+        hints: [
+          "💡 Hàng trăm của 6□8 là 6, hàng trăm của 700 là 7. So sánh: 6 < 7 — vậy 6□8 có luôn nhỏ hơn 700 không, dù □ là số gì?",
+          "💡 6□8 < 700 vì hàng trăm 6 < 7, dù □ là số gì! Vậy □ có thể là 0,1,2,...,9 — số LỚN NHẤT trong các chữ số là <strong>9</strong> → số 698.",
+        ],
+        explain: "Xuất sắc! Vì hàng trăm 6 < 7 nên 6□8 luôn nhỏ hơn 700. □ có thể là bất kỳ chữ số nào → lớn nhất là 9, tạo số 698 < 700.",
+      },
+      {
+        do_kho: "🏆",
+        setup: `Khuôn đúc cuối cùng — lẫy nỏ làm từ vuốt Rùa Vàng. Bản vẽ ghi điều kiện phức tạp nhất.`,
+        text: `Lẫy nỏ cần một số có 3 chữ số thỏa <strong>MỌI</strong> điều kiện:<br><strong>(1)</strong> Hàng trăm là 7<br><strong>(2)</strong> Hàng đơn vị là số lẻ nhỏ hơn 5<br><strong>(3)</strong> Tổng 3 chữ số bằng 14<br>Số đó là?`,
+        options: ["761", "743", "752", "731"],
+        correct: 1,
+        hints: [
+          "💡 Đặt số = 7BC. Điều kiện (3): 7+B+C=14 → B+C=7. Điều kiện (2): C lẻ và C<5 → C có thể là 1 hoặc 3.",
+          "💡 Nếu C=3: B+3=7 → B=4 → số là <strong>743</strong>. Kiểm tra: C=3 lẻ ✓, 3<5 ✓, 7+4+3=14 ✓.",
+        ],
+        explain: "Tuyệt hảo! 7+B+C=14 → B+C=7. C lẻ <5: thử C=3 → B=4 → số 743. Lông đuôi cuối bốc cháy — Triệu Đà Nội Gián thất bại!",
+      },
+    ],
+
+    win_title: "Nỏ Thần Liên Châu Hoàn Thành!",
+    win_subtitle: "Mỗi bánh răng khớp đúng thông số — Âu Lạc được bảo vệ!",
+    win_thay_long: "Xuất sắc, Cao Lỗ! Nỏ Thần Liên Châu — biểu tượng của trí tuệ Việt cổ đại — đã được chế tạo thành công. Bài học hôm nay: ABC = A×100+B×10+C · So sánh từ hàng lớn nhất · Tìm số thỏa điều kiện = tư duy logic từng bước!",
+    gameover_sub: "Triệu Đà Nội Gián phá được xưởng lần này. Nhưng bản vẽ vẫn còn đây — thử lại và nhớ: đọc từng hàng số, so sánh từng bước!",
+  },
+
+  9: {
+    id: 9, buoi: 9,
+    ten: "Hội Quân Mê Linh",
+    subtitle: "Tiếng Trống Khởi Nghĩa Năm 40",
+    scene_emoji: "⛓️",
+    scene_label: "Mê Linh · 40 SCN",
+    nhan_vat: "Trưng Trắc",
+    tuyet_chieu: { emoji: "🔥", ten: "Phượng Hoàng Hồi Sinh" },
+
+    intro: [
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `Trưng Trắc! Hôm nay em sẽ trở thành <strong>Nữ Vương Mê Linh</strong>. Chồng ta — Thi Sách — đã bị Tô Định giết để dập tắt mầm khởi nghĩa. Nhưng cái chết đó không phải là kết thúc, mà là bắt đầu. Nhiệm vụ: <strong>hội tụ toàn bộ nghĩa quân từ 4 cánh</strong>, tính quân số và phân bổ lương thực. Nếu ta tính sai — nghĩa quân sẽ đói, sẽ tan vỡ trước khi nổ súng!`,
+      },
+      {
+        speaker: "narrator", avatar: "📜", name: "CỐT TRUYỆN",
+        text: `<em>Đồng bằng Mê Linh, mùa hè năm 40 SCN. Trước mắt: một biển người — nghĩa quân từ khắp nơi đổ về. Tiếng trống trận vang vọng núi sông. Cờ lau, cờ tre — muôn màu rợp trời.</em>`,
+      },
+      {
+        speaker: "npc", avatar: "⚔️", name: "TRƯNG NHỊ",
+        text: `"Chị! Quân Cửu Chân vừa đến — họ hỏi còn bao nhiêu lương trong kho để biết ăn được mấy ngày trước trận đầu tiên. Nhưng các lạc hầu... <strong>không ai tính được!</strong> Bùa của Tô Định đã phong ấn phép cộng trừ số lớn trong đầu mọi người."`,
+      },
+      {
+        speaker: "co_may", avatar: "⚙️", name: "CỖ MÁY ĐÔNG SƠN",
+        text: `"Xác nhận: <strong>Xích Thư Ma</strong> đã kích hoạt — phong ấn mọi phép cộng trừ trong phạm vi 1000. Nhưng Chiến Binh Toán đến từ năm 2026 — bùa cổ Hán không ảnh hưởng được. Ta cần em tính toán cho Trưng Trắc!"`,
+      },
+      {
+        speaker: "npc", avatar: "⛓️", name: "TÔ ĐỊNH",
+        text: `"Trưng Trắc! Ngươi tập hợp được quân — nhưng ngươi có biết có bao nhiêu không? Xích Thư Ma của ta đã phong ấn phép tính của toàn bộ nghĩa quân — đám đông vô tổ chức chỉ là <strong>bia đỡ đạn</strong>!"`,
+      },
+    ],
+
+    theory: [
+      {
+        icon: "⊕",
+        title: "Cộng có nhớ — 3 bước",
+        box: `Ví dụ: 567 + 389 = ?
+
+Bước 1 (đơn vị): 7 + 9 = 16
+  → viết 6, nhớ 1
+
+Bước 2 (hàng chục): 6 + 8 + 1(nhớ) = 15
+  → viết 5, nhớ 1
+
+Bước 3 (hàng trăm): 5 + 3 + 1(nhớ) = 9
+  → viết 9
+
+⚠️ KẾT QUẢ: 956
+⚠️ Lỗi phổ biến: QUÊN số nhớ ở bước 2 hoặc 3!`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Như hội quân — từng toán đến, ta phải cộng dồn. Số nhớ là 'quân chuyển tiếp' từ đội này sang đội tiếp theo. Quên số nhớ = mất một đội quân trong tính toán!",
+        },
+      },
+      {
+        icon: "⊖",
+        title: "Trừ có nhớ — Mượn hàng trên",
+        box: `Ví dụ: 843 − 567 = ?
+
+Bước 1 (đơn vị): 3 < 7 → mượn 1 chục
+  13 − 7 = 6
+
+Bước 2 (hàng chục): 4 − 1(mượn) = 3 < 6
+  → mượn 1 trăm: 13 − 6 = 7
+
+Bước 3 (hàng trăm): 8 − 1(mượn) − 5 = 2
+
+⚠️ KẾT QUẢ: 276
+⚠️ Lỗi: Quên TRỪ 1 sau khi mượn ở bước sau!`,
+        quote: {
+          speaker: "TRƯNG NHỊ",
+          text: "Như chia lương thực — lấy đi một phần, phải biết còn lại bao nhiêu. Tô Định xóa phép trừ vì không muốn ta biết còn bao nhiêu lương, bao nhiêu quân!",
+        },
+      },
+      {
+        icon: "🏹",
+        title: "Bài toán hội tụ — Cộng nhiều số",
+        box: `Khi cộng 3-4 số lớn: cộng từng cặp!
+
+387 + 268 + 145 + 199
+
+Bước 1: 387 + 268 = 655
+Bước 2: 655 + 145 = 800
+Bước 3: 800 + 199 = 999
+
+✓ Cộng theo thứ tự, mỗi bước chỉ cộng 2 số
+✓ Dùng kết quả bước trước làm đầu vào bước sau`,
+        quote: {
+          speaker: "TRƯNG TRẮC",
+          text: "Nghĩa quân hội tụ từng đoàn — ta tính từng đoàn một, cộng dồn vào tổng. Không bao giờ tính tất cả cùng một lúc!",
+        },
+      },
+    ],
+
+    boss: {
+      ten: "Tô Định", emoji: "⛓️",
+      danh_hieu: "Thái Thú Bạo Ngược — Kẻ Xích Tay Dân Tộc",
+      don_vi_hp: "⛓️", so_hp: 6,
+      dialogue: `"Trưng Trắc! Ngươi tập hợp được quân — nhưng ngươi có biết có bao nhiêu không? Có đủ lương không? Xích Thư Ma của ta đã phong ấn phép tính — đám đông vô tổ chức chỉ là bia đỡ đạn!"`,
+      coche: `Xích Thư Ma — 6 xích phong ấn 6 phép tính cộng/trừ quan trọng nhất. Mỗi câu đúng → 1 xích gãy → Tô Định mất 1 HP!`,
+      defeated_line: "Không thể! Bùa của ta... bị phá!? Tháo lui... tháo lui!",
+    },
+
+    questions: [
+      {
+        do_kho: "🌱",
+        setup: `Báo cáo đầu tiên: quân Mê Linh 387 và quân Cửu Chân 268 đã tập kết.`,
+        text: `Quân Mê Linh: <strong>387</strong> người. Quân Cửu Chân: <strong>268</strong> người.<br>Tổng hai cánh là bao nhiêu?`,
+        options: ["545", "645", "655", "555"],
+        correct: 2,
+        hints: [
+          "💡 Tính từng hàng từ phải sang trái. Đơn vị: 7+8=15 → viết 5, nhớ 1. Tiếp theo hàng chục...",
+          "💡 Hàng chục: 8+6=14, cộng thêm 1 (số nhớ) = 15 → viết 5, nhớ 1. Hàng trăm: 3+2+1 = <strong>6</strong>. Kết quả: <strong>655</strong>.",
+        ],
+        explain: "Chính xác! 387+268: đơn vị 7+8=15 (viết 5 nhớ 1), chục 8+6+1=15 (viết 5 nhớ 1), trăm 3+2+1=6. Kết quả: 655!",
+      },
+      {
+        do_kho: "🌱",
+        setup: `Kho lương báo cáo: ban đầu có 840 thạch gạo, đã phát 375 thạch cho quân đến trước.`,
+        text: `Kho có <strong>840</strong> thạch gạo, đã phát <strong>375</strong> thạch.<br>Còn lại bao nhiêu thạch?`,
+        options: ["475", "465", "565", "455"],
+        correct: 1,
+        hints: [
+          "💡 Đơn vị: 0 < 5, phải mượn 1 chục. 10−5=5. Hàng chục bây giờ còn 3 (đã mượn 1). 3 < 7, phải mượn tiếp...",
+          "💡 Hàng chục: mượn 1 trăm → 13−7=6. Hàng trăm: 8−1(mượn)−3=<strong>4</strong>. Kết quả: <strong>465</strong>.",
+        ],
+        explain: "Đúng rồi! 840−375: đơn vị 10−5=5; chục 13−7=6; trăm 8−1−3=4. Kết quả: 465 thạch còn lại!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Đủ bốn cánh quân: Mê Linh 387, Cửu Chân 268, Tây Vu 145, Nhật Nam 199.`,
+        text: `Tổng bốn cánh quân:<br><strong>387 + 268 + 145 + 199</strong> = ?`,
+        options: ["899", "999", "989", "1099"],
+        correct: 1,
+        hints: [
+          "💡 Cộng từng bước: 387+268 trước (câu 1 vừa tính = 655). Rồi 655+145=?",
+          "💡 655+145=800. Tiếp: 800+199: 0+9=9, 0+9=9, 8+1=9 → <strong>999</strong>. Gần 1000 nghĩa sĩ!",
+        ],
+        explain: "Tuyệt vời! 387+268=655, 655+145=800, 800+199=999. Gần 1000 nghĩa sĩ hội tụ dưới cờ Trưng Vương!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Kho có 465 thạch còn lại. Mỗi ngày cần 10 thạch cho 999 người (~10 đội 100 người).`,
+        text: `Có <strong>465</strong> thạch gạo. Mỗi ngày cần <strong>10</strong> thạch.<br>Đủ ăn bao nhiêu ngày? (465 ÷ 10 = ?)`,
+        options: ["40 ngày", "46 ngày (dư 5 thạch)", "45 ngày", "50 ngày"],
+        correct: 1,
+        hints: [
+          "💡 Chia cho 10: lấy 465 ÷ 10. Chia cho 10 thì hàng đơn vị thành số dư, còn lại là thương.",
+          "💡 465 ÷ 10 = <strong>46</strong> thương và <strong>5</strong> dư (vì 46×10=460, 465−460=5). Vậy ăn được 46 ngày còn thừa 5 thạch.",
+        ],
+        explain: "Chính xác! 465÷10=46 dư 5. Đủ ăn 46 ngày, thừa 5 thạch. Đủ thời gian cho chiến dịch đầu tiên!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Sau trận đánh đầu tiên: xuất quân 999 người, hi sinh 87 người.`,
+        text: `Xuất quân <strong>999</strong> người, hi sinh <strong>87</strong> người.<br>Số quân còn chiến đấu được là bao nhiêu?`,
+        options: ["902", "912", "922", "812"],
+        correct: 1,
+        hints: [
+          "💡 Đây là phép trừ không có nhớ — thuận lợi hơn. Tính từng hàng từ phải sang: đơn vị 9−7=?",
+          "💡 Đơn vị: 9−7=2. Chục: 9−8=1. Trăm: 9−0=9. Ghép lại: <strong>912</strong>.",
+        ],
+        explain: "Đúng! 999−87: đơn vị 9−7=2, chục 9−8=1, trăm 9−0=9. Kết quả: 912. Dù mất đồng đội — tinh thần vẫn vững vàng!",
+      },
+      {
+        do_kho: "🏆",
+        setup: `Tô Định gieo xích cuối cùng — bài toán hội quân phức tạp nhất.`,
+        text: `Nghĩa quân đang có <strong>912</strong> người. Nhận thêm 2 đợt viện binh: <strong>138</strong> và <strong>175</strong> người. Sau đó chia đều cho <strong>5 đội</strong>.<br>Mỗi đội bao nhiêu người?`,
+        options: ["240 người", "245 người", "250 người", "225 người"],
+        correct: 1,
+        hints: [
+          "💡 Bài 2 bước: Bước 1 — cộng tổng quân (912+138+175). Bước 2 — chia đều cho 5. Làm bước 1 trước!",
+          "💡 912+138=1050. 1050+175=1225. Bây giờ 1225÷5=<strong>245</strong> (vì 5×245=1225).",
+        ],
+        explain: "Hoàn hảo! 912+138=1050, 1050+175=1225, 1225÷5=245 người mỗi đội. Nghĩa quân được tổ chức hoàn hảo — Xích Thư Ma tan vỡ!",
+      },
+    ],
+
+    win_title: "Mê Linh Giải Phóng!",
+    win_subtitle: "Tô Định bỏ trốn — khởi nghĩa Hai Bà Trưng bùng cháy khắp đất Việt!",
+    win_thay_long: "Xuất sắc, Trưng Trắc! Năm 40 SCN — cuộc khởi nghĩa vĩ đại bắt đầu. Bài học hôm nay: Cộng có nhớ — nhớ số nhớ · Trừ có nhớ — mượn từ hàng trên · Bài toán hội tụ — cộng từng bước. Như Trưng Trắc hội tụ nghĩa quân — em hội tụ từng con số, không bỏ sót một 'số nhớ' nào!",
+    gameover_sub: "Xích Thư Ma còn mạnh lần này. Thử lại — nhớ đừng bao giờ quên số nhớ khi cộng, và khi mượn phải trừ 1 ở hàng tiếp theo!",
+  },
+
+  10: {
+    id: 10, buoi: 10,
+    ten: "Chiến Thuật Voi Chiến",
+    subtitle: "Sáu Mươi Lăm Thành Giải Phóng",
+    scene_emoji: "🐘",
+    scene_label: "Đồng Bằng Bắc Bộ · 40-43 SCN",
+    nhan_vat: "Trưng Trắc",
+    tuyet_chieu: { emoji: "🐘", ten: "Tượng Binh Trận Đồ" },
+
+    intro: [
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `Trưng Trắc! Mã Viện đã đến — danh tướng thiện chiến nhất Hán triều. Lần này hắn dùng <strong>Bùa Hán Trận</strong> — xóa bảng nhân và phép chia trong đầu nghĩa quân. Voi chiến là vũ khí bí mật — nhưng nếu không chia được đội hình đúng, đàn voi trở thành hỗn loạn và kỵ binh Hán sẽ dẹp từng con một!`,
+      },
+      {
+        speaker: "narrator", avatar: "📜", name: "CỐT TRUYỆN",
+        text: `<em>Chiến trường đồng bằng Bắc Bộ. Phía xa: đội hình kỵ binh Hán — hàng nghìn con ngựa — đang tiến về phía nghĩa quân. Tiếng vó ngựa rầm rầm. Phía ta: 48 con voi chiến đứng thành cụm lộn xộn, chờ lệnh phân đội.</em>`,
+      },
+      {
+        speaker: "npc", avatar: "🐘", name: "PHÙNG THỊ CHÍNH",
+        text: `"Nữ Vương! Bùa Mã Viện đã kích hoạt — binh sĩ của ta không còn nhớ bảng nhân nữa. Đội hình voi chiến không chia được! <strong>48 con voi</strong> cần chia thành các đội 4 con... nhưng không ai tính ra 48÷4 là bao nhiêu!"`,
+      },
+      {
+        speaker: "co_may", avatar: "⚙️", name: "CỖ MÁY ĐÔNG SƠN",
+        text: `"Bùa Hán Trận phong ấn <strong>bảng cửu chương và phép chia</strong> tương ứng. Chỉ có Chiến Binh Toán giải được. Mỗi câu đúng → đội voi được bố trí → 1 kỵ binh 🐴 của Mã Viện bị triệt hạ!"`,
+      },
+      {
+        speaker: "npc", avatar: "🐴", name: "MÃ VIỆN",
+        text: `"Trưng Trắc... ta đã dẹp bao nhiêu dân tộc nổi loạn. Voi chiến mạnh — nhưng không có bảng nhân và phép chia, chúng chỉ là <strong>bầy thú hoang</strong>. Ta đã chuẩn bị 6 đòn phong ấn — mỗi đòn xóa đi một kỹ năng nhân chia của quân ngươi!"`,
+      },
+    ],
+
+    theory: [
+      {
+        icon: "✖️",
+        title: "Bảng nhân 3, 4, 5 — Mẹo ghi nhớ",
+        box: `×3: nhân đôi rồi cộng thêm 1 lần nữa
+  Ví dụ: 7×3 = 7×2+7 = 14+7 = 21
+
+×4: nhân đôi HAI LẦN
+  Ví dụ: 7×4 = 7×2×2 = 14×2 = 28
+
+×5: kết quả luôn tận cùng 0 hoặc 5
+  Mẹo: A×5 = (A×10)÷2
+  Ví dụ: 8×5 = 80÷2 = 40
+
+🐘 Mỗi đội 4 voi, cần 7 đội → 7×4 = 28 con`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Biết nhân là biết được cần bao nhiêu voi, bao nhiêu lương thực, bao nhiêu người dẫn voi. Không thuộc bảng nhân — không chỉ huy được đội hình!",
+        },
+      },
+      {
+        icon: "➗",
+        title: "Phép chia — Liên hệ với phép nhân",
+        box: `Biết: 6 × 4 = 24
+→ Suy ra: 24 ÷ 4 = 6   và   24 ÷ 6 = 4
+
+CHIA CÓ DƯ:
+  35 ÷ 4 = 8 (dư 3)
+  vì 8×4 = 32,  35 − 32 = 3
+
+Kiểm tra: thương × chia + dư = số bị chia
+  8 × 4 + 3 = 35 ✓
+
+⚠️ Số dư LUÔN nhỏ hơn số chia!`,
+        quote: {
+          speaker: "PHÙNG THỊ CHÍNH",
+          text: "Nếu có 35 con voi chia đội 4 con: 8 đội đầy (32 con), còn 3 con lẻ dự phòng. Không bỏ lãng phí một con nào!",
+        },
+      },
+      {
+        icon: "🔄",
+        title: "Tìm số bị chia từ thương và dư",
+        box: `Bài toán ngược: biết thương và dư → tìm số bị chia
+
+Công thức:
+  Số bị chia = thương × số chia + số dư
+
+Ví dụ:
+  N ÷ 3 = 7 dư 2
+  → N = 7 × 3 + 2 = 21 + 2 = 23
+
+Kiểm tra: 23 ÷ 3 = 7 dư 2 ✓`,
+        quote: {
+          speaker: "TRƯNG TRẮC",
+          text: "Từ 'bao nhiêu đội và bao nhiêu con thừa' ta tính ngược lại tổng số voi. Đây là vũ khí toán học mà Mã Viện không ngờ tới!",
+        },
+      },
+    ],
+
+    boss: {
+      ten: "Mã Viện", emoji: "🐴",
+      danh_hieu: "Phục Ba Tướng Quân — Thiện Chiến Nhất Hán Triều",
+      don_vi_hp: "🐴", so_hp: 6,
+      dialogue: `"Voi chiến mạnh — nhưng không có bảng nhân và phép chia, chúng chỉ là bầy thú hoang. Bùa Hán Trận của ta đã phong ấn toàn bộ bảng cửu chương của nghĩa quân ngươi!"`,
+      coche: `Bùa Hán Trận: 6 kỵ binh phong ấn 6 đội voi chiến. Mỗi câu đúng → 1 đội voi xung trận → 1 kỵ binh 🐴 bị triệt hạ!`,
+      defeated_line: "Không thể... bùa của ta đã bị phá!? Tháo lui... tháo lui!",
+    },
+
+    questions: [
+      {
+        do_kho: "🌱",
+        setup: `Phùng Thị Chính hỏi: Đội voi kiểu A cần 3 con/đội. Cần lập 7 đội.`,
+        text: `Mỗi đội voi có <strong>3</strong> con. Cần lập <strong>7</strong> đội.<br>Cần tất cả bao nhiêu con voi?`,
+        options: ["18", "21", "24", "28"],
+        correct: 1,
+        hints: [
+          "💡 Bài toán nhân: mỗi đội 3 con, có 7 đội. Nhân: 3 × 7 = ?",
+          "💡 3×7 = 3+3+3+3+3+3+3 = 21. Hoặc nhớ bảng nhân: 3×7 = <strong>21</strong>.",
+        ],
+        explain: "Chính xác! 3×7=21. Đội hình kiểu A — 7 đội voi sẵn sàng xung trận!",
+      },
+      {
+        do_kho: "🌱",
+        setup: `48 con voi cần chia thành các đội 4 con. Phùng Thị Chính cần biết số đội.`,
+        text: `Có <strong>48</strong> con voi, mỗi đội <strong>4</strong> con.<br>Lập được bao nhiêu đội?`,
+        options: ["10 đội", "11 đội", "12 đội", "16 đội"],
+        correct: 2,
+        hints: [
+          "💡 Chia 48 cho 4: tìm số đội. Hỏi: 4 nhân mấy thì bằng 48?",
+          "💡 4×10=40, 4×12=48. Vậy 48÷4=<strong>12</strong>.",
+        ],
+        explain: "Đúng! 48÷4=12 đội. Vì 12×4=48. Mười hai đội voi chiến xuất trận!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Có 35 con voi, muốn chia đội 4 con. Hỏi chia được mấy đội và còn dư mấy con?`,
+        text: `<strong>35</strong> con voi chia thành đội <strong>4</strong> con.<br>Chia được bao nhiêu đội? Còn dư mấy con?`,
+        options: ["9 đội dư 0", "8 đội dư 3", "7 đội dư 7", "8 đội dư 4"],
+        correct: 1,
+        hints: [
+          "💡 Hỏi: 4 nhân mấy gần 35 nhất mà không vượt quá? 4×8=32 < 35; 4×9=36 > 35. Vậy thương là 8.",
+          "💡 4×8=32. Số dư: 35−32=<strong>3</strong>. Kiểm tra: số dư 3 < số chia 4 ✓. Đáp án: 8 đội dư 3.",
+        ],
+        explain: "Chính xác! 8×4=32, 35−32=3 dư. Kiểm tra: 8×4+3=35 ✓. 8 đội đầy đủ, 3 con voi lẻ dự phòng!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `8 đội đầy đủ (mỗi đội 5 con) và 1 đội thiếu (chỉ có 4 con).`,
+        text: `<strong>8</strong> đội đầy đủ (mỗi đội <strong>5</strong> con) + <strong>1</strong> đội chỉ có <strong>4</strong> con.<br>Tổng số voi cần huy động là bao nhiêu?`,
+        options: ["40 con", "44 con", "45 con", "49 con"],
+        correct: 1,
+        hints: [
+          "💡 Bài 2 bước: tính 8 đội đầy đủ trước (8×5=?), rồi cộng thêm đội thiếu (4 con).",
+          "💡 8×5=40. Cộng thêm đội 4 con: 40+4=<strong>44</strong>.",
+        ],
+        explain: "Xuất sắc! 8×5=40, +4=44. Bài toán 2 bước: nhân rồi cộng. 44 con voi sẵn sàng!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Phùng Thị Chính dùng hết 45 con voi chia thành 5 đội bằng nhau.`,
+        text: `Phùng Thị Chính dùng <strong>45</strong> con voi chia thành <strong>5</strong> đội bằng nhau.<br>Mỗi đội có bao nhiêu con voi?`,
+        options: ["8 con", "9 con", "10 con", "7 con"],
+        correct: 1,
+        hints: [
+          "💡 Đây là phép chia: 45÷5. Hỏi: 5 nhân mấy bằng 45?",
+          "💡 5×9=45. Vậy 45÷5=<strong>9</strong>.",
+        ],
+        explain: "Đúng! 45÷5=9. Vì 9×5=45. Mỗi đội 9 con voi — đội hình hoàn hảo để vây kỵ binh Hán!",
+      },
+      {
+        do_kho: "🏆",
+        setup: `Mã Viện tung đòn cuối: biết thương và dư, tìm tổng số voi.`,
+        text: `Có <strong>N</strong> con voi. Chia thành đội <strong>3</strong> con: được <strong>7 đội dư 2</strong>.<br>Hỏi <strong>N</strong> bằng bao nhiêu?`,
+        options: ["21 con", "23 con", "22 con", "24 con"],
+        correct: 1,
+        hints: [
+          "💡 Biết: N ÷ 3 = 7 dư 2. Công thức ngược: N = thương × số chia + số dư. Thay vào!",
+          "💡 N = 7 × 3 + 2 = 21 + 2 = <strong>23</strong>. Kiểm tra: 23÷3=7 dư 2 ✓.",
+        ],
+        explain: "Hoàn hảo! N = 7×3 + 2 = 21+2 = 23. Từ 'thương và dư' suy ra số bị chia. Bùa Hán Trận tan vỡ!",
+      },
+    ],
+
+    win_title: "Đàn Voi Xung Trận — 65 Thành Giải Phóng!",
+    win_subtitle: "Mã Viện tháo lui — Trưng Vương thống trị giang sơn!",
+    win_thay_long: "Xuất sắc! 40-43 SCN — Trưng Vương giải phóng 65 thành. Bài học hôm nay: Bảng nhân 3,4,5 — nhân đôi, nhân tư, kết quả tận 0/5 · Chia = ngược nhân · Chia có dư: thương×chia+dư = số bị chia. Như Phùng Thị Chính chia voi — không để một con thừa vô nghĩa!",
+    gameover_sub: "Bùa Hán Trận còn mạnh. Thử lại — nhớ bảng nhân và công thức chia có dư: thương × số chia + số dư = số bị chia!",
+  },
+
+  11: {
+    id: 11, buoi: 5,
+    ten: "Trận Bạch Đằng — Cắm Cọc",
+    subtitle: "Bẫy Sắt Dưới Đáy Sông",
+    scene_emoji: "⚓",
+    scene_label: "Sông Bạch Đằng · 938 SCN",
+    nhan_vat: "Ngô Quyền",
+    tuyet_chieu: { emoji: "⚓", ten: "Hải Thần Trận Pháp" },
+
+    intro: [
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `Ngô Quyền! Đây là đêm quyết định lịch sử. Hạm đội Nam Hán — 500 chiến thuyền — đang vượt biển, ngày mai sẽ đến cửa sông Bạch Đằng. Kế hoạch của ta đơn giản nhưng thiên tài: cọc gỗ + thủy triều. Nhưng để kế hoạch thành công, phải tính <strong>CHÍNH XÁC</strong>: bao nhiêu cọc, dài bao nhiêu, đặt cách nhau bao nhiêu, và phải cắm XONG trước khi nước lên. Một con số sai — tất cả sụp đổ.`,
+      },
+      {
+        speaker: "narrator", avatar: "📜", name: "CỐT TRUYỆN",
+        text: `<em>Bờ sông Bạch Đằng, tháng 12 năm 938. Sương mù dày đặc trên mặt sông. Hàng trăm thợ đang chuẩn bị cọc gỗ lớn bịt đầu sắt nhọn sáng loáng. Đêm nay phải cắm xong trước khi hạm đội Hán đến.</em>`,
+      },
+      {
+        speaker: "npc", avatar: "🔨", name: "THỢ TRƯỞNG",
+        text: `"Tướng quân! <strong>Phong Thủy Ấn</strong> của Lưu Hoằng Tháo đã kích hoạt từ xa — thợ của ta không còn tính được phép nhân và đo lường! Số cọc cần cắm... chiều dài cọc... không ai tính được nữa!"`,
+      },
+      {
+        speaker: "co_may", avatar: "⚙️", name: "CỖ MÁY ĐÔNG SƠN",
+        text: `"Xác nhận: Phong Thủy Ấn — <strong>7 con dấu phong ấn 7 kỹ năng tính nhân và đo lường</strong>. Chiến Binh Toán — bùa không ảnh hưởng em. Giúp Ngô Quyền tính toán trận địa cọc!"`,
+      },
+      {
+        speaker: "npc", avatar: "⛵", name: "LƯU HOẰNG THÁO",
+        text: `"Ngô Quyền! Ta nghe nói ngươi cắm cọc dưới sông? Cọc mấy cái thì đủ cản 500 chiến thuyền? Phong Thủy Ấn của ta đã phong ấn phép nhân và đo lường của thợ ngươi. Hãy để ta xem ngươi cắm xong được bao nhiêu cọc trước khi ta đến!"`,
+      },
+    ],
+
+    theory: [
+      {
+        icon: "✖️",
+        title: "Nhân 2 chữ số × 1 chữ số (có nhớ)",
+        box: `NHÂN 2 CHỮ SỐ × 1 CHỮ SỐ
+
+   34 × 3 = ?
+Bước 1: 4×3=12 → viết 2, nhớ 1
+Bước 2: 3×3=9, cộng nhớ 1 → 10 → viết 10
+KẾT QUẢ: 102
+
+Ví dụ 2: 48 × 4 = ?
+Bước 1: 8×4=32 → viết 2, nhớ 3
+Bước 2: 4×4=16, cộng nhớ 3 → 19 → viết 19
+KẾT QUẢ: 192
+
+⚠️ ĐỪNG QUÊN số nhớ — như nhớ từng hàng cọc!`,
+        quote: {
+          speaker: "NGÔ QUYỀN",
+          text: "Nhân số cọc mỗi hàng với số hàng — ra tổng số cọc. Nhớ số nhớ — như nhớ từng hàng cọc, không được bỏ sót!",
+        },
+      },
+      {
+        icon: "📏",
+        title: "Đo lường — Đổi đơn vị độ dài",
+        box: `BẢNG ĐỔI ĐƠN VỊ ĐO ĐỘ DÀI
+
+1 m = 10 dm = 100 cm
+1 dm = 10 cm
+
+Đổi từ lớn → nhỏ: NHÂN
+  Ví dụ: 3m = 3 × 10 = 30 dm
+  Ví dụ: 5m = 5 × 100 = 500 cm
+
+Đổi từ nhỏ → lớn: CHIA
+  Ví dụ: 50 dm = 50 ÷ 10 = 5 m
+
+Chu vi hình chữ nhật:
+  C = (dài + rộng) × 2`,
+        quote: {
+          speaker: "NGÔ QUYỀN",
+          text: "Cọc dài 4m cắm sâu 1m vào bùn: phần nổi còn 3m. Khi thủy triều lên 2m: cọc vẫn ngập 1m. Khi thủy triều xuống: cọc lộ ra — đâm thẳng vào đáy thuyền địch!",
+        },
+      },
+      {
+        icon: "⏱️",
+        title: "Thời gian — Giờ và phút",
+        box: `TÍNH THỜI GIAN
+
+1 giờ = 60 phút
+
+Ví dụ: Thủy triều lên lúc 6 giờ sáng,
+mỗi giờ lên 3 dm. Lúc 9 giờ nước lên bao nhiêu?
+→ Thời gian: 9 - 6 = 3 giờ
+→ Độ cao nước: 3 × 3 = 9 dm
+
+Bài toán ngược: Cần nước lên 12 dm,
+mỗi giờ lên 3 dm. Bắt đầu lúc 6 giờ:
+→ Số giờ cần: 12 ÷ 3 = 4 giờ
+→ Đến lúc: 6 + 4 = 10 giờ sáng`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Tính đúng thời điểm thủy triều — như tính đúng giờ xuất quân. Sai một giờ: cả trận thua!",
+        },
+      },
+    ],
+
+    boss: {
+      ten: "Lưu Hoằng Tháo", emoji: "⛵",
+      danh_hieu: "Thái Tử Nam Hán — Thủy Quân Kiêu Ngạo",
+      don_vi_hp: "⛵", so_hp: 7,
+      dialogue: `"Ngô Quyền... ta đã vào sông rồi! Cọc của ngươi đâu? Phong Thủy Ấn của ta đã phong ấn phép nhân và đo lường của thợ ngươi — họ không tính được nữa đâu. 500 chiến thuyền của ta sẽ nghiền nát phòng tuyến này!"`,
+      coche: `Phong Thủy Ấn — 7 con dấu phong ấn 7 kỹ năng. Mỗi lần Chiến Binh Toán tính đúng → 1 con dấu bị phá → 1 chiến thuyền ⛵ của Lưu Hoằng Tháo bị vô hiệu hóa!`,
+      defeated_line: "Không thể... cọc ở đâu ra vậy!? Nước đang rút... thuyền ta bị mắc cọc!",
+    },
+
+    questions: [
+      {
+        do_kho: "🌱",
+        setup: `Khảo sát lòng sông: đoạn sông rộng 24m, cắm cọc cách nhau 3m.`,
+        text: `Đoạn sông rộng <strong>24m</strong>. Cắm cọc cách nhau <strong>3m</strong>. Cần bao nhiêu cọc cho <strong>1 hàng ngang</strong>?`,
+        options: ["6 cọc", "8 cọc", "9 cọc", "72 cọc"],
+        correct: 1,
+        hints: [
+          "💡 Số cọc = chiều rộng ÷ khoảng cách. 24 ÷ 3 = ?",
+          "💡 24 ÷ 3 = 8. Vì 8×3=24.",
+        ],
+        explain: "Đúng! 24÷3=8 cọc. Tám cọc một hàng — bịt kín luồng đi của thuyền địch!",
+      },
+      {
+        do_kho: "🌱",
+        setup: `Trận địa cần 6 hàng cọc, mỗi hàng 8 cọc.`,
+        text: `Trận địa cần <strong>6 hàng cọc</strong>, mỗi hàng <strong>8 cọc</strong>. Tổng số cọc cần cắm là bao nhiêu?`,
+        options: ["42", "48", "46", "56"],
+        correct: 1,
+        hints: [
+          "💡 Nhân: 6 hàng × 8 cọc/hàng = ? Dùng bảng nhân 6.",
+          "💡 6×8=48. Hoặc: 6×4=24, nhân đôi: 48.",
+        ],
+        explain: "Chính xác! 6×8=48 cọc. Bốn mươi tám cọc — trận địa hoàn thành!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Mỗi cọc dài 4m, cần 48 cọc. Phải mua đủ gỗ cho toàn bộ cọc.`,
+        text: `Mỗi cọc dài <strong>4m</strong>, cần <strong>48 cọc</strong>. Tổng chiều dài gỗ cần mua (tính bằng <strong>dm</strong>) là bao nhiêu?`,
+        options: ["192 dm", "1920 dm", "192 m", "480 dm"],
+        correct: 1,
+        hints: [
+          "💡 Bước 1: 48×4=? (nhân 2 bước). Bước 2: đổi m sang dm: 1m=10dm.",
+          "💡 48×4: 8×4=32 (viết 2 nhớ 3), 4×4=16+3=19 → kết quả 192m. Đổi: 192×10=1920dm.",
+        ],
+        explain: "Tuyệt! 48×4=192m. Đổi: 192m = 192×10 = 1920dm. Đúng đơn vị — không mua sai số gỗ!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Khu vực bẫy cọc hình chữ nhật: dài 36m, rộng 24m. Cần biết chu vi để canh gác bờ.`,
+        text: `Khu vực bẫy cọc hình chữ nhật: dài <strong>36m</strong>, rộng <strong>24m</strong>. Chu vi bằng bao nhiêu?`,
+        options: ["60m", "120m", "864m", "108m"],
+        correct: 1,
+        hints: [
+          "💡 Công thức chu vi HCN: C = (dài + rộng) × 2. Thay số: (36+24)×2.",
+          "💡 36+24=60. 60×2=120. Chu vi = 120m.",
+        ],
+        explain: "Chính xác! Chu vi = (36+24)×2 = 60×2 = 120m. Một trăm hai mươi mét — đủ để bố trí quân canh phòng!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Thủy triều bắt đầu lên lúc 6 giờ sáng, mỗi giờ lên 3dm. Cọc cần ngập dưới 12dm nước để địch không thấy.`,
+        text: `Thủy triều lên lúc <strong>6 giờ sáng</strong>, mỗi giờ lên <strong>3dm</strong>. Nước cần lên <strong>12dm</strong> để che khuất cọc. Hỏi lúc mấy giờ nước đã đủ cao?`,
+        options: ["8 giờ", "10 giờ", "9 giờ", "12 giờ"],
+        correct: 1,
+        hints: [
+          "💡 Hỏi: cần bao nhiêu giờ để lên 12dm? 12÷3=? giờ. Rồi cộng vào giờ bắt đầu.",
+          "💡 12÷3=4 giờ. Bắt đầu lúc 6h, sau 4 giờ là: 6+4=10h sáng.",
+        ],
+        explain: "Xuất sắc! 12÷3=4 giờ. 6+4=10 giờ sáng. Đúng 10 giờ — cọc chìm khuất, hạm đội Hán vào bẫy!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Mỗi thợ cắm 3 cọc/giờ, có 8 thợ làm đồng thời, cần cắm tổng 48 cọc.`,
+        text: `Mỗi thợ cắm <strong>3 cọc/giờ</strong>, có <strong>8 thợ</strong> làm đồng thời. Cần cắm <strong>48 cọc</strong>. Mất bao nhiêu giờ?`,
+        options: ["3 giờ", "2 giờ", "6 giờ", "16 giờ"],
+        correct: 1,
+        hints: [
+          "💡 Bước 1: 8 thợ cùng làm → số cọc/giờ = 8×3. Bước 2: tổng cọc ÷ số cọc/giờ = số giờ.",
+          "💡 8×3=24 cọc/giờ. 48÷24=2 giờ. Hai giờ là đủ thời gian!",
+        ],
+        explain: "Chính xác! 8 thợ cắm 8×3=24 cọc/giờ. 48÷24=2 giờ. Cắm xong trước bình minh — đúng kế hoạch!",
+      },
+      {
+        do_kho: "🏆",
+        setup: `Lưu Hoằng Tháo tung đòn cuối: bài toán tổng hợp nhân và đo lường.`,
+        text: `Ngô Quyền cần cắm thêm cọc ở 1 đoạn sông: rộng <strong>35m</strong>, cắm cọc cách nhau <strong>5m</strong> (<strong>7 cọc/hàng</strong>), <strong>4 hàng</strong>. Mỗi cọc dài <strong>3m</strong>. Tổng chiều dài gỗ cần (đơn vị: <strong>cm</strong>) là?`,
+        options: ["252 cm", "2520 cm", "8400 cm", "840 cm"],
+        correct: 2,
+        hints: [
+          "💡 3 bước: (1) Tổng số cọc = 7×4. (2) Tổng chiều dài = số cọc × 3m. (3) Đổi m sang cm: ×100.",
+          "💡 7×4=28 cọc. 28×3=84m. Đổi: 1m=100cm nên 84m=84×100=8400cm.",
+        ],
+        explain: "Xuất sắc HSG! 7×4=28 cọc. 28×3=84m. Đổi: 84×100=8400cm. Bẫy cọc hoàn thành — Lưu Hoằng Tháo đến và bẫy sập!",
+      },
+    ],
+
+    win_title: "Bẫy Cọc Bạch Đằng — Lưu Hoằng Tháo Tử Trận!",
+    win_subtitle: "938 SCN — Hơn 1000 năm Bắc thuộc kết thúc. Ngô Quyền khai quốc!",
+    win_thay_long: "Xuất sắc, Ngô Quyền! Trận Bạch Đằng 938 — chấm dứt 1000 năm Bắc thuộc. Bài học hôm nay: Nhân 2 chữ số × 1 chữ số — nhân từng hàng, đừng quên số nhớ · Chu vi HCN = (dài+rộng)×2 · Thời gian: số giờ = khoảng cách ÷ tốc độ. Như cọc Bạch Đằng — từng con số đúng vị trí, từng con số quyết định lịch sử!",
+    gameover_sub: "Phong Thủy Ấn còn mạnh. Thử lại — nhớ đổi đơn vị đúng (m→dm: ×10; m→cm: ×100) và công thức chu vi HCN: (dài+rộng)×2!",
+  },
+
+  12: {
+    id: 12, buoi: 6,
+    ten: "Trận Bạch Đằng — Thủy Triều Phán Xét",
+    subtitle: "Giờ Khắc Nước Rút",
+    scene_emoji: "🔱",
+    scene_label: "Sông Bạch Đằng · Bình Minh 938 SCN",
+    nhan_vat: "Ngô Quyền",
+    tuyet_chieu: { emoji: "⚡", ten: "Phong Lôi Tổng Tấn Công" },
+
+    intro: [
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `Ngô Quyền! Đây là khoảnh khắc. Thủy triều đang rút. Cọc đang lộ ra. Hạm đội Hán đang mắc kẹt — nhưng họ chưa biết. Khi họ biết, sẽ điên cuồng phản công. Ta phải ra lệnh tấn công <strong>NGAY BÂY GIỜ</strong> — và phải chia đội hình phản công cho đúng. Sai một phép chia — toàn bộ cuộc tấn công sẽ hỗn loạn.`,
+      },
+      {
+        speaker: "narrator", avatar: "📜", name: "CỐT TRUYỆN",
+        text: `<em>Bình minh sông Bạch Đằng. Sương mù bắt đầu tan. Trên mặt sông: 500 chiến thuyền Nam Hán nằm im — mắc kẹt trên cọc mà không biết. Tiếng nước rút ào ào — mực nước đang hạ từng dm.</em>`,
+      },
+      {
+        speaker: "npc", avatar: "⛵", name: "LƯU HOẰNG THÁO",
+        text: `"Ngô Quyền! Dù ta chết — <strong>Ma Trận Hỗn Độn</strong> sẽ tiếp tục! Quân của ngươi sẽ không chia được đội hình — tấn công sẽ hỗn loạn — ta có thể vẫn phá cọc mà thoát!"`,
+      },
+      {
+        speaker: "co_may", avatar: "⚙️", name: "CỖ MÁY ĐÔNG SƠN",
+        text: `"Ma Trận Hỗn Độn — <strong>7 đợt tấn công</strong>. Mỗi đợt, Hạm Đội Hán xáo trộn phép chia và bài toán 2 bước. Chiến Binh Toán — tính đúng từng đợt → quân Việt tấn công đúng đội hình → 1 đợt phản công của địch bị đập tan!"`,
+      },
+    ],
+
+    theory: [
+      {
+        icon: "➗",
+        title: "Chia có nhớ (2 chữ số ÷ 1 chữ số)",
+        box: `CHIA CÓ NHỚ
+
+96 ÷ 3 = ?
+Hàng chục: 9÷3=3 (viết 3)
+Hàng đơn vị: 6÷3=2 (viết 2)
+KẾT QUẢ: 32
+
+Chia có nhớ thật sự: 78 ÷ 3 = ?
+Hàng chục: 7÷3=2 dư 1 (viết 2, nhớ 1)
+Hàng đơn vị: 18÷3=6 (viết 6)
+  [18 = 1 nhớ × 10 + 8]
+KẾT QUẢ: 26
+
+⚠️ Số nhớ × 10 + hàng đơn vị → chia tiếp!`,
+        quote: {
+          speaker: "NGÔ QUYỀN",
+          text: "Chia quân đều các mặt trận — không được dư, không được thiếu. Mỗi đội phải đủ sức chiến đấu!",
+        },
+      },
+      {
+        icon: "📋",
+        title: "Bài toán 2-3 bước — làm từng bước",
+        box: `BÀI TOÁN NHIỀU BƯỚC
+
+Ví dụ: 96 quân chia 4 đội. Mỗi đội đi thuyền
+4 người/thuyền. Cần bao nhiêu thuyền?
+
+Bước 1: Mỗi đội bao nhiêu người?
+  96 ÷ 4 = 24 người/đội
+
+Bước 2: Mỗi đội cần bao nhiêu thuyền?
+  24 ÷ 4 = 6 thuyền/đội
+
+→ KHÔNG nhảy bước, KHÔNG tính tất cả cùng lúc
+→ Đọc kỹ câu hỏi hỏi mỗi đội hay tổng cộng`,
+        quote: {
+          speaker: "THẦY LONG",
+          text: "Như chia quân tấn công — chia từng mặt trận, từng bước rõ ràng. Nhảy cóc là thua!",
+        },
+      },
+    ],
+
+    boss: {
+      ten: "Hạm Đội Nam Hán", emoji: "🔱",
+      danh_hieu: "500 Chiến Thuyền Phương Bắc — Ma Trận Hỗn Độn",
+      don_vi_hp: "🔱", so_hp: 7,
+      dialogue: `"Dù Lưu Hoằng Tháo ngã xuống — Ma Trận Hỗn Độn vẫn còn! Quân của ngươi không tính được đội hình chia quân — tấn công sẽ hỗn loạn — ta phá cọc mà thoát!"`,
+      coche: `Ma Trận Hỗn Độn: 7 đợt tấn công phá vỡ phép chia. Mỗi câu đúng → quân Việt tấn công đúng đội hình → 1 đợt 🔱 bị đập tan!`,
+      defeated_line: "Ma... Ma Trận... tan vỡ rồi. Ngô Quyền... ngươi thật sự... thắng!",
+    },
+
+    questions: [
+      {
+        do_kho: "🌱",
+        setup: `84 quân cần chia thành 4 đội để tấn công 4 hướng.`,
+        text: `<strong>84</strong> quân chia đều <strong>4</strong> đội. Mỗi đội bao nhiêu người?`,
+        options: ["20", "21", "24", "22"],
+        correct: 1,
+        hints: [
+          "💡 Chia từng hàng: hàng chục 8÷4=?, hàng đơn vị 4÷4=?",
+          "💡 8÷4=2, 4÷4=1. Ghép lại: 21.",
+        ],
+        explain: "Đúng! 84÷4=21. 8÷4=2, 4÷4=1 → 21. Bốn đội phản công sẵn sàng!",
+      },
+      {
+        do_kho: "🌱",
+        setup: `72 quân dùng thuyền nhỏ xung trận, mỗi thuyền chở 3 người.`,
+        text: `Cần chở <strong>72</strong> quân bằng thuyền nhỏ, mỗi thuyền <strong>3</strong> người. Cần bao nhiêu thuyền?`,
+        options: ["21", "24", "27", "18"],
+        correct: 1,
+        hints: [
+          "💡 Chia có nhớ: 7÷3=2 dư 1. Hàng đơn vị: (1 nhớ ×10 + 2) ÷ 3 = 12÷3 = ?",
+          "💡 12÷3=4. Kết quả: 24 thuyền.",
+        ],
+        explain: "Chính xác! 72÷3=24. 7÷3=2 dư 1 → (10+2)÷3=4 → kết quả 24. Hai mươi bốn thuyền nhỏ xung trận!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Thủy triều rút từ 6h sáng, mỗi giờ rút 4dm. Cọc cần nước rút 24dm mới lộ hoàn toàn.`,
+        text: `Thủy triều rút lúc <strong>6h sáng</strong>, mỗi giờ rút <strong>4dm</strong>. Cọc cần nước rút <strong>24dm</strong> mới lộ hoàn toàn. Lúc mấy giờ ra lệnh tấn công?`,
+        options: ["11h sáng", "12h trưa", "10h sáng", "9h sáng"],
+        correct: 1,
+        hints: [
+          "💡 Hỏi: rút 24dm mất bao nhiêu giờ? 24÷4=? giờ. Rồi cộng vào 6h.",
+          "💡 24÷4=6 giờ. 6h sáng + 6 giờ = 12h trưa.",
+        ],
+        explain: "Xuất sắc! 24÷4=6 giờ. 6+6=12h trưa. Đúng 12h trưa — lệnh tấn công!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `96 quân chia 4 đội bằng nhau, mỗi đội đi thuyền 3 người/thuyền. Hỏi tổng số thuyền cần dùng.`,
+        text: `<strong>96</strong> quân chia <strong>4</strong> đội bằng nhau. Mỗi đội đi thuyền, mỗi thuyền chở <strong>3</strong> người. Tổng cần bao nhiêu thuyền?`,
+        options: ["8 thuyền/đội", "32 thuyền tổng cộng", "24 thuyền", "12 thuyền"],
+        correct: 1,
+        hints: [
+          "💡 3 bước: (1) 96÷4=người mỗi đội. (2) người mỗi đội ÷3=thuyền mỗi đội. (3) thuyền mỗi đội × 4 đội = tổng thuyền.",
+          "💡 96÷4=24. 24÷3=8 thuyền/đội. 8×4=32 thuyền tổng.",
+        ],
+        explain: "Hoàn hảo! 96÷4=24 người/đội. 24÷3=8 thuyền/đội. 8×4=32 thuyền tổng. Ba mươi hai thuyền phản công đồng loạt!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Trong 3 giờ đầu trận đánh, quân Việt tiêu diệt 45 chiến thuyền Hán.`,
+        text: `Trong <strong>3 giờ</strong> đầu trận đánh, quân Việt tiêu diệt <strong>45</strong> chiến thuyền Hán. Trung bình mỗi giờ tiêu diệt bao nhiêu thuyền?`,
+        options: ["12", "15", "18", "135"],
+        correct: 1,
+        hints: [
+          "💡 Trung bình = tổng ÷ số lần. 45 ÷ 3 = ?",
+          "💡 45÷3: 4÷3=1 dư 1, (10+5)÷3=15÷3=5. Kết quả: 15.",
+        ],
+        explain: "Đúng! 45÷3=15 thuyền/giờ. Tốc độ tiêu diệt: 15 chiếc mỗi giờ — Bạch Đằng sẽ sạch bóng giặc!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `68 chiến thuyền địch chạy trốn. Chia 4 đội truy kích đuổi số thuyền bằng nhau.`,
+        text: `<strong>68</strong> chiến thuyền địch chạy trốn. Chia <strong>4</strong> đội truy kích, mỗi đội đuổi số thuyền bằng nhau. Mỗi đội đuổi bao nhiêu thuyền (và còn dư mấy)?`,
+        options: ["16 thuyền, dư 2", "17 thuyền, dư 0", "17 thuyền, dư 1", "16 thuyền, dư 4"],
+        correct: 1,
+        hints: [
+          "💡 Chia có nhớ: 6÷4=1 dư 2, (2×10+8)÷4=28÷4=?",
+          "💡 28÷4=7. Kết quả: 17, không dư. Kiểm tra: 17×4=68 ✓.",
+        ],
+        explain: "Chính xác! 68÷4=17 dư 0. Kiểm tra: 17×4=68. Bốn đội — mỗi đội 17 thuyền truy kích!",
+      },
+      {
+        do_kho: "🏆",
+        setup: `Ma Trận Hỗn Độn tung bài toán cuối: trận đánh kéo dài 8 giờ với 2 giai đoạn tốc độ khác nhau.`,
+        text: `Trận Bạch Đằng từ <strong>6 giờ sáng</strong> đến <strong>2 giờ chiều</strong>. Biết: <strong>3 giờ đầu</strong> tiêu diệt <strong>gấp đôi</strong> so với mỗi giờ bình thường (<strong>12 thuyền/giờ</strong>). Tổng số thuyền tiêu diệt là bao nhiêu?`,
+        options: ["96", "132", "120", "144"],
+        correct: 1,
+        hints: [
+          "💡 Chia 2 giai đoạn: (1) 3 giờ đầu: mỗi giờ 12×2=24 thuyền. (2) Số giờ còn lại: 8-3=5 giờ, mỗi giờ 12 thuyền. Tính từng giai đoạn rồi cộng.",
+          "💡 Giai đoạn 1: 24×3=72. Giai đoạn 2: 12×5=60. Tổng: 72+60=132.",
+        ],
+        explain: "TUYỆT VỜI! 8 giờ trận đánh. 3 giờ đầu: 24×3=72. 5 giờ sau: 12×5=60. Tổng: 72+60=132 thuyền. MA TRẬN HỖN ĐỘN TAN VỠ!",
+      },
+    ],
+
+    win_title: "Bạch Đằng Đại Thắng — 1000 Năm Bắc Thuộc Kết Thúc!",
+    win_subtitle: "938 SCN — Ngô Quyền lập triều đại Việt độc lập đầu tiên tại Cổ Loa!",
+    win_thay_long: "NGÀN NĂM BẮC THUỘC KẾT THÚC! Bài học hôm nay: Chia có nhớ — chia từng hàng, nhớ phần dư × 10 · Bài toán 2-3 bước — làm từng bước, đọc kỹ câu hỏi hỏi mỗi đội hay tổng · Trung bình = tổng ÷ số lần. Như Ngô Quyền — từng bước tính toán cẩn thận, kết quả thay đổi lịch sử nghìn năm!",
+    gameover_sub: "Ma Trận Hỗn Độn còn mạnh. Thử lại — nhớ chia có nhớ: số nhớ × 10 + hàng đơn vị rồi mới chia tiếp!",
+  },
+
+  13: {
+    id: 13, buoi: 7,
+    ten: "Cờ Lau Tập Trận — Dẹp 12 Sứ Quân",
+    subtitle: "Đinh Bộ Lĩnh Thống Nhất Đại Cồ Việt",
+    scene_emoji: "👑",
+    scene_label: "Hoa Lư · 944–968 SCN",
+    nhan_vat: "Đinh Bộ Lĩnh",
+    tuyet_chieu: { emoji: "👑", ten: "Thiên Hạ Nhất Thống" },
+
+    intro: [
+      {
+        speaker: "thay_long", avatar: "🥁", name: "THẦY LONG",
+        text: `Đinh Bộ Lĩnh! Chiến Binh Toán! Đây là ải cuối cùng — và cũng là thử thách lớn nhất. Em đã chiến đấu qua 12 ải: từ Cổ Loa đến Bạch Đằng, từ phép đếm đơn giản đến bài toán thủy triều phức tạp. Hôm nay, <strong>12 sứ quân đã liên kết</strong> — mỗi người cài một bùa ôn lại một kỹ năng đã học. Chỉ khi em phá đủ 8 thành lũy — Đại Cồ Việt mới được thống nhất.`,
+      },
+      {
+        speaker: "narrator", avatar: "📜", name: "CỐT TRUYỆN",
+        text: `<em>Cánh đồng cờ lau Hoa Lư. Gió thổi — những bông lau trắng xao xác. Flashback: một cậu bé cầm cờ lau dẫn bạn chơi trận giả. Hiện tại: người đó đứng trước bản đồ 12 vùng đất — ánh mắt kiên định của một đế vương.</em>`,
+      },
+      {
+        speaker: "npc", avatar: "⚔️", name: "ĐINH ĐIỀN",
+        text: `"Chúa công! Quân ta đã sẵn sàng — nhưng <strong>Ma Trận Chia Cắt</strong> của 12 sứ quân đang kích hoạt. Mỗi sứ quân chiếm một vùng đất và phong ấn một loại toán học từ 12 ải đã qua. Thu phục họ... sẽ không đơn giản."`,
+      },
+      {
+        speaker: "co_may", avatar: "⚙️", name: "CỖ MÁY ĐÔNG SƠN",
+        text: `"Phân tích hoàn tất, Hoàng Đế. <strong>8 thành lũy, 8 câu hỏi tổng hợp</strong> — ôn lại toàn bộ hành trình từ ải 1 đến 12. Mỗi câu đúng → một sứ quân quỳ xuống quy phục → một vùng đất sáng lên. Hoàn thành → Đại Cồ Việt thống nhất!"`,
+      },
+    ],
+
+    theory: [
+      {
+        icon: "👑",
+        title: "Ôn tập hành trình 12 ải",
+        box: `12 KỸ NĂNG — 12 VŨ KHÍ CỦA CHIẾN BINH TOÁN
+
+Ải 7-8:  Cấu tạo số · Đọc-viết · So sánh
+Ải 9:    Cộng/trừ có nhớ trong 1000
+Ải 10:   Bảng nhân · Chia có dư
+Ải 11:   Nhân 2×1 chữ số · Đo lường · Thời gian
+Ải 12:   Chia có nhớ · Toán lời văn 2 bước
+
+Bài toán nhiều bước — công thức vàng:
+  Đọc kỹ → Xác định các bước → Làm lần lượt
+  → KHÔNG nhảy cóc, KHÔNG bỏ bước
+
+⭐ Ải này: tổng hợp tất cả!`,
+        quote: {
+          speaker: "ĐINH BỘ LĨNH",
+          text: "Một ông vua phải biết tính toán — thuế, quân lương, dân số. Nếu không biết toán — cai trị sẽ hỗn loạn hơn cả loạn 12 sứ quân!",
+        },
+      },
+    ],
+
+    boss: {
+      ten: "Liên Minh 12 Sứ Quân", emoji: "🏯",
+      danh_hieu: "Mười Hai Thế Lực Chia Cắt Đất Nước — Ma Trận Chia Cắt",
+      don_vi_hp: "🏯", so_hp: 8,
+      dialogue: `"Đinh Bộ Lĩnh! Từng vùng đất của ta được bảo vệ bởi một bùa toán học. Phá được bùa — ta quy phục. Không phá được — ta chiếm đất ngươi và đất nước mãi chia cắt!"`,
+      coche: `Ma Trận Chia Cắt: 8 thành lũy phong ấn 8 kỹ năng từ ải 1-12. Mỗi câu đúng → một sứ quân quỳ xuống → 1 thành lũy 🏯 sụp đổ!`,
+      defeated_line: "Đinh Bộ Lĩnh... ta phục ngươi. Không phải vì gươm đao — mà vì tri thức. Ngươi xứng đáng là Hoàng Đế!",
+    },
+
+    questions: [
+      {
+        do_kho: "🌱",
+        setup: `Sứ quân Bình Kiều cài bùa cấu tạo số. Kho lương Hoa Lư ghi "5 trăm 0 chục 9 đơn vị" thạch gạo, cần thêm 189 thạch nữa.`,
+        text: `Kho lương ghi: <strong>"5 trăm 0 chục 9 đơn vị"</strong> thạch gạo. Cần thêm <strong>189</strong> thạch nữa. Tổng cộng bao nhiêu thạch?`,
+        options: ["688", "698", "798", "609"],
+        correct: 1,
+        hints: [
+          "💡 Bước 1: đọc '5 trăm 0 chục 9 đơn vị' → số là 509. Bước 2: 509+189=? (cộng có nhớ).",
+          "💡 509+189: đơn vị 9+9=18 (viết 8 nhớ 1). Chục: 0+8+1=9. Trăm: 5+1=6. Kết quả: 698.",
+        ],
+        explain: "Đúng! 5 trăm 0 chục 9 = 509. 509+189=698. Sứ quân Bình Kiều quy phục!",
+      },
+      {
+        do_kho: "🌱",
+        setup: `Sứ quân Đỗ Động Giang cài bùa dãy số. Dãy: 135, 270, ?, 540, ? — cách đều.`,
+        text: `Dãy số cách đều: <strong>135, 270, ?, 540, ?</strong>. Hai số còn thiếu là?`,
+        options: ["405 và 1080", "405 và 675", "350 và 650", "400 và 680"],
+        correct: 1,
+        hints: [
+          "💡 Tìm quy luật: 270-135=135. Kiểm tra: 540-270=270? Không! Thử cách đều +135: 135, 270, 405, 540, ?",
+          "💡 Cách đều +135: vị trí 3 = 270+135=405. Vị trí 5 = 540+135=675.",
+        ],
+        explain: "Chính xác! Dãy cách đều +135: 135→270→405→540→675. Sứ quân Đỗ Động Giang quy phục!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Sứ quân Phong Châu cài bùa cộng trừ. Đinh Bộ Lĩnh có 743 quân, mất 258 rồi nhận thêm 385 từ đồng minh.`,
+        text: `Đinh Bộ Lĩnh có <strong>743</strong> quân. Sau trận mất <strong>258</strong> quân nhưng tiếp nhận thêm <strong>385</strong> quân từ đồng minh. Cuối cùng có bao nhiêu quân?`,
+        options: ["860", "870", "880", "1386"],
+        correct: 1,
+        hints: [
+          "💡 Bài 2 bước: Bước 1 — 743-258=? (trừ có nhớ). Bước 2 — kết quả + 385=?",
+          "💡 743-258=485. 485+385: 5+5=10 (viết 0 nhớ 1), 8+8+1=17 (viết 7 nhớ 1), 4+3+1=8. Kết quả: 870.",
+        ],
+        explain: "Xuất sắc! 743-258=485. 485+385=870. Bài 2 bước: trừ rồi cộng. 870 quân tiến về phía đông!",
+      },
+      {
+        do_kho: "⚔️",
+        setup: `Sứ quân Nguyễn Gia Loan cài bùa giá trị vị trí. Cần tìm số X thỏa mãn 3 điều kiện.`,
+        text: `Tìm số <strong>X</strong> nhỏ nhất thỏa mãn: (1) X có 3 chữ số, hàng trăm là <strong>6</strong>. (2) <strong>600 &lt; X &lt; 650</strong>. (3) Tổng 3 chữ số của X bằng <strong>12</strong>.`,
+        options: ["615", "606", "624", "630"],
+        correct: 1,
+        hints: [
+          "💡 Đặt X=6bc. Điều kiện: 6+b+c=12 → b+c=6. Điều kiện 600<X<650 → b<5. Tìm b nhỏ nhất thỏa b+c=6.",
+          "💡 b nhỏ nhất là 0 → c=6 → X=606. Kiểm tra: 600<606<650 ✓, 6+0+6=12 ✓. Đáp án: 606.",
+        ],
+        explain: "Tuyệt! X=606: trăm=6 ✓, 600<606<650 ✓, 6+0+6=12 ✓. Nhỏ nhất vì chục=0. Sứ quân Nguyễn Gia Loan quy phục!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Sứ quân Bố Hải Khẩu cài bùa cộng trong 1000. Từ 4 cánh quân: 256, 389, 175, 448 người — sau trận mất 267.`,
+        text: `Bốn cánh quân: <strong>256 + 389 + 175 + 448</strong> người. Sau trận đầu tiên mất <strong>267</strong> người. Cuối cùng còn bao nhiêu?`,
+        options: ["999 còn 732", "1268 còn 1001", "1168 còn 901", "1268 còn 891"],
+        correct: 1,
+        hints: [
+          "💡 Cộng từng cặp: 256+389=? Rồi +175=? Rồi +448=? Cuối cùng trừ 267.",
+          "💡 256+389=645. 645+175=820. 820+448=1268. 1268-267=1001.",
+        ],
+        explain: "Hoàn hảo! 256+389+175+448=1268. 1268-267=1001. Nghìn lẻ một quân tiến về Hoa Lư!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Sứ quân Đằng Châu cài bùa nhân chia. 1001 quân chia 7 đội, mỗi đội lại chia 13 nhóm nhỏ.`,
+        text: `<strong>1001</strong> quân chia thành <strong>7</strong> đội bằng nhau. Mỗi đội lại chia thành <strong>13</strong> nhóm nhỏ. Mỗi nhóm nhỏ có bao nhiêu người?`,
+        options: ["10", "11", "13", "7"],
+        correct: 1,
+        hints: [
+          "💡 Bài 2 bước chia: Bước 1 — 1001÷7=? Bước 2 — kết quả ÷13=?",
+          "💡 1001÷7=143 (vì 7×143=1001). 143÷13=11 (vì 13×11=143).",
+        ],
+        explain: "Tuyệt! 1001÷7=143. 143÷13=11. Mỗi nhóm 11 chiến binh — đội hình hoàn chỉnh!",
+      },
+      {
+        do_kho: "🏹",
+        setup: `Sứ quân Đường Lâm cài bùa đo lường. Mỗi đoạn tường dài 96dm, cần xây 5 đoạn, hỏi tổng bằng m.`,
+        text: `Đinh Bộ Lĩnh xây tường thành Hoa Lư. Mỗi đoạn tường dài <strong>96dm</strong>, cần xây <strong>5</strong> đoạn. Tổng chiều dài tường (tính bằng <strong>m</strong>) là bao nhiêu?`,
+        options: ["480m", "48m", "4800m", "96m"],
+        correct: 1,
+        hints: [
+          "💡 Bước 1: 5×96=? (nhân 2 chữ số có nhớ). Bước 2: đổi dm sang m: ÷10.",
+          "💡 96×5: 6×5=30 (viết 0 nhớ 3), 9×5=45+3=48 → 480dm. 480÷10=48m.",
+        ],
+        explain: "Xuất sắc! 96×5=480dm. Đổi: 480÷10=48m. Tường thành Hoa Lư: 48 mét vững chắc!",
+      },
+      {
+        do_kho: "🏆",
+        setup: `Sứ quân cuối cùng tung bùa tổng hợp 4 bước. Đinh Bộ Lĩnh có 48 kỵ binh và 96 bộ binh, chia 4 đội, sau trận còn ⅔.`,
+        text: `Đinh Bộ Lĩnh có <strong>48</strong> kỵ binh và <strong>96</strong> bộ binh. Chia đều thành <strong>4</strong> đội. Sau trận cuối mỗi đội còn lại <strong>⅔</strong> số người ban đầu. Cả 4 đội còn tổng cộng bao nhiêu người?`,
+        options: ["72", "96", "48", "144"],
+        correct: 1,
+        hints: [
+          "💡 4 bước: (1) Tổng quân = 48+96. (2) Mỗi đội = tổng÷4. (3) ⅔ mỗi đội = mỗi đội÷3×2. (4) 4 đội × kết quả bước 3.",
+          "💡 48+96=144. 144÷4=36/đội. ⅔ của 36: 36÷3=12, 12×2=24. Bốn đội: 24×4=96.",
+        ],
+        explain: "HOÀN HẢO HSG 4 BƯỚC! 144÷4=36, ⅔×36=24, 24×4=96. ĐẠI CỒ VIỆT THỐNG NHẤT!",
+      },
+    ],
+
+    win_title: "Đại Cồ Việt Thống Nhất — Đinh Tiên Hoàng Lên Ngôi!",
+    win_subtitle: "968 SCN — Từ đồng cờ lau đến ngai vàng. Hành trình 13 ải hoàn thành!",
+    win_thay_long: "ĐẠI CỒ VIỆT THỐNG NHẤT! Em đã hoàn thành hành trình 13 ải — từ Cổ Loa 257 TCN đến Hoa Lư 968 SCN, hơn 1200 năm lịch sử. Bài học cuối: Toán lời văn 3-4 bước — đọc kỹ, làm từng bước, không nhảy cóc · Ôn tập = nhớ đúng kỹ năng đúng lúc. Như Đinh Bộ Lĩnh — từ đồng cờ lau đến ngai vàng — tri thức là con đường ngắn nhất đến thành công!",
+    gameover_sub: "12 sứ quân còn mạnh. Thử lại — nhớ lại các kỹ năng từ ải 7-12: cộng trừ có nhớ, nhân chia, đo lường. Làm từng bước!",
+  },
+};
+
+/* ═══════════════════════════════════════════════════════
+   GAME STATE
+═══════════════════════════════════════════════════════ */
+const STATE = {
+  scenario: null,
+  dialogueIdx: 0,
+  theoryIdx: 0,
+  questionIdx: 0,
+  wrongCount: 0,
+  scaffoldStep: 0,  // 0 = none, 1 = hint1 shown, 2 = hint2 shown
+  totalWrong: 0,
+  totalHints: 0,
+  correctCount: 0,   // số câu trả lời đúng (không tính retry)
+  startTime: null,
+  answered: false,
+  studentHP: 3,
+  bossHP: 0,
+};
+
+/* ═══════════════════════════════════════════════════════
+   AUDIO (Web Audio API — no files needed)
+═══════════════════════════════════════════════════════ */
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, dur, type='sine', vol=0.18) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+const SFX = {
+  correct: () => { playTone(523,.08,'sine',.2); setTimeout(()=>playTone(659,.08,'sine',.2),90); setTimeout(()=>playTone(784,.18,'sine',.22),180); },
+  wrong:   () => { playTone(220,.2,'sawtooth',.12); setTimeout(()=>playTone(196,.25,'sawtooth',.1),80); },
+  boss:    () => { playTone(110,.4,'sawtooth',.15); setTimeout(()=>playTone(98,.5,'sawtooth',.12),100); },
+  win:     () => { [523,587,659,698,784].forEach((f,i)=>setTimeout(()=>playTone(f,.15,'sine',.2),i*100)); },
+  click:   () => { playTone(880,.06,'sine',.08); },
+};
+
+/* ═══════════════════════════════════════════════════════
+   SCREEN MANAGER
+═══════════════════════════════════════════════════════ */
+const SCREENS = ['scIntro','scTheory','scBossScene','scBattle','scWin','scGameOver'];
+function showScreen(id) {
+  SCREENS.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) {
+      el.classList.remove('active');
+      el.scrollTop = 0;
+    }
+  });
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('active');
+    el.classList.add('fade-in');
+    setTimeout(()=>el.classList.remove('fade-in'), 400);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+function init() {
+  // Detect ải from URL param
+  const params = new URLSearchParams(window.location.search);
+  const aiId = parseInt(params.get('ai')) || 7;
+  STATE.scenario = SCENARIOS[aiId] || SCENARIOS[7];
+
+  const S = STATE.scenario;
+  STATE.bossHP = S.boss.so_hp;
+  STATE.studentHP = 3;
+  STATE.dialogueIdx = 0;
+  STATE.theoryIdx = 0;
+  STATE.questionIdx = 0;
+  STATE.wrongCount = 0;
+  STATE.totalWrong = 0;
+  STATE.totalHints = 0;
+  STATE.answered = false;
+
+  // Setup intro scene
+  document.getElementById('introEmoji').textContent = S.scene_emoji;
+  document.getElementById('introSceneLabel').textContent = S.scene_label;
+
+  // Build dots
+  renderDialogueDots();
+  renderDialogue();
+
+  showScreen('scIntro');
+}
+
+/* ═══════════════════════════════════════════════════════
+   INTRO NARRATIVE
+═══════════════════════════════════════════════════════ */
+function renderDialogueDots() {
+  const S = STATE.scenario;
+  const dotsEl = document.getElementById('dialogueDots');
+  dotsEl.innerHTML = S.intro.map((_, i) =>
+    `<div class="step-dot ${i === STATE.dialogueIdx ? 'active' : ''}"></div>`
+  ).join('');
+}
+
+function renderDialogue() {
+  const S = STATE.scenario;
+  const step = S.intro[STATE.dialogueIdx];
+  if (!step) return;
+
+  const avatar = document.getElementById('dialogueAvatar');
+  const nameEl = document.getElementById('dialogueName');
+  const textEl = document.getElementById('dialogueText');
+  const btnNext = document.getElementById('btnDialogueNext');
+
+  // Update avatar class
+  avatar.className = 'dialogue-avatar ' + step.speaker;
+  avatar.textContent = step.avatar;
+  nameEl.className = 'dialogue-name ' + step.speaker;
+  nameEl.textContent = step.name;
+  textEl.innerHTML = step.text;
+
+  // Last step: change button
+  const isLast = STATE.dialogueIdx === S.intro.length - 1;
+  btnNext.textContent = isLast ? 'Học kiến thức →' : 'Tiếp →';
+
+  renderDialogueDots();
+}
+
+function nextDialogue() {
+  SFX.click();
+  const S = STATE.scenario;
+  if (STATE.dialogueIdx < S.intro.length - 1) {
+    STATE.dialogueIdx++;
+    renderDialogue();
+  } else {
+    // Move to theory
+    setupTheory();
+    showScreen('scTheory');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   THEORY CARDS
+═══════════════════════════════════════════════════════ */
+function setupTheory() {
+  const S = STATE.scenario;
+  STATE.theoryIdx = 0;
+  renderTheoryDots();
+  renderTheoryCard();
+}
+
+function renderTheoryDots() {
+  const S = STATE.scenario;
+  const dotsEl = document.getElementById('theoryDots');
+  dotsEl.innerHTML = S.theory.map((_, i) => {
+    const cls = i < STATE.theoryIdx ? 'done' : (i === STATE.theoryIdx ? 'active' : '');
+    return `<div class="theory-dot ${cls}"></div>`;
+  }).join('');
+}
+
+function renderTheoryCard() {
+  const S = STATE.scenario;
+  const card = S.theory[STATE.theoryIdx];
+  if (!card) return;
+
+  document.getElementById('theoryCardTitle').textContent = card.icon + ' ' + card.title;
+  document.getElementById('theoryCardSub').textContent = 'Thầy Long giảng bài';
+
+  const cardEl = document.getElementById('theoryCard');
+  cardEl.innerHTML = `
+    <div class="theory-box">${card.box}</div>
+    <div class="theory-quote">
+      <span class="speaker">${card.quote.speaker}</span>
+      "${card.quote.text}"
+    </div>
+  `;
+
+  const isFirst = STATE.theoryIdx === 0;
+  const isLast  = STATE.theoryIdx === S.theory.length - 1;
+
+  document.getElementById('btnTheoryBack').style.display = isFirst ? 'none' : 'block';
+  document.getElementById('btnTheoryNext').textContent = isLast ? '⚔️ Đối mặt Boss →' : 'Tiếp →';
+
+  renderTheoryDots();
+}
+
+function nextTheory() {
+  SFX.click();
+  const S = STATE.scenario;
+  if (STATE.theoryIdx < S.theory.length - 1) {
+    STATE.theoryIdx++;
+    renderTheoryCard();
+  } else {
+    setupBossScene();
+    showScreen('scBossScene');
+  }
+}
+
+function prevTheory() {
+  SFX.click();
+  if (STATE.theoryIdx > 0) {
+    STATE.theoryIdx--;
+    renderTheoryCard();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   BOSS SCENE
+═══════════════════════════════════════════════════════ */
+function setupBossScene() {
+  const S = STATE.scenario;
+  const B = S.boss;
+  document.getElementById('bossSceneName').textContent = B.emoji + ' ' + B.ten;
+  document.getElementById('bossSceneDanh').textContent = B.danh_hieu;
+  document.getElementById('bossScenePortrait').textContent = B.emoji;
+  document.getElementById('bossDialogueName').textContent = B.ten.toUpperCase();
+  document.getElementById('bossSceneDialogue').textContent = B.dialogue;
+  document.getElementById('bossCoche').textContent = B.coche;
+  SFX.boss();
+}
+
+function startBattle() {
+  SFX.click();
+  STATE.questionIdx = 0;
+  STATE.answered = false;
+  STATE.startTime = Date.now();
+
+  setupBattleHUD();
+  renderQuestion();
+  showScreen('scBattle');
+}
+
+/* ═══════════════════════════════════════════════════════
+   BATTLE HUD
+═══════════════════════════════════════════════════════ */
+function setupBattleHUD() {
+  const S = STATE.scenario;
+  const B = S.boss;
+  document.getElementById('hudAiName').textContent = 'Chương ' + (S.id - 6) + ' · ' + S.ten;
+  document.getElementById('hudBossLabel').textContent = B.ten;
+  document.getElementById('battleBossSprite').textContent = B.emoji;
+  document.getElementById('battleBossName').textContent = B.ten.toUpperCase();
+  updateHUD();
+}
+
+function updateHUD() {
+  const S = STATE.scenario;
+  const B = S.boss;
+
+  // Student HP
+  const hearts = '❤️'.repeat(STATE.studentHP) + '🖤'.repeat(3 - STATE.studentHP);
+  document.getElementById('hudHearts').textContent = hearts;
+
+  // Boss HP
+  const bossHP = B.don_vi_hp.repeat(STATE.bossHP) +
+    (STATE.bossHP < B.so_hp ? '💨'.repeat(B.so_hp - STATE.bossHP) : '');
+  document.getElementById('hudBossHP').textContent = bossHP;
+
+  // Question count
+  document.getElementById('hudQCount').textContent =
+    (STATE.questionIdx + 1) + ' / ' + S.questions.length;
+}
+
+/* ═══════════════════════════════════════════════════════
+   QUESTION RENDER
+═══════════════════════════════════════════════════════ */
+function renderQuestion() {
+  const S = STATE.scenario;
+  const q = S.questions[STATE.questionIdx];
+  if (!q) return;
+
+  STATE.answered = false;
+  STATE.wrongCount = 0;
+  STATE.scaffoldStep = 0;
+
+  document.getElementById('qDifficulty').textContent = q.do_kho;
+  document.getElementById('qLabel').textContent = 'Câu ' + (STATE.questionIdx+1) + ' / ' + S.questions.length;
+
+  // Setup text
+  const setupEl = document.getElementById('qSetup');
+  if (q.setup) {
+    setupEl.textContent = q.setup;
+    setupEl.style.display = 'block';
+  } else {
+    setupEl.style.display = 'none';
+  }
+
+  document.getElementById('qText').innerHTML = q.text;
+
+  // Render answer buttons
+  const btns = ['ans0','ans1','ans2','ans3'];
+  btns.forEach((id, i) => {
+    const btn = document.getElementById(id);
+    btn.textContent = ['A', 'B', 'C', 'D'][i] + '. ' + q.options[i];
+    btn.className = 'answer-btn';
+    btn.disabled = false;
+  });
+
+  // Reset feedback
+  document.getElementById('feedbackPanel').className = 'feedback-panel';
+  document.getElementById('scaffoldingBox').className = 'scaffolding-box';
+  document.getElementById('btnNextQ').className = 'btn-next-q';
+
+  // Scroll to top of question area
+  document.getElementById('battleQuestionArea').scrollTop = 0;
+
+  updateHUD();
+}
+
+/* ═══════════════════════════════════════════════════════
+   ANSWER HANDLING
+═══════════════════════════════════════════════════════ */
+function answerQ(idx) {
+  if (STATE.answered) return;
+
+  const S = STATE.scenario;
+  const q = S.questions[STATE.questionIdx];
+  const isCorrect = (idx === q.correct);
+
+  // Disable all buttons
+  ['ans0','ans1','ans2','ans3'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+
+  if (isCorrect) {
+    // Correct!
+    STATE.answered = true;
+    STATE.correctCount++;
+    document.getElementById('ans'+idx).classList.add('correct');
+    SFX.correct();
+
+    // Boss hit animation
+    STATE.bossHP--;
+    updateHUD();
+    const sprite = document.getElementById('battleBossSprite');
+    sprite.classList.add('hit');
+    setTimeout(() => sprite.classList.remove('hit'), 400);
+
+    // Particles
+    spawnParticles('✨', 5);
+
+    // Show feedback
+    showFeedback(true, q.explain);
+
+    // Show next button (after delay)
+    setTimeout(() => {
+      document.getElementById('btnNextQ').className = 'btn-next-q visible';
+      document.getElementById('btnNextQ').textContent =
+        (STATE.questionIdx < S.questions.length - 1) ? 'Câu tiếp →' : '🏆 Kết thúc →';
+    }, 800);
+
+  } else {
+    // Wrong
+    STATE.wrongCount++;
+    STATE.totalWrong++;
+    document.getElementById('ans'+idx).classList.add('wrong');
+    SFX.wrong();
+
+    // Shake boss (enemy celebrates)
+    const sprite = document.getElementById('battleBossSprite');
+    sprite.classList.add('shake');
+    setTimeout(() => sprite.classList.remove('shake'), 500);
+
+    // Lose HP
+    if (STATE.wrongCount <= 1) {
+      // First wrong — show hint 1
+      showScaffolding(q, 1);
+      // Re-enable other buttons
+      setTimeout(() => {
+        ['ans0','ans1','ans2','ans3'].forEach(id => {
+          document.getElementById(id).disabled = false;
+        });
+        document.getElementById('ans'+idx).disabled = true; // keep wrong one disabled
+      }, 600);
+    } else {
+      // Second wrong — show hint 2 + lose HP
+      STATE.totalHints++;
+      showScaffolding(q, 2);
+      loseHP();
+      // Re-enable remaining buttons after a moment
+      setTimeout(() => {
+        ['ans0','ans1','ans2','ans3'].forEach(id => {
+          document.getElementById(id).disabled = false;
+        });
+        document.getElementById('ans'+idx).disabled = true;
+        // Mark the previously wrong one disabled too if it was different
+      }, 800);
+    }
+  }
+}
+
+function loseHP() {
+  STATE.studentHP = Math.max(0, STATE.studentHP - 1);
+  updateHUD();
+
+  if (STATE.studentHP <= 0) {
+    setTimeout(() => {
+      gameOver();
+    }, 1200);
+  }
+}
+
+function showScaffolding(q, step) {
+  const box = document.getElementById('scaffoldingBox');
+  const stepEl = document.getElementById('scaffoldingStep');
+  const textEl = document.getElementById('scaffoldingText');
+
+  stepEl.textContent = step === 1 ? '💡 GỢI Ý BƯỚC 1' : '💡 GỢI Ý BƯỚC 2';
+  textEl.innerHTML = q.hints[step - 1] || '';
+  box.className = 'scaffolding-box visible';
+}
+
+function showFeedback(isCorrect, text) {
+  const panel = document.getElementById('feedbackPanel');
+  const speaker = document.getElementById('feedbackSpeaker');
+  const textEl = document.getElementById('feedbackText');
+
+  if (isCorrect) {
+    panel.className = 'feedback-panel correct-fb';
+    speaker.textContent = 'THẦY LONG';
+  } else {
+    panel.className = 'feedback-panel wrong-fb';
+    speaker.textContent = 'CỖ MÁY ĐÔNG SƠN';
+  }
+  textEl.innerHTML = text;
+}
+
+/* ═══════════════════════════════════════════════════════
+   NEXT QUESTION / WIN / GAMEOVER
+═══════════════════════════════════════════════════════ */
+function nextQuestion() {
+  SFX.click();
+  const S = STATE.scenario;
+  STATE.questionIdx++;
+
+  if (STATE.questionIdx >= S.questions.length) {
+    // All questions done!
+    if (STATE.bossHP <= 0 || STATE.questionIdx >= S.questions.length) {
+      winGame();
+    }
+  } else {
+    renderQuestion();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOÁN LỰC ENGINE
+═══════════════════════════════════════════════════════ */
+const TL_KEY = 'cbToan_toanLuc';
+
+function getToanLuc() {
+  return parseInt(localStorage.getItem(TL_KEY)) || 0;
+}
+
+function calcAndSaveToanLuc(aiId, correct, total, elapsed, noHints) {
+  const parts = [];
+  let earned = 0;
+
+  // Base: 30 mỗi câu đúng
+  const base = correct * 30;
+  earned += base;
+  parts.push(`${correct}×30 câu đúng`);
+
+  // No hints bonus
+  if (noHints) { earned += 100; parts.push('+100 không dùng gợi ý'); }
+
+  // Speed bonus
+  if (elapsed < 90)       { earned += 100; parts.push('+100 siêu nhanh'); }
+  else if (elapsed < 180) { earned += 50;  parts.push('+50 nhanh'); }
+
+  // First-time bonus
+  const doneKey = `cbToan_ai${aiId}_done`;
+  const isFirst = !localStorage.getItem(doneKey);
+  if (isFirst) { earned += 200; parts.push('+200 lần đầu! 🎉'); }
+
+  // Save completion flags
+  localStorage.setItem(doneKey, '1');
+  const timeKey = `cbToan_ai${aiId}_bestTime`;
+  const prevBest = parseInt(localStorage.getItem(timeKey)) || 99999;
+  if (elapsed < prevBest) localStorage.setItem(timeKey, String(elapsed));
+  if (noHints) localStorage.setItem(`cbToan_ai${aiId}_noHints`, '1');
+
+  // Add to balance
+  const prev = getToanLuc();
+  localStorage.setItem(TL_KEY, String(prev + earned));
+
+  return { earned, newBalance: prev + earned, parts, isFirst };
+}
+
+function winGame() {
+  const S = STATE.scenario;
+  const elapsed = Math.round((Date.now() - STATE.startTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const timeStr = mins > 0 ? `${mins}ph ${secs}s` : `${secs} giây`;
+  const total = S.questions.length;
+  const correct = STATE.correctCount;
+  const noHints = STATE.totalHints === 0;
+
+  // Detect ải ID from URL
+  const aiId = parseInt(new URLSearchParams(window.location.search).get('ai')) || 7;
+
+  document.getElementById('winTitle').textContent = S.win_title;
+  document.getElementById('winSubtitle').textContent = S.win_subtitle;
+  document.getElementById('statCorrect').textContent = correct + ' / ' + total;
+  document.getElementById('statHints').textContent = STATE.totalHints + ' lần';
+  document.getElementById('statTime').textContent = timeStr;
+
+  // Toán Lực
+  const { earned, newBalance, parts, isFirst } = calcAndSaveToanLuc(aiId, correct, total, elapsed, noHints);
+  document.getElementById('winTlEarned').textContent = '+' + earned;
+  document.getElementById('winTlBreakdown').innerHTML = parts
+    .map((p, i) => i === parts.length - 1 && isFirst ? `<span class="win-tl-first">${p}</span>` : p)
+    .join(' · ');
+  document.getElementById('winTlBalance').textContent = `Số dư: ${newBalance} ⚡`;
+
+  // Badges (dùng từ scenario nếu có, fallback mặc định)
+  const badges = [];
+  if (S.badges) {
+    if (S.badges.complete) badges.push({ emoji: S.badges.complete.emoji, label: S.badges.complete.label });
+    if (noHints && S.badges.noHints) badges.push({ emoji: S.badges.noHints.emoji, label: S.badges.noHints.label });
+    if (elapsed < 120 && S.badges.fast) badges.push({ emoji: S.badges.fast.emoji, label: S.badges.fast.label });
+  } else {
+    badges.push({ emoji: '🏛️', label: 'Hoàn thành ải' });
+    if (noHints) badges.push({ emoji: '💎', label: 'Tri Thức Bất Diệt' });
+    if (elapsed < 120) badges.push({ emoji: '⚡', label: 'Phản Xạ Tia Chớp' });
+  }
+
+  document.getElementById('winBadges').innerHTML = badges.map(b =>
+    `<div class="badge">${b.emoji} ${b.label}</div>`
+  ).join('');
+
+  // Show Thủ Thành button for ải 7–13
+  const btnTT = document.getElementById('btnThuThanh');
+  if (btnTT) {
+    btnTT.style.display = (aiId >= 7) ? 'block' : 'none';
+    btnTT.dataset.ai = aiId;
+  }
+
+  SFX.win();
+  spawnParticles('⚡', 6);
+  spawnParticles('🌟', 6);
+  showScreen('scWin');
+}
+
+function goThuThanh() {
+  SFX.click();
+  const ai = document.getElementById('btnThuThanh')?.dataset.ai || '7';
+  window.location.href = 'tower_defense.html?ai=' + ai;
+}
+
+function gameOver() {
+  const S = STATE.scenario;
+  document.getElementById('gameoverSub').textContent = S.gameover_sub;
+  showScreen('scGameOver');
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+function restartBattle() {
+  SFX.click();
+  const S = STATE.scenario;
+  STATE.questionIdx = 0;
+  STATE.wrongCount = 0;
+  STATE.totalWrong = 0;
+  STATE.totalHints = 0;
+  STATE.correctCount = 0;
+  STATE.answered = false;
+  STATE.studentHP = 3;
+  STATE.bossHP = S.boss.so_hp;
+  STATE.startTime = Date.now();
+
+  setupBattleHUD();
+  renderQuestion();
+  showScreen('scBattle');
+}
+
+function goMap() {
+  SFX.click();
+  window.location.href = 'map.html';
+}
+
+/* ═══════════════════════════════════════════════════════
+   PARTICLES
+═══════════════════════════════════════════════════════ */
+function spawnParticles(emoji, count) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = emoji;
+      p.style.left = (20 + Math.random() * 60) + '%';
+      p.style.top  = (30 + Math.random() * 40) + '%';
+      p.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1400);
+    }, i * 80);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   START
+═══════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', init);
+
+// Telegram WebApp integration
+if (window.Telegram?.WebApp) {
+  window.Telegram.WebApp.expand();
+  window.Telegram.WebApp.ready();
+}
+</script>
+</body>
+</html>
