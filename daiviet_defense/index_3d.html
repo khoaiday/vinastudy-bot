@@ -820,27 +820,11 @@ function buildMap() {
   const gridRightPx = gridLeftPx + COLS * cellPx;
   const gridBottomPx = gridTopPx + ROWS * cellPx;
 
-  // Draw background image into canvas (composite approach)
-  const bgImg = new Image();
-  bgImg.src = 'assets/map_bg_coloa_1.jpg';
-  const _drawBg = () => {
-    if (bgImg.complete && bgImg.naturalWidth > 0) {
-      mctx.drawImage(bgImg, 0, 0, TEX_W, TEX_H);
-    } else {
-      mctx.fillStyle = '#5A8A3A';
-      mctx.fillRect(0, 0, TEX_W, TEX_H);
-    }
-  };
-  bgImg.onload = () => {
-    mctx.clearRect(0, 0, TEX_W, TEX_H);
-    _drawBg();
-    // Redraw grid/path on top after image loads
-    _drawGridOverlay();
-    mapTex.needsUpdate = true;
-  };
-  _drawBg();
+  // Draw background: fallback green first, image when ready
+  mctx.fillStyle = '#5A8A3A';
+  mctx.fillRect(0, 0, TEX_W, TEX_H);
 
-  // ── GRID & PATH OVERLAY (function so it can be called after bg loads) ──
+  // ── GRID & PATH OVERLAY ──
   function _drawGridOverlay() {
 
   mctx.strokeStyle = 'rgba(30,60,20,0.35)';
