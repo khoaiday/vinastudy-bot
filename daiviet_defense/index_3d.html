@@ -162,45 +162,38 @@
   display:flex;align-items:center;justify-content:space-between;
   padding:6px 10px;pointer-events:none;
 ">
-  <!-- Left: gold + settings -->
-  <div style="display:flex;align-items:center;gap:6px;pointer-events:auto;">
+  <!-- Left: gold only (Telegram X button is here, keep clear) -->
+  <div style="pointer-events:auto;">
     <div style="display:flex;align-items:center;gap:4px;
-      background:rgba(10,6,14,0.75);border:1px solid var(--primary);
-      border-radius:8px;padding:4px 10px;
+      background:rgba(10,6,14,0.82);border:1px solid var(--primary);
+      border-radius:8px;padding:5px 12px;
       font-family:var(--font-mono);font-size:15px;font-weight:700;color:#F5C842;">
       💰 <span id="goldStat">350</span>
     </div>
-    <button onclick="openPauseMenu()" style="
-      background:rgba(10,6,14,0.75);border:1px solid var(--border);
-      border-radius:8px;width:36px;height:36px;cursor:pointer;
-      font-size:18px;color:var(--text-muted);
-      display:flex;align-items:center;justify-content:center;">⚙️</button>
   </div>
 
   <!-- Center: wave + score -->
   <div style="text-align:center;pointer-events:none;">
     <div style="font-family:var(--font-mono);font-size:11px;color:var(--primary);font-weight:700;
-      background:rgba(10,6,14,0.75);border:1px solid rgba(200,150,12,0.3);
+      background:rgba(10,6,14,0.82);border:1px solid rgba(200,150,12,0.3);
       border-radius:8px;padding:4px 14px;">
       <div style="font-size:16px;font-weight:700;color:#F5EED6;" id="scoreStat">0</div>
       <div>Đợt <span id="waveStat">1</span> / <span id="maxWaveStat">15</span></div>
     </div>
   </div>
 
-  <!-- Right: airstrike + HP -->
+  <!-- Right: HP + ⚙️ settings (moved here, away from Telegram X) -->
   <div style="display:flex;align-items:center;gap:6px;pointer-events:auto;">
     <div style="display:flex;align-items:center;gap:4px;
-      background:rgba(10,6,14,0.75);border:1px solid rgba(90,100,200,0.5);
-      border-radius:8px;padding:4px 10px;
-      font-family:var(--font-mono);font-size:13px;color:#8AB4FF;">
-      ✈️ <span id="airStat">0</span>%
-    </div>
-    <div style="display:flex;align-items:center;gap:4px;
-      background:rgba(10,6,14,0.75);border:1px solid rgba(192,51,46,0.5);
-      border-radius:8px;padding:4px 10px;
+      background:rgba(10,6,14,0.82);border:1px solid rgba(192,51,46,0.5);
+      border-radius:8px;padding:5px 10px;
       font-family:var(--font-mono);font-size:15px;font-weight:700;color:#FF6060;">
       ❤️ <span id="hpStat">30</span>
     </div>
+    <button onclick="openPauseMenu()" style="
+      background:rgba(10,6,14,0.82);border:1px solid var(--primary);
+      border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:18px;
+      display:flex;align-items:center;justify-content:center;">⚙️</button>
   </div>
 </div>
 
