@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Đại Việt Defense 3D — Three.js Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:#C8960C; --secondary:#C0332E; --success:#5ABCAA;
+    --copper:#B87333; --bg-void:#07040A; --bg-panel:#160E1C;
+    --text-main:#F5EED6; --text-muted:#A08C70;
+    --border:rgba(184,115,51,0.4);
+    --font-title:'Philosopher',serif; --font-body:'Lora',serif; --font-mono:'Roboto Mono',monospace;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; }
+  html,body { height:100%; overflow:hidden; background:var(--bg-void); color:var(--text-main); font-family:var(--font-body); }
+  body { display:flex; flex-direction:column; }
+
+  /* HUD */
+  #hud { position:fixed; top:0; left:0; right:0; z-index:10; padding:10px 16px;
+    background:transparent; pointer-events:none;
+    display:flex; gap:12px; align-items:center; font-family:var(--font-mono); }
+  #hud > * { pointer-events:auto; }
+  .stat { background:rgba(22,14,28,0.7); border:1px solid var(--border); border-radius:8px;
+    padding:6px 12px; font-size:13px; letter-spacing:0.5px; backdrop-filter:blur(8px); }
+  .stat span { color:var(--primary); font-weight:700; }
+  #hudTitle { flex:1; font-family:var(--font-title); font-size:14px; color:var(--primary); text-align:center; letter-spacing:1.5px; }
+
+  /* Bottom build bar */
+  #buildBar { position:fixed; bottom:0; left:0; right:0; z-index:10;
+    padding:12px 16px; background:transparent; pointer-events:none;
+    display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+  #buildBar > * { pointer-events:auto; }
+  .btn { background:rgba(22,14,28,0.7); border:1px solid var(--border); border-radius:10px;
+    padding:10px 16px; color:var(--text-main); font-family:var(--font-mono); font-size:11px;
+    cursor:pointer; transition:all 0.15s; backdrop-filter:blur(8px); display:flex; flex-direction:column; align-items:center; gap:2px; min-width:90px; }
+  .btn:hover { background:rgba(200,150,12,0.15); border-color:var(--primary); transform:translateY(-2px); }
+  .btn.active { background:rgba(200,150,12,0.3); border-color:var(--primary); box-shadow:0 0 12px var(--primary); }
+  .btn.disabled { opacity:0.4; cursor:not-allowed; }
+  .btn-name { font-family:var(--font-title); font-size:13px; color:var(--primary); }
+  .btn-cost { font-size:10px; color:var(--text-muted); }
+  .btn-icon { font-size:20px; }
+  .btn-play { background:rgba(192,51,46,0.2); border-color:var(--secondary); padding:14px 20px; }
+  .btn-play .btn-name { color:var(--secondary); }
+
+  /* Loading screen */
+  #loading { position:fixed; inset:0; z-index:100; background:var(--bg-void);
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; }
+  #loading h1 { font-family:var(--font-title); color:var(--primary); letter-spacing:3px; }
+  #loadingBar { width:300px; height:8px; background:rgba(184,115,51,0.2); border-radius:4px; overflow:hidden; }
+  #loadingFill { height:100%; background:linear-gradient(90deg, var(--copper), var(--primary)); width:0%; transition:width 0.3s; }
+  #loadingText { color:var(--text-muted); font-family:var(--font-mono); font-size:11px; }
+
+  /* Banner */
+  #banner { position:fixed; top:40%; left:50%; transform:translate(-50%,-50%) scale(0);
+    z-index:20; pointer-events:none; transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.3s;
+    background:linear-gradient(135deg, rgba(200,150,12,0.95), rgba(184,115,51,0.95));
+    border:2px solid var(--primary); padding:18px 40px; border-radius:50px;
+    font-family:var(--font-title); font-size:24px; color:var(--text-main); letter-spacing:2px;
+    box-shadow:0 0 40px rgba(200,150,12,0.6); opacity:0; }
+  #banner.show { transform:translate(-50%,-50%) scale(1); opacity:1; }
+
+  /* Selected tower info */
+  #towerInfo { position:fixed; bottom:120px; right:16px; z-index:10;
+    background:rgba(22,14,28,0.9); border:1px solid var(--primary); border-radius:10px;
+    padding:14px; min-width:180px; backdrop-filter:blur(10px); display:none; }
+  #towerInfo.visible { display:block; }
+  #towerInfo h3 { color:var(--primary); font-family:var(--font-title); font-size:14px; margin-bottom:6px; letter-spacing:1px; }
+  #towerInfo p { font-size:10px; color:var(--text-muted); margin-bottom:8px; line-height:1.5; }
+  #towerInfo button { width:100%; padding:6px; margin-top:4px; background:rgba(200,150,12,0.15);
+    border:1px solid var(--primary); color:var(--primary); border-radius:5px; cursor:pointer; font-family:var(--font-mono); font-size:11px; }
+  #towerInfo button.sell { border-color:var(--secondary); color:var(--secondary); background:rgba(192,51,46,0.1); }
+
+  /* Canvas */
+  #scene { position:fixed; inset:0; z-index:1; }
+  canvas { display:block; }
+
+  /* Help */
+  #helpBtn { position:fixed; top:10px; right:16px; z-index:11;
+    background:rgba(22,14,28,0.7); border:1px solid var(--border); border-radius:50%;
+    width:32px; height:32px; color:var(--primary); cursor:pointer; font-size:14px; }
+  #helpPanel { position:fixed; top:50px; right:16px; z-index:11;
+    background:rgba(22,14,28,0.95); border:1px solid var(--primary); border-radius:10px;
+    padding:12px 14px; max-width:240px; font-family:var(--font-mono); font-size:10px;
+    color:var(--text-main); line-height:1.6; display:none; }
+  #helpPanel.visible { display:block; }
+  #helpPanel kbd { background:rgba(200,150,12,0.2); border:1px solid var(--copper); border-radius:3px; padding:1px 5px; font-size:9px; }
+
+  /* Drag ghost — positioned via transform (no reflow) */
+  .drag-ghost {
+    position:fixed; pointer-events:none; z-index:2000;
+    left:0; top:0;                        /* anchor; position set via transform */
+    width:62px; height:62px; border-radius:14px;
+    background:rgba(200,150,12,0.35); border:2px solid #C8960C;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px;
+    box-shadow:0 0 28px rgba(200,150,12,0.9), 0 4px 16px rgba(0,0,0,0.6);
+    will-change:transform;               /* tell browser this moves every frame */
+  }
+  .btn { touch-action: none; }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <h1>ĐẠI VIỆT DEFENSE 3D</h1>
+  <div id="loadingBar"><div id="loadingFill"></div></div>
+  <div id="loadingText">Đang tải tài nguyên 3D...</div>
+</div>
+
+<!-- Scene container -->
+<div id="scene"></div>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="stat">❤️ HP: <span id="hpStat">30</span></div>
+  <div class="stat">💰 <span id="goldStat">350</span></div>
+  <div class="stat">🌊 Đợt: <span id="waveStat">0</span>/10</div>
+  <div id="hudTitle">ĐẠI VIỆT DEFENSE — 3D PROTOTYPE</div>
+  <div class="stat">⚔️ Kills: <span id="killStat">0</span></div>
+</div>
+
+<!-- Reset camera button -->
+<button id="resetCamBtn" onclick="resetCamera()" title="Reset Camera (R)" style="position:fixed;top:10px;right:90px;z-index:11;background:rgba(22,14,28,0.7);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;color:var(--primary);cursor:pointer;font-size:14px;">⟲</button>
+
+<!-- Help button -->
+<button id="helpBtn" onclick="document.getElementById('helpPanel').classList.toggle('visible')">?</button>
+<div id="helpPanel">
+  <strong>🎮 Cách chơi:</strong><br>
+  • <kbd>Click</kbd> chọn tháp ở dưới<br>
+  • <kbd>Click ô đất</kbd> đặt tháp<br>
+  • <kbd>Click tháp đã đặt</kbd> nâng cấp / bán<br>
+  • <kbd>Phải chuột + kéo</kbd> xoay camera<br>
+  • <kbd>Lăn chuột</kbd> zoom in/out<br>
+  • <kbd>Phím space</kbd> bắt đầu wave<br>
+  <br>
+  <strong>🏰 Tháp:</strong> Arrow (nhanh), Cannon (AoE), Tesla (chain)
+</div>
+
+<!-- Build bar -->
+<div id="buildBar">
+  <div class="btn" data-tower="arrow" onpointerdown="onTowerPointerDown('arrow',event)">
+    <span class="btn-icon">🏹</span>
+    <span class="btn-name">NỎ THẦN</span>
+    <span class="btn-cost">💰 50</span>
+  </div>
+  <div class="btn" data-tower="cannon" onpointerdown="onTowerPointerDown('cannon',event)">
+    <span class="btn-icon">💣</span>
+    <span class="btn-name">PHÁO ĐỒNG</span>
+    <span class="btn-cost">💰 100</span>
+  </div>
+  <div class="btn" data-tower="tesla" onpointerdown="onTowerPointerDown('tesla',event)">
+    <span class="btn-icon">⚡</span>
+    <span class="btn-name">LÔI THÁP</span>
+    <span class="btn-cost">💰 200</span>
+  </div>
+  <div class="btn btn-play" id="playBtn" onclick="startNextWave()">
+    <span class="btn-icon">▶️</span>
+    <span class="btn-name">XUẤT QUÂN</span>
+  </div>
+  <div class="btn" id="musicBtn" onclick="toggleMusic()" style="background:rgba(200,150,12,0.15);border-color:var(--primary);">
+    <span class="btn-icon" id="musicIcon">🔊</span>
+    <span class="btn-name">NHẠC</span>
+  </div>
+</div>
+
+<!-- Background Music -->
+<audio id="bgm" loop preload="auto">
+  <source src="audio/music/co_loa_theme_v1.mp3" type="audio/mpeg">
+  <source src="audio/music/daiviet_battle_intense.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Tower info -->
+<div id="towerInfo">
+  <h3 id="tiName">Nỏ Thần</h3>
+  <p id="tiStats">Lv 1 • Dmg 25 • Range 4</p>
+  <button id="tiUpgrade" onclick="upgradeSelected()">⬆️ Nâng cấp 💰40</button>
+  <button class="sell" onclick="sellSelected()">💰 Bán</button>
+</div>
+
+<!-- Banner -->
+<div id="banner"></div>
+
+<!-- Three.js import map -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+
+// ═══════════════════════════════════════════════════════
+//  GAME CONSTANTS
+// ═══════════════════════════════════════════════════════
+const COLS = 16, ROWS = 11;        // Grid size
+const CELL = 1;                     // 1 unit per cell in 3D space
+const START = { x: 0, y: 5 };       // Spawn cell
+const EXIT  = { x: 15, y: 5 };      // Exit cell
+
+// ═══ TOWERS — FR2 baseline stats, Đại Việt theming ═══
+// DPS = damage / fireRate
+const TOWERS = {
+  // Tier 1: Cheap
+  arrow:  { name:'Nỏ Liên Châu', cost:40,  upgrade:30,  sell:24,  damage:35,  range:2.5, fireRate:1.0, color:0xC8960C, projColor:0xFFD700 },
+  slow:   { name:'Bẫy Nhựa',     cost:55,  upgrade:35,  sell:33,  damage:12,  range:2.5, fireRate:1.0, color:0x5ABCAA, projColor:0x80FFCC, slowPct:0.40 },
+  // Tier 2: Mid
+  cannon: { name:'Thần Cơ Pháo', cost:80,  upgrade:50,  sell:48,  damage:100, range:3.5, fireRate:1.6, color:0xB87333, projColor:0xFF4500, splash:1.8 },
+  mine:   { name:'Bãi Chông',    cost:90,  upgrade:60,  sell:54,  damage:1500,range:1.0, fireRate:4.0, color:0x8B4513, projColor:0xA08060 },
+  flame:  { name:'Hỏa Tháp',     cost:100, upgrade:60,  sell:60,  damage:300, range:2.5, fireRate:0.5, color:0xFF6600, projColor:0xFF9933, burnDot:50 },
+  power:  { name:'Trống Lệnh',   cost:120, upgrade:80,  sell:72,  damage:0,   range:1.5, fireRate:999, color:0xFFD700, projColor:0xFFFFAA, buffPct:0.25 },
+  // Tier 3: Premium
+  plague: { name:'Đàn Hương',    cost:140, upgrade:80,  sell:84,  damage:200, range:2.5, fireRate:1.0, color:0x80FF40, projColor:0xC0FF80, plagueDot:30 },
+  tesla:  { name:'Lôi Tháp',     cost:180, upgrade:100, sell:108, damage:700, range:2.5, fireRate:0.85,color:0x3a86ff, projColor:0x80D0FF, chain:3 },
+  railgun:{ name:'Đại Pháo',     cost:250, upgrade:150, sell:150, damage:850, range:5.5, fireRate:2.0, color:0x444444, projColor:0xFF0000, pierce:true },
+};
+
+// ═══ ENEMIES — 11 types from balance sheet ═══
+const ENEMIES = {
+  scout:     { name:'Lính Trinh Sát', hp:50,   speed:1.6,  reward:12, color:0xF5EED6, model:'enemy-ufo-a', scale:0.4 },
+  normal:    { name:'Bộ Binh',         hp:120,  speed:1.0,  reward:18, color:0xB87333, model:'enemy-ufo-b', scale:0.5 },
+  heavy:     { name:'Voi Chiến',       hp:300,  speed:0.55, reward:35, color:0xC0332E, model:'enemy-ufo-c', scale:0.6 },
+  speedster: { name:'Kị Binh Áo Xanh', hp:75,   speed:2.2,  reward:20, color:0x4080FF, model:'enemy-ufo-a', scale:0.4, slowImmune:true },
+  air:       { name:'Quạ Sắt',         hp:130,  speed:1.2,  reward:30, color:0x808080, model:'enemy-ufo-b', scale:0.45, isAir:true },
+  medic:     { name:'Pháp Sư',         hp:100,  speed:0.9,  reward:40, color:0x40FF80, model:'enemy-ufo-c', scale:0.5, healRate:8, healRange:1.8 },
+  transport: { name:'Xe Trâu',         hp:200,  speed:0.7,  reward:25, color:0x806040, model:'enemy-ufo-b', scale:0.55, spawnOnDeath:'scout', spawnCount:4 },
+  explosive: { name:'Lính Bom',        hp:80,   speed:1.3,  reward:15, color:0xFF4400, model:'enemy-ufo-a', scale:0.4, explodeOnDeath:true, explodePct:0.4, explodeRange:1.5 },
+  blimp:     { name:'Khí Cầu',         hp:600,  speed:0.35, reward:50, color:0x4040FF, model:'enemy-ufo-c', scale:0.7, isAir:true },
+  stealth:   { name:'Quái Vô Hình',    hp:90,   speed:1.4,  reward:35, color:0xC080FF, model:'enemy-ufo-a', scale:0.4, stealth:true },
+  boss:      { name:'Đại Tướng',       hp:1500, speed:0.4,  reward:200, color:0xFFD700, model:'enemy-ufo-c', scale:0.85 },
+};
+
+// ═══ WAVES — 15 waves from balance sheet ═══
+const WAVES = [
+  { scout:5 },                                                                          // 1: Tutorial
+  { scout:4, normal:3 },                                                                // 2: Infantry
+  { scout:2, normal:5, heavy:1 },                                                       // 3: First heavy
+  { normal:3, air:3 },                                                                  // 4: Air intro!
+  { scout:3, normal:4, heavy:1, speedster:2 },                                          // 5: Speedsters!
+  { scout:2, normal:5, heavy:2, medic:1, air:2 },                                       // 6: First medic
+  { heavy:1, air:5, blimp:1 },                                                          // 7: Air swarm + blimp
+  { scout:4, normal:6, transport:2 },                                                   // 8: Transports!
+  { scout:3, normal:4, heavy:3, medic:2, speedster:3 },                                 // 9: Mixed
+  { normal:5, heavy:2, explosive:4 },                                                   // 10: Boom!
+  { normal:8, heavy:3, air:3, medic:2, transport:1 },                                   // 11: Hard mix
+  { normal:4, air:6, blimp:2 },                                                         // 12: Air force
+  { normal:4, heavy:4, speedster:4, medic:2, air:3 },                                   // 13: Speed rush
+  { normal:8, heavy:5, air:4, transport:3, explosive:3 },                               // 14: Chaos
+  { normal:6, heavy:3, air:3, boss:1, medic:2, blimp:1, speedster:3 },                  // 15: BOSS FINAL
+];
+
+// ═══ ECONOMY & COMBO BASELINE ═══
+const STARTING_GOLD = 350;
+const STARTING_HP = 30;
+const WAVE_REWARD_BASE = 80;
+const WAVE_REWARD_PER_WAVE = 15;
+const COMBO_WINDOW_MS = 1200;
+const COMBO_MIN = 3;
+const MEGA_COMBO_MIN = 8;
+const COMBO_BONUS_PER_KILL = 5;
+const MEGA_COMBO_BONUS_PER_KILL = 15;
+
+// ═══ AIRSTRIKE METER ═══
+const AIRSTRIKE_MAX_POINTS = 100;
+const AIRSTRIKE_GAIN_KILL = 4;
+const AIRSTRIKE_GAIN_COMBO = 12;
+const AIRSTRIKE_GAIN_MEGA = 25;
+const AIRSTRIKE_GAIN_HP_LOST = 20;
+const AIRSTRIKE_DMG_PCT = 0.60;   // 60% of enemy maxHP per cell hit
+const AIRSTRIKE_ELITE_MULT = 1.5; // 150% vs heavy/blimp/boss
+
+// ═══════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════
+let gold = 350, hp = 30, currentWave = 0, kills = 0;
+let waveActive = false, totalSpawned = 0, totalExpected = 0;
+let selectedBuildType = null;
+let selectedPlacedTower = null;
+let towers = [], enemies = [], projectiles = [];
+let grid = Array.from({length:COLS}, () => Array(ROWS).fill(0));  // 0=empty, 1=tower, 2=path-only
+
+// ═══════════════════════════════════════════════════════
+//  THREE.JS SETUP
+// ═══════════════════════════════════════════════════════
+const sceneDiv = document.getElementById('scene');
+const scene = new THREE.Scene();
+
+// ── Sky gradient background ──
+const skyCanvas = document.createElement('canvas');
+skyCanvas.width = 2; skyCanvas.height = 256;
+const skyCtx = skyCanvas.getContext('2d');
+const skyGrad = skyCtx.createLinearGradient(0, 0, 0, 256);
+skyGrad.addColorStop(0,   '#2a3a55'); // deeper blue top
+skyGrad.addColorStop(0.4, '#8a6850'); // warm horizon
+skyGrad.addColorStop(0.7, '#5a3e2a'); // earth tone mid
+skyGrad.addColorStop(1,   '#2a1810'); // dark earth bottom
+skyCtx.fillStyle = skyGrad;
+skyCtx.fillRect(0, 0, 2, 256);
+const skyTex = new THREE.CanvasTexture(skyCanvas);
+scene.background = skyTex;
+scene.environment = skyTex; // use as env map for subtle reflections
+
+scene.fog = new THREE.FogExp2(0x4a3a30, 0.008);
+
+// ── ORTHOGRAPHIC CAMERA: square cells, map fills viewport ──
+// Camera frustum maps 1 world unit = same pixels in X and Z → cells are SQUARE always.
+// Map texture extends beyond the playable grid so no empty bands on sides.
+// Bottom of viewport reserves 1 row for decorations (trees, rocks, banners).
+const DECOR_ROW_HEIGHT = 1.5;  // 1.5 cells of bottom area reserved for decoration scenery
+function computeCameraFrustum() {
+  const viewW = window.innerWidth;
+  const viewH = window.innerHeight;
+  const aspect = viewW / viewH;
+  // Height = grid rows + decoration row
+  const camHalfH = (ROWS + DECOR_ROW_HEIGHT) / 2;
+  const camHalfW = camHalfH * aspect;
+  return { camHalfW, camHalfH };
+}
+
+const f0 = computeCameraFrustum();
+const camera = new THREE.OrthographicCamera(
+  -f0.camHalfW, f0.camHalfW,
+   f0.camHalfH, -f0.camHalfH,
+   0.1, 200
+);
+// Pure top-down view (no tilt)
+// CRITICAL: set camera.up explicitly so orientation isn't degenerate when looking straight down
+const CAM_HEIGHT = 50;
+camera.up.set(0, 0, -1);  // camera's "up" is world -Z (so map top = -Z direction)
+// Target center: shift so grid top touches viewport top, decoration row below grid
+// Viewport Z range: 0 → ROWS+DECOR_ROW_HEIGHT, target = middle of that
+const CAM_TARGET_Z = (ROWS + DECOR_ROW_HEIGHT) / 2;
+camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z);
+camera.lookAt(COLS/2, 0, CAM_TARGET_Z);
+camera.zoom = 1;
+camera.updateProjectionMatrix();
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.VSMShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.35;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+sceneDiv.appendChild(renderer.domElement);
+
+// ── Post-processing pipeline ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+// Bloom for glowing elements (lightning, emissive towers)
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.65,  // strength
+  0.4,   // radius
+  0.85   // threshold (only bright pixels)
+);
+composer.addPass(bloomPass);
+// Anti-aliasing
+composer.addPass(new SMAAPass(window.innerWidth, window.innerHeight));
+composer.addPass(new OutputPass());
+
+// Orbit controls — locked top-down, PAN only (zoom handled manually)
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(COLS/2, 0, CAM_TARGET_Z);
+controls.enableRotate = false;
+controls.enablePan = true;
+controls.enableZoom = false;             // Disable built-in zoom → use manual wheel below
+controls.panSpeed = 1.0;
+controls.screenSpacePanning = true;
+controls.enableDamping = true;
+controls.dampingFactor = 0.15;
+controls.mouseButtons = {
+  LEFT:   THREE.MOUSE.PAN,
+  MIDDLE: null,
+  RIGHT:  null
+};
+controls.touches = {
+  ONE: THREE.TOUCH.PAN,
+  TWO: THREE.TOUCH.DOLLY_PAN
+};
+controls.update();
+
+// ── Manual zoom via mouse wheel / pinch ──
+let zoomTarget = 1.0;  // current zoom target (smooth interpolated)
+renderer.domElement.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.15 : 0.15;
+  zoomTarget = Math.max(1.0, Math.min(3.0, zoomTarget + delta));
+}, { passive: false });
+
+// Pinch-to-zoom via touch
+let lastPinchDist = 0;
+renderer.domElement.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    lastPinchDist = Math.sqrt(dx*dx + dy*dy);
+  }
+}, { passive: true });
+renderer.domElement.addEventListener('touchmove', (e) => {
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const delta = (dist - lastPinchDist) * 0.005;
+    zoomTarget = Math.max(1.0, Math.min(3.0, zoomTarget + delta));
+    lastPinchDist = dist;
+  }
+}, { passive: true });
+
+// ── PAN CONSTRAINTS + snap-to-center on full zoom-out ──
+const PAN_PADDING = 0.0;
+function clampTarget() {
+  // At full zoom out, force perfect center — no empty space anywhere
+  if (camera.zoom <= 1.001) {
+    controls.target.x = COLS / 2;
+    controls.target.z = CAM_TARGET_Z;
+    return;
+  }
+  const camHalfW = (camera.right - camera.left) / 2 / camera.zoom;
+  const camHalfH = (camera.top - camera.bottom) / 2 / camera.zoom;
+  const minX = camHalfW - PAN_PADDING;
+  const maxX = COLS - camHalfW + PAN_PADDING;
+  const minZ = camHalfH - PAN_PADDING;
+  const maxZ = (ROWS + DECOR_ROW_HEIGHT) - camHalfH + PAN_PADDING;
+  if (maxX > minX) controls.target.x = Math.max(minX, Math.min(maxX, controls.target.x));
+  else controls.target.x = COLS / 2;
+  if (maxZ > minZ) controls.target.z = Math.max(minZ, Math.min(maxZ, controls.target.z));
+  else controls.target.z = CAM_TARGET_Z;
+}
+controls.addEventListener('change', clampTarget);
+
+// Reset camera button (hotkey R)
+window.resetCamera = function() {
+  controls.reset();
+};
+window.addEventListener('keydown', e => { if (e.key === 'r' || e.key === 'R') controls.reset(); });
+
+// ── Lighting (BALANCED Đại Việt afternoon) ──
+// Sky-ground hemisphere fill
+const hemi = new THREE.HemisphereLight(0xa0b0d0, 0x8a6a48, 0.6);
+scene.add(hemi);
+
+// Soft ambient — moderate fill
+const ambient = new THREE.AmbientLight(0xfff0d4, 0.3);
+scene.add(ambient);
+
+// Main sun — warm afternoon
+const sun = new THREE.DirectionalLight(0xfff0c8, 1.8);
+sun.position.set(10, 16, 4);
+sun.castShadow = true;
+sun.shadow.mapSize.width = 2048;
+sun.shadow.mapSize.height = 2048;
+sun.shadow.camera.left = -16;
+sun.shadow.camera.right = 16;
+sun.shadow.camera.top = 16;
+sun.shadow.camera.bottom = -16;
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 50;
+sun.shadow.bias = -0.0003;
+sun.shadow.normalBias = 0.04;
+sun.shadow.radius = 4;
+scene.add(sun);
+
+// Fill light — soft opposite of sun
+const fill = new THREE.DirectionalLight(0x8090b0, 0.5);
+fill.position.set(-10, 8, -4);
+scene.add(fill);
+
+// Rim back-light — color accent
+const rim = new THREE.DirectionalLight(0xff9070, 0.3);
+rim.position.set(-8, 6, 12);
+scene.add(rim);
+
+// Magic accent point lights at gates (gives that game-y glow)
+const spawnLight = new THREE.PointLight(0x5ABCAA, 2, 6, 1.5);
+spawnLight.position.set(START.x + 0.5, 1.2, START.y + 0.5);
+scene.add(spawnLight);
+
+const exitLight = new THREE.PointLight(0xC0332E, 2.5, 6, 1.5);
+exitLight.position.set(EXIT.x + 0.5, 1.2, EXIT.y + 0.5);
+scene.add(exitLight);
+
+// Mist plane just above ground for atmospheric depth
+const mistGeo = new THREE.PlaneGeometry(COLS + 6, ROWS + 6, 1, 1);
+const mistMat = new THREE.MeshBasicMaterial({
+  color: 0xffaa70,
+  transparent: true,
+  opacity: 0.08,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending
+});
+const mistPlane = new THREE.Mesh(mistGeo, mistMat);
+mistPlane.rotation.x = -Math.PI / 2;
+mistPlane.position.set(COLS/2, 0.6, ROWS/2);
+scene.add(mistPlane);
+
+// ═══════════════════════════════════════════════════════
+//  ASSET LOADER
+// ═══════════════════════════════════════════════════════
+const loader = new GLTFLoader();
+const models = {};
+const ASSETS_BASE = './3d_assets/models/';
+const CUSTOM_BASE = './3d_assets/custom/';
+
+const ASSETS_TO_LOAD = [
+  // Kenney placeholder assets
+  { name: 'tile',                  path: ASSETS_BASE },
+  { name: 'tile-bump',             path: ASSETS_BASE },
+  { name: 'tower-round-base',      path: ASSETS_BASE },
+  { name: 'tower-round-bottom-a',  path: ASSETS_BASE },
+  { name: 'tower-round-bottom-b',  path: ASSETS_BASE },
+  { name: 'tower-round-top-a',     path: ASSETS_BASE },
+  { name: 'tower-round-top-b',     path: ASSETS_BASE },
+  { name: 'tower-round-roof-a',    path: ASSETS_BASE },
+  { name: 'tower-round-roof-b',    path: ASSETS_BASE },
+  { name: 'tower-round-build-a',   path: ASSETS_BASE },
+  { name: 'tower-round-crystals',  path: ASSETS_BASE },
+  { name: 'enemy-ufo-a',           path: ASSETS_BASE },
+  { name: 'enemy-ufo-b',           path: ASSETS_BASE },
+  { name: 'enemy-ufo-c',           path: ASSETS_BASE },
+  { name: 'spawn-round',           path: ASSETS_BASE },
+  { name: 'spawn-square',          path: ASSETS_BASE },
+  { name: 'weapon-ammo-cannonball',path: ASSETS_BASE },
+  { name: 'weapon-ammo-bullet',    path: ASSETS_BASE },
+  { name: 'weapon-ammo-arrow',     path: ASSETS_BASE },
+  { name: 'detail-tree',           path: ASSETS_BASE },
+  { name: 'detail-tree-large',     path: ASSETS_BASE },
+  { name: 'detail-rocks',          path: ASSETS_BASE },
+  { name: 'detail-crystal',        path: ASSETS_BASE },
+  // ─── CUSTOM ĐẠI VIỆT MODELS (Tripo3D generated) ───
+  { name: 'no_lien_chau_lv1',      path: CUSTOM_BASE },
+];
+
+let loadedCount = 0;
+function loadAsset(entry) {
+  const name = entry.name;
+  const fullPath = entry.path + name + '.glb';
+  return new Promise((resolve) => {
+    loader.load(fullPath, (gltf) => {
+      models[name] = gltf.scene;
+      gltf.scene.traverse(obj => {
+        if (obj.isMesh) {
+          obj.castShadow = true;
+          obj.receiveShadow = true;
+        }
+      });
+      loadedCount++;
+      document.getElementById('loadingFill').style.width = (loadedCount / ASSETS_TO_LOAD.length * 100) + '%';
+      document.getElementById('loadingText').textContent = `Đã tải ${loadedCount}/${ASSETS_TO_LOAD.length}: ${name}`;
+      resolve();
+    }, undefined, (err) => {
+      console.warn('Failed to load:', name, err);
+      loadedCount++;
+      resolve();
+    });
+  });
+}
+
+async function loadAllAssets() {
+  await Promise.all(ASSETS_TO_LOAD.map(loadAsset));
+  document.getElementById('loading').style.display = 'none';
+  buildMap();
+  animate();
+}
+
+// Clone a model and enhance materials (PBR boost)
+function cloneModel(name) {
+  if (!models[name]) return null;
+  const cloned = models[name].clone(true);
+  cloned.traverse(obj => {
+    if (obj.isMesh && obj.material) {
+      // Clone material so changes don't affect other instances
+      obj.material = obj.material.clone();
+      // Boost PBR quality: more metalness for towers, more roughness for terrain
+      if (obj.material.isMeshStandardMaterial || obj.material.isMeshPhysicalMaterial) {
+        if (name.startsWith('tower-')) {
+          obj.material.metalness = 0.35;
+          obj.material.roughness = 0.55;
+        } else if (name.startsWith('tile')) {
+          obj.material.metalness = 0.0;
+          obj.material.roughness = 0.95;
+        } else if (name.startsWith('enemy-')) {
+          obj.material.metalness = 0.6;
+          obj.material.roughness = 0.4;
+          // Subtle emissive glow on enemies — they're robotic
+          obj.material.emissive = obj.material.color.clone().multiplyScalar(0.15);
+        } else if (name.startsWith('weapon-')) {
+          obj.material.metalness = 0.5;
+          obj.material.roughness = 0.3;
+        } else if (name.startsWith('spawn-')) {
+          obj.material.metalness = 0.2;
+          obj.material.roughness = 0.4;
+        } else if (name.startsWith('no_') || name.startsWith('than_') || name.startsWith('hoa_') || name.startsWith('loi_') || name.startsWith('bay_') || name.startsWith('trong_') || name.startsWith('bai_')) {
+          // ── Custom Tripo3D Đại Việt models — boost brightness ──
+          obj.material.metalness = 0.2;
+          obj.material.roughness = 0.7;
+          // Lift baked-in dark textures
+          if (obj.material.color) obj.material.color.multiplyScalar(1.4);
+          obj.material.envMapIntensity = 1.3;
+        }
+        obj.material.needsUpdate = true;
+      }
+      obj.castShadow = true;
+      obj.receiveShadow = true;
+    }
+  });
+  return cloned;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MAP BUILDING
+// ═══════════════════════════════════════════════════════
+function buildMap() {
+  // ── 2D FLAT MAP TEXTURE (Fieldrunners style, EXTENDED to fill wide viewport) ──
+  // Plane is wider than the playable grid so sides aren't empty.
+  const EXTEND_X = 3.0;   // extra units of sand on EACH side of the grid horizontally
+  const EXTEND_Z = 0.8;   // extra units top/bottom (minimal — grid touches top/bottom)
+  const PLANE_W = COLS + EXTEND_X * 2;
+  const PLANE_H = ROWS + EXTEND_Z * 2;
+
+  const mapCanvas = document.createElement('canvas');
+  // Higher res because plane is bigger
+  const TEX_W = 2048, TEX_H = Math.round(TEX_W * PLANE_H / PLANE_W);
+  mapCanvas.width = TEX_W; mapCanvas.height = TEX_H;
+  const mctx = mapCanvas.getContext('2d');
+
+  // Cell pixel size on canvas (must be same X and Y → square cells)
+  const cellPx = TEX_W / PLANE_W;
+  const gridLeftPx = EXTEND_X * cellPx;
+  const gridTopPx  = EXTEND_Z * cellPx;
+  const gridRightPx = gridLeftPx + COLS * cellPx;
+  const gridBottomPx = gridTopPx + ROWS * cellPx;
+
+  // Base sand color across ENTIRE canvas (also fills sides)
+  mctx.fillStyle = '#c89060';
+  mctx.fillRect(0, 0, TEX_W, TEX_H);
+
+  // Sand noise across entire texture
+  for (let i = 0; i < 20000; i++) {
+    const x = Math.random() * TEX_W;
+    const y = Math.random() * TEX_H;
+    const shade = Math.random();
+    mctx.fillStyle = shade < 0.4 ? '#b88050' : shade < 0.7 ? '#d8a070' : '#a07040';
+    mctx.fillRect(x, y, 1 + Math.random()*2, 1 + Math.random()*2);
+  }
+
+  // Shade variation patches
+  for (let i = 0; i < 100; i++) {
+    const x = Math.random() * TEX_W;
+    const y = Math.random() * TEX_H;
+    const r = 40 + Math.random() * 100;
+    const grad = mctx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, 'rgba(140,90,40,0.25)');
+    grad.addColorStop(1, 'rgba(140,90,40,0)');
+    mctx.fillStyle = grad;
+    mctx.fillRect(x-r, y-r, r*2, r*2);
+  }
+
+  // Slightly darker playable area (border around grid)
+  mctx.fillStyle = 'rgba(40,20,5,0.08)';
+  mctx.fillRect(gridLeftPx, gridTopPx, COLS * cellPx, ROWS * cellPx);
+
+  // ── GRID LINES (only inside playable area) ──
+  mctx.strokeStyle = 'rgba(60,35,10,0.55)';
+  mctx.lineWidth = 2.0;
+  for (let c = 0; c <= COLS; c++) {
+    mctx.beginPath();
+    mctx.moveTo(gridLeftPx + c * cellPx, gridTopPx);
+    mctx.lineTo(gridLeftPx + c * cellPx, gridBottomPx);
+    mctx.stroke();
+  }
+  for (let r = 0; r <= ROWS; r++) {
+    mctx.beginPath();
+    mctx.moveTo(gridLeftPx, gridTopPx + r * cellPx);
+    mctx.lineTo(gridRightPx, gridTopPx + r * cellPx);
+    mctx.stroke();
+  }
+
+  // ── PATH ROW tint ──
+  mctx.fillStyle = 'rgba(180,130,80,0.45)';
+  mctx.fillRect(gridLeftPx, gridTopPx + START.y * cellPx, COLS * cellPx, cellPx);
+
+  // Path edge darkening
+  mctx.strokeStyle = 'rgba(60,30,10,0.55)';
+  mctx.lineWidth = 3.5;
+  mctx.beginPath();
+  mctx.moveTo(gridLeftPx, gridTopPx + START.y * cellPx);
+  mctx.lineTo(gridRightPx, gridTopPx + START.y * cellPx);
+  mctx.moveTo(gridLeftPx, gridTopPx + (START.y + 1) * cellPx);
+  mctx.lineTo(gridRightPx, gridTopPx + (START.y + 1) * cellPx);
+  mctx.stroke();
+
+  // ── BLUE CHEVRON ARROWS ──
+  mctx.fillStyle = 'rgba(100,160,220,0.7)';
+  for (let c = 0; c < COLS; c++) {
+    const cx = gridLeftPx + c * cellPx + cellPx * 0.7;
+    const cy = gridTopPx + START.y * cellPx + cellPx / 2;
+    const s = cellPx * 0.2;
+    mctx.beginPath();
+    mctx.moveTo(cx - s, cy - s);
+    mctx.lineTo(cx + s, cy);
+    mctx.lineTo(cx - s, cy + s);
+    mctx.closePath();
+    mctx.fill();
+  }
+
+  // Build texture
+  const mapTex = new THREE.CanvasTexture(mapCanvas);
+  mapTex.colorSpace = THREE.SRGBColorSpace;
+  mapTex.anisotropy = 8;
+  const mapMat = new THREE.MeshStandardMaterial({
+    map: mapTex,
+    roughness: 0.95,
+    metalness: 0.0,
+  });
+
+  // Plane covers extended area (grid in center, sand on sides)
+  const mapPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(PLANE_W, PLANE_H),
+    mapMat
+  );
+  mapPlane.rotation.x = -Math.PI / 2;
+  // Center the extended plane so grid is at (COLS/2, 0, ROWS/2)
+  mapPlane.position.set(COLS/2, 0, ROWS/2);
+  mapPlane.receiveShadow = true;
+  scene.add(mapPlane);
+
+  // Also: extend plane MUCH wider as backdrop for ultra-wide screens
+  const backdropW = 60, backdropH = 30;
+  const backdrop = new THREE.Mesh(
+    new THREE.PlaneGeometry(backdropW, backdropH),
+    new THREE.MeshStandardMaterial({ color: 0xa07040, roughness: 1.0 })
+  );
+  backdrop.rotation.x = -Math.PI / 2;
+  backdrop.position.set(COLS/2, -0.02, ROWS/2);
+  backdrop.receiveShadow = true;
+  scene.add(backdrop);
+
+  // ── DECORATION SCENERY ROW (bottom strip below grid) ──
+  // Place trees, rocks, banners in the strip z = ROWS .. ROWS + DECOR_ROW_HEIGHT
+  const decorRowZ = ROWS + DECOR_ROW_HEIGHT / 2;
+  const decorTypes = ['detail-tree', 'detail-tree-large', 'detail-rocks', 'detail-crystal'];
+  // Place ~16 decorations spread across the bottom row
+  for (let i = 0; i < 18; i++) {
+    const type = decorTypes[Math.floor(Math.random() * decorTypes.length)];
+    const decor = cloneModel(type);
+    if (!decor) continue;
+    // Spread X across the wider extended map area
+    const x = -3 + (i / 17) * (COLS + 6) + (Math.random() - 0.5) * 0.6;
+    const z = decorRowZ + (Math.random() - 0.5) * (DECOR_ROW_HEIGHT * 0.6);
+    decor.position.set(x, 0, z);
+    decor.rotation.y = Math.random() * Math.PI * 2;
+    decor.scale.setScalar(0.6 + Math.random() * 0.5);
+    scene.add(decor);
+  }
+  // (Top decoration line removed — grid top stays clean against viewport top)
+
+  // Spawn gate (left)
+  const spawnGate = cloneModel('spawn-round');
+  if (spawnGate) {
+    spawnGate.position.set(START.x + 0.5, 0.05, START.y + 0.5);
+    spawnGate.scale.setScalar(1.2);
+    spawnGate.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color(0x5ABCAA); o.material.emissiveIntensity = 0.5; }});
+    scene.add(spawnGate);
+  }
+  // Exit gate (right) — red
+  const exitGate = cloneModel('spawn-square');
+  if (exitGate) {
+    exitGate.position.set(EXIT.x + 0.5, 0.05, EXIT.y + 0.5);
+    exitGate.scale.setScalar(1.2);
+    exitGate.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color(0xC0332E); o.material.emissiveIntensity = 0.5; }});
+    scene.add(exitGate);
+  }
+
+  // Path glow line on the ground
+  const pathPoints = [];
+  for (let c = 0; c < COLS; c++) pathPoints.push(new THREE.Vector3(c + 0.5, 0.05, START.y + 0.5));
+  const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
+  const pathMat = new THREE.LineBasicMaterial({ color: 0xC8960C, transparent:true, opacity:0.5 });
+  const pathLine = new THREE.Line(pathGeo, pathMat);
+  scene.add(pathLine);
+
+  // Grid lines + path arrows are now baked into the 2D map texture above.
+  // (No separate 3D overlays needed — simpler + cleaner FR2 look.)
+
+  // ── Hover cursor: glowing square that snaps to cells ──
+  hoverCursor = new THREE.Group();
+  // Filled cell highlight (semi-transparent)
+  const fillMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.92, 0.92),
+    new THREE.MeshBasicMaterial({ color: 0x5ABCAA, transparent:true, opacity:0.35, depthWrite:false })
+  );
+  fillMesh.rotation.x = -Math.PI/2;
+  fillMesh.position.y = 0.06;
+  hoverCursor.add(fillMesh);
+  hoverCursor.fillMesh = fillMesh;
+  // Bright border ring (thicker, more visible)
+  const borderMesh = new THREE.Mesh(
+    new THREE.RingGeometry(0.42, 0.5, 4, 1, 0, Math.PI*2),
+    new THREE.MeshBasicMaterial({ color: 0x5ABCAA, transparent:true, opacity:0.9, depthWrite:false })
+  );
+  // Use square ring with corners
+  const borderGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-0.46, 0.07, -0.46),
+    new THREE.Vector3( 0.46, 0.07, -0.46),
+    new THREE.Vector3( 0.46, 0.07,  0.46),
+    new THREE.Vector3(-0.46, 0.07,  0.46),
+    new THREE.Vector3(-0.46, 0.07, -0.46),
+  ]);
+  const borderLine = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x5ABCAA, linewidth:3, transparent:true, opacity:1 }));
+  hoverCursor.add(borderLine);
+  hoverCursor.borderLine = borderLine;
+  // Vertical light pillar from cell
+  const pillarMat = new THREE.MeshBasicMaterial({ color: 0x5ABCAA, transparent:true, opacity:0.3, depthWrite:false });
+  const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.5, 8, 1, true), pillarMat);
+  pillar.position.y = 1.25;
+  hoverCursor.add(pillar);
+  hoverCursor.pillar = pillar;
+
+  hoverCursor.visible = false;
+  scene.add(hoverCursor);
+}
+
+let gridOverlay = null;
+
+let hoverCursor = null;
+
+// ═══════════════════════════════════════════════════════
+//  TOWER CLASS
+// ═══════════════════════════════════════════════════════
+class Tower {
+  constructor(type, gridX, gridY) {
+    this.type = type;
+    this.spec = TOWERS[type];
+    this.level = 1;
+    this.gridX = gridX;
+    this.gridY = gridY;
+    this.x = gridX + 0.5;
+    this.z = gridY + 0.5;
+    this.range = this.spec.range;
+    this.damage = this.spec.damage;
+    this.fireRate = this.spec.fireRate;
+    this.lastShot = 0;
+
+    // Build 3D model — use custom Tripo3D model if available, else Kenney modular
+    this.group = new THREE.Group();
+    this.group.position.set(this.x, 0, this.z);
+
+    // Map tower types to custom model names
+    const customMap = {
+      arrow: 'no_lien_chau_lv1',
+      // cannon: 'than_co_phao_lv1',  // when generated
+      // tesla:  'loi_thap_lv1',       // when generated
+    };
+
+    if (customMap[type] && models[customMap[type]]) {
+      // ── CUSTOM ĐẠI VIỆT MODEL (Tripo3D) ──
+      const custom = cloneModel(customMap[type]);
+      // FR2-style compact tower: lv1 ~0.8 unit tall, scaling up per level
+      const box = new THREE.Box3().setFromObject(custom);
+      const size = box.getSize(new THREE.Vector3());
+      const baseHeight = 0.9;
+      const targetHeight = baseHeight + (this.level - 1) * 0.3; // lv1=0.9, lv2=1.2, lv3=1.5
+      const scale = targetHeight / Math.max(size.y, 0.01);
+      custom.scale.setScalar(scale);
+      // Re-measure and center horizontally, sit on ground
+      const box2 = new THREE.Box3().setFromObject(custom);
+      const center2 = box2.getCenter(new THREE.Vector3());
+      custom.position.x -= center2.x;
+      custom.position.z -= center2.z;
+      custom.position.y -= box2.min.y; // sit on ground
+      this.group.add(custom);
+      this.top = custom; // rotate entire model toward target
+      this.isCustomModel = true;
+    } else {
+      // ── KENNEY MODULAR FALLBACK ──
+      const base = cloneModel('tower-round-base');
+      if (base) this.group.add(base);
+
+      const variant = type === 'arrow' ? 'a' : type === 'cannon' ? 'a' : 'b';
+      const bottom = cloneModel('tower-round-bottom-' + variant);
+      if (bottom) { bottom.position.y = 0.5; this.group.add(bottom); }
+
+      this.top = cloneModel('tower-round-top-' + variant);
+      if (this.top) { this.top.position.y = 1.2; this.group.add(this.top); }
+
+      const roof = cloneModel('tower-round-roof-' + variant);
+      if (roof) { roof.position.y = 1.8; this.group.add(roof); }
+
+      // Tint based on tower type (Kenney only)
+      this.group.traverse(o => {
+        if (o.isMesh && o.material) {
+          o.material = o.material.clone();
+          if (this.type === 'cannon') o.material.color.multiplyScalar(1.0).add(new THREE.Color(0x442200));
+          if (this.type === 'tesla')  o.material.color.lerp(new THREE.Color(0x3a86ff), 0.3);
+        }
+      });
+      this.isCustomModel = false;
+    }
+
+    scene.add(this.group);
+    towers.push(this);
+    grid[gridX][gridY] = 1;
+  }
+
+  findTarget(time) {
+    let nearest = null, minDist = Infinity;
+    for (const e of enemies) {
+      if (e.isDead) continue;
+      const dx = e.position.x - this.x;
+      const dz = e.position.z - this.z;
+      const d = Math.sqrt(dx*dx + dz*dz);
+      if (d <= this.range && d < minDist) {
+        minDist = d;
+        nearest = e;
+      }
+    }
+    return nearest;
+  }
+
+  update(time, dt) {
+    const target = this.findTarget(time);
+    if (target && this.top) {
+      // Rotate top toward target
+      const dx = target.position.x - this.x;
+      const dz = target.position.z - this.z;
+      const angle = Math.atan2(dx, dz);
+      const cur = this.top.rotation.y;
+      let diff = angle - cur;
+      while (diff < -Math.PI) diff += Math.PI*2;
+      while (diff >  Math.PI) diff -= Math.PI*2;
+      this.top.rotation.y += diff * 0.2;
+
+      // Fire
+      if (time - this.lastShot >= this.fireRate) {
+        this.shoot(target);
+        this.lastShot = time;
+      }
+    }
+  }
+
+  shoot(target) {
+    new Projectile(this.x, 1.5, this.z, target, this.type, this.damage);
+  }
+
+  upgrade() {
+    if (this.level >= 3) return false;
+    const cost = 40 * this.level;
+    if (gold < cost) return false;
+    gold -= cost;
+    this.level++;
+    this.damage = Math.round(this.spec.damage * (1 + (this.level-1) * 0.6));
+    this.range = this.spec.range + (this.level-1) * 0.5;
+    this.fireRate = this.spec.fireRate * (1 - (this.level-1) * 0.15);
+    // Visual: scale up
+    this.group.scale.setScalar(1 + (this.level-1) * 0.1);
+    updateUI();
+    return true;
+  }
+
+  sell() {
+    const refund = Math.floor(this.spec.cost * 0.6);
+    gold += refund;
+    grid[this.gridX][this.gridY] = 0;
+    scene.remove(this.group);
+    towers = towers.filter(t => t !== this);
+    selectedPlacedTower = null;
+    document.getElementById('towerInfo').classList.remove('visible');
+    updateUI();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  ENEMY CLASS
+// ═══════════════════════════════════════════════════════
+class Enemy {
+  constructor(type) {
+    this.type = type;
+    this.spec = ENEMIES[type];
+    this.maxHp = this.spec.hp + currentWave * 8;
+    this.hp = this.maxHp;
+    this.speed = this.spec.speed;
+    this.isDead = false;
+
+    this.position = new THREE.Vector3(START.x - 0.5, 0.3, START.y + 0.5);
+    this.target = new THREE.Vector3(EXIT.x + 1.5, 0.3, EXIT.y + 0.5);
+
+    // Model
+    this.mesh = cloneModel(this.spec.model);
+    if (this.mesh) {
+      this.mesh.position.copy(this.position);
+      this.mesh.scale.setScalar(this.spec.scale);
+      this.mesh.traverse(o => {
+        if (o.isMesh && o.material) {
+          o.material = o.material.clone();
+          if (this.type === 'normal') o.material.color = new THREE.Color(0xB87333);
+          if (this.type === 'heavy')  o.material.color = new THREE.Color(0xC0332E);
+        }
+      });
+      scene.add(this.mesh);
+    }
+
+    // HP bar (always faces camera)
+    this.hpBarBg = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.7, 0.08),
+      new THREE.MeshBasicMaterial({ color: 0x222222, transparent:true, opacity:0.85 })
+    );
+    this.hpBarFg = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.7, 0.08),
+      new THREE.MeshBasicMaterial({ color: 0x5ABCAA })
+    );
+    this.hpBarBg.position.copy(this.position);
+    this.hpBarBg.position.y += 0.9;
+    this.hpBarFg.position.copy(this.hpBarBg.position);
+    this.hpBarFg.position.y += 0.001;
+    scene.add(this.hpBarBg);
+    scene.add(this.hpBarFg);
+
+    enemies.push(this);
+  }
+
+  takeDamage(dmg) {
+    if (this.isDead) return;
+    this.hp -= dmg;
+    if (this.hp <= 0) {
+      this.die();
+    } else {
+      // Damage flash
+      if (this.mesh) {
+        this.mesh.traverse(o => {
+          if (o.isMesh && o.material) {
+            const orig = o.material.color.clone();
+            o.material.color.set(0xff4444);
+            setTimeout(() => o.material.color.copy(orig), 80);
+          }
+        });
+      }
+    }
+  }
+
+  die() {
+    this.isDead = true;
+    gold += this.spec.reward;
+    kills++;
+    spawnExplosion(this.position.x, this.position.y, this.position.z, 0xC0332E, 12);
+    if (this.mesh) scene.remove(this.mesh);
+    scene.remove(this.hpBarBg);
+    scene.remove(this.hpBarFg);
+    updateUI();
+  }
+
+  update(dt) {
+    if (this.isDead) return;
+    // Move toward target (straight line for now — path is horizontal)
+    const dir = new THREE.Vector3().subVectors(this.target, this.position);
+    const dist = dir.length();
+    if (dist < 0.3) {
+      // Reached exit
+      this.escape();
+      return;
+    }
+    dir.normalize().multiplyScalar(this.speed * dt);
+    this.position.add(dir);
+
+    if (this.mesh) {
+      this.mesh.position.copy(this.position);
+      this.mesh.position.y = 0.3 + Math.sin(performance.now() * 0.005 + this.position.x) * 0.05;  // bob
+      this.mesh.rotation.y = Math.atan2(dir.x, dir.z);
+    }
+
+    // HP bar
+    if (this.hpBarBg) {
+      this.hpBarBg.position.set(this.position.x, this.position.y + 0.9, this.position.z);
+      this.hpBarFg.position.copy(this.hpBarBg.position);
+      this.hpBarFg.position.y += 0.001;
+      this.hpBarBg.quaternion.copy(camera.quaternion);
+      this.hpBarFg.quaternion.copy(camera.quaternion);
+      const pct = Math.max(0, this.hp / this.maxHp);
+      this.hpBarFg.scale.x = pct;
+      this.hpBarFg.position.x -= (1 - pct) * 0.35;
+      this.hpBarFg.material.color.setHSL(pct * 0.33, 0.7, 0.5);  // green→red
+    }
+  }
+
+  escape() {
+    this.isDead = true;
+    hp = Math.max(0, hp - 1);
+    if (this.mesh) scene.remove(this.mesh);
+    scene.remove(this.hpBarBg);
+    scene.remove(this.hpBarFg);
+    showBanner('💔 Địch thoát! -1 HP');
+    updateUI();
+    if (hp <= 0) gameOver(false);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROJECTILE
+// ═══════════════════════════════════════════════════════
+class Projectile {
+  constructor(x, y, z, target, type, damage) {
+    this.target = target;
+    this.type = type;
+    this.damage = damage;
+    this.startTime = performance.now() / 1000;
+    this.startPos = new THREE.Vector3(x, y, z);
+    this.position = this.startPos.clone();
+    this.isDone = false;
+
+    // Mesh based on type
+    let geo, mat;
+    if (type === 'tesla') {
+      // Lightning: thin glowing line — we'll draw line dynamically
+      this.mesh = null;
+      this.isLightning = true;
+      // Apply damage instantly + chain
+      target.takeDamage(damage);
+      drawLightning(this.startPos, target.position);
+      // Chain
+      let chainHit = [target];
+      for (let i = 0; i < (TOWERS.tesla.chain - 1); i++) {
+        const prev = chainHit[chainHit.length - 1];
+        let next = null, minD = Infinity;
+        for (const e of enemies) {
+          if (e.isDead || chainHit.includes(e)) continue;
+          const d = e.position.distanceTo(prev.position);
+          if (d < 2.5 && d < minD) { minD = d; next = e; }
+        }
+        if (next) {
+          next.takeDamage(damage * 0.7);
+          drawLightning(prev.position, next.position);
+          chainHit.push(next);
+        }
+      }
+      this.isDone = true;
+      projectiles.push(this);
+      return;
+    }
+    if (type === 'cannon') {
+      this.mesh = cloneModel('weapon-ammo-cannonball');
+      if (!this.mesh) {
+        geo = new THREE.SphereGeometry(0.15, 12, 12);
+        mat = new THREE.MeshStandardMaterial({ color:0x442200, emissive:0xFF4500, emissiveIntensity:0.5 });
+        this.mesh = new THREE.Mesh(geo, mat);
+      } else {
+        this.mesh.scale.setScalar(0.5);
+      }
+      this.isBomb = true;
+      this.flightTime = 0.6;
+    } else {
+      // arrow
+      this.mesh = cloneModel('weapon-ammo-arrow');
+      if (!this.mesh) {
+        geo = new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8);
+        mat = new THREE.MeshStandardMaterial({ color: TOWERS[type].projColor });
+        this.mesh = new THREE.Mesh(geo, mat);
+      } else {
+        this.mesh.scale.setScalar(0.4);
+      }
+      this.speed = 18;
+    }
+
+    this.mesh.position.copy(this.startPos);
+    scene.add(this.mesh);
+    projectiles.push(this);
+  }
+
+  update(dt, time) {
+    if (this.isDone) return;
+    if (this.target.isDead) {
+      // Lock target — just fly straight then disappear
+      this.isDone = true;
+      if (this.mesh) scene.remove(this.mesh);
+      return;
+    }
+
+    if (this.isBomb) {
+      // Parabolic arc
+      const t = (time - this.startTime) / this.flightTime;
+      if (t >= 1) {
+        // Explode
+        this.explode();
+        return;
+      }
+      const x = this.startPos.x + (this.target.position.x - this.startPos.x) * t;
+      const z = this.startPos.z + (this.target.position.z - this.startPos.z) * t;
+      const y = this.startPos.y + (this.target.position.y - this.startPos.y) * t + Math.sin(t * Math.PI) * 3;
+      this.position.set(x, y, z);
+      this.mesh.position.copy(this.position);
+      this.mesh.rotation.x += 0.2;
+      this.mesh.rotation.y += 0.1;
+    } else {
+      // Arrow: fly toward target
+      const dir = new THREE.Vector3().subVectors(this.target.position, this.position);
+      const dist = dir.length();
+      if (dist < 0.3) {
+        this.target.takeDamage(this.damage);
+        this.isDone = true;
+        if (this.mesh) scene.remove(this.mesh);
+        return;
+      }
+      dir.normalize().multiplyScalar(this.speed * dt);
+      this.position.add(dir);
+      this.mesh.position.copy(this.position);
+      this.mesh.lookAt(this.target.position);
+      this.mesh.rotateX(Math.PI / 2);
+    }
+  }
+
+  explode() {
+    this.isDone = true;
+    if (this.mesh) scene.remove(this.mesh);
+    const splash = TOWERS.cannon.splash;
+    spawnExplosion(this.position.x, this.position.y, this.position.z, 0xFF4500, 30);
+    for (const e of enemies) {
+      if (e.isDead) continue;
+      const d = e.position.distanceTo(this.position);
+      if (d <= splash) {
+        e.takeDamage(this.damage * (1 - d/splash * 0.4));
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  EFFECTS
+// ═══════════════════════════════════════════════════════
+const explosions = [];
+function spawnExplosion(x, y, z, color, count) {
+  for (let i = 0; i < count; i++) {
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(0.06 + Math.random()*0.08, 6, 6),
+      new THREE.MeshBasicMaterial({ color, transparent:true, opacity:1 })
+    );
+    mesh.position.set(x, y, z);
+    const vel = new THREE.Vector3((Math.random()-0.5)*4, Math.random()*3, (Math.random()-0.5)*4);
+    scene.add(mesh);
+    explosions.push({ mesh, vel, life: 1.0 });
+  }
+}
+
+const lightnings = [];
+function drawLightning(from, to) {
+  const points = [];
+  const seg = 8;
+  for (let i = 0; i <= seg; i++) {
+    const t = i / seg;
+    const p = new THREE.Vector3().lerpVectors(from, to, t);
+    if (i > 0 && i < seg) {
+      p.x += (Math.random()-0.5) * 0.3;
+      p.y += (Math.random()-0.5) * 0.3 + 0.2;
+      p.z += (Math.random()-0.5) * 0.3;
+    }
+    points.push(p);
+  }
+  const geo = new THREE.BufferGeometry().setFromPoints(points);
+  const mat = new THREE.LineBasicMaterial({ color: 0x80D0FF, transparent:true, opacity:1, linewidth:3 });
+  const line = new THREE.Line(geo, mat);
+  scene.add(line);
+  lightnings.push({ line, life: 0.25 });
+}
+
+// ═══════════════════════════════════════════════════════
+//  WAVE SYSTEM
+// ═══════════════════════════════════════════════════════
+window.startNextWave = function() {
+  if (waveActive) return;
+  if (currentWave >= WAVES.length) { showBanner('🏆 CHIẾN THẮNG!'); return; }
+  const w = WAVES[currentWave];
+  currentWave++;
+  totalSpawned = 0;
+  totalExpected = (w.scout||0) + (w.normal||0) + (w.heavy||0);
+  waveActive = true;
+  showBanner(`⚔️ ĐỢT ${currentWave}!`);
+
+  let delay = 600;
+  const spawn = (type, factor) => () => {
+    if (hp > 0 && waveActive) {
+      new Enemy(type);
+      totalSpawned++;
+    }
+  };
+  for (let i = 0; i < (w.scout||0); i++)  { setTimeout(spawn('scout'),  delay); delay += 500; }
+  for (let i = 0; i < (w.normal||0); i++) { setTimeout(spawn('normal'), delay); delay += 800; }
+  for (let i = 0; i < (w.heavy||0); i++)  { setTimeout(spawn('heavy'),  delay); delay += 1500; }
+  updateUI();
+};
+
+function checkWaveProgress() {
+  if (!waveActive) return;
+  if (totalSpawned < totalExpected) return;
+  const allGone = enemies.every(e => e.isDead);
+  if (allGone) {
+    waveActive = false;
+    gold += 50 + currentWave * 10;
+    if (currentWave >= WAVES.length) {
+      setTimeout(() => gameOver(true), 1500);
+    } else {
+      showBanner(`🏆 Đợt ${currentWave} thắng! +${50 + currentWave*10} 💰`);
+    }
+    updateUI();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  CLICK / DRAG-DROP HANDLING
+// ═══════════════════════════════════════════════════════
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let lastMouseEvent = null;
+
+renderer.domElement.addEventListener('mousemove', (e) => {
+  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  lastMouseEvent = e;
+});
+
+// ── Shared tower placement logic ──
+function placeTower(type, gx, gy) {
+  if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) { showBanner('❌ Kéo vào ô trên bản đồ!'); return; }
+  if (gy === START.y) { showBanner('❌ Không đặt được trên đường địch!'); return; }
+  if (grid[gx][gy] !== 0) { showBanner('❌ Ô đã có tháp!'); return; }
+  const spec = TOWERS[type];
+  if (gold < spec.cost) { showBanner('💰 Không đủ vàng!'); return; }
+  gold -= spec.cost;
+  new Tower(type, gx, gy);
+  updateUI();
+}
+
+// ── Canvas click: select placed tower OR place selected tower ──
+renderer.domElement.addEventListener('click', (e) => {
+  if (e.button !== 0) return;
+  if (_drag.wasDrag) { _drag.wasDrag = false; return; } // skip click after drag
+  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  // Hit existing tower?
+  for (const t of towers) {
+    if (raycaster.intersectObject(t.group, true).length > 0) {
+      selectPlacedTower(t); return;
+    }
+  }
+
+  // Place tower on ground
+  if (!selectedBuildType) { showBanner('💡 Chọn hoặc kéo tháp ở dưới!'); return; }
+  const ground = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
+  const pt = new THREE.Vector3();
+  if (!raycaster.ray.intersectPlane(ground, pt)) return;
+  placeTower(selectedBuildType, Math.floor(pt.x), Math.floor(pt.z));
+});
+
+window.selectTowerBuild = function(type) {
+  selectedBuildType = (selectedBuildType === type) ? null : type;
+  document.querySelectorAll('.btn[data-tower]').forEach(b =>
+    b.classList.toggle('active', b.dataset.tower === selectedBuildType)
+  );
+};
+
+// ── DRAG & DROP ──────────────────────────────────────────
+const TOWER_ICONS = {
+  arrow:'🏹', slow:'❄️', cannon:'💣', mine:'💥',
+  flame:'🔥', power:'🥁', plague:'☠️', tesla:'⚡', railgun:'🎯'
+};
+const _drag = { type:null, active:false, ghost:null, startX:0, startY:0, wasDrag:false };
+
+window.onTowerPointerDown = function(type, e) {
+  e.preventDefault();
+  _drag.type    = type;
+  _drag.active  = false;
+  _drag.startX  = e.clientX;
+  _drag.startY  = e.clientY;
+};
+
+document.addEventListener('pointermove', (e) => {
+  if (!_drag.type) return;
+  const dx = e.clientX - _drag.startX, dy = e.clientY - _drag.startY;
+  if (!_drag.active && dx*dx + dy*dy > 64) {
+    _drag.active = true;
+    _drag.ghost = document.createElement('div');
+    _drag.ghost.className = 'drag-ghost';
+    _drag.ghost.textContent = TOWER_ICONS[_drag.type] || '🏰';
+    document.body.appendChild(_drag.ghost);
+    selectedBuildType = _drag.type;
+    document.querySelectorAll('.btn[data-tower]').forEach(b =>
+      b.classList.toggle('active', b.dataset.tower === _drag.type)
+    );
+  }
+  if (!_drag.active || !_drag.ghost) return;
+
+  // ── Vị trí thực tốt nhất: coalesced events (bắt điểm bị nuốt) ──
+  let baseX = e.clientX, baseY = e.clientY;
+  if (e.getCoalescedEvents) {
+    const coal = e.getCoalescedEvents();
+    if (coal.length) { baseX = coal[coal.length - 1].clientX; baseY = coal[coal.length - 1].clientY; }
+  }
+
+  // ── Tốc độ EWMA — làm mượt tốc độ để không vượt ngưỡng liên tục ──
+  const moveDx = baseX - (_drag.lastX ?? baseX);
+  const moveDy = baseY - (_drag.lastY ?? baseY);
+  _drag.lastX = baseX;
+  _drag.lastY = baseY;
+  // Exponential weighted moving average: alpha=0.4 → làm mượt mạnh, phản hồi nhanh
+  _drag.speed2 = (_drag.speed2 ?? 0) * 0.6 + (moveDx * moveDx + moveDy * moveDy) * 0.4;
+
+  // ── Blend liên tục predicted ↔ real theo tốc độ (không threshold cứng) ──
+  // speed²  <  4  (< 2px/frame) → 0% predicted, dùng baseX hoàn toàn
+  // speed²  > 64  (> 8px/frame) → 100% predicted
+  // Vùng giữa: blend mượt, không giật khi chuyển chế độ
+  let px = baseX, py = baseY;
+  if (_drag.speed2 > 4 && e.getPredictedEvents) {
+    const pred = e.getPredictedEvents();
+    if (pred.length) {
+      const blend = Math.min(1, (_drag.speed2 - 4) / 60); // 0→1 khi speed² 4→64
+      px = baseX + (pred[pred.length - 1].clientX - baseX) * blend;
+      py = baseY + (pred[pred.length - 1].clientY - baseY) * blend;
+    }
+  }
+
+  _drag.ghost.style.transform = `translate(calc(${px}px - 50%), calc(${py}px - 60%))`;
+
+  mouse.x = (e.clientX / window.innerWidth)  * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  lastMouseEvent = e;
+}, { passive: true }); // passive: browser không cần chờ JS trước khi composite
+
+document.addEventListener('pointerup', (e) => {
+  if (!_drag.type) return;
+  const type = _drag.type;
+  const wasDrag = _drag.active;
+  if (_drag.ghost) { _drag.ghost.remove(); _drag.ghost = null; }
+  _drag.type   = null;
+  _drag.active = false;
+
+  if (wasDrag) {
+    _drag.wasDrag = true; // suppress canvas click event that fires after pointerup
+    // Raycast drop position
+    mouse.x = (e.clientX / window.innerWidth)  * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const ground = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
+    const pt = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(ground, pt)) {
+      placeTower(type, Math.floor(pt.x), Math.floor(pt.z));
+    } else {
+      showBanner('❌ Kéo ra ngoài bản đồ!');
+    }
+    // Deselect after drag-place
+    selectedBuildType = null;
+    document.querySelectorAll('.btn[data-tower]').forEach(b => b.classList.remove('active'));
+  } else {
+    // Short press = toggle selection (no drag)
+    selectTowerBuild(type);
+  }
+});
+
+function selectPlacedTower(t) {
+  selectedPlacedTower = t;
+  const info = document.getElementById('towerInfo');
+  info.classList.add('visible');
+  document.getElementById('tiName').textContent = t.spec.name + ` Lv.${t.level}`;
+  document.getElementById('tiStats').textContent = `Dmg ${Math.round(t.damage)} • Tầm ${t.range.toFixed(1)} • ${t.fireRate.toFixed(2)}s/shot`;
+  const upBtn = document.getElementById('tiUpgrade');
+  if (t.level >= 3) {
+    upBtn.textContent = '✓ Tối đa';
+    upBtn.disabled = true;
+  } else {
+    const cost = 40 * t.level;
+    upBtn.textContent = `⬆️ Nâng cấp 💰${cost}`;
+    upBtn.disabled = false;
+  }
+}
+
+window.upgradeSelected = function() {
+  if (!selectedPlacedTower) return;
+  if (selectedPlacedTower.upgrade()) {
+    selectPlacedTower(selectedPlacedTower);
+    showBanner('⬆️ Nâng cấp thành công!');
+  }
+};
+
+window.sellSelected = function() {
+  if (!selectedPlacedTower) return;
+  selectedPlacedTower.sell();
+};
+
+// ═══════════════════════════════════════════════════════
+//  UI UPDATES
+// ═══════════════════════════════════════════════════════
+function updateUI() {
+  document.getElementById('hpStat').textContent = hp;
+  document.getElementById('goldStat').textContent = gold;
+  document.getElementById('waveStat').textContent = currentWave;
+  document.getElementById('killStat').textContent = kills;
+  document.querySelectorAll('.btn[data-tower]').forEach(b => {
+    const t = b.dataset.tower;
+    b.classList.toggle('disabled', gold < TOWERS[t].cost);
+  });
+}
+
+let bannerTimer = null;
+function showBanner(text) {
+  const b = document.getElementById('banner');
+  b.textContent = text;
+  b.classList.add('show');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => b.classList.remove('show'), 2200);
+}
+
+function gameOver(isWin) {
+  showBanner(isWin ? '🏆 CHIẾN THẮNG!' : '💔 THẤT BẠI!');
+  waveActive = false;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MAIN LOOP
+// ═══════════════════════════════════════════════════════
+let lastTime = performance.now() / 1000;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const time = performance.now() / 1000;
+  const dt = Math.min(0.05, time - lastTime);
+  lastTime = time;
+
+  // Update game
+  towers.forEach(t => t.update(time, dt));
+  enemies.forEach(e => e.update(dt));
+  projectiles.forEach(p => p.update(dt, time));
+  projectiles = projectiles.filter(p => !p.isDone);
+  enemies = enemies.filter(e => !e.isDead || (e.mesh && e.mesh.parent));
+
+  // Effects
+  explosions.forEach(ex => {
+    ex.life -= dt * 1.5;
+    ex.mesh.position.add(ex.vel.clone().multiplyScalar(dt));
+    ex.vel.y -= 6 * dt; // gravity
+    ex.mesh.material.opacity = Math.max(0, ex.life);
+    ex.mesh.scale.setScalar(1 + (1 - ex.life) * 1.5);
+  });
+  for (let i = explosions.length - 1; i >= 0; i--) {
+    if (explosions[i].life <= 0) {
+      scene.remove(explosions[i].mesh);
+      explosions.splice(i, 1);
+    }
+  }
+  lightnings.forEach(L => { L.life -= dt; L.line.material.opacity = Math.max(0, L.life * 4); });
+  for (let i = lightnings.length - 1; i >= 0; i--) {
+    if (lightnings[i].life <= 0) {
+      scene.remove(lightnings[i].line);
+      lightnings.splice(i, 1);
+    }
+  }
+
+  // Hover cursor — bright cell highlight
+  if (hoverCursor && selectedBuildType && lastMouseEvent) {
+    raycaster.setFromCamera(mouse, camera);
+    const ground = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
+    const target = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(ground, target)) {
+      const gx = Math.floor(target.x);
+      const gy = Math.floor(target.z);
+      if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
+        hoverCursor.position.set(gx + 0.5, 0, gy + 0.5);
+        const canPlace = grid[gx][gy] === 0 && gy !== START.y && gold >= TOWERS[selectedBuildType].cost;
+        const col = canPlace ? 0x5ABCAA : 0xC0332E;
+        hoverCursor.fillMesh.material.color.setHex(col);
+        hoverCursor.borderLine.material.color.setHex(col);
+        hoverCursor.pillar.material.color.setHex(col);
+        // Pulse opacity for attention
+        const pulse = 0.6 + Math.sin(time * 5) * 0.3;
+        hoverCursor.fillMesh.material.opacity = pulse * 0.5;
+        hoverCursor.pillar.material.opacity = pulse * 0.4;
+        hoverCursor.visible = true;
+      } else {
+        hoverCursor.visible = false;
+      }
+    }
+  } else if (hoverCursor) {
+    hoverCursor.visible = false;
+  }
+
+  checkWaveProgress();
+
+  // Smooth interpolated zoom
+  if (Math.abs(camera.zoom - zoomTarget) > 0.001) {
+    camera.zoom += (zoomTarget - camera.zoom) * 0.18;
+    camera.updateProjectionMatrix();
+  }
+
+  controls.update();
+
+  // CRITICAL: After controls update, force camera to always look straight down.
+  // OrbitControls with damping + orthographic can drift the camera off-axis,
+  // causing map distortion. We lock Y position and re-aim downward every frame.
+  camera.position.x = controls.target.x;
+  camera.position.z = controls.target.z;
+  camera.position.y = CAM_HEIGHT;
+  camera.lookAt(controls.target.x, 0, controls.target.z);
+  camera.up.set(0, 0, -1);
+
+  // Animate mist
+  if (mistPlane) {
+    mistPlane.position.y = 0.6 + Math.sin(time * 0.3) * 0.1;
+    mistPlane.material.opacity = 0.06 + Math.sin(time * 0.5) * 0.02;
+  }
+
+  composer.render();
+}
+
+// Resize — recompute orthographic frustum so map stays fitted
+window.addEventListener('resize', () => {
+  const f = computeCameraFrustum();
+  camera.left   = -f.camHalfW;
+  camera.right  =  f.camHalfW;
+  camera.top    =  f.camHalfH;
+  camera.bottom = -f.camHalfH;
+  camera.up.set(0, 0, -1);
+  camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z);
+  camera.lookAt(COLS/2, 0, CAM_TARGET_Z);
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Hotkey: space to start wave
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); startNextWave(); }
+});
+
+// Start loading
+loadAllAssets();
+updateUI();
+</script>
+
+</body>
+</html>
+
+
+// ── Background Music ─────────────────────────────────────────────────────
+const bgm = document.getElementById('bgm');
+let musicOn = false;
+
+window.toggleMusic = function() {
+  if (!musicOn) {
+    bgm.volume = 0.5;
+    bgm.play().then(() => {
+      musicOn = true;
+      document.getElementById('musicIcon').textContent = '🔊';
+    }).catch(() => {});
+  } else {
+    bgm.pause();
+    musicOn = false;
+    document.getElementById('musicIcon').textContent = '🔇';
+  }
+};
+
+// Auto-play on first user interaction
+document.addEventListener('click', function startMusic() {
+  if (!musicOn) {
+    bgm.volume = 0.5;
+    bgm.play().then(() => {
+      musicOn = true;
+      document.getElementById('musicIcon').textContent = '🔊';
+    }).catch(() => {});
+    document.removeEventListener('click', startMusic);
+  }
+}, { once: false });
+</script>
+</body>
+</html>

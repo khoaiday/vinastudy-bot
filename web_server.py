@@ -57,6 +57,12 @@ if design_path.exists():
     app.mount("/design-system", StaticFiles(directory=str(design_path)), name="design-system")
     logger.info(f"✅ Design-system mounted: {design_path}")
 
+# Serve daiviet_defense folder (3D tower defense + audio)
+daiviet_path = BASE_DIR / "daiviet_defense"
+if daiviet_path.exists():
+    app.mount("/daiviet_defense", StaticFiles(directory=str(daiviet_path)), name="daiviet_defense")
+    logger.info(f"✅ Daiviet Defense mounted: {daiviet_path}")
+
 # ── Routers ─────────────────────────────────────────────────────────────
 app.include_router(auth_router,    prefix="/auth")
 app.include_router(student_router, prefix="/api/student")
