@@ -622,19 +622,7 @@ const exitLight = new THREE.PointLight(0xC0332E, 2.5, 6, 1.5);
 exitLight.position.set(EXIT.x + 0.5, 1.2, EXIT.y + 0.5);
 scene.add(exitLight);
 
-// Mist plane just above ground for atmospheric depth
-const mistGeo = new THREE.PlaneGeometry(COLS + 6, ROWS + 6, 1, 1);
-const mistMat = new THREE.MeshBasicMaterial({
-  color: 0xffaa70,
-  transparent: true,
-  opacity: 0.08,
-  depthWrite: false,
-  blending: THREE.AdditiveBlending
-});
-const mistPlane = new THREE.Mesh(mistGeo, mistMat);
-mistPlane.rotation.x = -Math.PI / 2;
-mistPlane.position.set(COLS/2, 0.6, ROWS/2);
-scene.add(mistPlane);
+// mistPlane removed — was causing orange tint overlay
 
 // ═══════════════════════════════════════════════════════
 //  ASSET LOADER
