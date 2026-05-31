@@ -591,15 +591,19 @@
   }, 350);
   window._hideLoading = function(){
     clearInterval(iv);
+    clearTimeout(fallback);
     bar.style.width='100%';
     pctEl.textContent='100%';
     setTimeout(()=>{
       const s = document.getElementById('loadingScreen');
+      if(!s) return;
       s.style.transition='opacity 0.6s';
       s.style.opacity='0';
-      setTimeout(()=>s.remove(), 600);
+      setTimeout(()=>{ if(s.parentNode) s.remove(); }, 600);
     }, 300);
   };
+  // Fallback: hide after 4s no matter what
+  const fallback = setTimeout(window._hideLoading, 4000);
 })();
 </script>
 
