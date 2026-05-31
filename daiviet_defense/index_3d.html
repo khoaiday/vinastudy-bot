@@ -1394,6 +1394,10 @@ class Enemy {
     this.position = new THREE.Vector3(-6.5, 0.3, START.y + 0.5);
     this.target   = new THREE.Vector3(EXIT.x + 7.0, 0.3, EXIT.y + 0.5);
 
+    // Slow effect state
+    this.slowTimer = 0;
+    this.slowStrength = 0;
+
     // Model
     this.mesh = cloneModel(this.spec.model);
     if (this.mesh) {
@@ -1402,8 +1406,21 @@ class Enemy {
       this.mesh.traverse(o => {
         if (o.isMesh && o.material) {
           o.material = o.material.clone();
-          if (this.type === 'normal') o.material.color = new THREE.Color(0xB87333);
-          if (this.type === 'heavy')  o.material.color = new THREE.Color(0xC0332E);
+          o.material.color = new THREE.Color(this.spec.color || 0xCCCCCC);
+          // Stealth: semi-transparent
+          if (this.spec.stealth) {
+            o.material.transparent = true;
+            o.material.opacity = 0.3;
+          }
+          // Boss: emissive glow
+          if (this.type === 'boss') {
+            o.material.emissive = new THREE.Color(0xFFD700);
+            o.material.emissiveIntensity = 0.4;
+          }
+          // Air: slight blue tint for sky units
+          if (this.spec.isAir) {
+            o.material.color.lerp(new THREE.Color(0x8888FF), 0.3);
+          }
         }
       });
       scene.add(this.mesh);
@@ -1451,30 +1468,71 @@ class Enemy {
     this.isDead = true;
     gold += this.spec.reward;
     kills++;
-    spawnExplosion(this.position.x, this.position.y, this.position.z, 0xC0332E, 12);
+    const px = this.position.x, py = this.position.y, pz = this.position.z;
+    spawnExplosion(px, py, pz, this.spec.color || 0xC0332E, 14);
     if (this.mesh) scene.remove(this.mesh);
     scene.remove(this.hpBarBg);
     scene.remove(this.hpBarFg);
+
+    // Transport: drop scouts on death
+    if (this.spec.spawnOnDeath && this.spec.spawnCount) {
+      for (let i = 0; i < this.spec.spawnCount; i++) {
+        setTimeout(() => {
+          if (hp > 0) {
+            const e = new Enemy(this.spec.spawnOnDeath);
+            e.position.set(px + (Math.random()-0.5)*0.6, py, pz);
+          }
+        }, i * 200);
+        totalExpected++; // count spawned children toward wave
+      }
+    }
+
+    // Explosive: AoE damage on death
+    if (this.spec.explodeOnDeath) {
+      spawnExplosion(px, py, pz, 0xFF4400, 30);
+      for (const e of enemies) {
+        if (e.isDead) continue;
+        const d = e.position.distanceTo(this.position);
+        if (d <= (this.spec.explodeRange||1.5)) {
+          e.takeDamage(this.maxHp * (this.spec.explodePct||0.4));
+        }
+      }
+    }
+
     onEnemyKilled(this);  // combo + airstrike + gold float + updateUI
   }
 
   update(dt) {
     if (this.isDead) return;
-    // Move toward target (straight line for now — path is horizontal)
     const dir = new THREE.Vector3().subVectors(this.target, this.position);
     const dist = dir.length();
-    if (dist < 0.3) {
-      // Reached exit
-      this.escape();
-      return;
-    }
-    dir.normalize().multiplyScalar(this.speed * dt);
+    if (dist < 0.3) { this.escape(); return; }
+
+    // Effective speed (slow effect from goo tower)
+    const effSpeed = this.slowTimer > 0 ? this.speed * (1 - this.slowStrength) : this.speed;
+    if (this.slowTimer > 0) this.slowTimer -= dt;
+    dir.normalize().multiplyScalar(effSpeed * dt);
     this.position.add(dir);
+
+    // Air units float higher
+    const baseY = this.spec.isAir ? 1.4 : 0.3;
+    const bobAmp = this.spec.isAir ? 0.15 : 0.05;
 
     if (this.mesh) {
       this.mesh.position.copy(this.position);
-      this.mesh.position.y = 0.3 + Math.sin(performance.now() * 0.005 + this.position.x) * 0.05;  // bob
+      this.mesh.position.y = baseY + Math.sin(performance.now() * 0.005 + this.position.x) * bobAmp;
       this.mesh.rotation.y = Math.atan2(dir.x, dir.z);
+    }
+
+    // Medic: heal nearby friendly enemies
+    if (this.spec.healRate && performance.now() - (this._lastHeal||0) > 500) {
+      this._lastHeal = performance.now();
+      for (const e of enemies) {
+        if (e === this || e.isDead) continue;
+        if (e.position.distanceTo(this.position) < (this.spec.healRange||2)) {
+          e.hp = Math.min(e.maxHp, e.hp + this.spec.healRate * 0.5);
+        }
+      }
     }
 
     // HP bar
@@ -1674,24 +1732,38 @@ function drawLightning(from, to) {
 // ═══════════════════════════════════════════════════════
 window.startNextWave = function() {
   if (waveActive) return;
-  if (currentWave >= WAVES.length) { showBanner('🏆 CHIẾN THẮNG!'); return; }
+  if (currentWave >= WAVES.length) { showBanner('🏆 CHIẾN THẮNG! Đại Việt bất bại!'); return; }
   const w = WAVES[currentWave];
   currentWave++;
-  totalSpawned = 0;
-  totalExpected = (w.scout||0) + (w.normal||0) + (w.heavy||0);
-  waveActive = true;
-  showBanner(`⚔️ ĐỢT ${currentWave}!`);
 
+  // Count ALL enemy types in this wave
+  totalExpected = Object.values(w).reduce((sum, n) => sum + n, 0);
+  totalSpawned = 0;
+  waveActive = true;
+
+  // Wave banner with enemy preview
+  const hasBoss = (w.boss||0) > 0;
+  const hasBlimp = (w.blimp||0) > 0;
+  const hasAir = (w.air||0) > 0 || hasBlimp;
+  const warnStr = hasBoss ? '⚠️ BOSS!' : hasBlimp ? '🎈 Khí Cầu!' : hasAir ? '✈️ Không Quân!' : '';
+  showBanner(`⚔️ ĐỢT ${currentWave} / ${WAVES.length}  ${warnStr}`);
+
+  // Spawn all types with proper timing
   let delay = 600;
-  const spawn = (type, factor) => () => {
-    if (hp > 0 && waveActive) {
-      new Enemy(type);
-      totalSpawned++;
-    }
+  const spawnFn = (type) => () => {
+    if (hp > 0 && waveActive) { new Enemy(type); totalSpawned++; }
   };
-  for (let i = 0; i < (w.scout||0); i++)  { setTimeout(spawn('scout'),  delay); delay += 500; }
-  for (let i = 0; i < (w.normal||0); i++) { setTimeout(spawn('normal'), delay); delay += 800; }
-  for (let i = 0; i < (w.heavy||0); i++)  { setTimeout(spawn('heavy'),  delay); delay += 1500; }
+  // Spawn order: scouts → infantry → speedster → medic → normal → transport → explosive → air → blimp → heavy → boss
+  const ORDER = ['scout','speedster','explosive','normal','medic','transport','air','heavy','blimp','stealth','boss'];
+  const DELAYS = { scout:450, speedster:500, explosive:600, normal:750, medic:800,
+                   transport:1200, air:700, heavy:1400, blimp:2000, stealth:600, boss:3000 };
+  for (const type of ORDER) {
+    const count = w[type] || 0;
+    for (let i = 0; i < count; i++) {
+      setTimeout(spawnFn(type), delay);
+      delay += DELAYS[type];
+    }
+  }
   updateUI();
 };
 
@@ -1701,11 +1773,13 @@ function checkWaveProgress() {
   const allGone = enemies.every(e => e.isDead);
   if (allGone) {
     waveActive = false;
-    gold += 50 + currentWave * 10;
+    // FR2 wave reward: 80 + wave*15
+    const reward = WAVE_REWARD_BASE + currentWave * WAVE_REWARD_PER_WAVE;
+    gold += reward;
     if (currentWave >= WAVES.length) {
       setTimeout(() => gameOver(true), 1500);
     } else {
-      showBanner(`🏆 Đợt ${currentWave} thắng! +${50 + currentWave*10} 💰`);
+      showBanner(`🏆 Đợt ${currentWave} thắng! +${reward}💰 → Nhấn SPACE / ▶`);
     }
     updateUI();
   }
