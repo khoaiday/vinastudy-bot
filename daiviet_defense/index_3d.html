@@ -495,19 +495,9 @@ window.addEventListener('resize', () => {
   composer.setSize(w, h);
 });
 
-// ── Post-processing pipeline ──
+// ── Post-processing — bloom removed (caused orange tint) ──
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-// Bloom for glowing elements (lightning, emissive towers)
-const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.65,  // strength
-  0.4,   // radius
-  0.85   // threshold (only bright pixels)
-);
-composer.addPass(bloomPass);
-// Anti-aliasing
-composer.addPass(new SMAAPass(window.innerWidth, window.innerHeight));
 composer.addPass(new OutputPass());
 
 // Orbit controls — locked top-down, PAN only (zoom handled manually)
