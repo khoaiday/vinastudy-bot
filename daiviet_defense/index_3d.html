@@ -823,33 +823,34 @@ function buildMap() {
   const gridRightPx = gridLeftPx + COLS * cellPx;
   const gridBottomPx = gridTopPx + ROWS * cellPx;
 
-  // Base sand color across ENTIRE canvas (also fills sides)
-  mctx.fillStyle = '#c89060';
-  mctx.fillRect(0, 0, TEX_W, TEX_H);
+  // ── BACKGROUND: map_tile.png tiled ──
+  const _drawMapBg = () => {
+    if (window._mapTileImg && window._mapTileImg.complete) {
+      // Tile the image across full canvas
+      const pat = mctx.createPattern(window._mapTileImg, 'repeat');
+      const tileScale = TEX_W / (window._mapTileImg.width * 2.5);
+      mctx.save();
+      mctx.scale(tileScale, tileScale);
+      mctx.fillStyle = pat;
+      mctx.fillRect(0, 0, TEX_W / tileScale, TEX_H / tileScale);
+      mctx.restore();
+      // Darken borders (outside grid)
+      mctx.fillStyle = 'rgba(5,20,5,0.35)';
+      mctx.fillRect(0, 0, gridLeftPx, TEX_H);
+      mctx.fillRect(gridRightPx, 0, TEX_W - gridRightPx, TEX_H);
+      mctx.fillStyle = 'rgba(5,20,5,0.25)';
+      mctx.fillRect(0, 0, TEX_W, gridTopPx);
+      mctx.fillRect(0, gridBottomPx, TEX_W, TEX_H - gridBottomPx);
+    } else {
+      // Fallback: green grass
+      mctx.fillStyle = '#5A8A3A';
+      mctx.fillRect(0, 0, TEX_W, TEX_H);
+    }
+  };
+  _drawMapBg();
 
-  // Sand noise across entire texture
-  for (let i = 0; i < 20000; i++) {
-    const x = Math.random() * TEX_W;
-    const y = Math.random() * TEX_H;
-    const shade = Math.random();
-    mctx.fillStyle = shade < 0.4 ? '#b88050' : shade < 0.7 ? '#d8a070' : '#a07040';
-    mctx.fillRect(x, y, 1 + Math.random()*2, 1 + Math.random()*2);
-  }
-
-  // Shade variation patches
-  for (let i = 0; i < 100; i++) {
-    const x = Math.random() * TEX_W;
-    const y = Math.random() * TEX_H;
-    const r = 40 + Math.random() * 100;
-    const grad = mctx.createRadialGradient(x, y, 0, x, y, r);
-    grad.addColorStop(0, 'rgba(140,90,40,0.25)');
-    grad.addColorStop(1, 'rgba(140,90,40,0)');
-    mctx.fillStyle = grad;
-    mctx.fillRect(x-r, y-r, r*2, r*2);
-  }
-
-  // Slightly darker playable area (border around grid)
-  mctx.fillStyle = 'rgba(40,20,5,0.08)';
+  // Slightly darker playable area overlay
+  mctx.fillStyle = 'rgba(20,40,10,0.08)';
   mctx.fillRect(gridLeftPx, gridTopPx, COLS * cellPx, ROWS * cellPx);
 
   // ── GRID LINES (only inside playable area) ──
