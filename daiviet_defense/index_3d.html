@@ -902,11 +902,8 @@ function buildMap() {
   mapTex.colorSpace = THREE.SRGBColorSpace;
   mapTex.anisotropy = 8;
 
-  const mapMat = new THREE.MeshStandardMaterial({
-    map: mapTex,
-    roughness: 0.95,
-    metalness: 0.0,
-  });
+  // MeshBasicMaterial = no lighting calculation, no color tint
+  const mapMat = new THREE.MeshBasicMaterial({ map: mapTex });
 
   // Plane covers extended area (grid in center, sand on sides)
   const mapPlane = new THREE.Mesh(
