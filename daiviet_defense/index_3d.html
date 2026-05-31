@@ -484,7 +484,16 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.VSMShadowMap;
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.domElement.style.cssText = 'position:fixed;inset:0;width:100%!important;height:100%!important;';
 sceneDiv.appendChild(renderer.domElement);
+
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+});
 
 // ── Post-processing pipeline ──
 const composer = new EffectComposer(renderer);
