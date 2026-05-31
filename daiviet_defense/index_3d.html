@@ -881,8 +881,19 @@ function buildMap() {
 
   _drawGridOverlay();
 
-  // Build texture from canvas (bg image + grid overlay composited)
+  // Build canvas texture
   const mapTex = new THREE.CanvasTexture(mapCanvas);
+
+  // Load background image and redraw on top when ready
+  const _bgImg = new Image();
+  _bgImg.onload = () => {
+    mctx.clearRect(0, 0, TEX_W, TEX_H);
+    mctx.drawImage(_bgImg, 0, 0, TEX_W, TEX_H);
+    _drawGridOverlay();
+    mapTex.needsUpdate = true;
+  };
+  _bgImg.onerror = () => console.warn('map_bg_coloa_1.jpg not found, using fallback');
+  _bgImg.src = 'assets/map_bg_coloa_1.jpg';
   mapTex.colorSpace = THREE.SRGBColorSpace;
   mapTex.anisotropy = 8;
 
