@@ -664,9 +664,51 @@ function startGame(){
   localStorage.setItem('vs_loadout_ai',    String(aiNum));
   localStorage.setItem('vs_loadout_mode',  mode);
   localStorage.setItem(`vs_coins_ai${aiNum}`,String(availableCoins()));
+
+  const isPortrait = window.innerHeight > window.innerWidth;
+  if(isPortrait){
+    showRotatePrompt();
+  } else {
+    goToGame();
+  }
+}
+
+function showRotatePrompt(){
+  const overlay = document.createElement('div');
+  overlay.id = 'rotateOverlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(7,4,10,0.97);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;
+    font-family:'Philosopher',serif;
+  `;
+  overlay.innerHTML = `
+    <div style="font-size:64px;animation:spin 2s linear infinite">📱</div>
+    <div style="font-size:20px;font-weight:700;color:#F5C842;letter-spacing:1px;">Xoay Ngang Màn Hình</div>
+    <div style="font-size:13px;color:#C4B090;text-align:center;max-width:240px;line-height:1.7;">
+      Game Đại Việt Defender cần chế độ<br><strong style="color:#F5C842">nằm ngang (landscape)</strong>
+    </div>
+    <style>@keyframes spin{0%{transform:rotate(0deg)}25%{transform:rotate(90deg)}75%{transform:rotate(90deg)}100%{transform:rotate(90deg)}}</style>
+  `;
+  document.body.appendChild(overlay);
+
+  // Watch for rotation
+  const check = setInterval(()=>{
+    if(window.innerWidth > window.innerHeight){
+      clearInterval(check);
+      overlay.remove();
+      goToGame();
+    }
+  }, 300);
+}
+
+function goToGame(){
   const nb=document.getElementById('btnNext');
-  nb.textContent='...';nb.disabled=true;
-  setTimeout(()=>{location.href=`tower_defense.html?ai=${aiNum}&mode=${mode}`;},350);
+  if(nb){ nb.textContent='...'; nb.disabled=true; }
+  setTimeout(()=>{
+    location.href=`daiviet_defense/index_3d.html?ai=${aiNum}&mode=${mode}`;
+  }, 200);
 }
 
 // ══════════════════════════════════
