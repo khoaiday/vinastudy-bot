@@ -151,13 +151,16 @@ async def tower_defense_page_no_ext():
 
 
 @app.get("/loadout.html", response_class=HTMLResponse)
-@app.get("/loadout", response_class=HTMLResponse)
 async def loadout_page():
     """Màn chuẩn bị xuất trận — chọn tháp + tuyệt chiêu."""
     p = BASE_DIR / "loadout.html"
     if p.exists():
         return HTMLResponse(p.read_text(encoding="utf-8"))
     return HTMLResponse("...", status_code=503)
+
+@app.get("/loadout", response_class=HTMLResponse)
+async def loadout_page_no_ext():
+    return await loadout_page()
 
 
 @app.get("/daiviet_defense/index_3d.html", response_class=HTMLResponse)
