@@ -858,8 +858,8 @@ function buildMap() {
   mctx.fillRect(gridLeftPx, gridTopPx, COLS * cellPx, ROWS * cellPx);
 
   // ── GRID LINES (only inside playable area) ──
-  mctx.strokeStyle = 'rgba(60,35,10,0.55)';
-  mctx.lineWidth = 2.0;
+  mctx.strokeStyle = 'rgba(30,60,20,0.4)';
+  mctx.lineWidth = 1.5;
   for (let c = 0; c <= COLS; c++) {
     mctx.beginPath();
     mctx.moveTo(gridLeftPx + c * cellPx, gridTopPx);
