@@ -391,19 +391,9 @@ body {
   <div class="subtitle">Hành trình chinh phục Toán Học bắt đầu từ đây</div>
 
   <!-- Step indicator -->
-  <div class="steps">
-    <div class="step-dot active" id="dot1">1</div>
-    <div class="step-line"></div>
-    <div class="step-dot" id="dot2">2</div>
-    <div class="step-line"></div>
-    <div class="step-dot" id="dot3">✓</div>
-  </div>
+  <!-- step dots ẩn - luồng thẳng 1 bước -->
 
   <div class="card" id="mainCard">
-    <!-- Step 2 background portrait -->
-    <div id="step2bg"></div>
-    <div id="step2Overlay"></div>
-
     <div style="position:relative; z-index:1;">
 
     <!-- ── STEP 1: Info ── -->
@@ -433,65 +423,7 @@ body {
         </select>
       </div>
 
-      <button class="btn btn-primary btn-full" onclick="goStep2()">Xác nhận →</button>
-    </div>
-
-    <!-- ── STEP 2: Character ── -->
-    <div class="step" id="step2">
-      <div class="card-title" style="text-shadow:0 2px 8px #000;">⚔️ Bước 2: Chọn nhân vật</div>
-      <div class="card-sub" style="color:rgba(245,238,214,.7);">Chọn chiến binh đồng hành cùng em</div>
-
-      <div class="char-grid">
-        <!-- Lạc Tướng -->
-        <div class="char-card char-lac-tuong selected" data-char="chien_binh" data-folder="lac-tuong" onclick="selectChar(this)">
-          <div class="char-img-wrap">
-            <img class="char-avatar-img" src="design-system/characters/playable/lac-tuong/lac-tuong-male-avatar.jpg" alt="Lạc Tướng">
-          </div>
-          <div class="char-info">
-            <div class="name">⚔️ Lạc Tướng</div>
-            <div class="desc">Mạnh mẽ, kiên định</div>
-          </div>
-          <span class="char-badge">✓</span>
-        </div>
-        <!-- Đạo Sĩ -->
-        <div class="char-card char-dao-si" data-char="phu_thuy" data-folder="dao-si" onclick="selectChar(this)">
-          <div class="char-img-wrap">
-            <img class="char-avatar-img" src="design-system/characters/playable/dao-si/dao-si-male-avatar.jpg" alt="Đạo Sĩ">
-          </div>
-          <div class="char-info">
-            <div class="name">🔮 Đạo Sĩ</div>
-            <div class="desc">Thông minh, sáng tạo</div>
-          </div>
-          <span class="char-badge">✓</span>
-        </div>
-        <!-- Nỏ Thần -->
-        <div class="char-card char-no-than" data-char="xa_thu" data-folder="no-than" onclick="selectChar(this)">
-          <div class="char-img-wrap">
-            <img class="char-avatar-img" src="design-system/characters/playable/no-than/no-than-male-avatar.jpg" alt="Nỏ Thần">
-          </div>
-          <div class="char-info">
-            <div class="name">🏹 Nỏ Thần</div>
-            <div class="desc">Nhanh nhẹn, chính xác</div>
-          </div>
-          <span class="char-badge">✓</span>
-        </div>
-        <!-- Thần Tướng -->
-        <div class="char-card char-than-tuong" data-char="hiep_si" data-folder="than-tuong" onclick="selectChar(this)">
-          <div class="char-img-wrap">
-            <img class="char-avatar-img" src="design-system/characters/playable/than-tuong/than-tuong-male-avatar.jpg" alt="Thần Tướng">
-          </div>
-          <div class="char-info">
-            <div class="name">🛡️ Thần Tướng</div>
-            <div class="desc">Dũng cảm, bảo vệ</div>
-          </div>
-          <span class="char-badge">✓</span>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-full" onclick="goStep(1)" style="flex:1;">← Quay lại</button>
-        <button class="btn btn-primary btn-full" onclick="_submitProfile()" style="flex:2;">Hoàn tất Đăng ký →</button>
-      </div>
+      <button class="btn btn-primary btn-full" onclick="submitDirect()">Đăng Ký →</button>
     </div>
 
     <!-- ── STEP 3: Pending ── -->
@@ -565,8 +497,6 @@ body {
 <script>
 // ── State ────────────────────────────────────────────────────────────────
 let tgId = null;
-let currentChar   = 'chien_binh';
-let currentFolder = 'lac-tuong';
 let currentGender = 'nam';
 
 // ── Particles (amber/copper tones) ──────────────────────────────────────
@@ -613,43 +543,10 @@ function showToast(msg, ok=false) {
 function selectGender(gt) {
   currentGender = gt;
   localStorage.setItem('selectedGender', gt === 'nam' ? 'male' : 'female');
-
   const btnNam = document.getElementById('btnNam');
   const btnNu  = document.getElementById('btnNu');
   btnNam.className = 'gender-btn' + (gt === 'nam' ? ' male-active' : '');
   btnNu.className  = 'gender-btn' + (gt === 'nu'  ? ' female-active' : '');
-
-  // Update avatar images in step 2
-  updateAvatarImages();
-}
-
-function updateAvatarImages() {
-  const suffix = currentGender === 'nu' ? 'female' : 'male';
-  document.querySelectorAll('.char-card').forEach(card => {
-    const folder = card.dataset.folder;
-    const img = card.querySelector('.char-avatar-img');
-    if (img && folder) {
-      img.src = `design-system/characters/playable/${folder}/${folder}-${suffix}-avatar.jpg`;
-    }
-  });
-  // Update step2 portrait background
-  updateCharPreview();
-}
-
-// ── Character ──────────────────────────────────────────────────────────
-function selectChar(el) {
-  document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  currentChar   = el.dataset.char;
-  currentFolder = el.dataset.folder;
-  updateCharPreview();
-}
-
-function updateCharPreview() {
-  const suffix = currentGender === 'nu' ? 'female' : 'male';
-  const url = `design-system/characters/playable/${currentFolder}/${currentFolder}-${suffix}-avatar.jpg`;
-  const bg  = document.getElementById('step2bg');
-  if (bg) bg.style.backgroundImage = `url('${url}')`;
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────
@@ -659,33 +556,17 @@ function goStep(n) {
   const el = document.getElementById('step' + n);
   if (el) el.classList.add('active');
 
-  const bg      = document.getElementById('step2bg');
-  const overlay = document.getElementById('step2Overlay');
-  if (n === 2) {
-    if (bg)      bg.style.opacity      = '1';
-    if (overlay) overlay.style.opacity = '1';
-    updateCharPreview();
-  } else {
-    if (bg)      bg.style.opacity      = '0';
-    if (overlay) overlay.style.opacity = '0';
-  }
-
-  [1,2,3].forEach(i => {
+  [1,2].forEach(i => {
     const d = document.getElementById('dot' + i);
     if (!d) return;
     d.classList.remove('active','done');
-    if (typeof n === 'number') {
-      if (i < n)      d.classList.add('done');
-      else if (i===n) d.classList.add('active');
+    if (n === 1) {
+      if (i === 1) d.classList.add('active');
+    } else {
+      if (i === 1) d.classList.add('done');
+      if (i === 2) d.classList.add('active');
     }
   });
-}
-
-function goStep2() {
-  const name = document.getElementById('inputName').value.trim();
-  if (!name) { showToast('Em chưa nhập tên!'); return; }
-  updateAvatarImages();
-  goStep(2);
 }
 
 function reRegister() { goStep(1); }
@@ -724,7 +605,7 @@ async function _checkApproval() {
 }
 
 // ── Submit ─────────────────────────────────────────────────────────────
-async function _submitProfile() {
+async function submitDirect() {
   const name = document.getElementById('inputName').value.trim();
   const lop  = document.getElementById('inputLop').value;
   if (!name) { showToast('Em chưa nhập tên!'); return; }
@@ -735,11 +616,11 @@ async function _submitProfile() {
     ho_ten:          name,
     lop,
     gioi_tinh:       currentGender,
-    character_type:  currentChar,
+    character_type:  'chien_binh',
     avatar_face_b64: '',
   };
 
-  const btn = document.querySelector('#step2 .btn-primary');
+  const btn = document.querySelector('#step1 .btn-primary');
   btn.disabled = true;
   btn.textContent = 'Đang xử lý...';
 
@@ -751,21 +632,16 @@ async function _submitProfile() {
     });
     const data = await res.json();
     btn.disabled = false;
-    btn.textContent = 'Hoàn tất Đăng ký →';
+    btn.textContent = 'Đăng Ký →';
 
     if (!res.ok) { showToast(data.detail || 'Lỗi máy chủ, thử lại!'); return; }
 
-    const suffix = currentGender === 'nu' ? 'female' : 'male';
-    const localAvatar = `design-system/characters/playable/${currentFolder}/${currentFolder}-${suffix}-avatar.jpg`;
-    const av = document.getElementById('pendingAvatar');
-    av.src = localAvatar;  // luôn dùng avatar vừa chọn, không dùng avatar_final cũ từ server
-    av.style.display = '';
     document.getElementById('pendingName').textContent = name;
     goStep(3);
     startPendingPoll();
   } catch(e) {
     btn.disabled = false;
-    btn.textContent = 'Hoàn tất Đăng ký →';
+    btn.textContent = 'Đăng Ký →';
     showToast('Lỗi kết nối, thử lại!');
   }
 }

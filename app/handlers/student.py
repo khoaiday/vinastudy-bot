@@ -38,7 +38,7 @@ async def send_login_required(update: Update):
     """Gửi inline button đăng ký khi user chưa có tài khoản."""
     uid = update.effective_user.id
     first_name = update.effective_user.first_name or "Chiến Binh"
-    reg_url = f"{BASE_DOMAIN}/?tg_id={uid}"
+    reg_url = f"{BASE_DOMAIN}/register?tg_id={uid}"
     await update.message.reply_text(
         f"👋 Chào *{first_name}*!\n\n"
         "Em chưa có tài khoản. Nhấn bên dưới để đăng ký và tham gia Chiến Binh Toán! 🚀",
@@ -129,7 +129,7 @@ async def handle_game_press(update: Update, uid: int):
         )
 
     else:  # not_found / rejected
-        reg_url = f"{BASE_DOMAIN}/?tg_id={uid}"
+        reg_url = f"{BASE_DOMAIN}/register?tg_id={uid}"
         await update.message.reply_text(
             f"👋 *{first_name}* chưa có tài khoản!\n"
             "Nhấn bên dưới để đăng ký và tham gia Chiến Binh Toán 🚀",
