@@ -327,17 +327,6 @@ function cloneSkeletalModel(tpl) {
   return cloned;
 }
 
-      if (o.isMesh) {
-        o.frustumCulled = false;
-        o.visible = true;
-      }
-    });
-
-    mesh.add(sword); // attached to mesh root
-    return { sword, bone: mesh, isFallback: true };
-  }
-}
-
 function getOrCreate(en){
   const tplKey = templates[en.type] ? en.type : 'normal';
   const tpl = templates[tplKey];
