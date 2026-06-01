@@ -617,13 +617,13 @@ function glLoop(ts){
   const W = glCanvas.offsetWidth, H = glCanvas.offsetHeight;
   renderer.setSize(W, H, false);
 
-  // Camera: tilted orthographic 3D view to see bodies and faces clearly (FR2 style)
-  cam.left = 0;
-  cam.right = W;
-  cam.top = 0;
-  cam.bottom = H;
+  // Camera: tilted orthographic 3D view to see bodies and faces clearly (tilted upright projection)
+  cam.left = -W/2;
+  cam.right = W/2;
+  cam.top = (H/2) * Math.sqrt(2);
+  cam.bottom = (-H/2) * Math.sqrt(2);
   cam.position.set(W/2, 300, H/2 + 300);
-  cam.up.set(0, 1, 0); // Reset to default Y-up for natural 3D tilting
+  cam.up.set(0, 1, -1); // Tilted up vector to keep characters upright and depth correct
   cam.lookAt(W/2, 0, H/2);
   cam.updateProjectionMatrix();
 
