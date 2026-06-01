@@ -1627,10 +1627,18 @@ function draw(ts){
   enemies.forEach(en=>{
     if(en.dead&&en.deathTimer<=0)return;
 
-    // Draw soft 2.5D shadow underneath character's feet
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+    // Draw soft 2.5D shadow cast diagonally backward-right (light from front-left)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.26)';
     ctx.beginPath();
-    ctx.ellipse(en.x, en.y + 3, cellW * 0.28, cellH * 0.14, 0, 0, Math.PI*2);
+    ctx.ellipse(
+      en.x + cellW * 0.15,            // Shifted right (away from left-side light)
+      en.y - cellH * 0.05,            // Shifted slightly up/backwards
+      cellW * 0.32,                   // Slanted shadow length
+      cellH * 0.13,                   // Slanted shadow width
+      -Math.PI / 6,                   // -30 degrees slanted rotation
+      0, 
+      Math.PI * 2
+    );
     ctx.fill();
 
     const sz=cellH*(en.def.scale||1)*0.84;
