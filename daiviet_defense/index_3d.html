@@ -759,14 +759,12 @@ const camera = new THREE.OrthographicCamera(
    f0.camHalfH, -f0.camHalfH,
    0.1, 200
 );
-// Pure top-down view (no tilt)
-// CRITICAL: set camera.up explicitly so orientation isn't degenerate when looking straight down
-const CAM_HEIGHT = 50;
-camera.up.set(0, 0, -1);  // camera's "up" is world -Z (so map top = -Z direction)
-// Target center: shift so grid top touches viewport top, decoration row below grid
-// Viewport Z range: 0 → ROWS+DECOR_ROW_HEIGHT, target = middle of that
+// Beautiful 3D isometric tilted view
+const CAM_HEIGHT = 35;
+camera.up.set(0, 1, 0);  // Standard world up
 const CAM_TARGET_Z = (ROWS + DECOR_ROW_HEIGHT) / 2;
-camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z);
+// Position camera offset on Y (height) and Z (depth) to look at target from a 45-degree angle
+camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z + 25);
 camera.lookAt(COLS/2, 0, CAM_TARGET_Z);
 camera.zoom = 1;
 camera.updateProjectionMatrix();
@@ -2078,14 +2076,12 @@ function animate() {
 
   controls.update();
 
-  // CRITICAL: After controls update, force camera to always look straight down.
-  // OrbitControls with damping + orthographic can drift the camera off-axis,
-  // causing map distortion. We lock Y position and re-aim downward every frame.
+  // Lock camera to always look at the center from our beautiful 3D isometric tilted angle
   camera.position.x = controls.target.x;
-  camera.position.z = controls.target.z;
+  camera.position.z = controls.target.z + 25; // Apply Z tilt offset
   camera.position.y = CAM_HEIGHT;
   camera.lookAt(controls.target.x, 0, controls.target.z);
-  camera.up.set(0, 0, -1);
+  camera.up.set(0, 1, 0);
 
   // mistPlane removed
 
@@ -2099,8 +2095,8 @@ window.addEventListener('resize', () => {
   camera.right  =  f.camHalfW;
   camera.top    =  f.camHalfH;
   camera.bottom = -f.camHalfH;
-  camera.up.set(0, 0, -1);
-  camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z);
+  camera.up.set(0, 1, 0);  // Standard world up
+  camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z + 25); // Tilt offset on Z
   camera.lookAt(COLS/2, 0, CAM_TARGET_Z);
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
