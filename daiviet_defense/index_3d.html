@@ -227,7 +227,7 @@ scene.add(new THREE.AmbientLight(0xffffff, 1.8));
 
 // Directional Light shining from front-left (bottom-left on screen) to cast shadows back-right
 const dir = new THREE.DirectionalLight(0xffffff, 1.6);
-dir.position.set(200, 600, 800);
+dir.position.set(200, 850, 650);
 dir.castShadow = true;
 dir.shadow.mapSize.width = 1024;
 dir.shadow.mapSize.height = 1024;
@@ -443,8 +443,8 @@ function glLoop(ts){
   }
   if (typeof dir !== 'undefined') {
     dir.target.position.set(W/2, 0, H/2);
-    // Position the light relative to the center to maintain the same front-left angle
-    dir.position.set(W/2 - 300, 600, H/2 + 500);
+    // Position the light higher and closer to center to make character shadows smaller and shorter
+    dir.position.set(W/2 - 180, 850, H/2 + 320);
   }
 
   // Camera: standard orthographic looking straight down to match 2D canvas perfectly (2.5D oblique style)
