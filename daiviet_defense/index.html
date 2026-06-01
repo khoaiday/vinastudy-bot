@@ -2812,12 +2812,22 @@
                 if (assets[imgKey] && assets[imgKey].complete) {
                     const drawSize = this.radius * 2.8;
                     // Burn tint
-                    if (this.burnTimer > 0) {
-                        ctx.globalAlpha = 0.85;
-                        ctx.shadowColor = '#ff4500';
-                        ctx.shadowBlur = 8;
+                    const img = assets[imgKey];
+                    if (imgKey === 'enemy_scout' && img.width > 256) {
+                        const frameCount = 4;
+                        const frameW = img.width / frameCount;
+                        const frameH = img.height;
+                        const animSpeed = this.speed * 12;
+                        const currentFrame = Math.floor(Date.now() / 1000 * animSpeed) % frameCount;
+                        const sx = currentFrame * frameW;
+                        ctx.drawImage(
+                            img,
+                            sx, 0, frameW, frameH,
+                            -drawSize/2, -drawSize/2, drawSize, drawSize
+                        );
+                    } else {
+                        ctx.drawImage(img, -drawSize/2, -drawSize/2, drawSize, drawSize);
                     }
-                    ctx.drawImage(assets[imgKey], -drawSize/2, -drawSize/2, drawSize, drawSize);
                     ctx.globalAlpha = 1;
                     ctx.shadowBlur = 0;
                 }

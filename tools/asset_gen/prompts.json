@@ -156,12 +156,12 @@
   "enemies_2d": [
     {
       "id": "enemy_scout",
-      "dest": "daiviet_defense/assets/enemies/scout.png",
+      "dest": "daiviet_defense/assets/enemy_scout.png",
       "api": "leonardo",
       "model": "phoenix",
-      "width": 256, "height": 256,
-      "prompt": "High-quality 2.5D isometric game character sprite, clean crisp outlines, detailed digital illustration, polished Clash of Clans concept art style. A cute chibi ancient Vietnamese military infantry soldier (binh lính Đại Việt) in a dynamic running pose, mid-stride with legs moving. The warrior has an oversized head, wearing a heavy dark iron helmet with a red fabric plume on top, detailed leather-bronze chest armor with gold-bronze Đông Sơn geometric engravings, holding a small bronze sword. 45-degree isometric 3/4 view from upper-right, centered, fully in frame, spacious safety margins, complete character, no cropping, no clipping. Vibrant saturated colors: deep red, dark iron, warm bronze, soft studio lighting, soft shadows, isolated on a solid pure white background",
-      "negative": "cropped, cut off, clipped edges, off-center, 3D clay render, photo, photorealistic, 3D model, blurry, messy sketch, hand-drawn pencil, charcoal, black background, colorful background, dark atmosphere, sunset, modern, sci-fi"
+      "width": 1024, "height": 256,
+      "prompt": "High-quality 2.5D game sprite sheet, horizontal sequence of 4 consecutive running frames (walk cycle) of the same character. The character is a cute chibi ancient Vietnamese military soldier, with an oversized head, wearing a dark iron helmet with a red fabric plume, detailed chest armor, holding a small bronze sword. Grid of 4 walking poses side-by-side, complete frames, clean crisp outlines, detailed digital illustration, polished Clash of Clans concept art style. Saturated vibrant colors, isolated on a solid pure white background",
+      "negative": "cropped, cut off, clipped edges, off-center, 3D model, cheap clay render, photo, photorealistic, blurry, messy sketch, hand-drawn pencil, line art, vector flat, frame, border, dark background"
     },
     {
       "id": "enemy_heavy",
