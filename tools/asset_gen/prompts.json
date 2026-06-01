@@ -1,0 +1,193 @@
+{
+  "_style_anchor": "Style: High-quality 2.5D isometric game asset, clean crisp outlines, detailed digital illustration, polished Clash of Clans concept art style. Vibrant saturated colors, elegant gold-bronze Đông Sơn geometric engravings, clean studio lighting, soft shadows, isolated on a solid pure white background",
+  "_style_negative": "photo, photorealistic, 3D clay render, 3D model, blurry, messy sketch, hand-drawn pencil, charcoal, frame, border, gradient background, dark background, text, watermark",
+  "_image_reference": "design-system/TOWER_STYLE_REF_3.jpg",
+  "_image_reference_strength": 0.35,
+  "_map_image_reference": "design-system/MAP_STYLE_REFERENCE.jpg",
+  "_map_image_reference_strength": 0.35,
+  "_map_style_anchor": "Đại Việt Defender MAP style: aerial top-down ~75 degree view, lush bright green rice paddy fields, winding blue rivers and moats, karst limestone rocky mountains on edges, golden sunset warm horizon lighting, Vietnamese wooden watchtowers with red-brown tiled roofs, Cổ Loa spiral stone walls, tall rounded green trees, hand-painted cinematic game art, vibrant saturated colors, epic atmosphere",
+  "towers_2d": [
+    {
+      "id": "arrow_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_arrow.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "An ancient Vietnamese repeating military crossbow (Nỏ Liên Châu Cao Lỗ) Level 1. Wide, flat horizontal war weapon made of thick, polished dark mahogany wood and bamboo limbs. The main deck features 3 distinct parallel arrow grooves carved into the wood, loaded with 3 short bronze arrows with signature 3-sided metallic Cổ Loa arrowheads. A thick bowstring is drawn back across the wide deck, locked into a prominent ornate gold-bronze trigger claw mechanism with delicate Đông Sơn geometric engravings. The low-profile weapon is mounted on a sturdy chunky dark timber floor stand, 45-degree isometric view from upper-right, centered, fully in frame, spacious margins, complete object, no cropping, no clipping",
+      "negative": "cropped, cut off, clipped edges, off-center, vertical box magazine, single barrel, Zhuge Nu, modern, sci-fi, dark atmosphere, sunset"
+    },
+    {
+      "id": "slow_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_slow.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "isometric illustration game tower, ancient Vietnamese Bẫy Nhựa slow trap tower, bamboo water-wheel mechanism pumping jade-green sticky resin, ceramic pots filled with green liquid around base, wooden platform with red silk decorations, pagoda-style small roof on top, green liquid splashing from bamboo pipes, gold-bronze fittings, 45-degree isometric view from upper-right, rich saturated colors, detailed hand-drawn illustration style, white background",
+      "negative": "3D render, photorealistic, bowl only, cup only, modern, sci-fi, flat 2D, top-down, blurry, watermark"
+    },
+    {
+      "id": "cannon_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_cannon.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "isometric illustration game tower, ancient Vietnamese Thần Cơ Pháo bronze cannon tower, massive gold-bronze cannon barrel with dragon Đông Sơn engravings on wooden war carriage, dark hardwood platform base with red silk banners and crimson ribbons, iron wheel mechanisms, small torch burning beside cannon, 45-degree isometric view from upper-right, rich gold and crimson colors, detailed hand-drawn illustration style, white background",
+      "negative": "3D render, photorealistic, modern, sci-fi, flat 2D, blurry, watermark"
+    },
+    {
+      "id": "flame_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_flame.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "ancient Vietnamese flame tower icon, bronze brazier on wooden tower with dragon-mouth flame spout, fire red orange glow, isometric 3/4 view game icon, Đại Việt warrior aesthetic, transparent background, no text",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    },
+    {
+      "id": "tesla_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_tesla.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "ancient Vietnamese mystical lightning tower icon, bronze tower with glowing crystal orb emitting blue lightning bolts, Taoist symbols carved on base, ethereal electric glow, isometric 3/4 view game icon, transparent background, no text",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    },
+    {
+      "id": "power_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_power.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "ancient Vietnamese command drum tower icon, giant Đông Sơn bronze drum on elevated wooden platform with banner flags, golden command staff, ceremonial atmosphere, isometric 3/4 view game icon, transparent background, no text",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    },
+    {
+      "id": "plague_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_plague.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "ancient Vietnamese plague incense tower icon, ornate bronze incense burner emitting purple toxic smoke, skull motifs, dark mystical atmosphere, isometric 3/4 view game icon, transparent background, no text",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    },
+    {
+      "id": "railgun_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_railgun.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "ancient Vietnamese siege giant crossbow ballista tower icon, massive war ballista on stone platform, glowing war bolt loaded, powerful military engineering, isometric 3/4 view game icon, Đại Việt warrior aesthetic, transparent background, no text",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    },
+    {
+      "id": "mine_tower_icon",
+      "dest": "daiviet_defense/assets/icons/icon_mine.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "ancient Vietnamese bamboo spike trap mine field icon, sharpened bamboo stakes in circular hidden trap pattern in earth, top-down game icon view, earthy tones, Đại Việt warrior aesthetic, transparent background, no text",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    }
+  ],
+  "ui_2d": [
+    {
+      "id": "hud_top_bar",
+      "dest": "daiviet_defense/assets/ui/hud_top_bar.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 1024, "height": 80,
+      "prompt": "ancient Vietnamese bronze plaque horizontal HUD bar UI, Đông Sơn drum patterns engraved on aged copper, weathered patina texture, ornate lotus motif border, game UI asset, dark background edges, seamless tiling",
+      "negative": "text, characters, modern, sci-fi"
+    },
+    {
+      "id": "wave_banner",
+      "dest": "daiviet_defense/assets/ui/wave_banner.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 512, "height": 200,
+      "prompt": "ancient Vietnamese Đông Sơn bronze drum decorative banner UI element, concentric rings of carvings, gold and copper colors with glowing edges, game wave announcement banner, transparent background",
+      "negative": "text, characters, modern, sci-fi"
+    },
+    {
+      "id": "victory_bg",
+      "dest": "daiviet_defense/assets/ui/victory_bg.jpg",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 1024, "height": 576,
+      "prompt": "ancient Vietnamese victory celebration scene, Đại Việt warriors raising banners on fortress walls, golden sunset light, dragon banner waving, particles of golden light, epic battle victory atmosphere, detailed illustration",
+      "negative": "modern, sci-fi, text, watermark"
+    },
+    {
+      "id": "defeat_bg",
+      "dest": "daiviet_defense/assets/ui/defeat_bg.jpg",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 1024, "height": 576,
+      "prompt": "ancient Vietnamese fallen fortress sad twilight scene, broken Cổ Loa citadel walls at dusk, abandoned bronze spears, gray melancholy atmosphere, lone warrior silhouette, dramatic lighting",
+      "negative": "modern, sci-fi, text, watermark"
+    }
+  ],
+  "towers_3d": [
+    {
+      "id": "arrow_tower_3d",
+      "dest": "daiviet_defense/3d_assets/no_lien_chau_lv1.glb",
+      "api": "meshy",
+      "prompt": "ancient Vietnamese watchtower with mounted multi-barrel crossbow on top, bamboo and wood construction, bronze reinforcements, Đông Sơn era military architecture, game-ready low poly 3D model"
+    },
+    {
+      "id": "cannon_tower_3d",
+      "dest": "daiviet_defense/3d_assets/than_co_phao_lv1.glb",
+      "api": "meshy",
+      "prompt": "ancient Vietnamese bronze cannon artillery tower, large bronze barrel mounted on stone platform with wooden defensive walls, Đại Việt military style, game-ready low poly 3D model"
+    },
+    {
+      "id": "tesla_tower_3d",
+      "dest": "daiviet_defense/3d_assets/loi_thap_lv1.glb",
+      "api": "meshy",
+      "prompt": "ancient Vietnamese mystical lightning tower, tall stone tower with large crystal orb at top emitting electricity arcs, Taoist magical symbols carved into stone walls, game-ready low poly 3D model"
+    },
+    {
+      "id": "flame_tower_3d",
+      "dest": "daiviet_defense/3d_assets/hoa_thap_lv1.glb",
+      "api": "meshy",
+      "prompt": "ancient Vietnamese fire tower, tall wooden tower with large bronze brazier at top with continuous flames, dragon mouth flame spout design, Đại Việt warrior style, game-ready low poly 3D model"
+    }
+  ],
+  "enemies_2d": [
+    {
+      "id": "enemy_scout",
+      "dest": "daiviet_defense/assets/enemies/scout.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "High-quality 2.5D isometric game character sprite, clean crisp outlines, detailed digital illustration, polished Clash of Clans concept art style. A cute chibi ancient Vietnamese military infantry soldier (binh lính Đại Việt) in a dynamic running pose, mid-stride with legs moving. The warrior has an oversized head, wearing a heavy dark iron helmet with a red fabric plume on top, detailed leather-bronze chest armor with gold-bronze Đông Sơn geometric engravings, holding a small bronze sword. 45-degree isometric 3/4 view from upper-right, centered, fully in frame, spacious safety margins, complete character, no cropping, no clipping. Vibrant saturated colors: deep red, dark iron, warm bronze, soft studio lighting, soft shadows, isolated on a solid pure white background",
+      "negative": "cropped, cut off, clipped edges, off-center, 3D clay render, photo, photorealistic, 3D model, blurry, messy sketch, hand-drawn pencil, charcoal, black background, colorful background, dark atmosphere, sunset, modern, sci-fi"
+    },
+    {
+      "id": "enemy_heavy",
+      "dest": "daiviet_defense/assets/enemies/heavy.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 256, "height": 256,
+      "prompt": "ancient Vietnamese war elephant heavy unit sprite, large war elephant with red battle armor and wooden howdah platform with archer, isometric 3/4 view, Đại Việt era military, game sprite, transparent background",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    },
+    {
+      "id": "enemy_boss",
+      "dest": "daiviet_defense/assets/enemies/boss.png",
+      "api": "leonardo",
+      "model": "phoenix",
+      "width": 512, "height": 512,
+      "prompt": "ancient Vietnamese demon general boss enemy sprite, armored skeleton general wearing ancient crown with bronze battle armor and energy aura, intimidating war pose, glowing gold eyes, purple mystical aura, Đại Việt folklore, isometric 3/4 game character, transparent background",
+      "negative": "modern, sci-fi, blurry, watermark, text"
+    }
+  ],
+  "enemies_3d": [
+    {
+      "id": "chibi_soldier",
+      "dest": "daiviet_defense/3d_assets/custom/chibi_soldier.glb",
+      "api": "meshy",
+      "prompt": "A cute chibi ancient Vietnamese military soldier character, 3D game asset, low-poly. The character is a cute chibi warrior with an oversized head, wearing a heavy dark iron helmet with a red fabric plume on top, detailed leather-bronze chest armor with gold-bronze engravings, holding a small bronze sword. Complete 3D character mesh, clean topology, game-ready low poly 3D model"
+    }
+  ]
+}

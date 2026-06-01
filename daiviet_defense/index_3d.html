@@ -566,7 +566,7 @@ const TOWERS = {
 
 // ═══ ENEMIES — 11 types from balance sheet ═══
 const ENEMIES = {
-  scout:     { name:'Lính Trinh Sát', hp:50,   speed:1.6,  reward:12, color:0xF5EED6, model:'enemy-ufo-a', scale:0.4 },
+  scout:     { name:'Lính Trinh Sát', hp:50,   speed:1.6,  reward:12, color:0xF5EED6, model:'chibi_soldier', scale:0.45 },
   normal:    { name:'Bộ Binh',         hp:120,  speed:1.0,  reward:18, color:0xB87333, model:'enemy-ufo-b', scale:0.5 },
   heavy:     { name:'Voi Chiến',       hp:300,  speed:0.55, reward:35, color:0xC0332E, model:'enemy-ufo-c', scale:0.6 },
   speedster: { name:'Kị Binh Áo Xanh', hp:75,   speed:2.2,  reward:20, color:0x4080FF, model:'enemy-ufo-a', scale:0.4, slowImmune:true },
@@ -951,6 +951,7 @@ const ASSETS_TO_LOAD = [
   { name: 'detail-crystal',        path: ASSETS_BASE },
   // ─── CUSTOM ĐẠI VIỆT MODELS (Tripo3D generated) ───
   { name: 'no_lien_chau_lv1',      path: CUSTOM_BASE },
+  { name: 'chibi_soldier',         path: CUSTOM_BASE },
 ];
 
 let loadedCount = 0;
