@@ -561,8 +561,8 @@ function getOrCreate(en){
   // Wrap in a group for 2.5D tilt
   const group = new THREE.Group();
   group.add(mesh);
-  // Tilt backwards relative to camera so we see the front/top
-  group.rotation.x = -Math.PI / 5; // 36 degrees tilt
+  // Tilt backwards relative to camera so we see the front/top at a beautiful 3/4 isometric angle
+  group.rotation.x = -Math.PI / 3; // 60 degrees tilt (3/4 isometric style)
   
   scene.add(group);
   
