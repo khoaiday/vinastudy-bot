@@ -3,2175 +3,1880 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Đại Việt Defense 3D — Three.js Prototype</title>
-<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<title>Đại Việt Defender</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  :root {
-    --primary:#C8960C; --secondary:#C0332E; --success:#5ABCAA;
-    --copper:#B87333; --bg-void:#07040A; --bg-panel:#160E1C;
-    --text-main:#F5EED6; --text-muted:#A08C70;
-    --border:rgba(184,115,51,0.4);
-    --font-title:'Philosopher',serif; --font-body:'Lora',serif; --font-mono:'Roboto Mono',monospace;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; }
-  html,body {
-    width:100%; height:100%;
-    overflow:hidden; overscroll-behavior:none; touch-action:none;
-    background:#000; color:var(--text-main); font-family:var(--font-body);
-  }
-  canvas { touch-action:none; display:block;
-    position:fixed!important; inset:0!important;
-    width:100vw!important; height:100vh!important; }
-  #scene { touch-action:none; overflow:hidden; }
-  * { overscroll-behavior:none; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a3a0a;touch-action:none;overscroll-behavior:none;}
+#wrap{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;}
+#gameArea{position:relative;flex:1;overflow:hidden;}
+#bgImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;}
+#canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;}
 
-  /* HUD — rebuilt inline, keeping old rules for legacy */
-  #hud { position:fixed; top:0; left:0; right:0; z-index:10; padding:6px 10px;
-    background:transparent; pointer-events:none;
-    display:flex; gap:12px; align-items:center; font-family:var(--font-mono); }
-  #hud > * { pointer-events:auto; }
-  .stat { background:rgba(22,14,28,0.7); border:1px solid var(--border); border-radius:8px;
-    padding:6px 12px; font-size:13px; letter-spacing:0.5px; backdrop-filter:blur(8px); }
-  .stat span { color:var(--primary); font-weight:700; }
-  #hudTitle { flex:1; font-family:var(--font-title); font-size:14px; color:var(--primary); text-align:center; letter-spacing:1.5px; }
+/* HUD top — FR2 style */
+#hud{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;z-index:10;pointer-events:none;}
+.hud-box{background:rgba(10,6,14,0.82);border:1px solid #C8960C;border-radius:8px;padding:4px 12px;font-family:'Roboto Mono',monospace;font-size:15px;font-weight:700;color:#F5C842;display:flex;align-items:center;gap:5px;pointer-events:auto;}
+.hud-hp{border-color:#C0332E;color:#FF6060;}
+.hud-wave{border-color:rgba(200,150,12,0.4);font-size:12px;flex-direction:column;align-items:center;padding:3px 14px;}
+.hud-wave .score{font-size:17px;color:#F5EED6;}
+#btnSettings{background:rgba(10,6,14,0.82);border:1px solid #C8960C;border-radius:8px;width:38px;height:38px;font-size:18px;cursor:pointer;pointer-events:auto;}
 
-  /* Bottom build bar */
-  #buildBar { position:fixed; bottom:0; left:0; right:0; z-index:10;
-    padding:12px 16px; background:transparent; pointer-events:none;
-    display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
-  #buildBar > * { pointer-events:auto; }
-  .btn { background:rgba(22,14,28,0.7); border:1px solid var(--border); border-radius:10px;
-    padding:10px 16px; color:var(--text-main); font-family:var(--font-mono); font-size:11px;
-    cursor:pointer; transition:all 0.15s; backdrop-filter:blur(8px); display:flex; flex-direction:column; align-items:center; gap:2px; min-width:90px; }
-  .btn:hover { background:rgba(200,150,12,0.15); border-color:var(--primary); transform:translateY(-2px); }
-  .btn.active { background:rgba(200,150,12,0.3); border-color:var(--primary); box-shadow:0 0 12px var(--primary); }
-  .btn.disabled { opacity:0.4; cursor:not-allowed; }
-  .btn-name { font-family:var(--font-title); font-size:13px; color:var(--primary); }
-  .btn-cost { font-size:10px; color:var(--text-muted); }
-  .btn-icon { font-size:20px; }
-  .btn-play { background:rgba(192,51,46,0.2); border-color:var(--secondary); padding:14px 20px; }
-  .btn-play .btn-name { color:var(--secondary); }
+/* Build bar bottom — FR2 style */
+#buildBar{background:transparent;display:flex;align-items:center;padding:6px 8px;gap:0;flex-shrink:0;}
+.ctrl-col{display:flex;flex-direction:column;gap:4px;margin-right:8px;flex-shrink:0;}
+.ctrl-btn{background:rgba(10,6,14,0.82);border:1px solid #C8960C;border-radius:8px;width:44px;height:44px;font-size:20px;cursor:pointer;color:#C8960C;display:flex;align-items:center;justify-content:center;}
+.ctrl-btn.speed-on{background:rgba(200,150,12,0.25);border-color:#F5C842;}
+#towers{flex:1;display:flex;align-items:center;justify-content:space-evenly;}
+.tower-btn{background:rgba(10,6,14,0.82);border:2px solid rgba(184,115,51,0.4);border-radius:50%;width:72px;height:72px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.tower-btn:active{transform:scale(0.94);}
+.tower-btn.selected{border-color:#C8960C;background:rgba(200,150,12,0.2);box-shadow:0 0 10px rgba(200,150,12,0.4);}
+.tower-btn.cant{opacity:0.4;cursor:not-allowed;}
+.tbtn-icon{font-size:22px;}
+.tbtn-name{font-size:8px;color:#C4B090;font-family:'Roboto Mono',monospace;}
+.tbtn-cost{font-size:9px;color:#C8960C;font-family:'Roboto Mono',monospace;}
+#btnMusic{background:rgba(10,6,14,0.82);border:1px solid #C8960C;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;flex-shrink:0;margin-left:8px;}
 
-  /* Loading screen */
-  #loading { position:fixed; inset:0; z-index:100; background:var(--bg-void);
-    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; }
-  #loading h1 { font-family:var(--font-title); color:var(--primary); letter-spacing:3px; }
-  #loadingBar { width:300px; height:8px; background:rgba(184,115,51,0.2); border-radius:4px; overflow:hidden; }
-  #loadingFill { height:100%; background:linear-gradient(90deg, var(--copper), var(--primary)); width:0%; transition:width 0.3s; }
-  #loadingText { color:var(--text-muted); font-family:var(--font-mono); font-size:11px; }
+/* Pause menu */
+#pause{display:none;position:absolute;inset:0;background:rgba(7,4,10,0.88);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+#pause.open{display:flex;}
+.pm-title{font-family:'Philosopher',serif;font-size:22px;font-weight:700;color:#F5C842;letter-spacing:2px;text-shadow:0 0 20px rgba(200,150,12,0.6);}
+.pm-btn{width:220px;padding:14px;background:linear-gradient(135deg,#2A1A38,#1C1228);border:2px solid #C8960C;border-radius:10px;font-family:'Philosopher',serif;font-size:16px;font-weight:700;color:#F5C842;letter-spacing:1px;cursor:pointer;}
+.pm-btn.danger{border-color:#C0332E;color:#FF8080;}
 
-  /* Banner */
-  #banner { position:fixed; top:40%; left:50%; transform:translate(-50%,-50%) scale(0);
-    z-index:20; pointer-events:none; transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.3s;
-    background:linear-gradient(135deg, rgba(200,150,12,0.95), rgba(184,115,51,0.95));
-    border:2px solid var(--primary); padding:18px 40px; border-radius:50px;
-    font-family:var(--font-title); font-size:24px; color:var(--text-main); letter-spacing:2px;
-    box-shadow:0 0 40px rgba(200,150,12,0.6); opacity:0; }
-  #banner.show { transform:translate(-50%,-50%) scale(1); opacity:1; }
+/* Tower info panel */
+#towerInfo{display:none;position:absolute;bottom:120px;left:50%;transform:translateX(-50%);background:rgba(18,10,28,0.95);border:1px solid #C8960C;border-radius:12px;padding:12px 16px;z-index:20;min-width:200px;text-align:center;}
+#towerInfo .ti-name{font-family:'Philosopher',serif;font-size:15px;color:#F5C842;margin-bottom:6px;}
+#towerInfo .ti-stats{font-size:11px;color:#C4B090;font-family:'Roboto Mono',monospace;line-height:1.8;}
+.ti-btns{display:flex;gap:8px;margin-top:10px;}
+.ti-btn{flex:1;padding:8px;border-radius:8px;cursor:pointer;font-family:'Philosopher',serif;font-size:13px;font-weight:700;}
+.ti-upg{background:rgba(200,150,12,0.2);border:1px solid #C8960C;color:#F5C842;}
+.ti-sell{background:rgba(192,51,46,0.15);border:1px solid #C0332E;color:#FF8080;}
 
-  /* Selected tower info */
-  #towerInfo { position:fixed; bottom:120px; right:16px; z-index:10;
-    background:rgba(22,14,28,0.9); border:1px solid var(--primary); border-radius:10px;
-    padding:14px; min-width:180px; backdrop-filter:blur(10px); display:none; }
-  #towerInfo.visible { display:block; }
-  #towerInfo h3 { color:var(--primary); font-family:var(--font-title); font-size:14px; margin-bottom:6px; letter-spacing:1px; }
-  #towerInfo p { font-size:10px; color:var(--text-muted); margin-bottom:8px; line-height:1.5; }
-  #towerInfo button { width:100%; padding:6px; margin-top:4px; background:rgba(200,150,12,0.15);
-    border:1px solid var(--primary); color:var(--primary); border-radius:5px; cursor:pointer; font-family:var(--font-mono); font-size:11px; }
-  #towerInfo button.sell { border-color:var(--secondary); color:var(--secondary); background:rgba(192,51,46,0.1); }
+/* Targeting Mode buttons */
+.ti-mode{
+  flex:1;min-width:42px;padding:4px 2px;
+  background:rgba(22,14,28,0.6);border:1px solid rgba(184,115,51,0.4);
+  border-radius:5px;color:#C4B090;font-size:9px;cursor:pointer;
+  font-family:'Roboto Mono',monospace;transition:all 0.15s;
+}
+.ti-mode.active,.ti-mode:hover{
+  background:rgba(200,150,12,0.25);border-color:#C8960C;color:#F5C842;
+}
 
-  /* Canvas */
-  #scene { position:fixed; inset:0; z-index:1; }
-  canvas { display:block; }
+/* Consumable items styling */
+.item-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(10,6,14,0.85);border:2px solid rgba(184,115,51,0.4);
+  font-size:18px;cursor:pointer;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;color:#F5C842;
+}
+.item-btn:active{transform:scale(0.9);}
+.item-btn .item-count{
+  position:absolute;bottom:-4px;right:-4px;
+  background:#C0332E;color:#fff;border-radius:50%;
+  width:16px;height:16px;font-size:9px;font-family:'Roboto Mono',monospace;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;border:1px solid #1a0505;
+}
+.item-btn.disabled{
+  opacity:0.3;cursor:not-allowed;pointer-events:none;
+}
 
-  /* Help */
-  #helpBtn { position:fixed; top:10px; right:16px; z-index:11;
-    background:rgba(22,14,28,0.7); border:1px solid var(--border); border-radius:50%;
-    width:32px; height:32px; color:var(--primary); cursor:pointer; font-size:14px; }
-  #helpPanel { position:fixed; top:50px; right:16px; z-index:11;
-    background:rgba(22,14,28,0.95); border:1px solid var(--primary); border-radius:10px;
-    padding:12px 14px; max-width:240px; font-family:var(--font-mono); font-size:10px;
-    color:var(--text-main); line-height:1.6; display:none; }
-  #helpPanel.visible { display:block; }
-  #helpPanel kbd { background:rgba(200,150,12,0.2); border:1px solid var(--copper); border-radius:3px; padding:1px 5px; font-size:9px; }
+/* Pulse animation for glowing elements */
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 12px #FF9900; }
+  100% { transform: scale(1.08); box-shadow: 0 0 20px #FF9900, 0 0 6px #FF9900; }
+}
 
-  /* Drag ghost — positioned via transform (no reflow) */
-  .drag-ghost {
-    position:fixed; pointer-events:none; z-index:2000;
-    left:0; top:0;                        /* anchor; position set via transform */
-    width:62px; height:62px; border-radius:14px;
-    background:rgba(200,150,12,0.35); border:2px solid #C8960C;
-    display:flex; align-items:center; justify-content:center;
-    font-size:28px;
-    box-shadow:0 0 28px rgba(200,150,12,0.9), 0 4px 16px rgba(0,0,0,0.6);
-    will-change:transform;               /* tell browser this moves every frame */
-  }
-  .btn { touch-action: none; }
+/* Wave banner */
+#waveBanner{position:absolute;top:20%;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(10,6,14,0.92);border:2px solid #C8960C;border-radius:12px;padding:10px 28px;font-family:'Philosopher',serif;font-size:18px;font-weight:700;color:#F5C842;letter-spacing:2px;z-index:30;opacity:0;transition:all .4s;pointer-events:none;}
+#waveBanner.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-  /* ── Floating combat text ── */
-  .float-text {
-    position:fixed; pointer-events:none; z-index:50;
-    font-family:var(--font-title); font-weight:700;
-    text-shadow: 0 0 10px currentColor, 0 2px 4px rgba(0,0,0,0.8);
-    animation: floatUp 1.4s ease-out forwards;
-  }
-  @keyframes floatUp {
-    0%   { opacity:1; transform:translateY(0) scale(1); }
-    60%  { opacity:1; transform:translateY(-40px) scale(1.1); }
-    100% { opacity:0; transform:translateY(-80px) scale(0.9); }
-  }
+/* Result screen */
+#result{display:none;position:absolute;inset:0;background:rgba(7,4,10,0.9);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+#result.open{display:flex;}
+.result-title{font-family:'Philosopher',serif;font-size:28px;font-weight:700;letter-spacing:2px;}
+.result-stars{font-size:36px;}
+.result-stats{font-size:13px;color:#C4B090;font-family:'Roboto Mono',monospace;text-align:center;line-height:2;}
+.result-btn{width:200px;padding:14px;border-radius:10px;font-family:'Philosopher',serif;font-size:16px;font-weight:700;cursor:pointer;}
 
-  /* ── Targeting mode buttons ── */
-  .ti-mode {
-    flex:1;min-width:48px;padding:4px 2px;
-    background:rgba(22,14,28,0.6);border:1px solid var(--border);
-    border-radius:5px;color:var(--text-muted);font-size:10px;cursor:pointer;
-    font-family:var(--font-mono);transition:all 0.15s;
-  }
-  .ti-mode.active,.ti-mode:hover {
-    background:rgba(200,150,12,0.2);border-color:var(--primary);color:var(--primary);
-  }
-
-  /* ── Pre-level tower selection screen ── */
-  .tower-card {
-    background:rgba(22,14,28,0.8);border:2px solid var(--border);
-    border-radius:12px;padding:10px 6px;cursor:pointer;
-    display:flex;flex-direction:column;align-items:center;gap:4px;
-    transition:all 0.15s;text-align:center;
-  }
-  .tower-card:hover { border-color:var(--primary);background:rgba(200,150,12,0.1); }
-  .tower-card.selected {
-    border-color:var(--primary);background:rgba(200,150,12,0.2);
-    box-shadow:0 0 14px rgba(200,150,12,0.4);
-  }
-  .tower-card.disabled { opacity:0.35;cursor:not-allowed; }
-  .item-slot {
-    background:rgba(22,14,28,0.8);border:2px solid var(--border);
-    border-radius:12px;padding:10px;cursor:pointer;
-    display:flex;flex-direction:column;align-items:center;
-    font-size:26px;color:var(--text-muted);transition:all 0.15s;
-  }
-  .item-slot:hover { border-color:var(--primary);background:rgba(200,150,12,0.1); }
-  .item-slot.selected { border-color:var(--primary);background:rgba(200,150,12,0.2);color:var(--text-main); }
+@import url('https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Roboto+Mono:wght@400;600&display=swap');
 </style>
 </head>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-  if (window.Telegram?.WebApp) {
-    const twa = Telegram.WebApp;
-    twa.ready();
-    twa.expand();
-    if (twa.requestFullscreen) twa.requestFullscreen();
-    // Match header color to game background so X button blends in
-    if (twa.setHeaderColor) twa.setHeaderColor('#07040A');
-    if (twa.setBackgroundColor) twa.setBackgroundColor('#07040A');
-    if (twa.disableVerticalSwipes) twa.disableVerticalSwipes();
-
-    // Tính toán offset header Telegram để HUD không bị che
-    const calcOffset = () => {
-      const stableH = twa.viewportStableHeight || window.innerHeight;
-      const offset  = Math.max(0, window.innerHeight - stableH);
-      document.documentElement.style.setProperty('--tg-header-offset', offset + 'px');
-    };
-    twa.onEvent('viewportChanged', calcOffset);
-    setTimeout(calcOffset, 300);
-  } else {
-    // Browser thường — không cần offset
-    document.documentElement.style.setProperty('--tg-header-offset', '0px');
-  }
-  // Preload map tile image before game init
-  window._mapTileImg = new Image();
-  window._mapTileImg.src = 'assets/map_tile.png';
-
-  // Block ALL touch scroll/overscroll — must be passive:false
-  document.addEventListener('touchstart', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive:false });
-  document.addEventListener('touchmove',  e => e.preventDefault(), { passive:false });
-  document.addEventListener('wheel',      e => e.preventDefault(), { passive:false });
-</script>
 <body>
+<div id="debugLog" style="position:fixed;bottom:10px;right:10px;background:rgba(10,6,14,0.92);color:#00ff88;font-family:'Roboto Mono',monospace;font-size:9px;padding:8px;border:1px solid #C8960C;border-radius:4px;z-index:9999;max-height:140px;overflow-y:auto;width:240px;pointer-events:auto;box-shadow:0 0 10px rgba(0,0,0,0.8);">
+  <div style="font-weight:bold;color:#C8960C;margin-bottom:4px;border-bottom:1px solid rgba(200,150,12,0.3);padding-bottom:2px;">🔧 BẢNG DEBUG 3D:</div>
+  <div id="debugContent">Đang khởi tạo WebGL...</div>
+</div>
+<div id="wrap">
+  <div id="gameArea">
+    <img id="bgImg" src="assets/map_bg_coloa_1.jpg" alt="">
+    <canvas id="canvas"></canvas>
+<canvas id="glCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none; z-index: 5;"></canvas>
 
-<!-- ── PRE-LEVEL TOWER SELECTION (FR2 GameMissionPrepForm) ── -->
-<div id="prepScreen" style="
-  display:flex;position:fixed;inset:0;z-index:90;
-  background:rgba(7,4,10,0.96);backdrop-filter:blur(6px);
-  flex-direction:column;align-items:center;justify-content:center;gap:16px;
-  font-family:var(--font-body);
-">
-  <div style="font-family:var(--font-title);font-size:26px;font-weight:700;color:var(--primary);letter-spacing:3px;text-shadow:0 0 20px rgba(200,150,12,0.5);">ĐẠI VIỆT DEFENDER</div>
-  <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:3px;margin-top:-8px;">CỔ LOA · ẢI 1 — 15 ĐỢT</div>
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-box">💰 <span id="gold">350</span></div>
+      <div class="hud-box hud-wave">
+        <div class="score" id="score">0</div>
+        <div>Đợt <span id="wave">0</span>/<span id="maxWave">15</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;pointer-events:auto;">
+        <div class="hud-box hud-hp">❤️ <span id="hp">30</span></div>
+        <button id="btnSettings" onclick="togglePause()">⚙️</button>
+      </div>
+    </div>
 
-  <div style="background:rgba(22,14,28,0.7);border:1px solid var(--border);border-radius:14px;padding:20px 24px;max-width:420px;width:90%;">
-    <div style="font-size:12px;color:var(--primary);font-family:var(--font-mono);margin-bottom:12px;letter-spacing:1px;">CHỌN TỐI ĐA 6 THÁP:</div>
-    <div id="prepTowerGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"></div>
-  </div>
+    <!-- Left actions (Airstrike & Items) -->
+    <div id="leftActions" style="
+      position:absolute;left:10px;top:45%;transform:translateY(-50%);
+      z-index:20;display:flex;flex-direction:column;align-items:center;gap:12px;
+      pointer-events:auto;
+    ">
+      <!-- Airstrike vertical bar -->
+      <div id="airMeterBox" style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="font-family:'Roboto Mono',monospace;font-size:8px;color:#C8960C;letter-spacing:1px;writing-mode:vertical-rl;transform:rotate(180deg);margin-bottom:2px;font-weight:700;">⚡ ĐÒN TRỜI</div>
+        <div style="width:16px;height:100px;background:rgba(10,6,14,0.85);border:1px solid #C8960C;border-radius:8px;overflow:hidden;position:relative;">
+          <div id="airMeterFill" style="position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(0deg,#C0332E,#FF9900);border-radius:8px;transition:height 0.2s;"></div>
+        </div>
+        <button id="airBtn" onclick="activateAirstrike()" style="
+          width:36px;height:36px;border-radius:50%;
+          background:rgba(10,6,14,0.85);border:2px solid rgba(200,150,12,0.4);
+          font-size:18px;cursor:pointer;opacity:0.45;transition:all 0.2s;color:#FF9900;
+          display:flex;align-items:center;justify-content:center;
+        " title="⚡ Đòn Trời (Đầy 100% để gọi)">⚡</button>
+      </div>
 
-  <div style="background:rgba(22,14,28,0.7);border:1px solid var(--border);border-radius:14px;padding:14px 24px;max-width:420px;width:90%;">
-    <div style="font-size:12px;color:var(--primary);font-family:var(--font-mono);margin-bottom:10px;letter-spacing:1px;">TUYỆT CHIÊU (3 SLOT):</div>
-    <div style="display:flex;gap:10px;justify-content:center;">
-      <div class="item-slot" onclick="toggleItem('bomb')" data-item="bomb" style="width:72px;height:72px;">💣<div style='font-size:9px;margin-top:2px;'>Bom Thần</div></div>
-      <div class="item-slot" onclick="toggleItem('freeze')" data-item="freeze" style="width:72px;height:72px;">❄️<div style='font-size:9px;margin-top:2px;'>Đông Băng</div></div>
-      <div class="item-slot" onclick="toggleItem('gold')" data-item="gold" style="width:72px;height:72px;">💰<div style='font-size:9px;margin-top:2px;'>Vàng Thêm</div></div>
+      <!-- Consumable items slot vertical list -->
+      <div id="itemSlots" style="display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:10px;"></div>
+    </div>
+
+    <!-- Wave banner -->
+    <div id="waveBanner"></div>
+
+    <!-- Tower info -->
+    <div id="towerInfo">
+      <div class="ti-name" id="tiName"></div>
+      <div class="ti-stats" id="tiStats"></div>
+      
+      <!-- Targeting Mode Row -->
+      <div id="tiTargetRow" style="display:none;gap:4px;margin-top:8px;flex-wrap:wrap;justify-content:center;">
+        <span style="font-size:9px;color:#C4B090;width:100%;margin-bottom:2px;text-align:left;font-family:'Roboto Mono',monospace;">🎯 MỤC TIÊU:</span>
+        <button class="ti-mode" data-mode="first" onclick="setTargetMode('first')">⬆ Đầu</button>
+        <button class="ti-mode" data-mode="last" onclick="setTargetMode('last')">⬇ Cuối</button>
+        <button class="ti-mode" data-mode="strong" onclick="setTargetMode('strong')">💪 Mạnh</button>
+        <button class="ti-mode" data-mode="weak" onclick="setTargetMode('weak')">❤️ Yếu</button>
+      </div>
+
+      <div class="ti-btns" style="margin-top:10px;">
+        <button class="ti-btn ti-upg" onclick="upgradeTower()">⬆ Nâng cấp</button>
+        <button class="ti-btn ti-sell" onclick="sellTower()">💰 Bán</button>
+      </div>
+    </div>
+
+    <!-- Pause menu -->
+    <div id="pause">
+      <div class="pm-title">⚔️ ĐẠI VIỆT DEFENDER</div>
+      <button class="pm-btn" onclick="togglePause()">▶ TIẾP TỤC</button>
+      <button class="pm-btn" onclick="location.reload()">↺ CHƠI LẠI</button>
+      <button class="pm-btn danger" onclick="location.href='../map.html'">✕ VỀ BẢN ĐỒ</button>
+    </div>
+
+    <!-- Result -->
+    <div id="result">
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-stars" id="resultStars"></div>
+      <div class="result-stats" id="resultStats"></div>
+      <button class="result-btn" style="background:linear-gradient(135deg,#5C3800,#C8960C);color:#07040A;border:none;" onclick="location.reload()">↺ CHƠI LẠI</button>
+      <button class="result-btn" style="background:rgba(192,51,46,0.2);border:1px solid #C0332E;color:#FF8080;margin-top:4px;" onclick="location.href='../map.html'">← BẢN ĐỒ</button>
     </div>
   </div>
 
-  <button onclick="startGame()" style="
-    padding:14px 48px;background:linear-gradient(135deg,#C8960C,#B87333);
-    border:none;border-radius:10px;font-family:var(--font-title);
-    font-size:18px;font-weight:700;color:#07040A;cursor:pointer;
-    box-shadow:0 0 24px rgba(200,150,12,0.4);letter-spacing:1px;
-    transition:transform 0.15s;
-  " onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">
-    ⚔️ BẮT ĐẦU CHIẾN!
-  </button>
-</div>
-
-<!-- Loading -->
-<div id="loading">
-  <h1>ĐẠI VIỆT DEFENSE 3D</h1>
-  <div id="loadingBar"><div id="loadingFill"></div></div>
-  <div id="loadingText">Đang tải tài nguyên 3D...</div>
-</div>
-
-<!-- Scene container -->
-<div id="scene"></div>
-
-<!-- ══ HUD TOP ══ -->
-<div id="hud" style="
-  position:fixed;top:var(--tg-header-offset,0px);left:0;right:0;z-index:10;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:6px 10px;pointer-events:none;
-">
-  <!-- Left: gold only (Telegram X button is here, keep clear) -->
-  <div style="pointer-events:auto;">
-    <div style="display:flex;align-items:center;gap:4px;
-      background:rgba(10,6,14,0.82);border:1px solid var(--primary);
-      border-radius:8px;padding:5px 12px;
-      font-family:var(--font-mono);font-size:15px;font-weight:700;color:#F5C842;">
-      💰 <span id="goldStat">350</span>
+  <!-- Build bar -->
+  <div id="buildBar">
+    <div class="ctrl-col">
+      <button class="ctrl-btn" id="btnPlay" onclick="startWave()">▶</button>
+      <button class="ctrl-btn" id="btnSpeed" onclick="toggleSpeed()">⏩</button>
     </div>
-  </div>
-
-  <!-- Center: wave + score -->
-  <div style="text-align:center;pointer-events:none;">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--primary);font-weight:700;
-      background:rgba(10,6,14,0.82);border:1px solid rgba(200,150,12,0.3);
-      border-radius:8px;padding:4px 14px;">
-      <div style="font-size:16px;font-weight:700;color:#F5EED6;" id="scoreStat">0</div>
-      <div>Đợt <span id="waveStat">1</span> / <span id="maxWaveStat">15</span></div>
-    </div>
-  </div>
-
-  <!-- Right: HP + ⚙️ settings (moved here, away from Telegram X) -->
-  <div style="display:flex;align-items:center;gap:6px;pointer-events:auto;">
-    <div style="display:flex;align-items:center;gap:4px;
-      background:rgba(10,6,14,0.82);border:1px solid rgba(192,51,46,0.5);
-      border-radius:8px;padding:5px 10px;
-      font-family:var(--font-mono);font-size:15px;font-weight:700;color:#FF6060;">
-      ❤️ <span id="hpStat">30</span>
-    </div>
-    <button onclick="openPauseMenu()" style="
-      background:rgba(10,6,14,0.82);border:1px solid var(--primary);
-      border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:18px;
-      display:flex;align-items:center;justify-content:center;">⚙️</button>
+    <div id="towers"></div>
+    <button id="btnMusic" onclick="toggleMusic()">🔊</button>
   </div>
 </div>
 
-<!-- ── AIRSTRIKE METER (FR2 left side) ── -->
-<div id="airMeter" style="
-  position:fixed;left:8px;top:50%;transform:translateY(-50%);
-  z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px;
-  pointer-events:auto;
-">
-  <div style="font-family:var(--font-mono);font-size:9px;color:var(--primary);letter-spacing:1px;writing-mode:vertical-rl;transform:rotate(180deg);margin-bottom:2px;">ĐÒNG TRỜI</div>
-  <div style="width:18px;height:120px;background:rgba(10,6,14,0.8);border:1px solid var(--border);border-radius:9px;overflow:hidden;position:relative;">
-    <div id="airMeterFill" style="position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(0deg,#C0332E,#FF9900);border-radius:9px;transition:height 0.3s;"></div>
-  </div>
-  <button id="airBtn" onclick="activateAirstrike()" style="
-    width:36px;height:36px;border-radius:50%;
-    background:rgba(10,6,14,0.85);border:2px solid rgba(200,150,12,0.4);
-    font-size:18px;cursor:pointer;opacity:0.45;transition:all 0.2s;
-  " title="Đòn Trời (⚡ 100%)">⚡</button>
-</div>
-
-<!-- ══ BUILD BAR BOTTOM (FR2 style) ══ -->
-<div id="buildBar" style="
-  position:fixed;bottom:0;left:0;right:0;z-index:10;
-  display:flex;align-items:center;
-  background:transparent;
-  padding:6px 8px;
-  padding-bottom:max(6px, env(safe-area-inset-bottom));
-  box-sizing:border-box;
-">
-  <!-- Play/Speed controls (left, like FR2) -->
-  <div style="display:flex;flex-direction:column;gap:4px;margin-right:8px;">
-    <button onclick="startNextWave()" id="playBtn" style="
-      background:rgba(220,160,0,0.2);border:2px solid var(--primary);
-      border-radius:8px;width:44px;height:44px;cursor:pointer;
-      font-size:20px;color:var(--primary);">▶</button>
-    <button onclick="toggleSpeed()" id="speedBtn" style="
-      background:rgba(10,6,14,0.6);border:1px solid var(--border);
-      border-radius:8px;width:44px;height:44px;cursor:pointer;
-      font-size:16px;color:var(--text-muted);" title="2x speed">⏩</button>
-  </div>
-
-  <!-- Tower circles (center) — evenly spread -->
-  <div style="flex:1;display:flex;align-items:center;justify-content:space-evenly;padding:0 6px;">
-    <div class="btn" data-tower="arrow" onpointerdown="onTowerPointerDown('arrow',event)" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;">
-      <span class="btn-icon">🏹</span>
-      <span class="btn-name" style="font-size:9px;">NỎ THẦN</span>
-      <span class="btn-cost">💰 50</span>
-    </div>
-    <div class="btn" data-tower="cannon" onpointerdown="onTowerPointerDown('cannon',event)" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;">
-      <span class="btn-icon">💣</span>
-      <span class="btn-name" style="font-size:9px;">PHÁO ĐỒNG</span>
-      <span class="btn-cost">💰 100</span>
-    </div>
-    <div class="btn" data-tower="tesla" onpointerdown="onTowerPointerDown('tesla',event)" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;">
-      <span class="btn-icon">⚡</span>
-      <span class="btn-name" style="font-size:9px;">LÔI THÁP</span>
-      <span class="btn-cost">💰 200</span>
-    </div>
-  </div>
-
-  <!-- Music button (right) -->
-  <button id="musicBtn" onclick="toggleMusic()" style="
-    flex-shrink:0;
-    background:rgba(10,6,14,0.7);border:1px solid var(--primary);
-    border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:20px;">
-    <span id="musicIcon">🔊</span>
-  </button>
-</div>
-
-<!-- ══ PAUSE MENU (FR2 style) ══ -->
-<div id="pauseMenu" style="
-  display:none;position:fixed;inset:0;z-index:100;
-  background:rgba(7,4,10,0.82);backdrop-filter:blur(4px);
-  align-items:center;justify-content:center;flex-direction:column;gap:12px;
-">
-  <div style="font-family:var(--font-title);font-size:22px;font-weight:700;
-    color:#F5C842;letter-spacing:2px;text-shadow:0 0 20px rgba(200,150,12,0.6);
-    margin-bottom:4px;" id="pauseTitle">ĐẠI VIỆT DEFENDER</div>
-  <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);
-    letter-spacing:3px;margin-bottom:16px;" id="pauseSub">ĐỢT 1 · CỔ LOA</div>
-
-  <button class="pmenu-btn" onclick="closePauseMenu()">▶ TIẾP TỤC</button>
-  <button class="pmenu-btn" onclick="restartGame()">↺ CHƠI LẠI</button>
-  <button class="pmenu-btn pmenu-exit" onclick="exitToMap()">✕ THOÁT VỀ BẢN ĐỒ</button>
-</div>
-
-<style>
-.pmenu-btn {
-  width:220px;padding:14px;
-  background:linear-gradient(135deg,#2A1A38,#1C1228);
-  border:2px solid var(--primary);border-radius:10px;
-  font-family:var(--font-title);font-size:16px;font-weight:700;
-  color:#F5C842;letter-spacing:1px;cursor:pointer;
-  box-shadow:0 0 12px rgba(200,150,12,0.2),0 3px 0 #3A2400;
-  transition:all .12s;
-}
-.pmenu-btn:active { transform:scale(0.97); box-shadow:none; }
-.pmenu-btn:hover  { background:linear-gradient(135deg,#3A2A48,#2C1E38); }
-.pmenu-exit { border-color:var(--secondary); color:#FF8080;
-  box-shadow:0 0 12px rgba(192,51,46,0.2),0 3px 0 #3A0000; }
-</style>
-
-<!-- Pre-level selection JS (runs before module) -->
-<script>
-const ALL_TOWERS_PREP = [
-  { type:'arrow',  icon:'🏹', name:'Nỏ Thần',      cost:40  },
-  { type:'slow',   icon:'❄️', name:'Bẫy Nhựa',     cost:55  },
-  { type:'cannon', icon:'💣', name:'Thần Cơ Pháo', cost:80  },
-  { type:'mine',   icon:'💥', name:'Bẫy Chông',    cost:90  },
-  { type:'flame',  icon:'🔥', name:'Hỏa Tháp',     cost:100 },
-  { type:'power',  icon:'🥁', name:'Trống Lệnh',   cost:120 },
-  { type:'plague', icon:'☠️', name:'Đàn Hương',    cost:140 },
-  { type:'tesla',  icon:'⚡', name:'Lôi Tháp',     cost:180 },
-  { type:'railgun',icon:'🎯', name:'Đại Pháo',     cost:250 },
-];
-
-let selectedTowers = new Set(['arrow','cannon','tesla']);
-let selectedItems  = new Set(['bomb']);
-
-function buildPrepScreen() {
-  const grid = document.getElementById('prepTowerGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  for (const t of ALL_TOWERS_PREP) {
-    const card = document.createElement('div');
-    card.className = 'tower-card' + (selectedTowers.has(t.type) ? ' selected' : '');
-    card.dataset.type = t.type;
-    card.innerHTML = `<span style="font-size:28px">${t.icon}</span>
-      <span style="font-family:var(--font-title);font-size:11px;color:var(--primary);">${t.name}</span>
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">💰${t.cost}</span>`;
-    card.onclick = () => toggleTower(t.type);
-    grid.appendChild(card);
-  }
-}
-
-function toggleTower(type) {
-  if (selectedTowers.has(type)) {
-    if (selectedTowers.size <= 1) return;
-    selectedTowers.delete(type);
-  } else {
-    if (selectedTowers.size >= 6) {
-      const el = document.querySelector(`[data-type="${type}"]`);
-      if (el) { el.style.borderColor='#C0332E'; setTimeout(()=>el.style.borderColor='',400); }
-      return;
-    }
-    selectedTowers.add(type);
-  }
-  buildPrepScreen();
-}
-
-function toggleItem(item) {
-  if (selectedItems.has(item)) selectedItems.delete(item);
-  else selectedItems.add(item);
-  document.querySelectorAll('.item-slot').forEach(el =>
-    el.classList.toggle('selected', selectedItems.has(el.dataset.item))
-  );
-}
-
-function startGame() {
-  document.getElementById('prepScreen').style.display = 'none';
-  rebuildBuildBar();
-  const bgm = document.getElementById('bgm');
-  if (bgm) bgm.play().catch(()=>{});
-}
-
-function rebuildBuildBar() {
-  const bar = document.getElementById('buildBar');
-  if (!bar) return;
-  // Find the tower circles container: div with flex:1
-  let towerDiv = bar.querySelector('[style*="flex:1"]');
-  if (!towerDiv) towerDiv = bar.querySelectorAll('div')[1];
-  if (!towerDiv) return;
-  towerDiv.innerHTML = '';
-  const icons = {arrow:'🏹',slow:'❄️',cannon:'💣',mine:'💥',flame:'🔥',power:'🥁',plague:'☠️',tesla:'⚡',railgun:'🎯'};
-  const names = {arrow:'NỎ THẦN',slow:'BẪY NHỰA',cannon:'PHÁO ĐỒNG',mine:'BẪY CHÔNG',flame:'HỎA THÁP',power:'TRỐNG LỆNH',plague:'ĐÀN HƯƠNG',tesla:'LÔI THÁP',railgun:'ĐẠI PHÁO'};
-  const costs = {arrow:40,slow:55,cannon:80,mine:90,flame:100,power:120,plague:140,tesla:180,railgun:250};
-  for (const type of selectedTowers) {
-    const div = document.createElement('div');
-    div.className = 'btn';
-    div.dataset.tower = type;
-    div.setAttribute('onpointerdown', `onTowerPointerDown('${type}',event)`);
-    div.style.cssText = 'width:72px;height:72px;border-radius:50%;flex-shrink:0;';
-    div.innerHTML = `<span class="btn-icon">${icons[type]}</span>
-      <span class="btn-name" style="font-size:9px;">${names[type]}</span>
-      <span class="btn-cost">💰 ${costs[type]}</span>`;
-    towerDiv.appendChild(div);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  buildPrepScreen();
-  // Mark default selected items
-  document.querySelectorAll('.item-slot').forEach(el =>
-    el.classList.toggle('selected', selectedItems.has(el.dataset.item))
-  );
-});
-</script>
-
-<script>
-let _gamePaused = false;
-function openPauseMenu(){
-  _gamePaused = true;
-  const m = document.getElementById('pauseMenu');
-  m.style.display='flex';
-  const w = document.getElementById('waveStat');
-  if(w) document.getElementById('pauseSub').textContent = `ĐỢT ${w.textContent} · CỔ LOA`;
-}
-function closePauseMenu(){
-  _gamePaused = false;
-  document.getElementById('pauseMenu').style.display='none';
-}
-function restartGame(){ location.reload(); }
-function exitToMap(){ location.href='../map.html'; }
-function toggleSpeed(){
-  const btn = document.getElementById('speedBtn');
-  window._gameSpeed = window._gameSpeed === 2 ? 1 : 2;
-  btn.style.background = window._gameSpeed===2 ? 'rgba(200,150,12,0.25)' : 'rgba(10,6,14,0.6)';
-  btn.style.borderColor = window._gameSpeed===2 ? 'var(--primary)' : 'var(--border)';
-}
-window._gameSpeed = 1;
-</script>
-
-<!-- Background Music -->
-<audio id="bgm" loop preload="auto">
-  <source src="audio/music/co_loa_theme_v1.mp3" type="audio/mpeg">
-  <source src="audio/music/daiviet_battle_intense.mp3" type="audio/mpeg">
-</audio>
-
-<!-- Tower info -->
-<div id="towerInfo">
-  <h3 id="tiName">Nỏ Thần</h3>
-  <p id="tiStats">Lv 1 • Dmg 25 • Range 4</p>
-  <button id="tiUpgrade" onclick="upgradeSelected()">⬆️ Nâng cấp 💰40</button>
-  <button class="sell" onclick="sellSelected()">💰 Bán</button>
-  <div id="tiTargetRow" style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">
-    <span style="font-size:9px;color:var(--text-muted);width:100%;margin-bottom:2px;">🎯 MỤC TIÊU:</span>
-    <button class="ti-mode" data-mode="first"  onclick="setTargetMode('first')">⬆ Đầu</button>
-    <button class="ti-mode" data-mode="last"   onclick="setTargetMode('last')">⬇ Cuối</button>
-    <button class="ti-mode" data-mode="strong" onclick="setTargetMode('strong')">💪 Mạnh</button>
-    <button class="ti-mode" data-mode="weak"   onclick="setTargetMode('weak')">❤️ Yếu</button>
-  </div>
-</div>
-
-<!-- Banner -->
-<div id="banner"></div>
-
-<!-- Three.js import map -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-
+<!-- Three.js overlay for animated 3D enemies -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
-// ═══════════════════════════════════════════════════════
-//  GAME CONSTANTS
-// ═══════════════════════════════════════════════════════
-const COLS = 16, ROWS = 11;        // Grid size
-const CELL = 1;                     // 1 unit per cell in 3D space
-const START = { x: 0, y: 5 };       // Spawn cell
-const EXIT  = { x: 15, y: 5 };      // Exit cell
+const glCanvas = document.getElementById('glCanvas');
+const renderer = new THREE.WebGLRenderer({canvas:glCanvas, alpha:true, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x000000, 0);
 
-// ═══ TOWERS — FR2 baseline stats, Đại Việt theming ═══
-// DPS = damage / fireRate
-const TOWERS = {
-  // Tier 1: Cheap
-  arrow:  { name:'Nỏ Liên Châu', cost:40,  upgrade:30,  sell:24,  damage:35,  range:2.5, fireRate:1.0, color:0xC8960C, projColor:0xFFD700 },
-  slow:   { name:'Bẫy Nhựa',     cost:55,  upgrade:35,  sell:33,  damage:12,  range:2.5, fireRate:1.0, color:0x5ABCAA, projColor:0x80FFCC, slowPct:0.40 },
-  // Tier 2: Mid
-  cannon: { name:'Thần Cơ Pháo', cost:80,  upgrade:50,  sell:48,  damage:100, range:3.5, fireRate:1.6, color:0xB87333, projColor:0xFF4500, splash:1.8 },
-  mine:   { name:'Bãi Chông',    cost:90,  upgrade:60,  sell:54,  damage:1500,range:1.0, fireRate:4.0, color:0x8B4513, projColor:0xA08060 },
-  flame:  { name:'Hỏa Tháp',     cost:100, upgrade:60,  sell:60,  damage:300, range:2.5, fireRate:0.5, color:0xFF6600, projColor:0xFF9933, burnDot:50 },
-  power:  { name:'Trống Lệnh',   cost:120, upgrade:80,  sell:72,  damage:0,   range:1.5, fireRate:999, color:0xFFD700, projColor:0xFFFFAA, buffPct:0.25 },
-  // Tier 3: Premium
-  plague: { name:'Đàn Hương',    cost:140, upgrade:80,  sell:84,  damage:200, range:2.5, fireRate:1.0, color:0x80FF40, projColor:0xC0FF80, plagueDot:30 },
-  tesla:  { name:'Lôi Tháp',     cost:180, upgrade:100, sell:108, damage:700, range:2.5, fireRate:0.85,color:0x3a86ff, projColor:0x80D0FF, chain:3 },
-  railgun:{ name:'Đại Pháo',     cost:250, upgrade:150, sell:150, damage:850, range:5.5, fireRate:2.0, color:0x444444, projColor:0xFF0000, pierce:true },
-};
+const scene = new THREE.Scene();
+scene.add(new THREE.AmbientLight(0xffffff, 2));
+const dir = new THREE.DirectionalLight(0xffffff, 1.5);
+dir.position.set(0,10,5); scene.add(dir);
 
-// ═══ ENEMIES — 11 types from balance sheet ═══
-const ENEMIES = {
-  scout:     { name:'Lính Trinh Sát', hp:50,   speed:1.6,  reward:12, color:0xF5EED6, model:'chibi_soldier', scale:0.45 },
-  normal:    { name:'Bộ Binh',         hp:120,  speed:1.0,  reward:18, color:0xB87333, model:'enemy-ufo-b', scale:0.5 },
-  heavy:     { name:'Voi Chiến',       hp:300,  speed:0.55, reward:35, color:0xC0332E, model:'enemy-ufo-c', scale:0.6 },
-  speedster: { name:'Kị Binh Áo Xanh', hp:75,   speed:2.2,  reward:20, color:0x4080FF, model:'enemy-ufo-a', scale:0.4, slowImmune:true },
-  air:       { name:'Quạ Sắt',         hp:130,  speed:1.2,  reward:30, color:0x808080, model:'enemy-ufo-b', scale:0.45, isAir:true },
-  medic:     { name:'Pháp Sư',         hp:100,  speed:0.9,  reward:40, color:0x40FF80, model:'enemy-ufo-c', scale:0.5, healRate:8, healRange:1.8 },
-  transport: { name:'Xe Trâu',         hp:200,  speed:0.7,  reward:25, color:0x806040, model:'enemy-ufo-b', scale:0.55, spawnOnDeath:'scout', spawnCount:4 },
-  explosive: { name:'Lính Bom',        hp:80,   speed:1.3,  reward:15, color:0xFF4400, model:'enemy-ufo-a', scale:0.4, explodeOnDeath:true, explodePct:0.4, explodeRange:1.5 },
-  blimp:     { name:'Khí Cầu',         hp:600,  speed:0.35, reward:50, color:0x4040FF, model:'enemy-ufo-c', scale:0.7, isAir:true },
-  stealth:   { name:'Quái Vô Hình',    hp:90,   speed:1.4,  reward:35, color:0xC080FF, model:'enemy-ufo-a', scale:0.4, stealth:true },
-  boss:      { name:'Đại Tướng',       hp:1500, speed:0.4,  reward:200, color:0xFFD700, model:'enemy-ufo-c', scale:0.85 },
-};
+// Orthographic camera — will be updated to match 2D canvas
+// Orthographic camera in pixel space — updated each frame to match canvas size
+const cam = new THREE.OrthographicCamera(0,800,0,600,0.1,2000);
+cam.position.set(0,200,400); cam.lookAt(0,0,0);
 
-// ═══ WAVES — 15 waves from balance sheet ═══
-const WAVES = [
-  { scout:5 },                                                                          // 1: Tutorial
-  { scout:4, normal:3 },                                                                // 2: Infantry
-  { scout:2, normal:5, heavy:1 },                                                       // 3: First heavy
-  { normal:3, air:3 },                                                                  // 4: Air intro!
-  { scout:3, normal:4, heavy:1, speedster:2 },                                          // 5: Speedsters!
-  { scout:2, normal:5, heavy:2, medic:1, air:2 },                                       // 6: First medic
-  { heavy:1, air:5, blimp:1 },                                                          // 7: Air swarm + blimp
-  { scout:4, normal:6, transport:2 },                                                   // 8: Transports!
-  { scout:3, normal:4, heavy:3, medic:2, speedster:3 },                                 // 9: Mixed
-  { normal:5, heavy:2, explosive:4 },                                                   // 10: Boom!
-  { normal:8, heavy:3, air:3, medic:2, transport:1 },                                   // 11: Hard mix
-  { normal:4, air:6, blimp:2 },                                                         // 12: Air force
-  { normal:4, heavy:4, speedster:4, medic:2, air:3 },                                   // 13: Speed rush
-  { normal:8, heavy:5, air:4, transport:3, explosive:3 },                               // 14: Chaos
-  { normal:6, heavy:3, air:3, boss:1, medic:2, blimp:1, speedster:3 },                  // 15: BOSS FINAL
-];
+// Load GLB models
+const templates = {};
+const clips = {};
+const loader = new GLTFLoader();
 
-// ═══ ECONOMY & COMBO BASELINE ═══
-const STARTING_GOLD = 350;
-const STARTING_HP = 30;
-const WAVE_REWARD_BASE = 80;
-const WAVE_REWARD_PER_WAVE = 15;
-const COMBO_WINDOW_MS = 1200;
-const COMBO_MIN = 3;
-const MEGA_COMBO_MIN = 8;
-const COMBO_BONUS_PER_KILL = 5;
-const MEGA_COMBO_BONUS_PER_KILL = 15;
-
-// ═══ AIRSTRIKE METER ═══
-const AIRSTRIKE_MAX_POINTS = 100;
-const AIRSTRIKE_GAIN_KILL = 4;
-const AIRSTRIKE_GAIN_COMBO = 12;
-const AIRSTRIKE_GAIN_MEGA = 25;
-const AIRSTRIKE_GAIN_HP_LOST = 20;
-const AIRSTRIKE_DMG_PCT = 0.60;   // 60% of enemy maxHP per cell hit
-const AIRSTRIKE_ELITE_MULT = 1.5; // 150% vs heavy/blimp/boss
-
-// ═══════════════════════════════════════════════════════
-//  GAME STATE
-// ═══════════════════════════════════════════════════════
-let gold = 350, hp = 30, currentWave = 0, kills = 0;
-let waveActive = false, totalSpawned = 0, totalExpected = 0;
-let selectedBuildType = null;
-let selectedPlacedTower = null;
-let towers = [], enemies = [], projectiles = [];
-let grid = Array.from({length:COLS}, () => Array(ROWS).fill(0));  // 0=empty, 1=tower, 2=path-only
-
-// ── Combo system (FR2) ──
-let _comboCount = 0, _comboTimer = null, _airstrikePoints = 0;
-const AIRSTRIKE_MAX = 100;
-
-function spawnFloatText(text, x, y, color='#F5C842', size='22px') {
-  const el = document.createElement('div');
-  el.className = 'float-text';
-  el.textContent = text;
-  el.style.cssText = `left:${x}px;top:${y}px;font-size:${size};color:${color};`;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1500);
+// Debug helper function to output messages to the #debugContent div
+function showDebug(msg) {
+  const el = document.getElementById('debugContent');
+  if (el) {
+    // Keep last 6 lines of logs
+    const lines = el.innerHTML.split('<br>').concat(msg);
+    if (lines.length > 6) lines.shift();
+    el.innerHTML = lines.join('<br>');
+  }
+  console.log(msg);
 }
 
-function worldToScreen(wx, wz) {
-  const v = new THREE.Vector3(wx, 0.5, wz);
-  v.project(camera);
+// ════════════════════════════════════════════════════
+// 3D MODELS OFFSET & ATTACHMENTS TWEAKING CONSTANTS
+// ════════════════════════════════════════════════════
+// Adjust MESH_OFFSETS to center characters if they run off-center (e.g. running shifted to the right)
+const MESH_OFFSETS = {
+  scout:     { x: -0.3, y: 0.0, z: 0.0 }, // -0.3 left shift to compensate for "chạy lệch phải"
+  normal:    { x: 0.0,  y: 0.0, z: 0.0 },
+  heavy:     { x: 0.0,  y: 0.0, z: 0.0 },
+  boss:      { x: 0.0,  y: 0.0, z: 0.0 },
+  speedster: { x: 0.0,  y: 0.0, z: 0.0 },
+  air:       { x: -0.3, y: 0.0, z: 0.0 }
+};
+
+// Adjust ROTATION_OFFSETS to make characters face forward in the direction of their movement
+const ROTATION_OFFSETS = {
+  scout:     Math.PI / 2, // 90 degrees counter-clockwise to align Tripo character perfectly forward!
+  normal:    0.0,
+  heavy:     0.0,
+  boss:      0.0,
+  speedster: 0.0,
+  air:       Math.PI / 2  // same model
+};
+
+// Adjust these constants to fit the sword perfectly inside the character's hand bone!
+// Meshy model: bone space ~0.1-0.3 units per limb, sword normalized to ~1.0
+// Scale 0.15 = sword roughly same length as forearm
+const SWORD_ATTACH_SCALE = 0.15;
+const SWORD_ATTACH_POS = { x: 0.0, y: 0.0, z: 0.1 }; // extend along bone axis
+const SWORD_ATTACH_ROT = { x: 0, y: 0, z: 0 }; // no rotation — test first
+
+let swordTemplate = null;
+
+function loadModel(key, path) {
+  const cacheBustPath = path + '?v=' + Date.now();
+  loader.load(cacheBustPath, gltf=>{
+    templates[key] = gltf.scene;
+    clips[key] = gltf.animations;
+    showDebug(`✅ GLB loaded for ${key}, animations: ${gltf.animations.length}`);
+  });
+}
+
+// Load sword asset
+loader.load('./3d_assets/custom/thanh_kiem.glb?v=' + Date.now(), gltf => {
+  gltf.scene.traverse(child => {
+    if (child.isMesh && child.geometry) {
+      // Center the geometry so origin is at center of bounding box
+      child.geometry.computeBoundingBox();
+      child.geometry.center();
+      
+      // Auto-scale to exactly 1.0 unit maximum dimension
+      const size = new THREE.Vector3();
+      child.geometry.boundingBox.getSize(size);
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const autoScale = 1.0 / maxDim;
+      child.scale.set(autoScale, autoScale, autoScale);
+      
+      showDebug(`🗡️ Normalized sword geometry: "${child.name}", maxDim=${maxDim.toFixed(2)}, autoScale=${autoScale.toFixed(4)}`);
+    }
+  });
+  swordTemplate = gltf.scene;
+  showDebug('✅ GLB loaded for sword (thanh_kiem.glb)!');
+});
+
+loadModel('scout', './3d_assets/custom/enemy_scout.glb');
+loadModel('normal', './3d_assets/custom/chibi_soldier.glb');
+// Fallback for others
+loadModel('heavy', './3d_assets/custom/chibi_soldier.glb');
+loadModel('boss', './3d_assets/custom/chibi_soldier.glb');
+loadModel('speedster', './3d_assets/custom/chibi_soldier.glb');
+loadModel('air', './3d_assets/custom/enemy_scout.glb');
+
+// Track enemy 3D instances {enemyId → {mesh, mixer, action}}
+const instances = new Map();
+
+function attachSword(mesh, tplKey) {
+  if (mesh.getObjectByName("sword")) return;
+  if (!swordTemplate) {
+    showDebug(`⚠️ Thử gắn kiếm nhưng swordTemplate chưa sẵn sàng!`);
+    return;
+  }
+
+  // Tìm bone tay phải — thử nhiều tên phổ biến từ Tripo3D/Mixamo/Blender
+  const handNames = [
+    "RightHand","Hand_R","hand_r","hand.R","mixamorigRightHand",
+    "Bip01_R_Hand","Right_Hand","RightHandIndex1","RightHandMiddle1",
+    "Bone_RightHand","Bone.R","HandR","r_hand","R_Hand",
+    "Armature_RightHand","ik_hand_r"
+  ];
+
+  let rightHand = null;
+  // Thử tên cụ thể trước
+  for (const name of handNames) {
+    rightHand = mesh.getObjectByName(name);
+    if (rightHand) { showDebug(`🗡️ Tìm thấy bone: "${name}"`); break; }
+  }
+
+  // Nếu không tìm thấy — traverse tất cả bones, chọn bone có "right"+"hand" trong tên
+  if (!rightHand) {
+    const allBones = [];
+    mesh.traverse(obj => { if (obj.isBone || obj.type === 'Bone') allBones.push(obj); });
+    showDebug(`🦴 Bones: ${allBones.map(b=>b.name).join(', ')}`);
+    rightHand = allBones.find(b => {
+      const n = b.name.toLowerCase();
+      return (n.includes('right') || n.includes('_r') || n.endsWith('.r') || n.startsWith('r_')) 
+          && (n.includes('hand') || n.includes('palm') || n.includes('wrist'));
+    }) || allBones.find(b => b.name.toLowerCase().includes('hand'));
+    if (rightHand) showDebug(`🗡️ Fallback bone: "${rightHand.name}"`);
+  }
+
+  if (rightHand) {
+    const sword = swordTemplate.clone();
+    sword.name = "sword";
+    sword.scale.set(SWORD_ATTACH_SCALE, SWORD_ATTACH_SCALE, SWORD_ATTACH_SCALE);
+    sword.position.set(SWORD_ATTACH_POS.x, SWORD_ATTACH_POS.y, SWORD_ATTACH_POS.z);
+    sword.rotation.set(SWORD_ATTACH_ROT.x, SWORD_ATTACH_ROT.y, SWORD_ATTACH_ROT.z);
+    rightHand.add(sword);
+    showDebug(`🗡️ Đã gắn kiếm vào "${rightHand.name}" (${tplKey})`);
+  } else {
+    showDebug(`❌ KHÔNG tìm thấy bone tay phải của ${tplKey}! Gắn vào root.`);
+    // Fallback: attach to mesh root (giữa người)
+    const sword = swordTemplate.clone();
+    sword.name = "sword";
+    sword.scale.set(SWORD_ATTACH_SCALE*0.5, SWORD_ATTACH_SCALE*0.5, SWORD_ATTACH_SCALE*0.5);
+    sword.position.set(0.3, 0, 0);
+    mesh.add(sword);
+  }
+}
+
+function getOrCreate(en){
+  const tplKey = templates[en.type] ? en.type : 'normal';
+  const tpl = templates[tplKey];
+  const tplClips = clips[tplKey] || [];
+  
+  if(!tpl) return null;
+  if(instances.has(en)){
+    const inst = instances.get(en);
+    if ((tplKey === 'scout' || tplKey === 'air') && swordTemplate && !inst.hasSword) {
+      attachSword(inst.mesh, tplKey);
+      inst.hasSword = true;
+    }
+    return inst;
+  }
+  // Clone properly for skeletal animation
+  const mesh = SkeletonUtils.clone(tpl);
+  
+  // Position adjustments to center mesh (e.g. running shifted to the right)
+  const offset = MESH_OFFSETS[tplKey] || { x: 0, y: 0, z: 0 };
+  mesh.position.set(offset.x, offset.y, offset.z);
+  
+  let hasSword = false;
+  if ((tplKey === 'scout' || tplKey === 'air') && swordTemplate) {
+    attachSword(mesh, tplKey);
+    hasSword = true;
+  }
+  
+  // Wrap in a group for 2.5D tilt
+  const group = new THREE.Group();
+  group.add(mesh);
+  // Tilt backwards relative to camera so we see the front/top
+  group.rotation.x = -Math.PI / 5; // 36 degrees tilt
+  
+  scene.add(group);
+  
+  let mixer = null;
+  let action = null;
+  if (tplClips.length > 0) {
+    mixer = new THREE.AnimationMixer(mesh);
+    const clip = tplClips[0]; // Assuming first clip is run/walk
+    action = mixer.clipAction(clip);
+    action.play();
+  }
+  
+  // Base scale adjustment: 
+  // 'scout' and 'air' are the new Tripo export (1.0). Old models need heavy scaling down.
+  const baseScale = (tplKey === 'scout' || tplKey === 'air') ? 1.0 : 0.015; 
+  
+  const inst = {group, mesh, mixer, action, baseScale, hasSword};
+  instances.set(en, inst);
+  return inst;
+}
+
+function canvasToWorld(cx, cy, W, H){
+  // Convert canvas px → Three.js orthographic world coords
   return {
-    x: (v.x * 0.5 + 0.5) * window.innerWidth,
-    y: (-v.y * 0.5 + 0.5) * window.innerHeight
+    x: (cx/W)*2 - 1,
+    z: -((cy/H)*2 - 1)
   };
 }
 
-function onEnemyKilled(enemy) {
-  _comboCount++;
-  clearTimeout(_comboTimer);
-  _comboTimer = setTimeout(() => { _comboCount = 0; }, COMBO_WINDOW_MS);
+let lastGLTime = 0;
+// Helper for smooth rotation
+function lerpAngle(a, b, t) {
+  let d = b - a;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return a + d * t;
+}
 
-  const sc = worldToScreen(enemy.position.x, enemy.position.z);
+function glLoop(ts){
+  requestAnimationFrame(glLoop);
+  const dt = Math.min((ts-lastGLTime)/1000, 0.05) * (window._gameSpeed||1);
+  lastGLTime = ts;
 
-  // Gold float
-  spawnFloatText(`+${enemy.spec.reward}💰`, sc.x, sc.y, '#F5C842', '16px');
+  if(!window._gameEnemies || window._gamePaused) {
+    renderer.render(scene, cam); return;
+  }
 
-  // Combo text + bonus
-  if (_comboCount >= MEGA_COMBO_MIN) {
-    spawnFloatText(`⚡ MEGA COMBO x${_comboCount}!`, sc.x - 60, sc.y - 30, '#FF4DFF', '26px');
-    gainAirstrike(AIRSTRIKE_GAIN_MEGA);
-    gold += MEGA_COMBO_BONUS_PER_KILL * _comboCount;
-  } else if (_comboCount >= COMBO_MIN) {
-    spawnFloatText(`🔥 COMBO x${_comboCount}!`, sc.x - 40, sc.y - 20, '#FF9900', '20px');
-    gainAirstrike(AIRSTRIKE_GAIN_COMBO);
-    gold += COMBO_BONUS_PER_KILL * _comboCount;
+  const W = glCanvas.offsetWidth, H = glCanvas.offsetHeight;
+  renderer.setSize(W, H, false);
+
+  // Camera: standard orthographic looking straight down to match 2D canvas perfectly
+  cam.left = -W/2;
+  cam.right = W/2;
+  cam.top = H/2;
+  cam.bottom = -H/2;
+  cam.position.set(W/2, 1000, H/2);
+  cam.up.set(0, 0, -1); // +Z is down on screen
+  cam.lookAt(W/2, 0, H/2);
+  cam.updateProjectionMatrix();
+
+  const liveEnemies = new Set(window._gameEnemies);
+
+  // Remove dead instances
+  for(const [en, inst] of instances){
+    if(!liveEnemies.has(en)){
+      scene.remove(inst.mesh); instances.delete(en);
+    }
+  }
+
+  // Update live + dying instances
+  window._gameEnemies.forEach(en=>{
+    if(en.escaped) return;
+    const inst = getOrCreate(en);
+    if(!inst) return;
+
+    const cellW = window._cellW||50;
+    const baseS = cellW * (en.def.scale||1) * inst.baseScale * 1.2;
+
+    if(en.dead) {
+      // Death animation: tip over + shrink + fade (cheap — no traverse)
+      const t = 1 - Math.max(0, en.deathTimer / 0.5);
+      inst.group.position.set(en.x, 0, en.y);
+      inst.group.scale.setScalar(baseS * Math.max(0.05, 1 - t * 0.95));
+      inst.group.rotation.z = t * Math.PI * 0.5; // tilt sideways (cheap)
+      // One-time transparency setup
+      if(!inst._deathReady) {
+        inst._deathReady = true;
+        inst.group.traverse(obj => {
+          if(obj.isMesh && obj.material) {
+            obj.material = obj.material.clone();
+            obj.material.transparent = true;
+          }
+        });
+      }
+      inst.group.traverse(obj => {
+        if(obj.isMesh && obj.material) obj.material.opacity = 1 - t;
+      });
+      return;
+    }
+
+    if(inst.mixer) inst.mixer.update(dt);
+    inst.group.position.set(en.x, 0, en.y);
+    inst.group.scale.setScalar(baseS);
+    inst.mesh.rotation.x = 0; // reset tilt
+
+    if (en.angle !== undefined) {
+      const targetAngle = -en.angle;
+      if (en.currentAngle === undefined) en.currentAngle = targetAngle;
+      en.currentAngle = lerpAngle(en.currentAngle, targetAngle, dt * 10);
+      const tKey = templates[en.type] ? en.type : 'normal';
+      inst.mesh.rotation.y = en.currentAngle + (ROTATION_OFFSETS[tKey] !== undefined ? ROTATION_OFFSETS[tKey] : Math.PI / 2);
+    }
+  });
+
+  renderer.render(scene, cam);
+}
+requestAnimationFrame(ts=>{lastGLTime=ts; glLoop(ts);});
+</script>
+
+<audio id="bgm" loop><source src="audio/music/co_loa_theme_v1.mp3" type="audio/mpeg"></audio>
+
+<script>
+// ════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════
+const COLS=16, ROWS=11, CELL=50;
+const START={x:0,y:5}, EXIT={x:15,y:5};
+const MAX_WAVES=15, START_HP=30, START_GOLD=350;
+
+const TOWER_DEFS = [
+  {id:'arrow',  name:'Nỏ Liên Châu', emoji:'🏹', cost:40,  upgrade:30, sell:24,  dmg:35,  range:2.5, rate:1.0,  color:'#C8960C', special:'Bắn nhanh'},
+  {id:'slow',   name:'Bẫy Nhựa',    emoji:'💧', cost:55,  upgrade:35, sell:33,  dmg:12,  range:2.5, rate:1.0,  color:'#5ABCAA', special:'Làm chậm 40%', slow:0.4},
+  {id:'cannon', name:'Thần Cơ Pháo',emoji:'💣', cost:80,  upgrade:50, sell:48,  dmg:100, range:3.5, rate:1.6,  color:'#B87333', special:'AoE 1.8ô', splash:1.8},
+  {id:'mine',   name:'Bẫy Chông',    emoji:'🪤', cost:90,  upgrade:50, sell:45,  dmg:1500,range:0.8, rate:9999, color:'#C0332E', special:'Kích hoạt 1 lần', mine:true},
+  {id:'flame',  name:'Hỏa Tháp',    emoji:'🔥', cost:100, upgrade:60, sell:60,  dmg:300, range:2.5, rate:0.5,  color:'#FF6600', special:'Đốt liên tục', flame:true},
+  {id:'power',  name:'Trống Lệnh',   emoji:'🥁', cost:120, upgrade:80, sell:60,  dmg:0,   range:2.0, rate:9999, color:'#F5C842', special:'Buff +25% DMG', power:true},
+  {id:'tesla',  name:'Lôi Tháp',    emoji:'⚡', cost:180, upgrade:100,sell:108, dmg:700, range:2.5, rate:0.85, color:'#3a86ff', special:'Dây chuyền 3', chain:3},
+];
+
+const ENEMY_DEFS = {
+  scout:    {name:'Lính Trinh Sát',hp:50,   speed:1.6, reward:12, color:'#FFD700', scale:0.9},
+  normal:   {name:'Bộ Binh',       hp:120,  speed:1.0, reward:18, color:'#B87333', scale:1.0},
+  heavy:    {name:'Voi Chiến',     hp:300,  speed:0.55,reward:35, color:'#C0332E', scale:1.4},
+  speedster:{name:'Kị Binh',       hp:75,   speed:2.2, reward:20, color:'#4080FF', scale:0.85, slowImmune:true},
+  air:      {name:'Quạ Sắt',       hp:130,  speed:1.2, reward:30, color:'#808080', scale:0.9, isAir:true},
+  boss:     {name:'Đại Tướng',     hp:1500, speed:0.4, reward:200,color:'#FFD700', scale:2.0},
+};
+
+const WAVES = [
+  ['scout','scout','scout','scout','scout'],
+  ['scout','scout','scout','normal','normal'],
+  ['normal','normal','normal','heavy'],
+  ['scout','scout','normal','normal','air','air'],
+  ['normal','normal','heavy','speedster','speedster'],
+  ['normal','normal','normal','heavy','air','air'],
+  ['heavy','heavy','air','air','air'],
+  ['scout','scout','normal','normal','normal','normal'],
+  ['normal','heavy','heavy','speedster','speedster','air'],
+  ['normal','normal','heavy','air','air','air'],
+  ['normal','normal','normal','heavy','heavy','air','air'],
+  ['heavy','heavy','air','air','air','air'],
+  ['normal','heavy','heavy','speedster','speedster','air','air'],
+  ['normal','normal','heavy','heavy','air','air','speedster'],
+  ['normal','normal','heavy','air','boss','air','speedster','speedster'],
+];
+
+// Mappers for selected loadout
+const TOWER_ID_MAP_L_TO_G = {
+  'no_lien_chau': 'arrow',
+  'bay_nhua': 'slow',
+  'bay_chong': 'mine',
+  'than_co_phao': 'cannon',
+  'trong_lenh': 'power',
+  'hoa_thap': 'flame',
+  'loi_thap': 'tesla'
+};
+
+const ITEM_ID_MAP_L_TO_G = {
+  'bom_than': 'bomb',
+  'dong_bang': 'freeze',
+  'vang_them': 'gold'
+};
+
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let gold=START_GOLD, hp=START_HP, wave=0, score=0;
+let speed=1, paused=false, gameOver=false, waveRunning=false;
+let selectedTower=null, placedTowers=[], enemies=[], projectiles=[];
+let grid=Array.from({length:COLS},()=>Array(ROWS).fill(null));
+let selectedCell=null;
+let lastTime=0, spawnQueue=[], spawnTimer=0;
+let musicOn=false;
+
+// FR2 State additions
+let selectedTowers = [];
+let selectedItems = [];
+let aiNum = 7;
+let playMode = 'dungnuoc';
+let itemStates = [];
+
+let comboCount = 0;
+let comboTimer = 0; // seconds remaining
+let highestCombo = 0;
+let airstrikeMeter = 0;
+const AIRSTRIKE_MAX = 100;
+let airstrikeActive = false;
+let airstrikeX = 0;
+let airstrikeTimer = 0;
+
+let floatingTexts = [];
+let mineExplosions = [];
+let bombShockwaveActive = false;
+let bombShockwaveRadius = 0;
+let screenShake = 0;
+
+// ════════════════════════════════════════════════════
+// CANVAS SETUP
+// ════════════════════════════════════════════════════
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+let W,H,offX,offY,cellW,cellH;
+
+function resize(){
+  W=canvas.offsetWidth; H=canvas.offsetHeight;
+  canvas.width=W; canvas.height=H;
+  const mapAspect=COLS/ROWS;
+  const canvasAspect=W/H;
+  let gw,gh;
+  if(canvasAspect>mapAspect){gh=H*0.82;gw=gh*mapAspect;}
+  else{gw=W*0.92;gh=gw/mapAspect;}
+  cellW=gw/COLS; cellH=gh/ROWS;
+  offX=(W-gw)/2; offY=(H-gh)/2;
+}
+window.addEventListener('resize',resize);
+resize();
+
+// ════════════════════════════════════════════════════
+// SPRITES
+// ════════════════════════════════════════════════════
+const sprites={};
+function loadImg(key,src){
+  const img=new Image();
+  img.onload=()=>{ sprites[key]=img; };
+  img.src=src;
+}
+loadImg('scout','assets/enemy_scout.png');
+loadImg('normal','assets/enemy_soldier.png');
+loadImg('heavy','assets/enemy_heavy.png');
+loadImg('air','assets/enemy_air.png');
+loadImg('boss','assets/enemy_boss.png');
+
+// ════════════════════════════════════════════════════
+// LOAD LOADOUT (vs_loadout_towers, vs_loadout_items)
+// ════════════════════════════════════════════════════
+function loadLoadout() {
+  const urlParams = new URLSearchParams(window.location.search);
+  aiNum = parseInt(urlParams.get('ai') || localStorage.getItem('vs_loadout_ai') || '7');
+  playMode = urlParams.get('mode') || localStorage.getItem('vs_loadout_mode') || 'dungnuoc';
+
+  // Set Boss details dynamically based on AI level
+  if (aiNum === 8) {
+    ENEMY_DEFS.boss.name = 'Ám Toán Sứ';
+    ENEMY_DEFS.boss.color = '#C0332E';
   } else {
-    gainAirstrike(AIRSTRIKE_GAIN_KILL);
+    ENEMY_DEFS.boss.name = 'Bạch Kê Tinh';
+    ENEMY_DEFS.boss.color = '#F5C842';
+  }
+  document.getElementById('maxWave').textContent = MAX_WAVES;
+
+  // Load selected towers
+  let rawTowers = null;
+  try { rawTowers = JSON.parse(localStorage.getItem('vs_loadout_towers')); } catch(e){}
+  if (Array.isArray(rawTowers) && rawTowers.length > 0) {
+    selectedTowers = rawTowers.map(id => TOWER_ID_MAP_L_TO_G[id] || id);
+  } else {
+    selectedTowers = ['arrow', 'slow', 'cannon', 'flame', 'tesla'];
+  }
+
+  // Load selected items
+  let rawItems = null;
+  try { rawItems = JSON.parse(localStorage.getItem('vs_loadout_items')); } catch(e){}
+  if (Array.isArray(rawItems)) {
+    selectedItems = rawItems.map(id => ITEM_ID_MAP_L_TO_G[id] || id);
+  } else {
+    selectedItems = playMode === 'giunuoc' ? [] : ['bomb', 'freeze', 'gold'];
+  }
+
+  rebuildBuildBar();
+  rebuildItemButtons();
+  updateAirstrikeUI();
+}
+
+function rebuildBuildBar() {
+  const towersDiv = document.getElementById('towers');
+  towersDiv.innerHTML = '';
+  selectedTowers.forEach(tid => {
+    const t = TOWER_DEFS.find(x => x.id === tid);
+    if (!t) return;
+    const btn = document.createElement('button');
+    btn.className = 'tower-btn';
+    btn.id = 'tbtn_' + t.id;
+    btn.innerHTML = `<span class="tbtn-icon">${t.emoji}</span><span class="tbtn-name">${t.name.split(' ')[0]}</span><span class="tbtn-cost">💰${t.cost}</span>`;
+    btn.onclick = () => selectTower(t.id);
+    towersDiv.appendChild(btn);
+  });
+  updateTowerButtons();
+}
+
+function rebuildItemButtons() {
+  const itemSlots = document.getElementById('itemSlots');
+  itemSlots.innerHTML = '';
+  itemStates = [];
+
+  if (playMode === 'giunuoc') {
+    const text = document.createElement('div');
+    text.style.cssText = "font-family:'Roboto Mono',monospace;font-size:7px;color:#C0332E;writing-mode:vertical-rl;transform:rotate(180deg);opacity:0.75;font-weight:700;";
+    text.textContent = "🔒 GIỮ NƯỚC: KHÔNG DÙNG CHIÊU";
+    itemSlots.appendChild(text);
+    return;
+  }
+
+  const itemSpecs = {
+    bomb: { name: 'Bom Thần', emoji: '💥', desc: 'Trừ 50% máu cả bản đồ' },
+    freeze: { name: 'Đông Băng', emoji: '❄️', desc: 'Đóng băng quái 5s' },
+    gold: { name: 'Vàng Thêm', emoji: '💰', desc: '+150 Vàng Đông Sơn' }
+  };
+
+  selectedItems.forEach(itemId => {
+    const spec = itemSpecs[itemId];
+    if (!spec) return;
+    const itm = { type: itemId, name: spec.name, emoji: spec.emoji, count: 1 };
+    itemStates.push(itm);
+
+    const btn = document.createElement('button');
+    btn.className = 'item-btn';
+    btn.id = 'ibtn_' + itemId;
+    btn.innerHTML = `${spec.emoji}<span class="item-count">${itm.count}</span>`;
+    btn.onclick = () => useItem(itemId);
+    btn.title = `${spec.name} — ${spec.desc}`;
+    itemSlots.appendChild(btn);
+  });
+}
+
+// ════════════════════════════════════════════════════
+// BFS WAYPOINT PATHFINDING
+// ════════════════════════════════════════════════════
+function calculateBFSPath(gridOverride = null, startNode = START) {
+  const tempGrid = gridOverride || grid;
+  const queue = [];
+  const visited = Array.from({length:COLS},()=>Array(ROWS).fill(false));
+  const parent = Array.from({length:COLS},()=>Array(ROWS).fill(null));
+
+  queue.push(startNode);
+  visited[startNode.x][startNode.y] = true;
+
+  let pathFound = false;
+
+  while (queue.length > 0) {
+    const curr = queue.shift();
+
+    if (curr.x === EXIT.x && curr.y === EXIT.y) {
+      pathFound = true;
+      break;
+    }
+
+    const dirs = [
+      { dx: 1, dy: 0 },
+      { dx: -1, dy: 0 },
+      { dx: 0, dy: 1 },
+      { dx: 0, dy: -1 }
+    ];
+
+    for (const d of dirs) {
+      const nx = curr.x + d.dx;
+      const ny = curr.y + d.dy;
+
+      if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+        if (!visited[nx][ny] && !tempGrid[nx][ny]) {
+          visited[nx][ny] = true;
+          parent[nx][ny] = curr;
+          queue.push({ x: nx, y: ny });
+        }
+      }
+    }
+  }
+
+  if (!pathFound) return null;
+
+  const path = [];
+  let curr = EXIT;
+  while (curr !== null) {
+    path.unshift(curr);
+    curr = parent[curr.x][curr.y];
+  }
+  return path;
+}
+
+function recalculateEnemyPath(en) {
+  if (en.def.isAir || en.dead || en.escaped) return;
+  if (!en.inGrid) {
+    en.myPath = calculateBFSPath(null, START);
+    en.pathIndex = 0;
+    return;
+  }
+  
+  // Dùng vị trí pixel thực tế làm điểm xuất phát BFS
+  const cx = Math.max(0, Math.min(COLS-1, Math.floor((en.x - offX) / cellW)));
+  const cy = Math.max(0, Math.min(ROWS-1, Math.floor((en.y - offY) / cellH)));
+  const startNode = {x: cx, y: cy};
+  
+  const newPath = calculateBFSPath(null, startNode);
+  if (!newPath || newPath.length === 0) {
+    // Không có đường — giữ path cũ, để anti-block xử lý
+    return;
+  }
+  
+  en.myPath = newPath;
+  // pathIndex = 0: target là myPath[1] (ô tiếp theo từ vị trí hiện tại)
+  en.pathIndex = 0;
+}
+
+function recalculateAllPaths() {
+  enemies.forEach(en => {
+    recalculateEnemyPath(en);
+  });
+}
+
+function getRemainingDistanceToExit(en) {
+  if (en.escaped || en.dead) return -99999;
+  if (en.def.isAir || en.escaping) {
+    return (W + cellW * 4) - en.x;
+  }
+  if (!en.inGrid) {
+    const startCellCenter = offX + START.x * cellW + cellW/2;
+    const distToStart = startCellCenter - en.x;
+    const pathLength = calculateBFSPath(null, START)?.length || COLS;
+    return distToStart + pathLength * cellW;
+  }
+  if (!en.myPath || en.myPath.length === 0 || en.pathIndex >= en.myPath.length) {
+    return 99999;
+  }
+  
+  const targetNode = en.myPath[en.pathIndex + 1];
+  let distToNext = 0;
+  if (targetNode) {
+    const tx = offX + targetNode.x * cellW + cellW/2;
+    const ty = offY + targetNode.y * cellH + cellH/2;
+    distToNext = Math.sqrt((tx - en.x)**2 + (ty - en.y)**2);
+  }
+  
+  const remainingCells = en.myPath.length - (en.pathIndex + 1);
+  return distToNext + remainingCells * cellW;
+}
+
+// ════════════════════════════════════════════════════
+// TOWER ACTIONS
+// ════════════════════════════════════════════════════
+function selectTower(id){
+  if(selectedTower===id){selectedTower=null;}
+  else{selectedTower=id;}
+  closeTowerInfo();
+  document.querySelectorAll('.tower-btn').forEach(b=>{
+    b.classList.toggle('selected',b.id==='tbtn_'+selectedTower);
+  });
+}
+
+function updateTowerButtons(){
+  selectedTowers.forEach(tid=>{
+    const t = TOWER_DEFS.find(x => x.id === tid);
+    const btn=document.getElementById('tbtn_'+tid);
+    if(btn)btn.classList.toggle('cant',gold<t.cost);
+  });
+}
+
+// ════════════════════════════════════════════════════
+// CANVAS INPUT
+// ════════════════════════════════════════════════════
+function getCell(e){
+  const r=canvas.getBoundingClientRect();
+  const px=(e.clientX||e.touches?.[0]?.clientX||0)-r.left;
+  const py=(e.clientY||e.touches?.[0]?.clientY||0)-r.top;
+  const gx=Math.floor((px-offX)/cellW);
+  const gy=Math.floor((py-offY)/cellH);
+  if(gx<0||gx>=COLS||gy<0||gy>=ROWS)return null;
+  return{x:gx,y:gy};
+}
+
+canvas.addEventListener('click',e=>{
+  const cell=getCell(e);
+  if(!cell)return;
+  if(selectedTower){
+    placeTower(cell.x,cell.y);
+  } else if(grid[cell.x][cell.y]){
+    openTowerInfo(cell.x,cell.y);
+  } else {
+    closeTowerInfo();
+  }
+});
+
+// Recalculate Drum buffs (+25% / +35% / +50% DMG to surrounding 2-cell radius)
+function updateTowerBuffs() {
+  placedTowers.forEach(t => t.baseDmgBonus = 0);
+  const powerTowers = placedTowers.filter(t => t.id === 'power');
+  powerTowers.forEach(pt => {
+    const buffPct = pt.level === 1 ? 0.25 : pt.level === 2 ? 0.35 : 0.50;
+    placedTowers.forEach(t => {
+      if (t === pt || t.id === 'power') return;
+      const dx = Math.abs(t.gx - pt.gx);
+      const dy = Math.abs(t.gy - pt.gy);
+      if (dx <= 2 && dy <= 2) {
+        t.baseDmgBonus = Math.max(t.baseDmgBonus, buffPct);
+      }
+    });
+  });
+}
+
+function placeTower(gx,gy){
+  if(grid[gx][gy])return;
+  if(gx===START.x&&gy===START.y)return;
+  if(gx===EXIT.x&&gy===EXIT.y)return;
+  const def=TOWER_DEFS.find(t=>t.id===selectedTower);
+  if(!def||gold<def.cost)return;
+  
+  grid[gx][gy]='block';
+  
+  // Verify if it blocks path from START to EXIT
+  const mainPath = calculateBFSPath(grid, START);
+  if(!mainPath){
+    grid[gx][gy]=null;
+    showBanner('⚠️ Không được chặn lối đi chính!',1200);
+    return;
+  }
+  
+  // Verify if it traps any active ground enemy
+  let blocksEnemy = false;
+  for (const en of enemies) {
+    if (en.dead || en.escaped || en.def.isAir || en.escaping) continue;
+    const cx = Math.max(0, Math.min(COLS-1, Math.floor((en.x - offX) / cellW)));
+    const cy = Math.max(0, Math.min(ROWS-1, Math.floor((en.y - offY) / cellH)));
+    // Luôn dùng pixel position thực tế, không dùng next waypoint
+    const startNode = {x: cx, y: cy};
+    let path = calculateBFSPath(grid, startNode);
+    if (!path) {
+      blocksEnemy = true;
+      break;
+    }
+  }
+  if (blocksEnemy) {
+    grid[gx][gy]=null;
+    showBanner('⚠️ Kẻ địch sẽ bị kẹt!',1200);
+    return;
+  }
+  
+  grid[gx][gy]=null;
+  gold-=def.cost;
+  const tower={
+    id:def.id,def,gx,gy,level:1,lastShot:0,
+    x:offX+gx*cellW+cellW/2,
+    y:offY+gy*cellH+cellH/2,
+    targetMode: 'first',
+    baseDmgBonus: 0,
+    isFiringFlame: 0,
+    teslaChainTargets: null,
+    teslaChainTime: 0
+  };
+  placedTowers.push(tower);
+  grid[gx][gy]=tower;
+  recalculateAllPaths();
+  
+  updateTowerBuffs();
+  updateUI();
+}
+
+let selectedTowerObj=null;
+function openTowerInfo(gx,gy){
+  const t=grid[gx][gy];
+  if(!t||!t.def)return;
+  selectedTowerObj=t;
+  const panel=document.getElementById('towerInfo');
+  document.getElementById('tiName').textContent=`${t.def.emoji} ${t.def.name} Lv.${t.level}`;
+  const upgCost=t.def.upgrade*t.level;
+  
+  const currentDmg = Math.round(t.def.dmg * t.level * (1 + t.baseDmgBonus));
+  const statsText = t.id === 'power'
+    ? `Tầm buff: ${t.def.range} ô\nHiệu ứng: Buff +${Math.round((t.level === 1 ? 25 : t.level === 2 ? 35 : 50))}% DMG\nNâng cấp: 💰${upgCost}\nBán: 💰${Math.floor(t.def.sell*t.level*0.8)}`
+    : `Sát thương: ${currentDmg}\nTầm bắn: ${t.def.range}\nNâng cấp: 💰${upgCost}\nBán: 💰${Math.floor(t.def.sell*t.level*0.8)}`;
+
+  document.getElementById('tiStats').textContent=statsText;
+  
+  const targetRow = document.getElementById('tiTargetRow');
+  if (t.id === 'power' || t.id === 'mine') {
+    targetRow.style.display = 'none';
+  } else {
+    targetRow.style.display = 'flex';
+    document.querySelectorAll('.ti-mode').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === t.targetMode);
+    });
+  }
+
+  panel.style.display='block';
+}
+
+function closeTowerInfo(){selectedTowerObj=null;document.getElementById('towerInfo').style.display='none';}
+
+function upgradeTower(){
+  if(!selectedTowerObj)return;
+  const cost=selectedTowerObj.def.upgrade*selectedTowerObj.level;
+  if(gold<cost)return;
+  gold-=cost; selectedTowerObj.level++;
+  updateTowerBuffs();
+  openTowerInfo(selectedTowerObj.gx,selectedTowerObj.gy);
+  updateUI();
+}
+
+function sellTower(){
+  if(!selectedTowerObj)return;
+  const t=selectedTowerObj;
+  gold+=Math.floor(t.def.sell*t.level*0.8);
+  placedTowers=placedTowers.filter(x=>x!==t);
+  grid[t.gx][t.gy]=null;
+  closeTowerInfo();
+  recalculateAllPaths();
+  
+  updateTowerBuffs();
+  updateUI();
+}
+
+window.setTargetMode = function(mode) {
+  if (!selectedTowerObj) return;
+  selectedTowerObj.targetMode = mode;
+  document.querySelectorAll('.ti-mode').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+};
+
+// ════════════════════════════════════════════════════
+// FLOATING TEXT CLASS
+// ════════════════════════════════════════════════════
+class FloatingText {
+  constructor(x, y, text, color = '#F5C842', size = 12, bold = true) {
+    this.x = x + (Math.random() - 0.5) * 20;
+    this.y = y - 10;
+    this.text = text;
+    this.color = color;
+    this.size = size;
+    this.bold = bold;
+    this.alpha = 1.0;
+    this.vy = -50 - Math.random() * 30;
+    this.vx = (Math.random() - 0.5) * 20;
+  }
+  update(dt) {
+    this.y += this.vy * dt;
+    this.x += this.vx * dt;
+    this.vy *= 0.95;
+    this.alpha -= dt * 0.7; // fade out in ~1.4s
+  }
+  draw() {
+    if (this.alpha <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.font = `${this.bold ? 'bold ' : ''}${this.size}px 'Philosopher', serif`;
+    ctx.fillStyle = this.color;
+    ctx.strokeStyle = 'rgba(10,6,14,0.9)';
+    ctx.lineWidth = 3;
+    ctx.textAlign = 'center';
+    ctx.strokeText(this.text, this.x, this.y);
+    ctx.fillText(this.text, this.x, this.y);
+    ctx.restore();
+  }
+}
+
+// ════════════════════════════════════════════════════
+// WAVE & SPAWN LOGIC
+// ════════════════════════════════════════════════════
+function startWave(){
+  if(waveRunning||gameOver||wave>=MAX_WAVES)return;
+  wave++;
+  document.getElementById('btnPlay').style.opacity='0.4';
+  waveRunning=true;
+  spawnQueue=[...WAVES[wave-1]];
+  spawnTimer=0;
+  showBanner(`⚔️ Đợt ${wave}/${MAX_WAVES}`,1500);
+  updateUI();
+}
+
+function spawnEnemy(type){
+  const def=ENEMY_DEFS[type]||ENEMY_DEFS.scout;
+  const en={
+    type,def,
+    hp:def.hp+wave*8, maxHp:def.hp+wave*8,
+    speed:def.speed,
+    slowTimer:0, slowStr:0,
+    freezeTimer:0,
+    myPath: calculateBFSPath(null, START),
+    pathIndex: 0,
+    inGrid: false,
+    x:-cellW*2, y:offY+START.y*cellH+cellH/2,
+    dead:false, escaped:false,
+    frameTime:0, frame:0,
+    angle: 0,
+    currentAngle: 0
+  };
+  enemies.push(en);
+}
+
+// ════════════════════════════════════════════════════
+// GAME LOOP
+// ════════════════════════════════════════════════════
+let raf;
+function gameLoop(ts){
+  if(!paused&&!gameOver){
+    const dt=Math.min((ts-lastTime)/1000*speed, 0.1);
+    lastTime=ts;
+    update(dt,ts);
+  } else {lastTime=ts;}
+
+  window._gameEnemies = enemies;
+  window._gamePaused = paused;
+  window._gameSpeed = speed;
+  window._cellW = cellW;
+
+  draw(ts);
+  raf=requestAnimationFrame(gameLoop);
+}
+
+function update(dt,ts){
+  // Spawn quái
+  if(waveRunning&&spawnQueue.length>0){
+    spawnTimer-=dt;
+    if(spawnTimer<=0){
+      spawnEnemy(spawnQueue.shift());
+      spawnTimer=0.8;
+    }
+  }
+
+  // Enemies update
+  enemies.forEach(en=>{
+    if(en.dead||en.escaped)return;
+    
+    // Slow decay
+    if(en.slowTimer>0)en.slowTimer-=dt;
+    
+    // Freeze decay
+    if(en.freezeTimer>0)en.freezeTimer-=dt;
+
+    const isFrozen = en.freezeTimer > 0;
+    const effSpeed= isFrozen ? 0 : (en.slowTimer>0?en.speed*(1-en.slowStr):en.speed)*cellW;
+
+    // Stuckness watchdog — tự giải phóng lính bị kẹt (trigger sau 0.3s)
+    if (!en._stuck) en._stuck = {x: en.x, y: en.y, t: 0};
+    en._stuck.t += dt;
+    const _movedDistSq = (en.x-en._stuck.x)**2+(en.y-en._stuck.y)**2;
+    if (_movedDistSq > (cellW * 0.3)**2) {
+      en._stuck = {x: en.x, y: en.y, t: 0}; // đang di chuyển bình thường
+    } else if (en._stuck.t >= 0.3 && effSpeed > 0 && !isFrozen && en.inGrid) {
+      // Kẹt > 0.3s — tái tính đường từ vị trí hiện tại
+      recalculateEnemyPath(en);
+      en._stuck = {x: en.x, y: en.y, t: 0};
+    }
+
+    // Wobble walk frame cycle
+    en.frameTime+=dt;
+    if(en.frameTime>0.12){en.frame=(en.frame+1)%4;en.frameTime=0;}
+
+    // Mine checks
+    const _activeMines = placedTowers.filter(t=>t.id==='mine'&&!t.isExploded);
+    _activeMines.forEach(t => {
+      if (true) {
+        const d = Math.sqrt((en.x - t.x)**2 + (en.y - t.y)**2);
+        if (d < cellW * 0.42) {
+          t.isExploded = true;
+          triggerScreenShake(12);
+          showBanner('💥 BẪY CHÔNG KÍCH HOẠT!');
+          
+          const expRadius = cellW * 1.25;
+          enemies.forEach(oth => {
+            if (!oth.dead && !oth.escaped) {
+              const od = Math.sqrt((oth.x - t.x)**2 + (oth.y - t.y)**2);
+              if (od < expRadius) {
+                const dmg = t.def.dmg * t.level;
+                hitEnemy(oth, dmg, t.def);
+                floatingTexts.push(new FloatingText(oth.x, oth.y, `-${Math.round(dmg)}💥`, '#C0332E', 13));
+              }
+            }
+          });
+
+          mineExplosions.push({x: t.x, y: t.y, radius: 0, maxRadius: expRadius, alpha: 1});
+
+          setTimeout(() => {
+            placedTowers = placedTowers.filter(x => x !== t);
+            grid[t.gx][t.gy] = null;
+            recalculateAllPaths();
+          }, 40);
+        }
+      }
+    });
+
+    // Enemy target node resolution
+    let tx, ty;
+    const isAir = en.def.isAir;
+
+    if (isAir) {
+      tx = W + cellW * 4;
+      ty = offY + EXIT.y * cellH + cellH/2;
+    } else if (en.escaping) {
+      tx = W + cellW * 4;
+      ty = offY + EXIT.y * cellH + cellH/2;
+    } else if (!en.inGrid) {
+      tx = offX + START.x * cellW + cellW/2;
+      ty = offY + START.y * cellH + cellH/2;
+    } else {
+      if (!en.myPath || en.myPath.length === 0) {
+        en.myPath = calculateBFSPath(null, START);
+        en.pathIndex = 0;
+      }
+      const targetNode = en.myPath[en.pathIndex + 1];
+      if (!targetNode) {
+        en.escaping = true;
+        tx = W + cellW * 4;
+        ty = offY + EXIT.y * cellH + cellH/2;
+      } else {
+        tx = offX + targetNode.x * cellW + cellW/2;
+        ty = offY + targetNode.y * cellH + cellH/2;
+      }
+    }
+
+    if (tx !== undefined && ty !== undefined && !isFrozen) {
+      const dx = tx - en.x, dy = ty - en.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist > 0.1) {
+        en.angle = Math.atan2(dy, dx);
+      }
+      
+      const moveStep = effSpeed * dt;
+      if (dist <= moveStep) {
+        en.x = tx;
+        en.y = ty;
+        if (!en.inGrid) {
+          en.inGrid = true;
+          en.pathIndex = 0;
+        } else if (!isAir && !en.escaping) {
+          en.pathIndex++;
+        }
+      } else {
+        en.x += dx/dist * moveStep;
+        en.y += dy/dist * moveStep;
+      }
+    }
+
+    // Escape logic
+    if (en.x > W + cellW * 3) {
+      en.escaped = true;
+      hp = Math.max(0, hp - 1);
+      updateUI();
+      if (hp <= 0) endGame(false);
+    }
+  });
+
+  // Towers shoot logic
+  const now=ts/1000;
+  placedTowers.forEach(t=>{
+    if(t.id === 'power') return;
+    if(now-t.lastShot<t.def.rate/speed)return;
+    const tx=t.x,ty=t.y;
+    const _rangeSq=(t.def.range*cellW)**2;
+    const inRange=enemies.filter(en=>{
+      if(en.dead||en.escaped)return false;
+      const dx=en.x-tx,dy=en.y-ty;
+      return dx*dx+dy*dy<_rangeSq;
+    });
+    if(!inRange.length)return;
+    
+    // Choose target based on targeting mode
+    let target = null;
+    if (t.targetMode === 'first') {
+      target = inRange.reduce((a,b) => getRemainingDistanceToExit(b) < getRemainingDistanceToExit(a) ? b : a);
+    } else if (t.targetMode === 'last') {
+      target = inRange.reduce((a,b) => getRemainingDistanceToExit(b) > getRemainingDistanceToExit(a) ? b : a);
+    } else if (t.targetMode === 'strong') {
+      target = inRange.reduce((a,b) => b.hp > a.hp ? b : a);
+    } else if (t.targetMode === 'weak') {
+      target = inRange.reduce((a,b) => b.hp < a.hp ? b : a);
+    } else {
+      target = inRange[0];
+    }
+
+    if(!target) return;
+    t.lastShot=now;
+
+    // Special weapon mechanisms
+    if (t.id === 'flame') {
+      inRange.forEach(en => {
+        const dmg = t.def.dmg * t.level * (1 + t.baseDmgBonus) * dt * 0.5;
+        hitEnemy(en, dmg, t.def);
+      });
+      t.isFiringFlame = 0.25;
+    } else if (t.id === 'tesla') {
+      const targets = [target];
+      const extra = inRange.filter(e => e !== target);
+      extra.sort((a,b) => {
+        const da = (a.x-target.x)**2 + (a.y-target.y)**2;
+        const db = (b.x-target.x)**2 + (b.y-target.y)**2;
+        return da - db;
+      });
+      if (extra[0]) targets.push(extra[0]);
+      if (extra[1]) targets.push(extra[1]);
+
+      targets.forEach(tg => {
+        const dmg = t.def.dmg * t.level * (1 + t.baseDmgBonus);
+        hitEnemy(tg, dmg, t.def);
+      });
+      t.teslaChainTargets = targets.map(tg => ({x: tg.x, y: tg.y}));
+      t.teslaChainTime = 0.15;
+    } else {
+      projectiles.push({
+        x:tx,y:ty, startX:tx, startY:ty, tx:target.x,ty:target.y,
+        target,def:t.def,level:t.level,
+        dmgBonus: t.baseDmgBonus,
+        speed:cellW*8,done:false, z: 0
+      });
+    }
+  });
+
+  // Projectiles update
+  projectiles.forEach(p=>{
+    if(p.done)return;
+    const dx=p.target.x-p.x,dy=p.target.y-p.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<8){
+      if(!p.target.dead){
+        const dmg=p.def.dmg*p.level*(1+(p.dmgBonus||0))*(1+score/5000);
+        if(p.def.splash){
+          enemies.filter(en=>!en.dead&&!en.escaped).forEach(en=>{
+            const ex=en.x-p.target.x,ey=en.y-p.target.y;
+            if(Math.sqrt(ex*ex+ey*ey)<p.def.splash*cellW) hitEnemy(en,dmg,p.def);
+          });
+        } else {
+          hitEnemy(p.target,dmg,p.def);
+        }
+      }
+      p.done=true;
+    } else {
+      const spd=p.speed*dt;
+      p.x+=dx/dist*spd; p.y+=dy/dist*spd;
+      if (p.def.splash) {
+         const totalDist = Math.sqrt((p.tx-p.startX)**2 + (p.ty-p.startY)**2);
+         const currentDist = Math.sqrt((p.x-p.startX)**2 + (p.y-p.startY)**2);
+         const progress = Math.min(1, currentDist / totalDist);
+         p.z = Math.sin(progress * Math.PI) * totalDist * 0.3;
+      }
+    }
+  });
+  projectiles=projectiles.filter(p=>!p.done);
+  enemies=enemies.filter(en=>!en.dead&&!en.escaped||(en.dead&&en.deathTimer>0));
+  enemies.forEach(en=>{if(en.dead)en.deathTimer-=dt;});
+
+  // Combo decay
+  if (comboTimer > 0) {
+    comboTimer -= dt;
+    if (comboTimer <= 0) {
+      comboTimer = 0; comboCount = 0;
+    }
+  }
+
+  // Airstrike sweep line update
+  if (airstrikeActive) {
+    airstrikeX += 600 * dt;
+    enemies.forEach(e => {
+      if (!e.dead && !e.escaped && Math.abs(e.x - airstrikeX) < 42) {
+        const dmg = 350; // Heavy sweep damage
+        e.hp -= dmg;
+        floatingTexts.push(new FloatingText(e.x, e.y, `-350⚡`, '#FF9900', 13));
+        if (e.hp <= 0) {
+          e.dead = true; e.deathTimer = 0.3;
+          onEnemyKilled(e);
+        }
+      }
+    });
+    if (airstrikeX > W + 120) {
+      airstrikeActive = false;
+    }
+  }
+
+  // Mine explosions decay
+  mineExplosions.forEach(exp => {
+    exp.radius += 240 * dt;
+    exp.alpha -= 2.2 * dt;
+  });
+  mineExplosions = mineExplosions.filter(exp => exp.alpha > 0);
+
+  // Bomb Shockwave decay
+  if (bombShockwaveActive) {
+    bombShockwaveRadius += 1000 * dt;
+    if (bombShockwaveRadius > W * 1.6) bombShockwaveActive = false;
+  }
+
+  // Visual timers for fire/sfx decay on towers
+  placedTowers.forEach(t => {
+    if (t.isFiringFlame > 0) t.isFiringFlame -= dt;
+    if (t.teslaChainTime > 0) t.teslaChainTime -= dt;
+  });
+
+  // Screen shake decay
+  if (screenShake > 0) {
+    screenShake -= dt * 32;
+    if (screenShake < 0) screenShake = 0;
+  }
+
+  // Floating text update
+  floatingTexts.forEach(ft => ft.update(dt));
+  floatingTexts = floatingTexts.filter(ft => ft.alpha > 0);
+
+  // Wave complete?
+  if(waveRunning&&spawnQueue.length===0&&enemies.every(en=>en.dead||en.escaped)){
+    waveRunning=false;
+    document.getElementById('btnPlay').style.opacity='1';
+    const reward=80+wave*15;
+    gold+=reward;
+    score+=reward;
+    updateUI();
+    showBanner(`✅ Đợt ${wave} hoàn thành! +${reward} vàng`,1800);
+    if(wave>=MAX_WAVES)setTimeout(()=>endGame(true),2000);
+  }
+}
+
+function hitEnemy(en,dmg,def){
+  if (en.dead || en.escaped) return;
+  en.hp-=dmg;
+  if(def&&def.slow&&!en.def.slowImmune){en.slowTimer=2;en.slowStr=def.slow;}
+  if(en.hp<=0){
+    en.dead=true; en.deathTimer=0.3;
+    gold+=en.def.reward; score+=en.def.reward*2;
+    onEnemyKilled(en);
+    updateUI();
+  }
+}
+
+function onEnemyKilled(enemy) {
+  comboCount++;
+  comboTimer = 1.2;
+  if (comboCount > highestCombo) highestCombo = comboCount;
+
+  // Gold float text
+  floatingTexts.push(new FloatingText(enemy.x, enemy.y, `+${enemy.def.reward}💰`, '#F5C842', 12));
+
+  // Combo bonuses
+  if (comboCount >= 8) {
+    const bonus = 15 * comboCount;
+    gold += bonus;
+    floatingTexts.push(new FloatingText(enemy.x, enemy.y - 20, `⚡ MEGA x${comboCount}! +${bonus}💰`, '#FF4DFF', 18));
+    gainAirstrike(25);
+  } else if (comboCount >= 3) {
+    const bonus = 5 * comboCount;
+    gold += bonus;
+    floatingTexts.push(new FloatingText(enemy.x, enemy.y - 16, `🔥 COMBO x${comboCount}! +${bonus}💰`, '#FF9900', 14));
+    gainAirstrike(12);
+  } else {
+    gainAirstrike(4);
   }
   updateUI();
 }
 
 function gainAirstrike(pts) {
-  _airstrikePoints = Math.min(AIRSTRIKE_MAX, _airstrikePoints + pts);
+  airstrikeMeter = Math.min(AIRSTRIKE_MAX, airstrikeMeter + pts);
   updateAirstrikeUI();
 }
 
 function updateAirstrikeUI() {
-  const bar = document.getElementById('airMeterFill');
+  const fill = document.getElementById('airMeterFill');
   const btn = document.getElementById('airBtn');
-  if (!bar || !btn) return;
-  const pct = (_airstrikePoints / AIRSTRIKE_MAX) * 100;
-  bar.style.height = pct + '%';
-  const ready = _airstrikePoints >= AIRSTRIKE_MAX;
-  btn.style.opacity = ready ? '1' : '0.45';
-  btn.style.boxShadow = ready ? '0 0 18px #FF9900, 0 0 6px #FF9900' : 'none';
-  btn.style.borderColor = ready ? '#FF9900' : 'rgba(200,150,12,0.4)';
+  if (!fill || !btn) return;
+  fill.style.height = `${airstrikeMeter}%`;
+  
+  if (airstrikeMeter >= AIRSTRIKE_MAX) {
+    btn.style.opacity = '1';
+    btn.style.boxShadow = '0 0 12px #FF9900, 0 0 4px #FF9900';
+    btn.style.borderColor = '#FF9900';
+    btn.style.animation = 'pulse 1s infinite alternate';
+  } else {
+    btn.style.opacity = '0.45';
+    btn.style.boxShadow = 'none';
+    btn.style.borderColor = 'rgba(200,150,12,0.4)';
+    btn.style.animation = 'none';
+  }
 }
 
 window.activateAirstrike = function() {
-  if (_airstrikePoints < AIRSTRIKE_MAX) {
-    spawnFloatText('⚡ Chưa đủ điểm!', window.innerWidth/2 - 60, window.innerHeight/2, '#FF9900');
-    return;
-  }
-  _airstrikePoints = 0;
+  if (airstrikeMeter < AIRSTRIKE_MAX || airstrikeActive || !waveRunning || gameOver) return;
+  airstrikeMeter = 0;
   updateAirstrikeUI();
-  showBanner('⚡ ĐÒN TRỜI GIÁNG!');
+
+  airstrikeActive = true;
+  airstrikeX = -50;
+  triggerScreenShake(20);
+  showBanner('⚡ ĐÒN TRỜI GIÁNG - TIÊU DIỆT KẺ THÙ!');
+
   const flash = document.createElement('div');
-  flash.style.cssText = 'position:fixed;inset:0;background:rgba(255,150,0,0.35);z-index:200;pointer-events:none;animation:flashOut 0.5s forwards;';
+  flash.style.cssText = 'position:fixed;inset:0;background:rgba(255,160,0,0.24);z-index:200;pointer-events:none;animation:flashOut 0.4s forwards;';
   document.body.appendChild(flash);
-  const styleEl = document.createElement('style');
-  styleEl.textContent = '@keyframes flashOut{0%{opacity:1}100%{opacity:0}}';
-  document.head.appendChild(styleEl);
-  setTimeout(() => { flash.remove(); styleEl.remove(); }, 600);
-  for (const e of enemies) {
-    if (!e.isDead) {
-      const dmg = Math.floor(e.maxHp * AIRSTRIKE_DMG_PCT);
-      e.takeDamage(dmg);
-    }
+  setTimeout(() => flash.remove(), 450);
+};
+
+window.useItem = function(type) {
+  const itm = itemStates.find(x => x.type === type);
+  if (!itm || itm.count <= 0 || !waveRunning || gameOver) return;
+  itm.count--;
+
+  const btn = document.getElementById('ibtn_' + type);
+  if (btn) {
+    const badge = btn.querySelector('.item-count');
+    if (badge) badge.textContent = itm.count;
+    if (itm.count <= 0) btn.classList.add('disabled');
   }
-};
 
-window.setTargetMode = function(mode) {
-  if (!selectedPlacedTower) return;
-  selectedPlacedTower.targetMode = mode;
-  document.querySelectorAll('.ti-mode').forEach(b =>
-    b.classList.toggle('active', b.dataset.mode === mode)
-  );
-};
-
-// ═══════════════════════════════════════════════════════
-//  THREE.JS SETUP
-// ═══════════════════════════════════════════════════════
-const sceneDiv = document.getElementById('scene');
-const scene = new THREE.Scene();
-
-// ── Sky gradient background ──
-const skyCanvas = document.createElement('canvas');
-skyCanvas.width = 2; skyCanvas.height = 256;
-const skyCtx = skyCanvas.getContext('2d');
-// Dark bamboo green — matches map outer border
-scene.background = new THREE.Color(0x2d5a1b);
-
-// scene.fog removed — was causing orange/brown tint
-
-// ── ORTHOGRAPHIC CAMERA: square cells, map fills viewport ──
-// Camera frustum maps 1 world unit = same pixels in X and Z → cells are SQUARE always.
-// Map texture extends beyond the playable grid so no empty bands on sides.
-// Bottom of viewport reserves 1 row for decorations (trees, rocks, banners).
-const DECOR_ROW_HEIGHT = 1.5;  // 1.5 cells of bottom area reserved for decoration scenery
-function computeCameraFrustum() {
-  const viewW = window.innerWidth;
-  const viewH = window.innerHeight;
-  const aspect = viewW / viewH;
-  // Height = grid rows + decoration row
-  const camHalfH = (ROWS + DECOR_ROW_HEIGHT) / 2;
-  const camHalfW = camHalfH * aspect;
-  return { camHalfW, camHalfH };
-}
-
-const f0 = computeCameraFrustum();
-const camera = new THREE.OrthographicCamera(
-  -f0.camHalfW, f0.camHalfW,
-   f0.camHalfH, -f0.camHalfH,
-   0.1, 200
-);
-// Beautiful 3D isometric tilted view
-const CAM_HEIGHT = 35;
-camera.up.set(0, 1, 0);  // Standard world up
-const CAM_TARGET_Z = (ROWS + DECOR_ROW_HEIGHT) / 2;
-// Position camera offset on Y (height) and Z (depth) to look at target from a 45-degree angle
-camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z + 25);
-camera.lookAt(COLS/2, 0, CAM_TARGET_Z);
-camera.zoom = 1;
-camera.updateProjectionMatrix();
-
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.VSMShadowMap;
-renderer.toneMapping = THREE.NoToneMapping;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.domElement.style.cssText = 'position:fixed;inset:0;width:100%!important;height:100%!important;';
-sceneDiv.appendChild(renderer.domElement);
-
-window.addEventListener('resize', () => {
-  const w = window.innerWidth, h = window.innerHeight;
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
-  composer.setSize(w, h);
-});
-
-// No post-processing — render direct to avoid any color grading
-const composer = { render: () => renderer.render(scene, camera), setSize: () => {} };
-
-// Orbit controls — locked top-down, PAN only (zoom handled manually)
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(COLS/2, 0, CAM_TARGET_Z);
-controls.enableRotate = false;
-controls.enablePan = true;
-controls.enableZoom = false;             // Disable built-in zoom → use manual wheel below
-controls.panSpeed = 1.0;
-controls.screenSpacePanning = true;
-controls.enableDamping = true;
-controls.dampingFactor = 0.15;
-controls.mouseButtons = {
-  LEFT:   THREE.MOUSE.PAN,
-  MIDDLE: null,
-  RIGHT:  null
-};
-controls.touches = {
-  ONE: THREE.TOUCH.PAN,
-  TWO: THREE.TOUCH.DOLLY_PAN
-};
-controls.update();
-
-// ── Manual zoom via mouse wheel / pinch ──
-let zoomTarget = 1.0;  // current zoom target (smooth interpolated)
-renderer.domElement.addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const delta = e.deltaY > 0 ? -0.15 : 0.15;
-  zoomTarget = Math.max(1.0, Math.min(3.0, zoomTarget + delta));
-}, { passive: false });
-
-// Pinch-to-zoom via touch
-let lastPinchDist = 0;
-renderer.domElement.addEventListener('touchstart', (e) => {
-  if (e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    lastPinchDist = Math.sqrt(dx*dx + dy*dy);
-  }
-}, { passive: true });
-renderer.domElement.addEventListener('touchmove', (e) => {
-  if (e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    const delta = (dist - lastPinchDist) * 0.005;
-    zoomTarget = Math.max(1.0, Math.min(3.0, zoomTarget + delta));
-    lastPinchDist = dist;
-  }
-}, { passive: true });
-
-// ── PAN CONSTRAINTS + snap-to-center on full zoom-out ──
-const PAN_PADDING = 0.0;
-function clampTarget() {
-  // At full zoom out, force perfect center — no empty space anywhere
-  if (camera.zoom <= 1.001) {
-    controls.target.x = COLS / 2;
-    controls.target.z = CAM_TARGET_Z;
-    return;
-  }
-  const camHalfW = (camera.right - camera.left) / 2 / camera.zoom;
-  const camHalfH = (camera.top - camera.bottom) / 2 / camera.zoom;
-  const minX = camHalfW - PAN_PADDING;
-  const maxX = COLS - camHalfW + PAN_PADDING;
-  const minZ = camHalfH - PAN_PADDING;
-  const maxZ = (ROWS + DECOR_ROW_HEIGHT) - camHalfH + PAN_PADDING;
-  if (maxX > minX) controls.target.x = Math.max(minX, Math.min(maxX, controls.target.x));
-  else controls.target.x = COLS / 2;
-  if (maxZ > minZ) controls.target.z = Math.max(minZ, Math.min(maxZ, controls.target.z));
-  else controls.target.z = CAM_TARGET_Z;
-}
-controls.addEventListener('change', clampTarget);
-
-// Reset camera button (hotkey R)
-window.resetCamera = function() {
-  controls.reset();
-};
-window.addEventListener('keydown', e => { if (e.key === 'r' || e.key === 'R') controls.reset(); });
-
-// ── Lighting (BALANCED Đại Việt afternoon) ──
-// Sky-ground hemisphere fill
-const hemi = new THREE.HemisphereLight(0xffffff, 0x448833, 0.4);
-scene.add(hemi);
-
-// Soft ambient — moderate fill
-const ambient = new THREE.AmbientLight(0xffffff, 0.8);
-scene.add(ambient);
-
-// Main sun — warm afternoon
-const sun = new THREE.DirectionalLight(0xffffff, 0.6);
-sun.position.set(10, 16, 4);
-sun.castShadow = true;
-sun.shadow.mapSize.width = 2048;
-sun.shadow.mapSize.height = 2048;
-sun.shadow.camera.left = -16;
-sun.shadow.camera.right = 16;
-sun.shadow.camera.top = 16;
-sun.shadow.camera.bottom = -16;
-sun.shadow.camera.near = 1;
-sun.shadow.camera.far = 50;
-sun.shadow.bias = -0.0003;
-sun.shadow.normalBias = 0.04;
-sun.shadow.radius = 4;
-scene.add(sun);
-
-// Fill light — soft opposite of sun
-const fill = new THREE.DirectionalLight(0x8090b0, 0.5);
-fill.position.set(-10, 8, -4);
-scene.add(fill);
-
-// Rim back-light — color accent
-const rim = new THREE.DirectionalLight(0xffffff, 0.1);
-rim.position.set(-8, 6, 12);
-scene.add(rim);
-
-// Magic accent point lights at gates (gives that game-y glow)
-const spawnLight = new THREE.PointLight(0x5ABCAA, 2, 6, 1.5);
-spawnLight.position.set(START.x + 0.5, 1.2, START.y + 0.5);
-scene.add(spawnLight);
-
-const exitLight = new THREE.PointLight(0xC0332E, 2.5, 6, 1.5);
-exitLight.position.set(EXIT.x + 0.5, 1.2, EXIT.y + 0.5);
-scene.add(exitLight);
-
-// mistPlane removed — was causing orange tint overlay
-
-// ═══════════════════════════════════════════════════════
-//  ASSET LOADER
-// ═══════════════════════════════════════════════════════
-const loader = new GLTFLoader();
-const textureLoader = new THREE.TextureLoader();
-const scoutTexture = textureLoader.load('./assets/enemy_scout.png');
-scoutTexture.colorSpace = THREE.SRGBColorSpace;
-const models = {};
-const ASSETS_BASE = './3d_assets/models/';
-const CUSTOM_BASE = './3d_assets/custom/';
-
-const ASSETS_TO_LOAD = [
-  // Kenney placeholder assets
-  { name: 'tile',                  path: ASSETS_BASE },
-  { name: 'tile-bump',             path: ASSETS_BASE },
-  { name: 'tower-round-base',      path: ASSETS_BASE },
-  { name: 'tower-round-bottom-a',  path: ASSETS_BASE },
-  { name: 'tower-round-bottom-b',  path: ASSETS_BASE },
-  { name: 'tower-round-top-a',     path: ASSETS_BASE },
-  { name: 'tower-round-top-b',     path: ASSETS_BASE },
-  { name: 'tower-round-roof-a',    path: ASSETS_BASE },
-  { name: 'tower-round-roof-b',    path: ASSETS_BASE },
-  { name: 'tower-round-build-a',   path: ASSETS_BASE },
-  { name: 'tower-round-crystals',  path: ASSETS_BASE },
-  { name: 'enemy-ufo-a',           path: ASSETS_BASE },
-  { name: 'enemy-ufo-b',           path: ASSETS_BASE },
-  { name: 'enemy-ufo-c',           path: ASSETS_BASE },
-  { name: 'spawn-round',           path: ASSETS_BASE },
-  { name: 'spawn-square',          path: ASSETS_BASE },
-  { name: 'weapon-ammo-cannonball',path: ASSETS_BASE },
-  { name: 'weapon-ammo-bullet',    path: ASSETS_BASE },
-  { name: 'weapon-ammo-arrow',     path: ASSETS_BASE },
-  { name: 'detail-tree',           path: ASSETS_BASE },
-  { name: 'detail-tree-large',     path: ASSETS_BASE },
-  { name: 'detail-rocks',          path: ASSETS_BASE },
-  { name: 'detail-crystal',        path: ASSETS_BASE },
-  // ─── CUSTOM ĐẠI VIỆT MODELS (Tripo3D generated) ───
-  { name: 'no_lien_chau_lv1',      path: CUSTOM_BASE },
-  { name: 'chibi_soldier',         path: CUSTOM_BASE },
-];
-
-let loadedCount = 0;
-function loadAsset(entry) {
-  const name = entry.name;
-  const fullPath = entry.path + name + '.glb';
-  return new Promise((resolve) => {
-    loader.load(fullPath, (gltf) => {
-      models[name] = gltf.scene;
-      gltf.scene.traverse(obj => {
-        if (obj.isMesh) {
-          obj.castShadow = true;
-          obj.receiveShadow = true;
+  if (type === 'bomb') {
+    triggerScreenShake(15);
+    enemies.forEach(e => {
+      if (!e.dead && !e.escaped) {
+        const dmg = e.maxHp * 0.5;
+        e.hp -= dmg;
+        floatingTexts.push(new FloatingText(e.x, e.y - 12, `-${Math.round(dmg)}💥`, '#C0332E', 13));
+        if (e.hp <= 0) {
+          e.dead = true; e.deathTimer = 0.3;
+          onEnemyKilled(e);
         }
-      });
-      loadedCount++;
-      document.getElementById('loadingFill').style.width = (loadedCount / ASSETS_TO_LOAD.length * 100) + '%';
-      document.getElementById('loadingText').textContent = `Đã tải ${loadedCount}/${ASSETS_TO_LOAD.length}: ${name}`;
-      resolve();
-    }, undefined, (err) => {
-      console.warn('Failed to load:', name, err);
-      loadedCount++;
-      resolve();
+      }
     });
-  });
-}
-
-async function loadAllAssets() {
-  // MVP: dùng BoxGeometry placeholder — load ngay, không cần GLB
-  // Tạo placeholder models cho tất cả assets
-  const COLORS = {
-    tile: 0x5A4A2A, 'tile-bump': 0x6B5A3A,
-    'tower-round-base': 0xB87333, 'tower-round-bottom-a': 0xC8960C,
-    'tower-round-bottom-b': 0xC8960C, 'tower-round-top-a': 0xD4A40E,
-    'tower-round-top-b': 0xD4A40E, 'tower-round-roof-a': 0xC0332E,
-    'tower-round-roof-b': 0xC0332E, 'tower-round-build-a': 0xB87333,
-    'tower-round-crystals': 0x3AAFA9,
-    'enemy-ufo-a': 0xFF4444, 'enemy-ufo-b': 0xFF6600, 'enemy-ufo-c': 0xFF0088,
-    'spawn-round': 0x444444, 'spawn-square': 0x444444,
-    'weapon-ammo-cannonball': 0x333333, 'weapon-ammo-bullet': 0x888888,
-    'weapon-ammo-arrow': 0xC8960C,
-    'detail-tree': 0x2D5A1B, 'detail-tree-large': 0x1E3D12,
-    'detail-rocks': 0x666666, 'detail-crystal': 0x3AAFA9,
-  };
-  for (const entry of ASSETS_TO_LOAD) {
-    const name = entry.name;
-    const color = COLORS[name] || 0x888888;
-    const geo = name.startsWith('tile') ? new THREE.BoxGeometry(1, 0.15, 1)
-              : name.startsWith('tower') ? new THREE.CylinderGeometry(0.25, 0.3, 0.8, 8)
-              : name.startsWith('enemy') ? new THREE.SphereGeometry(0.3, 8, 6)
-              : name.startsWith('detail-tree') ? new THREE.ConeGeometry(0.25, 0.8, 6)
-              : name.startsWith('weapon') ? new THREE.SphereGeometry(0.1, 6, 4)
-              : new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    const mat = new THREE.MeshStandardMaterial({color, metalness:0.3, roughness:0.7});
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.castShadow = true; mesh.receiveShadow = true;
-    const group = new THREE.Group(); group.add(mesh);
-    // Hide decorative/spawn/weapon placeholders — only show tower/enemy
-    if (name.startsWith('detail') || name.startsWith('spawn') || name.startsWith('weapon')) {
-      group.visible = false;
-    }
-    models[name] = group;
-    loadedCount++;
-    document.getElementById('loadingFill').style.width = (loadedCount / ASSETS_TO_LOAD.length * 100) + '%';
-    document.getElementById('loadingText').textContent = `Khởi tạo ${loadedCount}/${ASSETS_TO_LOAD.length}`;
-  }
-  // Try loading custom Đại Việt models in background (non-blocking)
-  ASSETS_TO_LOAD.filter(e => e.path.includes('custom')).forEach(entry => {
-    loadAsset(entry); // background load, swap when ready
-  });
-  document.getElementById('loading').style.display = 'none';
-  buildMap();
-  animate();
-}
-
-// Clone a model and enhance materials (PBR boost)
-function cloneModel(name) {
-  if (!models[name]) return null;
-  const cloned = models[name].clone(true);
-  cloned.traverse(obj => {
-    if (obj.isMesh && obj.material) {
-      // Clone material so changes don't affect other instances
-      obj.material = obj.material.clone();
-      // Boost PBR quality: more metalness for towers, more roughness for terrain
-      if (obj.material.isMeshStandardMaterial || obj.material.isMeshPhysicalMaterial) {
-        if (name.startsWith('tower-')) {
-          obj.material.metalness = 0.35;
-          obj.material.roughness = 0.55;
-        } else if (name.startsWith('tile')) {
-          obj.material.metalness = 0.0;
-          obj.material.roughness = 0.95;
-        } else if (name.startsWith('enemy-')) {
-          obj.material.metalness = 0.6;
-          obj.material.roughness = 0.4;
-          // Subtle emissive glow on enemies — they're robotic
-          obj.material.emissive = obj.material.color.clone().multiplyScalar(0.15);
-        } else if (name.startsWith('weapon-')) {
-          obj.material.metalness = 0.5;
-          obj.material.roughness = 0.3;
-        } else if (name.startsWith('spawn-')) {
-          obj.material.metalness = 0.2;
-          obj.material.roughness = 0.4;
-        } else if (name.startsWith('no_') || name.startsWith('than_') || name.startsWith('hoa_') || name.startsWith('loi_') || name.startsWith('bay_') || name.startsWith('trong_') || name.startsWith('bai_')) {
-          // ── Custom Tripo3D Đại Việt models — boost brightness ──
-          obj.material.metalness = 0.2;
-          obj.material.roughness = 0.7;
-          // Lift baked-in dark textures
-          if (obj.material.color) obj.material.color.multiplyScalar(1.4);
-          obj.material.envMapIntensity = 1.3;
-        }
-        obj.material.needsUpdate = true;
+    bombShockwaveActive = true;
+    bombShockwaveRadius = 0;
+    showBanner('💣 BOM THẦN NỔ - DIỆT 50% HP ĐỊCH!');
+  } else if (type === 'freeze') {
+    enemies.forEach(e => {
+      if (!e.dead && !e.escaped && !e.def.slowImmune) {
+        e.freezeTimer = 5.0;
+        floatingTexts.push(new FloatingText(e.x, e.y - 12, '❄️ Freeze', '#3a86ff', 12));
       }
-      obj.castShadow = true;
-      obj.receiveShadow = true;
-    }
-  });
-  return cloned;
-}
-
-// ═══════════════════════════════════════════════════════
-//  MAP BUILDING
-// ═══════════════════════════════════════════════════════
-function buildMap() {
-  // ── 2D FLAT MAP TEXTURE (Fieldrunners style, EXTENDED to fill wide viewport) ──
-  // Plane is wider than the playable grid so sides aren't empty.
-  const EXTEND_X = 6.0;   // wider to cover viewport edges
-  const EXTEND_Z = 3.0;   // taller to cover viewport edges
-  const PLANE_W = COLS + EXTEND_X * 2;
-  const PLANE_H = ROWS + EXTEND_Z * 2;
-
-  const mapCanvas = document.createElement('canvas');
-  // Higher res because plane is bigger
-  const TEX_W = 2048, TEX_H = Math.round(TEX_W * PLANE_H / PLANE_W);
-  mapCanvas.width = TEX_W; mapCanvas.height = TEX_H;
-  const mctx = mapCanvas.getContext('2d');
-
-  // Cell pixel size on canvas (must be same X and Y → square cells)
-  const cellPx = TEX_W / PLANE_W;
-  const gridLeftPx = EXTEND_X * cellPx;
-  const gridTopPx  = EXTEND_Z * cellPx;
-  const gridRightPx = gridLeftPx + COLS * cellPx;
-  const gridBottomPx = gridTopPx + ROWS * cellPx;
-
-  // Green fallback while image loads
-  mctx.fillStyle = '#5A9A32';
-  mctx.fillRect(0, 0, TEX_W, TEX_H);
-
-  // Path row tint OUTSIDE grid (left entry lane) — earthy dirt, không cam
-  mctx.fillStyle = 'rgba(120,100,60,0.3)';
-  mctx.fillRect(0, gridTopPx + START.y*cellPx, gridLeftPx, cellPx);
-
-  // Path row tint OUTSIDE grid (right exit lane → castle gate)
-  mctx.fillStyle = 'rgba(120,100,60,0.3)';
-  mctx.fillRect(gridRightPx, gridTopPx + START.y*cellPx, TEX_W - gridRightPx, cellPx);
-
-  // Grid lines
-  mctx.strokeStyle = 'rgba(40,80,20,0.4)';
-  mctx.lineWidth = 1.5;
-  for (let c = 0; c <= COLS; c++) {
-    mctx.beginPath();
-    mctx.moveTo(gridLeftPx + c*cellPx, gridTopPx);
-    mctx.lineTo(gridLeftPx + c*cellPx, gridBottomPx);
-    mctx.stroke();
-  }
-  for (let r = 0; r <= ROWS; r++) {
-    mctx.beginPath();
-    mctx.moveTo(gridLeftPx, gridTopPx + r*cellPx);
-    mctx.lineTo(gridRightPx, gridTopPx + r*cellPx);
-    mctx.stroke();
-  }
-  // Path row tint — dirt road, tông đất tự nhiên, không cam
-  mctx.fillStyle = 'rgba(140,110,65,0.35)';
-  mctx.fillRect(gridLeftPx, gridTopPx + START.y*cellPx, COLS*cellPx, cellPx);
-  // Chevron arrows
-  mctx.fillStyle = 'rgba(100,160,220,0.8)';
-  for (let c = 0; c < COLS; c++) {
-    const cx = gridLeftPx + c*cellPx + cellPx*0.7;
-    const cy = gridTopPx + START.y*cellPx + cellPx/2;
-    const s  = cellPx*0.2;
-    mctx.beginPath();
-    mctx.moveTo(cx-s, cy-s); mctx.lineTo(cx+s, cy); mctx.lineTo(cx-s, cy+s);
-    mctx.closePath(); mctx.fill();
-  }
-
-  const mapTex = new THREE.CanvasTexture(mapCanvas);
-  mapTex.colorSpace = THREE.SRGBColorSpace;
-  mapTex.anisotropy = 4;
-
-  // Load background image via THREE.TextureLoader — no color cast
-  const mapBgTex = new THREE.TextureLoader().load(
-    'assets/map_bg_coloa_1.jpg',
-    (tex) => {
-      tex.colorSpace = THREE.SRGBColorSpace;
-      mapPlane.material.map = tex;
-      mapPlane.material.needsUpdate = true;
-    }
-  );
-
-  const mapMat = new THREE.MeshBasicMaterial({ map: mapTex });
-
-  // Plane covers extended area (grid in center, sand on sides)
-  const mapPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(PLANE_W, PLANE_H),
-    mapMat
-  );
-  mapPlane.rotation.x = -Math.PI / 2;
-  // Center the extended plane so grid is at (COLS/2, 0, ROWS/2)
-  mapPlane.position.set(COLS/2, 0, ROWS/2);
-  mapPlane.receiveShadow = true;
-  scene.add(mapPlane);
-
-  // Also: extend plane MUCH wider as backdrop for ultra-wide screens
-  const backdropW = 60, backdropH = 30;
-  const backdrop = new THREE.Mesh(
-    new THREE.PlaneGeometry(backdropW, backdropH),
-    new THREE.MeshStandardMaterial({ color: 0x4a7a28, roughness: 1.0 })
-  );
-  backdrop.rotation.x = -Math.PI / 2;
-  backdrop.position.set(COLS/2, -0.02, ROWS/2);
-  backdrop.receiveShadow = true;
-  scene.add(backdrop);
-
-  // Decorations removed — background image handles visual borders
-
-  // Path glow line on the ground
-  const pathPoints = [];
-  // Include outside-grid entry (left) and exit (right → castle gate)
-  for (let c = -6; c < COLS + 7; c++) pathPoints.push(new THREE.Vector3(c + 0.5, 0.05, START.y + 0.5));
-  const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
-  const pathMat = new THREE.LineBasicMaterial({ color: 0xC8960C, transparent:true, opacity:0.5 });
-  const pathLine = new THREE.Line(pathGeo, pathMat);
-  scene.add(pathLine);
-
-  // Grid lines + path arrows are now baked into the 2D map texture above.
-  // (No separate 3D overlays needed — simpler + cleaner FR2 look.)
-
-  // ── Hover cursor: glowing square that snaps to cells ──
-  hoverCursor = new THREE.Group();
-  // Filled cell highlight (semi-transparent)
-  const fillMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.92, 0.92),
-    new THREE.MeshBasicMaterial({ color: 0x5ABCAA, transparent:true, opacity:0.35, depthWrite:false })
-  );
-  fillMesh.rotation.x = -Math.PI/2;
-  fillMesh.position.y = 0.06;
-  hoverCursor.add(fillMesh);
-  hoverCursor.fillMesh = fillMesh;
-  // Bright border ring (thicker, more visible)
-  const borderMesh = new THREE.Mesh(
-    new THREE.RingGeometry(0.42, 0.5, 4, 1, 0, Math.PI*2),
-    new THREE.MeshBasicMaterial({ color: 0x5ABCAA, transparent:true, opacity:0.9, depthWrite:false })
-  );
-  // Use square ring with corners
-  const borderGeo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-0.46, 0.07, -0.46),
-    new THREE.Vector3( 0.46, 0.07, -0.46),
-    new THREE.Vector3( 0.46, 0.07,  0.46),
-    new THREE.Vector3(-0.46, 0.07,  0.46),
-    new THREE.Vector3(-0.46, 0.07, -0.46),
-  ]);
-  const borderLine = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({ color: 0x5ABCAA, linewidth:3, transparent:true, opacity:1 }));
-  hoverCursor.add(borderLine);
-  hoverCursor.borderLine = borderLine;
-  // Vertical light pillar from cell
-  const pillarMat = new THREE.MeshBasicMaterial({ color: 0x5ABCAA, transparent:true, opacity:0.3, depthWrite:false });
-  const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.5, 8, 1, true), pillarMat);
-  pillar.position.y = 1.25;
-  hoverCursor.add(pillar);
-  hoverCursor.pillar = pillar;
-
-  hoverCursor.visible = false;
-  scene.add(hoverCursor);
-}
-
-let gridOverlay = null;
-
-let hoverCursor = null;
-
-// ═══════════════════════════════════════════════════════
-//  TOWER CLASS
-// ═══════════════════════════════════════════════════════
-class Tower {
-  constructor(type, gridX, gridY) {
-    this.type = type;
-    this.spec = TOWERS[type];
-    this.level = 1;
-    this.gridX = gridX;
-    this.gridY = gridY;
-    this.x = gridX + 0.5;
-    this.z = gridY + 0.5;
-    this.range = this.spec.range;
-    this.damage = this.spec.damage;
-    this.fireRate = this.spec.fireRate;
-    this.lastShot = 0;
-    this.targetMode = 'first'; // first | last | strong | weak
-
-    // Build 3D model — use custom Tripo3D model if available, else Kenney modular
-    this.group = new THREE.Group();
-    this.group.position.set(this.x, 0, this.z);
-
-    // Map tower types to custom model names
-    const customMap = {
-      arrow: 'no_lien_chau_lv1',
-      // cannon: 'than_co_phao_lv1',  // when generated
-      // tesla:  'loi_thap_lv1',       // when generated
-    };
-
-    if (customMap[type] && models[customMap[type]]) {
-      // ── CUSTOM ĐẠI VIỆT MODEL (Tripo3D) ──
-      const custom = cloneModel(customMap[type]);
-      // FR2-style compact tower: lv1 ~0.8 unit tall, scaling up per level
-      const box = new THREE.Box3().setFromObject(custom);
-      const size = box.getSize(new THREE.Vector3());
-      const baseHeight = 0.9;
-      const targetHeight = baseHeight + (this.level - 1) * 0.3; // lv1=0.9, lv2=1.2, lv3=1.5
-      const scale = targetHeight / Math.max(size.y, 0.01);
-      custom.scale.setScalar(scale);
-      // Re-measure and center horizontally, sit on ground
-      const box2 = new THREE.Box3().setFromObject(custom);
-      const center2 = box2.getCenter(new THREE.Vector3());
-      custom.position.x -= center2.x;
-      custom.position.z -= center2.z;
-      custom.position.y -= box2.min.y; // sit on ground
-      this.group.add(custom);
-      this.top = custom; // rotate entire model toward target
-      this.isCustomModel = true;
-    } else {
-      // ── KENNEY MODULAR FALLBACK ──
-      const base = cloneModel('tower-round-base');
-      if (base) this.group.add(base);
-
-      const variant = type === 'arrow' ? 'a' : type === 'cannon' ? 'a' : 'b';
-      const bottom = cloneModel('tower-round-bottom-' + variant);
-      if (bottom) { bottom.position.y = 0.5; this.group.add(bottom); }
-
-      this.top = cloneModel('tower-round-top-' + variant);
-      if (this.top) { this.top.position.y = 1.2; this.group.add(this.top); }
-
-      const roof = cloneModel('tower-round-roof-' + variant);
-      if (roof) { roof.position.y = 1.8; this.group.add(roof); }
-
-      // Tint based on tower type (Kenney only)
-      this.group.traverse(o => {
-        if (o.isMesh && o.material) {
-          o.material = o.material.clone();
-          if (this.type === 'cannon') o.material.color.multiplyScalar(1.0).add(new THREE.Color(0x442200));
-          if (this.type === 'tesla')  o.material.color.lerp(new THREE.Color(0x3a86ff), 0.3);
-        }
-      });
-      this.isCustomModel = false;
-    }
-
-    scene.add(this.group);
-    towers.push(this);
-    grid[gridX][gridY] = 1;
-  }
-
-  findTarget() {
-    const valid = enemies.filter(e => {
-      if (e.isDead) return false;
-      const dx = e.position.x - this.x, dz = e.position.z - this.z;
-      return Math.sqrt(dx*dx + dz*dz) <= this.range;
     });
-    if (!valid.length) return null;
-    let best;
-    switch (this.targetMode) {
-      case 'first':  best = valid.reduce((a,b) => b.position.x > a.position.x ? b : a); break;
-      case 'last':   best = valid.reduce((a,b) => b.position.x < a.position.x ? b : a); break;
-      case 'strong': best = valid.reduce((a,b) => b.hp > a.hp ? b : a); break;
-      case 'weak':   best = valid.reduce((a,b) => b.hp < a.hp ? b : a); break;
-      default:       best = valid[0];
-    }
-    return best;
+    showBanner('❄️ ĐÔNG BĂNG TOÀN BỘ 5 GIÂY!');
+  } else if (type === 'gold') {
+    gold += 150;
+    floatingTexts.push(new FloatingText(W/2, H/2 - 50, '+150💰', '#F5C842', 24));
+    showBanner('💰 +150 VÀNG ĐÔNG SƠN!');
+    updateUI();
+  }
+};
+
+function getEnemyGridCell(en) {
+  const gx = Math.max(0, Math.min(COLS-1, Math.floor((en.x - offX) / cellW)));
+  const gy = Math.max(0, Math.min(ROWS-1, Math.floor((en.y - offY) / cellH)));
+  return { x: gx, y: gy };
+}
+
+function triggerScreenShake(intensity) {
+  screenShake = intensity;
+}
+
+// ════════════════════════════════════════════════════
+// DRAW GAME LAYOUT & EFFECTS
+// ════════════════════════════════════════════════════
+function draw(ts){
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  if (screenShake > 0) {
+    const dx = (Math.random() - 0.5) * screenShake;
+    const dy = (Math.random() - 0.5) * screenShake;
+    ctx.translate(dx, dy);
   }
 
-  update(time, dt) {
-    const target = this.findTarget();
-    if (target && this.top) {
-      // Rotate top toward target
-      const dx = target.position.x - this.x;
-      const dz = target.position.z - this.z;
-      const angle = Math.atan2(dx, dz);
-      const cur = this.top.rotation.y;
-      let diff = angle - cur;
-      while (diff < -Math.PI) diff += Math.PI*2;
-      while (diff >  Math.PI) diff -= Math.PI*2;
-      this.top.rotation.y += diff * 0.2;
+  // Grid (cached offscreen canvas — redraws only on resize)
+  if (!draw._gridCache || draw._gridW !== W || draw._gridH !== H) {
+    const oc = document.createElement('canvas'); oc.width=W; oc.height=H;
+    const ox = oc.getContext('2d');
+    ox.strokeStyle='rgba(30,60,20,0.3)'; ox.lineWidth=1;
+    for(let cc=0;cc<=COLS;cc++){ox.beginPath();ox.moveTo(offX+cc*cellW,offY);ox.lineTo(offX+cc*cellW,offY+ROWS*cellH);ox.stroke();}
+    for(let rr=0;rr<=ROWS;rr++){ox.beginPath();ox.moveTo(offX,offY+rr*cellH);ox.lineTo(offX+COLS*cellW,offY+rr*cellH);ox.stroke();}
+    draw._gridCache=oc; draw._gridW=W; draw._gridH=H;
+  }
+  ctx.drawImage(draw._gridCache,0,0);
 
-      // Fire
-      if (time - this.lastShot >= this.fireRate) {
-        this.shoot(target);
-        this.lastShot = time;
+  // Path row tint
+  ctx.fillStyle='rgba(140,110,65,0.25)';
+  ctx.fillRect(offX,offY+START.y*cellH,COLS*cellW,cellH);
+
+  // Tower placement hover range
+  if(selectedTower){
+    const def=TOWER_DEFS.find(t=>t.id===selectedTower);
+    if(def){
+      const mx=canvas._mx,my=canvas._my;
+      if(mx!==undefined){
+        const gx=Math.floor((mx-offX)/cellW),gy=Math.floor((my-offY)/cellH);
+        if(gx>=0&&gx<COLS&&gy>=0&&gy<ROWS&&!grid[gx][gy]){
+          ctx.fillStyle='rgba(200,150,12,0.25)';
+          ctx.fillRect(offX+gx*cellW+1,offY+gy*cellH+1,cellW-2,cellH-2);
+          ctx.strokeStyle='rgba(200,150,12,0.8)';ctx.lineWidth=2;
+          ctx.beginPath();ctx.arc(offX+gx*cellW+cellW/2,offY+gy*cellH+cellH/2,def.range*cellW,0,Math.PI*2);ctx.stroke();
+        }
       }
     }
   }
 
-  shoot(target) {
-    new Projectile(this.x, 1.5, this.z, target, this.type, this.damage);
-  }
+  // Drawing Towers
+  placedTowers.forEach(t=>{
+    // Buffed base highlight
+    if (t.baseDmgBonus > 0) {
+      ctx.fillStyle = 'rgba(200, 150, 12, 0.18)';
+      ctx.beginPath(); ctx.arc(t.x, t.y, cellW*0.48, 0, Math.PI*2); ctx.fill();
+    }
+    
+    // Tower base
+    ctx.fillStyle='rgba(10,6,14,0.7)';
+    ctx.beginPath();ctx.arc(t.x,t.y,cellW*0.42,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=t.def.color;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(t.x,t.y,cellW*0.42,0,Math.PI*2);ctx.stroke();
+    
+    // Tower emoji
+    ctx.font=`${cellH*0.55}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(t.def.emoji,t.x,t.y);
+    
+    // Star dots for Level
+    for(let i=0;i<t.level;i++){
+      ctx.fillStyle=t.def.color;
+      ctx.beginPath();ctx.arc(t.x-6+(i*6),t.y+cellH*0.38,3,0,Math.PI*2);ctx.fill();
+    }
+    
+    // Range circle for selected
+    if(selectedTowerObj===t){
+      ctx.strokeStyle='rgba(200,150,12,0.4)';ctx.lineWidth=1;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.arc(t.x,t.y,t.def.range*cellW,0,Math.PI*2);ctx.stroke();
+      ctx.setLineDash([]);
+    }
 
-  upgrade() {
-    if (this.level >= 3) return false;
-    const cost = 40 * this.level;
-    if (gold < cost) return false;
-    gold -= cost;
-    this.level++;
-    this.damage = Math.round(this.spec.damage * (1 + (this.level-1) * 0.6));
-    this.range = this.spec.range + (this.level-1) * 0.5;
-    this.fireRate = this.spec.fireRate * (1 - (this.level-1) * 0.15);
-    // Visual: scale up
-    this.group.scale.setScalar(1 + (this.level-1) * 0.1);
-    updateUI();
-    return true;
-  }
+    // Special visuals
+    if (t.id === 'flame' && t.isFiringFlame > 0) {
+      ctx.fillStyle = 'rgba(255, 102, 0, 0.22)';
+      ctx.strokeStyle = 'rgba(255, 153, 0, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, t.def.range * cellW, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
 
-  sell() {
-    const refund = Math.floor(this.spec.cost * 0.6);
-    gold += refund;
-    grid[this.gridX][this.gridY] = 0;
-    scene.remove(this.group);
-    towers = towers.filter(t => t !== this);
-    selectedPlacedTower = null;
-    document.getElementById('towerInfo').classList.remove('visible');
-    updateUI();
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  ENEMY CLASS
-// ═══════════════════════════════════════════════════════
-class Enemy {
-  constructor(type) {
-    this.type = type;
-    this.spec = ENEMIES[type];
-    this.maxHp = this.spec.hp + currentWave * 8;
-    this.hp = this.maxHp;
-    this.speed = this.spec.speed;
-    this.isDead = false;
-
-    // Spawn outside left edge, target outside right edge (castle gate)
-    this.position = new THREE.Vector3(-6.5, 0.3, START.y + 0.5);
-    this.target   = new THREE.Vector3(EXIT.x + 7.0, 0.3, EXIT.y + 0.5);
-
-    // Slow effect state
-    this.slowTimer = 0;
-    this.slowStrength = 0;
-
-    // Model / Sprite Sheet Integration
-    if (this.type === 'scout') {
-      const tex = scoutTexture.clone();
-      tex.repeat.set(0.25, 1);
-      tex.offset.set(0, 0);
-      tex.needsUpdate = true;
-      const mat = new THREE.MeshStandardMaterial({
-        map: tex,
-        transparent: true,
-        alphaTest: 0.5,
-        roughness: 0.6,
-        metalness: 0.1,
-        side: THREE.DoubleSide
+    if (t.id === 'tesla' && t.teslaChainTime > 0 && t.teslaChainTargets) {
+      ctx.strokeStyle = '#3a86ff';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#3a86ff';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(t.x, t.y);
+      t.teslaChainTargets.forEach(tg => {
+        const steps = 4;
+        let lastX = t.x, lastY = t.y;
+        for (let i = 1; i <= steps; i++) {
+          const ratio = i / steps;
+          const tx = t.x + (tg.x - t.x) * ratio + (Math.random() - 0.5) * 12;
+          const ty = t.y + (tg.y - t.y) * ratio + (Math.random() - 0.5) * 12;
+          ctx.lineTo(tx, ty);
+        }
       });
-      this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), mat);
-      this.mesh.castShadow = true;
-      this.mesh.receiveShadow = true;
-      this.mesh.position.copy(this.position);
-      this.mesh.position.y = 0.6; // elevated slightly so feet touch grid
-      scene.add(this.mesh);
-    } else {
-      this.mesh = cloneModel(this.spec.model);
-      if (this.mesh) {
-        this.mesh.position.copy(this.position);
-        this.mesh.scale.setScalar(this.spec.scale);
-        this.mesh.traverse(o => {
-          if (o.isMesh && o.material) {
-            o.material = o.material.clone();
-            o.material.color = new THREE.Color(this.spec.color || 0xCCCCCC);
-            // Stealth: semi-transparent
-            if (this.spec.stealth) {
-              o.material.transparent = true;
-              o.material.opacity = 0.3;
-            }
-            // Boss: emissive glow
-            if (this.type === 'boss') {
-              o.material.emissive = new THREE.Color(0xFFD700);
-              o.material.emissiveIntensity = 0.4;
-            }
-            // Air: slight blue tint for sky units
-            if (this.spec.isAir) {
-              o.material.color.lerp(new THREE.Color(0x8888FF), 0.3);
-            }
-          }
-        });
-        scene.add(this.mesh);
-      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
     }
-
-    // HP bar (always faces camera)
-    this.hpBarBg = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.7, 0.08),
-      new THREE.MeshBasicMaterial({ color: 0x222222, transparent:true, opacity:0.85 })
-    );
-    this.hpBarFg = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.7, 0.08),
-      new THREE.MeshBasicMaterial({ color: 0x5ABCAA })
-    );
-    this.hpBarBg.position.copy(this.position);
-    this.hpBarBg.position.y += 0.9;
-    this.hpBarFg.position.copy(this.hpBarBg.position);
-    this.hpBarFg.position.y += 0.001;
-    scene.add(this.hpBarBg);
-    scene.add(this.hpBarFg);
-
-    enemies.push(this);
-  }
-
-  takeDamage(dmg) {
-    if (this.isDead) return;
-    this.hp -= dmg;
-    if (this.hp <= 0) {
-      this.die();
-    } else {
-      // Damage flash
-      if (this.mesh) {
-        this.mesh.traverse(o => {
-          if (o.isMesh && o.material) {
-            const orig = o.material.color.clone();
-            o.material.color.set(0xff4444);
-            setTimeout(() => o.material.color.copy(orig), 80);
-          }
-        });
-      }
-    }
-  }
-
-  die() {
-    this.isDead = true;
-    gold += this.spec.reward;
-    kills++;
-    const px = this.position.x, py = this.position.y, pz = this.position.z;
-    spawnExplosion(px, py, pz, this.spec.color || 0xC0332E, 14);
-    if (this.mesh) scene.remove(this.mesh);
-    scene.remove(this.hpBarBg);
-    scene.remove(this.hpBarFg);
-
-    // Transport: drop scouts on death
-    if (this.spec.spawnOnDeath && this.spec.spawnCount) {
-      for (let i = 0; i < this.spec.spawnCount; i++) {
-        setTimeout(() => {
-          if (hp > 0) {
-            const e = new Enemy(this.spec.spawnOnDeath);
-            e.position.set(px + (Math.random()-0.5)*0.6, py, pz);
-          }
-        }, i * 200);
-        totalExpected++; // count spawned children toward wave
-      }
-    }
-
-    // Explosive: AoE damage on death
-    if (this.spec.explodeOnDeath) {
-      spawnExplosion(px, py, pz, 0xFF4400, 30);
-      for (const e of enemies) {
-        if (e.isDead) continue;
-        const d = e.position.distanceTo(this.position);
-        if (d <= (this.spec.explodeRange||1.5)) {
-          e.takeDamage(this.maxHp * (this.spec.explodePct||0.4));
-        }
-      }
-    }
-
-    onEnemyKilled(this);  // combo + airstrike + gold float + updateUI
-  }
-
-  update(dt) {
-    if (this.isDead) return;
-    const dir = new THREE.Vector3().subVectors(this.target, this.position);
-    const dist = dir.length();
-    if (dist < 0.3) { this.escape(); return; }
-
-    // Effective speed (slow effect from goo tower)
-    const effSpeed = this.slowTimer > 0 ? this.speed * (1 - this.slowStrength) : this.speed;
-    if (this.slowTimer > 0) this.slowTimer -= dt;
-    dir.normalize().multiplyScalar(effSpeed * dt);
-    this.position.add(dir);
-
-    // Air units float higher
-    const baseY = this.spec.isAir ? 1.4 : 0.3;
-    const bobAmp = this.spec.isAir ? 0.15 : 0.05;
-
-    if (this.mesh) {
-      if (this.type === 'scout') {
-        const animSpeed = effSpeed * 12;
-        const currentFrame = Math.floor(performance.now() / 1000 * animSpeed) % 4;
-        this.mesh.material.map.offset.x = currentFrame * 0.25;
-        this.mesh.position.copy(this.position);
-        this.mesh.position.y = 0.6 + Math.sin(performance.now() * 0.005 + this.position.x) * bobAmp;
-        this.mesh.quaternion.copy(camera.quaternion);
-      } else {
-        this.mesh.position.copy(this.position);
-        this.mesh.position.y = baseY + Math.sin(performance.now() * 0.005 + this.position.x) * bobAmp;
-        this.mesh.rotation.y = Math.atan2(dir.x, dir.z);
-      }
-    }
-
-    // Medic: heal nearby friendly enemies
-    if (this.spec.healRate && performance.now() - (this._lastHeal||0) > 500) {
-      this._lastHeal = performance.now();
-      for (const e of enemies) {
-        if (e === this || e.isDead) continue;
-        if (e.position.distanceTo(this.position) < (this.spec.healRange||2)) {
-          e.hp = Math.min(e.maxHp, e.hp + this.spec.healRate * 0.5);
-        }
-      }
-    }
-
-    // HP bar
-    if (this.hpBarBg) {
-      this.hpBarBg.position.set(this.position.x, this.position.y + 0.9, this.position.z);
-      this.hpBarFg.position.copy(this.hpBarBg.position);
-      this.hpBarFg.position.y += 0.001;
-      this.hpBarBg.quaternion.copy(camera.quaternion);
-      this.hpBarFg.quaternion.copy(camera.quaternion);
-      const pct = Math.max(0, this.hp / this.maxHp);
-      this.hpBarFg.scale.x = pct;
-      this.hpBarFg.position.x -= (1 - pct) * 0.35;
-      this.hpBarFg.material.color.setHSL(pct * 0.33, 0.7, 0.5);  // green→red
-    }
-  }
-
-  escape() {
-    this.isDead = true;
-    hp = Math.max(0, hp - 1);
-    if (this.mesh) scene.remove(this.mesh);
-    scene.remove(this.hpBarBg);
-    scene.remove(this.hpBarFg);
-    showBanner('💔 Địch thoát! -1 HP');
-    updateUI();
-    if (hp <= 0) gameOver(false);
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  PROJECTILE
-// ═══════════════════════════════════════════════════════
-class Projectile {
-  constructor(x, y, z, target, type, damage) {
-    this.target = target;
-    this.type = type;
-    this.damage = damage;
-    this.startTime = performance.now() / 1000;
-    this.startPos = new THREE.Vector3(x, y, z);
-    this.position = this.startPos.clone();
-    this.isDone = false;
-
-    // Mesh based on type
-    let geo, mat;
-    if (type === 'tesla') {
-      // Lightning: thin glowing line — we'll draw line dynamically
-      this.mesh = null;
-      this.isLightning = true;
-      // Apply damage instantly + chain
-      target.takeDamage(damage);
-      drawLightning(this.startPos, target.position);
-      // Chain
-      let chainHit = [target];
-      for (let i = 0; i < (TOWERS.tesla.chain - 1); i++) {
-        const prev = chainHit[chainHit.length - 1];
-        let next = null, minD = Infinity;
-        for (const e of enemies) {
-          if (e.isDead || chainHit.includes(e)) continue;
-          const d = e.position.distanceTo(prev.position);
-          if (d < 2.5 && d < minD) { minD = d; next = e; }
-        }
-        if (next) {
-          next.takeDamage(damage * 0.7);
-          drawLightning(prev.position, next.position);
-          chainHit.push(next);
-        }
-      }
-      this.isDone = true;
-      projectiles.push(this);
-      return;
-    }
-    if (type === 'cannon') {
-      this.mesh = cloneModel('weapon-ammo-cannonball');
-      if (!this.mesh) {
-        geo = new THREE.SphereGeometry(0.15, 12, 12);
-        mat = new THREE.MeshStandardMaterial({ color:0x442200, emissive:0xFF4500, emissiveIntensity:0.5 });
-        this.mesh = new THREE.Mesh(geo, mat);
-      } else {
-        this.mesh.scale.setScalar(0.5);
-      }
-      this.isBomb = true;
-      this.flightTime = 0.6;
-    } else {
-      // arrow
-      this.mesh = cloneModel('weapon-ammo-arrow');
-      if (!this.mesh) {
-        geo = new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8);
-        mat = new THREE.MeshStandardMaterial({ color: TOWERS[type].projColor });
-        this.mesh = new THREE.Mesh(geo, mat);
-      } else {
-        this.mesh.scale.setScalar(0.4);
-      }
-      this.speed = 18;
-    }
-
-    this.mesh.position.copy(this.startPos);
-    scene.add(this.mesh);
-    projectiles.push(this);
-  }
-
-  update(dt, time) {
-    if (this.isDone) return;
-    if (this.target.isDead) {
-      // Lock target — just fly straight then disappear
-      this.isDone = true;
-      if (this.mesh) scene.remove(this.mesh);
-      return;
-    }
-
-    if (this.isBomb) {
-      // Parabolic arc
-      const t = (time - this.startTime) / this.flightTime;
-      if (t >= 1) {
-        // Explode
-        this.explode();
-        return;
-      }
-      const x = this.startPos.x + (this.target.position.x - this.startPos.x) * t;
-      const z = this.startPos.z + (this.target.position.z - this.startPos.z) * t;
-      const y = this.startPos.y + (this.target.position.y - this.startPos.y) * t + Math.sin(t * Math.PI) * 3;
-      this.position.set(x, y, z);
-      this.mesh.position.copy(this.position);
-      this.mesh.rotation.x += 0.2;
-      this.mesh.rotation.y += 0.1;
-    } else {
-      // Arrow: fly toward target
-      const dir = new THREE.Vector3().subVectors(this.target.position, this.position);
-      const dist = dir.length();
-      if (dist < 0.3) {
-        this.target.takeDamage(this.damage);
-        this.isDone = true;
-        if (this.mesh) scene.remove(this.mesh);
-        return;
-      }
-      dir.normalize().multiplyScalar(this.speed * dt);
-      this.position.add(dir);
-      this.mesh.position.copy(this.position);
-      this.mesh.lookAt(this.target.position);
-      this.mesh.rotateX(Math.PI / 2);
-    }
-  }
-
-  explode() {
-    this.isDone = true;
-    if (this.mesh) scene.remove(this.mesh);
-    const splash = TOWERS.cannon.splash;
-    spawnExplosion(this.position.x, this.position.y, this.position.z, 0xFF4500, 30);
-    for (const e of enemies) {
-      if (e.isDead) continue;
-      const d = e.position.distanceTo(this.position);
-      if (d <= splash) {
-        e.takeDamage(this.damage * (1 - d/splash * 0.4));
-      }
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  EFFECTS
-// ═══════════════════════════════════════════════════════
-const explosions = [];
-function spawnExplosion(x, y, z, color, count) {
-  for (let i = 0; i < count; i++) {
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(0.06 + Math.random()*0.08, 6, 6),
-      new THREE.MeshBasicMaterial({ color, transparent:true, opacity:1 })
-    );
-    mesh.position.set(x, y, z);
-    const vel = new THREE.Vector3((Math.random()-0.5)*4, Math.random()*3, (Math.random()-0.5)*4);
-    scene.add(mesh);
-    explosions.push({ mesh, vel, life: 1.0 });
-  }
-}
-
-const lightnings = [];
-function drawLightning(from, to) {
-  const points = [];
-  const seg = 8;
-  for (let i = 0; i <= seg; i++) {
-    const t = i / seg;
-    const p = new THREE.Vector3().lerpVectors(from, to, t);
-    if (i > 0 && i < seg) {
-      p.x += (Math.random()-0.5) * 0.3;
-      p.y += (Math.random()-0.5) * 0.3 + 0.2;
-      p.z += (Math.random()-0.5) * 0.3;
-    }
-    points.push(p);
-  }
-  const geo = new THREE.BufferGeometry().setFromPoints(points);
-  const mat = new THREE.LineBasicMaterial({ color: 0x80D0FF, transparent:true, opacity:1, linewidth:3 });
-  const line = new THREE.Line(geo, mat);
-  scene.add(line);
-  lightnings.push({ line, life: 0.25 });
-}
-
-// ═══════════════════════════════════════════════════════
-//  WAVE SYSTEM
-// ═══════════════════════════════════════════════════════
-window.startNextWave = function() {
-  if (waveActive) return;
-  if (currentWave >= WAVES.length) { showBanner('🏆 CHIẾN THẮNG! Đại Việt bất bại!'); return; }
-  const w = WAVES[currentWave];
-  currentWave++;
-
-  // Count ALL enemy types in this wave
-  totalExpected = Object.values(w).reduce((sum, n) => sum + n, 0);
-  totalSpawned = 0;
-  waveActive = true;
-
-  // Wave banner with enemy preview
-  const hasBoss = (w.boss||0) > 0;
-  const hasBlimp = (w.blimp||0) > 0;
-  const hasAir = (w.air||0) > 0 || hasBlimp;
-  const warnStr = hasBoss ? '⚠️ BOSS!' : hasBlimp ? '🎈 Khí Cầu!' : hasAir ? '✈️ Không Quân!' : '';
-  showBanner(`⚔️ ĐỢT ${currentWave} / ${WAVES.length}  ${warnStr}`);
-
-  // Spawn all types with proper timing
-  let delay = 600;
-  const spawnFn = (type) => () => {
-    if (hp > 0 && waveActive) { new Enemy(type); totalSpawned++; }
-  };
-  // Spawn order: scouts → infantry → speedster → medic → normal → transport → explosive → air → blimp → heavy → boss
-  const ORDER = ['scout','speedster','explosive','normal','medic','transport','air','heavy','blimp','stealth','boss'];
-  const DELAYS = { scout:450, speedster:500, explosive:600, normal:750, medic:800,
-                   transport:1200, air:700, heavy:1400, blimp:2000, stealth:600, boss:3000 };
-  for (const type of ORDER) {
-    const count = w[type] || 0;
-    for (let i = 0; i < count; i++) {
-      setTimeout(spawnFn(type), delay);
-      delay += DELAYS[type];
-    }
-  }
-  updateUI();
-};
-
-function checkWaveProgress() {
-  if (!waveActive) return;
-  if (totalSpawned < totalExpected) return;
-  const allGone = enemies.every(e => e.isDead);
-  if (allGone) {
-    waveActive = false;
-    // FR2 wave reward: 80 + wave*15
-    const reward = WAVE_REWARD_BASE + currentWave * WAVE_REWARD_PER_WAVE;
-    gold += reward;
-    if (currentWave >= WAVES.length) {
-      setTimeout(() => gameOver(true), 1500);
-    } else {
-      showBanner(`🏆 Đợt ${currentWave} thắng! +${reward}💰 → Nhấn SPACE / ▶`);
-    }
-    updateUI();
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  CLICK / DRAG-DROP HANDLING
-// ═══════════════════════════════════════════════════════
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-let lastMouseEvent = null;
-
-renderer.domElement.addEventListener('mousemove', (e) => {
-  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  lastMouseEvent = e;
-});
-
-// ── Shared tower placement logic ──
-function placeTower(type, gx, gy) {
-  if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) { showBanner('❌ Kéo vào ô trên bản đồ!'); return; }
-  if (gy === START.y) { showBanner('❌ Không đặt được trên đường địch!'); return; }
-  if (grid[gx][gy] !== 0) { showBanner('❌ Ô đã có tháp!'); return; }
-  const spec = TOWERS[type];
-  if (gold < spec.cost) { showBanner('💰 Không đủ vàng!'); return; }
-  gold -= spec.cost;
-  new Tower(type, gx, gy);
-  updateUI();
-}
-
-// ── Canvas click: select placed tower OR place selected tower ──
-renderer.domElement.addEventListener('click', (e) => {
-  if (e.button !== 0) return;
-  if (_drag.wasDrag) { _drag.wasDrag = false; return; } // skip click after drag
-  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-
-  // Hit existing tower?
-  for (const t of towers) {
-    if (raycaster.intersectObject(t.group, true).length > 0) {
-      selectPlacedTower(t); return;
-    }
-  }
-
-  // Place tower on ground
-  if (!selectedBuildType) { showBanner('💡 Chọn hoặc kéo tháp ở dưới!'); return; }
-  const ground = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
-  const pt = new THREE.Vector3();
-  if (!raycaster.ray.intersectPlane(ground, pt)) return;
-  placeTower(selectedBuildType, Math.floor(pt.x), Math.floor(pt.z));
-});
-
-window.selectTowerBuild = function(type) {
-  selectedBuildType = (selectedBuildType === type) ? null : type;
-  document.querySelectorAll('.btn[data-tower]').forEach(b =>
-    b.classList.toggle('active', b.dataset.tower === selectedBuildType)
-  );
-};
-
-// ── DRAG & DROP ──────────────────────────────────────────
-const TOWER_ICONS = {
-  arrow:'🏹', slow:'❄️', cannon:'💣', mine:'💥',
-  flame:'🔥', power:'🥁', plague:'☠️', tesla:'⚡', railgun:'🎯'
-};
-const _drag = { type:null, active:false, ghost:null, startX:0, startY:0, wasDrag:false };
-
-window.onTowerPointerDown = function(type, e) {
-  e.preventDefault();
-  _drag.type    = type;
-  _drag.active  = false;
-  _drag.startX  = e.clientX;
-  _drag.startY  = e.clientY;
-};
-
-document.addEventListener('pointermove', (e) => {
-  if (!_drag.type) return;
-  const dx = e.clientX - _drag.startX, dy = e.clientY - _drag.startY;
-  if (!_drag.active && dx*dx + dy*dy > 64) {
-    _drag.active = true;
-    _drag.ghost = document.createElement('div');
-    _drag.ghost.className = 'drag-ghost';
-    _drag.ghost.textContent = TOWER_ICONS[_drag.type] || '🏰';
-    document.body.appendChild(_drag.ghost);
-    selectedBuildType = _drag.type;
-    document.querySelectorAll('.btn[data-tower]').forEach(b =>
-      b.classList.toggle('active', b.dataset.tower === _drag.type)
-    );
-  }
-  if (!_drag.active || !_drag.ghost) return;
-
-  // ── Vị trí thực tốt nhất: coalesced events (bắt điểm bị nuốt) ──
-  let baseX = e.clientX, baseY = e.clientY;
-  if (e.getCoalescedEvents) {
-    const coal = e.getCoalescedEvents();
-    if (coal.length) { baseX = coal[coal.length - 1].clientX; baseY = coal[coal.length - 1].clientY; }
-  }
-
-  // ── Tốc độ EWMA — làm mượt tốc độ để không vượt ngưỡng liên tục ──
-  const moveDx = baseX - (_drag.lastX ?? baseX);
-  const moveDy = baseY - (_drag.lastY ?? baseY);
-  _drag.lastX = baseX;
-  _drag.lastY = baseY;
-  // Exponential weighted moving average: alpha=0.4 → làm mượt mạnh, phản hồi nhanh
-  _drag.speed2 = (_drag.speed2 ?? 0) * 0.6 + (moveDx * moveDx + moveDy * moveDy) * 0.4;
-
-  // ── Blend liên tục predicted ↔ real theo tốc độ (không threshold cứng) ──
-  // speed²  <  4  (< 2px/frame) → 0% predicted, dùng baseX hoàn toàn
-  // speed²  > 64  (> 8px/frame) → 100% predicted
-  // Vùng giữa: blend mượt, không giật khi chuyển chế độ
-  let px = baseX, py = baseY;
-  if (_drag.speed2 > 4 && e.getPredictedEvents) {
-    const pred = e.getPredictedEvents();
-    if (pred.length) {
-      const blend = Math.min(1, (_drag.speed2 - 4) / 60); // 0→1 khi speed² 4→64
-      px = baseX + (pred[pred.length - 1].clientX - baseX) * blend;
-      py = baseY + (pred[pred.length - 1].clientY - baseY) * blend;
-    }
-  }
-
-  _drag.ghost.style.transform = `translate(calc(${px}px - 50%), calc(${py}px - 60%))`;
-
-  mouse.x = (e.clientX / window.innerWidth)  * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  lastMouseEvent = e;
-}, { passive: true }); // passive: browser không cần chờ JS trước khi composite
-
-document.addEventListener('pointerup', (e) => {
-  if (!_drag.type) return;
-  const type = _drag.type;
-  const wasDrag = _drag.active;
-  if (_drag.ghost) { _drag.ghost.remove(); _drag.ghost = null; }
-  _drag.type   = null;
-  _drag.active = false;
-
-  if (wasDrag) {
-    _drag.wasDrag = true; // suppress canvas click event that fires after pointerup
-    // Raycast drop position
-    mouse.x = (e.clientX / window.innerWidth)  * 2 - 1;
-    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    const ground = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
-    const pt = new THREE.Vector3();
-    if (raycaster.ray.intersectPlane(ground, pt)) {
-      placeTower(type, Math.floor(pt.x), Math.floor(pt.z));
-    } else {
-      showBanner('❌ Kéo ra ngoài bản đồ!');
-    }
-    // Deselect after drag-place
-    selectedBuildType = null;
-    document.querySelectorAll('.btn[data-tower]').forEach(b => b.classList.remove('active'));
-  } else {
-    // Short press = toggle selection (no drag)
-    selectTowerBuild(type);
-  }
-});
-
-function selectPlacedTower(t) {
-  selectedPlacedTower = t;
-  const info = document.getElementById('towerInfo');
-  info.classList.add('visible');
-  document.getElementById('tiName').textContent = t.spec.name + ` Lv.${t.level}`;
-  document.getElementById('tiStats').textContent = `Dmg ${Math.round(t.damage)} • Tầm ${t.range.toFixed(1)} • ${t.fireRate.toFixed(2)}s/shot`;
-  const upBtn = document.getElementById('tiUpgrade');
-  if (t.level >= 3) {
-    upBtn.textContent = '✓ Tối đa';
-    upBtn.disabled = true;
-  } else {
-    const cost = 40 * t.level;
-    upBtn.textContent = `⬆️ Nâng cấp 💰${cost}`;
-    upBtn.disabled = false;
-  }
-  // Sync targeting mode buttons
-  document.querySelectorAll('.ti-mode').forEach(b =>
-    b.classList.toggle('active', b.dataset.mode === t.targetMode)
-  );
-}
-
-window.upgradeSelected = function() {
-  if (!selectedPlacedTower) return;
-  if (selectedPlacedTower.upgrade()) {
-    selectPlacedTower(selectedPlacedTower);
-    showBanner('⬆️ Nâng cấp thành công!');
-  }
-};
-
-window.sellSelected = function() {
-  if (!selectedPlacedTower) return;
-  selectedPlacedTower.sell();
-};
-
-// ═══════════════════════════════════════════════════════
-//  UI UPDATES
-// ═══════════════════════════════════════════════════════
-function updateUI() {
-  document.getElementById('hpStat').textContent = hp;
-  document.getElementById('goldStat').textContent = gold;
-  document.getElementById('waveStat').textContent = currentWave;
-  document.getElementById('killStat').textContent = kills;
-  document.querySelectorAll('.btn[data-tower]').forEach(b => {
-    const t = b.dataset.tower;
-    b.classList.toggle('disabled', gold < TOWERS[t].cost);
   });
+
+  // HP overlay on 3D meshes
+  enemies.forEach(en=>{
+    if(en.dead&&en.deathTimer<=0)return;
+    const sz=cellH*(en.def.scale||1)*1.2;
+    const bw=cellW*0.7, bh=6, bx=en.x-bw/2, by=en.y-sz;
+    
+    ctx.fillStyle='rgba(0,0,0,0.6)';
+    ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 3); ctx.fill();
+    
+    ctx.fillStyle=en.hp/en.maxHp>0.4?'#4CAF50':'#F44336';
+    const fillW = Math.max(0, bw * (en.hp/en.maxHp));
+    if(fillW > 0){
+      ctx.beginPath(); ctx.roundRect(bx, by, fillW, bh, 3); ctx.fill();
+    }
+
+    // Freeze & Slow overlays
+    if (en.freezeTimer > 0) {
+      ctx.fillStyle = 'rgba(58, 134, 255, 0.35)';
+      ctx.strokeStyle = '#3a86ff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(en.x, en.y, cellH * 0.4, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.font = '10px Arial';
+      ctx.fillText('❄️', en.x, en.y - 4);
+    } else if (en.slowTimer > 0) {
+      ctx.fillStyle = 'rgba(90, 188, 170, 0.25)';
+      ctx.strokeStyle = '#5ABCAA';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(en.x, en.y, cellH * 0.35, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
+  });
+
+  // Projectiles
+  projectiles.forEach(p=>{
+    ctx.fillStyle=p.def.color||'#FFD700';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y - (p.z||0), p.def.splash ? 6 : 4, 0, Math.PI*2);
+    ctx.fill();
+    if(p.def.splash){
+      ctx.fillStyle='rgba(0,0,0,0.3)';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y, 4, 2, 0, 0, Math.PI*2); ctx.fill();
+    }
+  });
+
+  // Mine Explosions
+  mineExplosions.forEach(exp => {
+    ctx.strokeStyle = `rgba(192, 51, 46, ${exp.alpha})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(exp.x, exp.y, exp.radius, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.fillStyle = `rgba(245, 200, 12, ${exp.alpha * 0.25})`;
+    ctx.beginPath();
+    ctx.arc(exp.x, exp.y, exp.radius, 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  // Airstrike sweeping line
+  if (airstrikeActive) {
+    const gradient = ctx.createLinearGradient(airstrikeX - 70, 0, airstrikeX, 0);
+    gradient.addColorStop(0, 'rgba(255, 69, 0, 0)');
+    gradient.addColorStop(0.5, 'rgba(255, 69, 0, 0.45)');
+    gradient.addColorStop(1, 'rgba(255, 215, 0, 0.85)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(airstrikeX - 70, 0, 70, H);
+    
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3.5;
+    ctx.shadowColor = '#FFD700';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.moveTo(airstrikeX, 0);
+    ctx.lineTo(airstrikeX, H);
+    ctx.stroke();
+    ctx.shadowBlur = 0; // reset blur
+  }
+
+  // Bomb shockwave
+  if (bombShockwaveActive) {
+    ctx.strokeStyle = 'rgba(255, 69, 0, 0.65)';
+    ctx.lineWidth = 7;
+    ctx.shadowColor = '#FF4500';
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, bombShockwaveRadius, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // Render floating texts on top
+  floatingTexts.forEach(ft => ft.draw());
+
+  // Render Active Combo Banner (FR2 HUD Style, top center)
+  if (comboCount >= 3) {
+    ctx.font = `bold ${comboCount >= 8 ? 26 : 20}px 'Philosopher', serif`;
+    ctx.fillStyle = comboCount >= 8 ? '#FF4DFF' : '#FF9900';
+    ctx.strokeStyle = 'rgba(10,6,14,0.95)';
+    ctx.lineWidth = 4;
+    ctx.textAlign = 'center';
+    const text = comboCount >= 8 ? `⚡ MEGA COMBO x${comboCount} ⚡` : `🔥 COMBO x${comboCount} 🔥`;
+    const cy = H * 0.16;
+    ctx.strokeText(text, W / 2, cy);
+    ctx.fillText(text, W / 2, cy);
+  }
+
+  ctx.restore();
 }
 
-let bannerTimer = null;
-function showBanner(text) {
-  const b = document.getElementById('banner');
-  b.textContent = text;
-  b.classList.add('show');
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  canvas._mx=e.clientX-r.left; canvas._my=e.clientY-r.top;
+});
+
+// ════════════════════════════════════════════════════
+// UI & BACKEND API CONNECT
+// ════════════════════════════════════════════════════
+function updateUI(){
+  const _s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  _s('gold',gold); _s('hp',hp); _s('wave',wave); _s('score',score);
+  updateTowerButtons();
+}
+
+let bannerTimer=null;
+function showBanner(text,ms=2000){
+  const el=document.getElementById('waveBanner');
+  el.textContent=text; el.classList.add('show');
   clearTimeout(bannerTimer);
-  bannerTimer = setTimeout(() => b.classList.remove('show'), 2200);
+  bannerTimer=setTimeout(()=>el.classList.remove('show'),ms);
 }
 
-function gameOver(isWin) {
-  showBanner(isWin ? '🏆 CHIẾN THẮNG!' : '💔 THẤT BẠI!');
-  waveActive = false;
+function togglePause(){
+  paused=!paused;
+  document.getElementById('pause').classList.toggle('open',paused);
 }
 
-// ═══════════════════════════════════════════════════════
-//  MAIN LOOP
-// ═══════════════════════════════════════════════════════
-let lastTime = performance.now() / 1000;
+function toggleSpeed(){
+  speed=speed===1?2:1;
+  document.getElementById('btnSpeed').classList.toggle('speed-on',speed===2);
+}
 
-function animate() {
-  requestAnimationFrame(animate);
-  const time = performance.now() / 1000;
-  const dt = Math.min(0.05, time - lastTime);
-  lastTime = time;
+function toggleMusic(){
+  const bgm=document.getElementById('bgm');
+  if(musicOn){bgm.pause();musicOn=false;document.getElementById('musicBtn').textContent='🔇';}
+  else{bgm.volume=0.4;bgm.play().catch(()=>{});musicOn=true;document.getElementById('musicBtn').textContent='🔊';}
+}
 
-  // Update game
-  towers.forEach(t => t.update(time, dt));
-  enemies.forEach(e => e.update(dt));
-  projectiles.forEach(p => p.update(dt, time));
-  projectiles = projectiles.filter(p => !p.isDone);
-  enemies = enemies.filter(e => !e.isDead || (e.mesh && e.mesh.parent));
+function syncCompleteAi(stars) {
+  const payload = {
+    tg_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
+    ai_num: aiNum,
+    score: score,
+    stars: stars
+  };
 
-  // Effects
-  explosions.forEach(ex => {
-    ex.life -= dt * 1.5;
-    ex.mesh.position.add(ex.vel.clone().multiplyScalar(dt));
-    ex.vel.y -= 6 * dt; // gravity
-    ex.mesh.material.opacity = Math.max(0, ex.life);
-    ex.mesh.scale.setScalar(1 + (1 - ex.life) * 1.5);
+  fetch('/api/student/complete-ai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log('✅ Progress successfully saved to server database:', data);
+  })
+  .catch(err => {
+    console.error('❌ Failed to save progress to server:', err);
   });
-  for (let i = explosions.length - 1; i >= 0; i--) {
-    if (explosions[i].life <= 0) {
-      scene.remove(explosions[i].mesh);
-      explosions.splice(i, 1);
-    }
-  }
-  lightnings.forEach(L => { L.life -= dt; L.line.material.opacity = Math.max(0, L.life * 4); });
-  for (let i = lightnings.length - 1; i >= 0; i--) {
-    if (lightnings[i].life <= 0) {
-      scene.remove(lightnings[i].line);
-      lightnings.splice(i, 1);
-    }
-  }
-
-  // Hover cursor — bright cell highlight
-  if (hoverCursor && selectedBuildType && lastMouseEvent) {
-    raycaster.setFromCamera(mouse, camera);
-    const ground = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
-    const target = new THREE.Vector3();
-    if (raycaster.ray.intersectPlane(ground, target)) {
-      const gx = Math.floor(target.x);
-      const gy = Math.floor(target.z);
-      if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
-        hoverCursor.position.set(gx + 0.5, 0, gy + 0.5);
-        const canPlace = grid[gx][gy] === 0 && gy !== START.y && gold >= TOWERS[selectedBuildType].cost;
-        const col = canPlace ? 0x5ABCAA : 0xC0332E;
-        hoverCursor.fillMesh.material.color.setHex(col);
-        hoverCursor.borderLine.material.color.setHex(col);
-        hoverCursor.pillar.material.color.setHex(col);
-        // Pulse opacity for attention
-        const pulse = 0.6 + Math.sin(time * 5) * 0.3;
-        hoverCursor.fillMesh.material.opacity = pulse * 0.5;
-        hoverCursor.pillar.material.opacity = pulse * 0.4;
-        hoverCursor.visible = true;
-      } else {
-        hoverCursor.visible = false;
-      }
-    }
-  } else if (hoverCursor) {
-    hoverCursor.visible = false;
-  }
-
-  checkWaveProgress();
-
-  // Smooth interpolated zoom
-  if (Math.abs(camera.zoom - zoomTarget) > 0.001) {
-    camera.zoom += (zoomTarget - camera.zoom) * 0.18;
-    camera.updateProjectionMatrix();
-  }
-
-  controls.update();
-
-  // Lock camera to always look at the center from our beautiful 3D isometric tilted angle
-  camera.position.x = controls.target.x;
-  camera.position.z = controls.target.z + 25; // Apply Z tilt offset
-  camera.position.y = CAM_HEIGHT;
-  camera.lookAt(controls.target.x, 0, controls.target.z);
-  camera.up.set(0, 1, 0);
-
-  // mistPlane removed
-
-  composer.render();
 }
 
-// Resize — recompute orthographic frustum so map stays fitted
-window.addEventListener('resize', () => {
-  const f = computeCameraFrustum();
-  camera.left   = -f.camHalfW;
-  camera.right  =  f.camHalfW;
-  camera.top    =  f.camHalfH;
-  camera.bottom = -f.camHalfH;
-  camera.up.set(0, 1, 0);  // Standard world up
-  camera.position.set(COLS/2, CAM_HEIGHT, CAM_TARGET_Z + 25); // Tilt offset on Z
-  camera.lookAt(COLS/2, 0, CAM_TARGET_Z);
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
-});
+function endGame(win){
+  gameOver=true;
+  const stars=win?(hp>20?3:hp>10?2:1):0;
+  document.getElementById('resultTitle').textContent=win?'🏆 CHIẾN THẮNG!':'💀 THẤT BẠI';
+  document.getElementById('resultTitle').style.color=win?'#F5C842':'#FF6060';
+  document.getElementById('resultStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('resultStats').innerHTML=`Điểm: ${score}<br>Đợt hoàn thành: ${wave}/${MAX_WAVES}<br>HP còn lại: ${hp}/${START_HP}`;
+  document.getElementById('result').classList.add('open');
 
-// Hotkey: space to start wave
-window.addEventListener('keydown', (e) => {
-  if (e.code === 'Space') { e.preventDefault(); startNextWave(); }
-});
+  if (win) {
+    syncCompleteAi(stars);
+  }
+}
 
-// Expose TOWERS to window for rebuildBuildBar cost lookup
-window._TOWERS = TOWERS;
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+if(window.Telegram?.WebApp){
+  Telegram.WebApp.ready();Telegram.WebApp.expand();
+  if(Telegram.WebApp.disableVerticalSwipes)Telegram.WebApp.disableVerticalSwipes();
+  if(Telegram.WebApp.setHeaderColor)Telegram.WebApp.setHeaderColor('#07040A');
+}
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+document.addEventListener('touchstart',e=>{
+  if(e.touches.length>1)e.preventDefault();
+  const r=canvas.getBoundingClientRect();
+  canvas._mx=e.touches[0].clientX-r.left;
+  canvas._my=e.touches[0].clientY-r.top;
+},{passive:false});
 
-// Start loading
-loadAllAssets();
+loadLoadout();
 updateUI();
-</script>
-
-
-<script>
-// ── Background Music ─────────────────────────────────────────────────────
-const bgm = document.getElementById('bgm');
-let musicOn = false;
-
-window.toggleMusic = function() {
-  if (!musicOn) {
-    bgm.volume = 0.5;
-    bgm.play().then(() => { musicOn = true; document.getElementById('musicIcon').textContent = '🔊'; }).catch(() => {});
-  } else {
-    bgm.pause();
-    musicOn = false;
-    document.getElementById('musicIcon').textContent = '🔇';
-  }
-};
-
-document.addEventListener('click', function startMusic() {
-  if (!musicOn) {
-    bgm.volume = 0.5;
-    bgm.play().then(() => { musicOn = true; document.getElementById('musicIcon').textContent = '🔊'; }).catch(() => {});
-  }
-}, { once: true });
+requestAnimationFrame(ts=>{lastTime=ts;gameLoop(ts);});
 </script>
 </body>
 </html>

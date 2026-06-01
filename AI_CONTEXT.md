@@ -256,5 +256,27 @@ vs_loadout_items     = JSON array tuyệt chiêu đã chọn
 
 | Ải | Zone | Quiz chủ đề | TC1 | TC2 |
 |----|------|------------|-----|-----|
-| 7 | Cổ Loa | Phân biệt Số/Chữ số + Cấu tạo số | Thần Nhãn Vị Số | Bút Pháp Thiên Cơ |
+| 7 | Cổ Loa | Phân biệt Số/Chữ số + Cấu tạo số | Thần Nhãn V vị Số | Bút Pháp Thiên Cơ |
 | 8 | Cổ Loa | Viết thêm chữ số + Tìm số ẩn | TC1 Ải 8 (TODO) | TC2 Ải 8 (TODO) |
+
+---
+
+## 10. Thuật toán tìm đường Waypoint BFS 3D (Đã tối ưu hóa - 01/06/2026)
+
+Để giải quyết triệt để vấn đề kẻ địch bị kẹt khi người chơi đặt hoặc bán tháp phòng thủ, hệ thống đã chuyển dịch hoàn toàn từ cơ chế Flow Field tính toán góc chạy động sang **Hệ thống Điểm mốc Waypoint BFS tĩnh** (đồng bộ chuẩn xác với cơ chế bản 2D):
+
+### 10.1. Cấu trúc cốt lõi
+* **Lộ trình điểm mốc (`myPath`):** Khi kẻ địch xuất hiện, chúng được gán một mảng tọa độ ô lưới tĩnh `{x, y}` đi từ `START` (`{x:0, y:5}`) đến `EXIT` (`{x:15, y:5}`) thông qua hàm `calculateBFSPath()`.
+* **Cơ chế bước di chuyển (`pathIndex`):** 
+  - Kẻ địch chỉ thay đổi hướng đi và tăng `pathIndex++` khi đã di chuyển sát tâm ô lưới đích (`dist <= effSpeed * dt`).
+  - Toàn bộ hành trình của kẻ địch là chuỗi các điểm kéo thẳng tắp giữa tâm các ô lưới, loại bỏ hoàn toàn các lỗi flooring/làm tròn dẫn đến kẹt biên tháp.
+* **Không quân bay thẳng (`isAir`):** Đơn vị bay (`Quạ Sắt` / `air`) bỏ qua hoàn toàn mê cung lưới dưới đất, bay thẳng tắp từ trái sang phải màn hình.
+
+### 10.2. Thuật toán chống kẹt kép (Double-Layer Anti-Blocking)
+Khi người chơi đặt tháp phòng thủ mới tại ô `(gx, gy)`, game chạy hai bộ kiểm duyệt an toàn:
+1. **Kiểm tra lối thoát chính:** Giả định ô lưới bị chặn, tìm kiếm xem có đường đi từ `START` về `EXIT` hay không qua `calculateBFSPath(grid, START)`.
+2. **Kiểm tra lính trong sân:** Quét qua toàn bộ kẻ địch đang hoạt động trên sân. Với mỗi kẻ địch, tìm kiếm đường đi từ điểm waypoint tiếp theo của chúng (`myPath[pathIndex + 1]`) về cổng `EXIT`. Nếu bất kỳ kẻ địch nào có đường đi bị chặn đứng (trả về `null`), việc đặt tháp sẽ bị từ chối lập tức.
+
+### 10.3. Nhắm mục tiêu theo quãng đường còn lại thực tế
+* Thay thế thuộc tính khoảng cách flowfield. Bổ sung hàm `getRemainingDistanceToExit(en)` để tính toán chính xác số pixel thực tế mà kẻ địch cần chạy để tới được cổng thoát dọc theo các điểm waypoint.
+* Chế độ nhắm mục tiêu `first` (Đầu) và `last` (Cuối) sử dụng hàm này để so sánh và khóa mục tiêu có quãng đường ngắn nhất/dài nhất chuẩn 100%.

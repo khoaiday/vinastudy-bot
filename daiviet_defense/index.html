@@ -1714,18 +1714,47 @@
             if (btn) btn.disabled = true;
 
             for (let key in assets) {
-                assets[key].onload = () => {
-                    loaded++;
-                    if (btn) btn.innerText = `Đang tải ảnh... (${Math.round((loaded/totalImages)*100)}%)`;
-                    if (loaded === totalImages) {
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerText = 'XUẤT QUÂN TRẬN ĐỒ';
+                const img = new Image();
+                img.onload = () => {
+                    // Create in-memory canvas to process transparency
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imgData.data;
+                    
+                    // Don't process map tile background! We only process towers and enemies
+                    if (key !== 'map_tile') {
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i+1];
+                            const b = data[i+2];
+                            // Threshold: convert light/white background pixels to transparent
+                            if (r > 235 && g > 235 && b > 235) {
+                                data[i+3] = 0; // alpha = 0
+                            }
                         }
-                        callback();
+                        ctx.putImageData(imgData, 0, 0);
                     }
+                    
+                    // Assign transparent image data URL to pre-allocated asset Image
+                    assets[key].onload = () => {
+                        loaded++;
+                        if (btn) btn.innerText = `Đang tải ảnh... (${Math.round((loaded/totalImages)*100)}%)`;
+                        if (loaded === totalImages) {
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.innerText = 'XUẤT QUÂN TRẬN ĐỒ';
+                            }
+                            callback();
+                        }
+                    };
+                    assets[key].src = canvas.toDataURL();
                 };
-                assets[key].onerror = () => {
+                img.onerror = () => {
                     console.log('Failed to load asset: ' + key);
                     loaded++;
                     if (btn) btn.innerText = `Lỗi tải ảnh... (${Math.round((loaded/totalImages)*100)}%)`;
@@ -1740,7 +1769,7 @@
                 const _loc = location.pathname;
                 const _base = _loc.endsWith('/index.html') ? _loc.slice(0,-10)
                             : _loc.endsWith('/') ? _loc : _loc + '/';
-                assets[key].src = _base + 'assets/' + key + '.png';
+                img.src = _base + 'assets/' + key + '.png';
             }
         }
 

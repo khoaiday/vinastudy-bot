@@ -23,3 +23,6 @@ content/lop3/bai02/html_replacement.txt
 # OS
 .DS_Store
 Thumbs.db
+
+tools/asset_gen/.env
+*.env

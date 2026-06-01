@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sprite Sheet Renderer</title>
+<style>
+body{background:#1a1a2e;color:#F5EED6;font-family:monospace;padding:20px;}
+#log{background:#0a0610;border:1px solid #C8960C;padding:10px;height:180px;overflow-y:auto;margin:10px 0;font-size:12px;}
+button{padding:10px 24px;margin:5px;background:#C8960C;border:none;color:#07040A;cursor:pointer;font-weight:bold;font-size:14px;border-radius:6px;}
+button:disabled{opacity:0.4;cursor:not-allowed;}
+input[type=number]{width:70px;padding:4px;background:#1a0d28;border:1px solid #C8960C;color:#F5EED6;}
+#previews{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h2>🎮 Sprite Sheet Renderer</h2>
+<p>Frames: <input id="numFrames" type="number" value="8" min="4" max="16">
+&nbsp; Size: <input id="frameSize" type="number" value="128" min="64" max="256">px</p>
+<button id="btnRender">🎬 Render</button>
+<button id="btnDownload" disabled>⬇ Download sprite_scout.png</button>
+<div id="log">Sẵn sàng — bấm Render</div>
+<div id="previews"></div>
+<canvas id="sheet"></canvas>
+
+<script type="module">
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+
+const log = t => {
+  const el = document.getElementById('log');
+  el.innerHTML += t + '<br>';
+  el.scrollTop = el.scrollHeight;
+};
+
+document.getElementById('btnRender').addEventListener('click', async () => {
+  const numFrames = parseInt(document.getElementById('numFrames').value);
+  const frameSize  = parseInt(document.getElementById('frameSize').value);
+  document.getElementById('previews').innerHTML = '';
+  document.getElementById('btnDownload').disabled = true;
+  log('🔄 Starting...');
+
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, preserveDrawingBuffer:true});
+  renderer.setSize(frameSize, frameSize);
+  renderer.setClearColor(0x000000, 0);
+  log('✅ Renderer OK');
+
+  const scene = new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xffffff, 3));
+  const sun = new THREE.DirectionalLight(0xffffff, 2);
+  sun.position.set(2,5,3); scene.add(sun);
+
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 100);
+  camera.position.set(0.4, 1.0, 2.2);
+  camera.lookAt(0, 0.6, 0);
+
+  log('🔄 Loading GLB...');
+  const loader = new GLTFLoader();
+
+  let gltf;
+  try {
+    gltf = await loader.loadAsync('../daiviet_defense/3d_assets/custom/enemy_scout.glb');
+  } catch(e) {
+    log('❌ ' + e.message); return;
+  }
+
+  log('✅ GLB OK. Anims: ' + gltf.animations.map(a=>a.name).join(', '));
+  const model = gltf.scene;
+  scene.add(model);
+
+  // Auto-scale
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const sc = 1.6 / Math.max(size.x,size.y,size.z);
+  model.scale.setScalar(sc);
+  model.position.sub(center.multiplyScalar(sc));
+  model.position.y -= size.y * sc * 0.45;
+  model.rotation.y = 0.2;
+
+  const mixer = new THREE.AnimationMixer(model);
+  const action = mixer.clipAction(gltf.animations[0]);
+  action.play(); action.paused = true;
+  const duration = gltf.animations[0].duration;
+  log('⏱ Duration: ' + duration.toFixed(2) + 's → ' + numFrames + ' frames');
+
+  const frames = [];
+  for (let i = 0; i < numFrames; i++) {
+    mixer.setTime((i / numFrames) * duration);
+    renderer.render(scene, camera);
+    const url = renderer.domElement.toDataURL('image/png');
+    frames.push(url);
+    const img = new Image();
+    img.src = url; img.width = frameSize; img.height = frameSize;
+    img.style.background = 'repeating-conic-gradient(#333 0% 25%,#444 0% 50%) 0 0/12px 12px';
+    document.getElementById('previews').appendChild(img);
+    log('  Frame ' + (i+1) + '/' + numFrames + ' ✓');
+    await new Promise(r=>setTimeout(r,20));
+  }
+
+  // Build sheet
+  const cols = Math.ceil(Math.sqrt(numFrames));
+  const rows = Math.ceil(numFrames/cols);
+  const sheet = document.getElementById('sheet');
+  sheet.width = cols*frameSize; sheet.height = rows*frameSize;
+  sheet.style.cssText = 'display:block;margin-top:10px;border:2px solid #C8960C;';
+  const sc2 = sheet.getContext('2d');
+  sc2.clearRect(0,0,sheet.width,sheet.height);
+  await Promise.all(frames.map((url,i)=>new Promise(res=>{
+    const im=new Image();
+    im.onload=()=>{ sc2.drawImage(im,(i%cols)*frameSize,Math.floor(i/cols)*frameSize,frameSize,frameSize); res(); };
+    im.src=url;
+  })));
+
+  log('✅ Done: '+sheet.width+'×'+sheet.height+' ('+cols+'cols×'+rows+'rows)');
+  window._cfg = {cols,rows,frameSize,numFrames};
+  document.getElementById('btnDownload').disabled = false;
+  renderer.dispose();
+});
+
+document.getElementById('btnDownload').addEventListener('click', ()=>{
+  const a=document.createElement('a');
+  a.href=document.getElementById('sheet').toDataURL('image/png');
+  a.download='sprite_scout.png'; a.click();
+  const c=window._cfg;
+  alert(`Config:\ncols=${c.cols} rows=${c.rows} frameSize=${c.frameSize} numFrames=${c.numFrames}\n\nLưu sprite_scout.png vào daiviet_defense/assets/`);
+});
+</script>
+</body>
+</html>

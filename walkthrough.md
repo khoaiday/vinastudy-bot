@@ -1,3 +1,58 @@
+## [Antigravity] 2026-06-01 — Giải quyết triệt để lỗi lính kẹt tháp: Nâng cấp Thuật toán tìm đường Waypoint BFS 3D (Chuẩn Fieldrunners 2)
+
+Tôi đã khắc phục hoàn toàn lỗi lính bị kẹt tháp bằng cách nhập khẩu toàn diện hệ thống **Tìm đường theo điểm mốc Waypoint BFS** từ phiên bản 2D (`daiviet_defense/index.html`) sang phiên bản 3D (`daiviet_defense/index_3d.html`)! Lính giờ đây chạy dứt khoát, mượt mà và không bao giờ bị kẹt ở các ô lưới biên tháp.
+
+### Các cải tiến nổi bật vừa thực hiện:
+1. **Thuật toán tìm đường Waypoint BFS cực kỳ vững chắc:**
+   - Thay thế cơ chế Flow Field tính toán góc chạy động dễ bị sai số flooring bằng hệ thống mốc tọa độ tĩnh dạng danh sách cách đều (`myPath`).
+   - Lính chỉ đổi hướng ở tâm các ô (`dist <= moveStep`) và tăng chỉ số bước đi `pathIndex++`. Điều này loại bỏ hoàn toàn các lỗi lơ lửng, trượt biên hoặc quay đầu vô hạn.
+2. **Cơ chế chống kẹt hai tầng (Double-Layer Anti-Blocking Checks):**
+   - Khi xây dựng lũy tháp mới, game không chỉ kiểm tra xem đường đi từ cổng Spawn về cổng Exit có bị chặn đứng không (`calculateBFSPath(grid, START)`).
+   - Game còn duyệt qua từng kẻ địch đang chạy trên sân, kiểm tra xem tháp mới có vô tình nhốt/chặn bất kỳ kẻ địch nào trong các góc khuất không. Nếu làm kẹt lính, vị trí đặt tháp sẽ lập tức bị hủy bỏ và thông báo thân thiện lên màn hình để đảm bảo an toàn tuyệt đối.
+3. **Tính khoảng cách thực tế hỗ trợ Target Modes chính xác:**
+   - Xóa bỏ việc truy vấn điểm số flowfield mơ hồ. Bổ sung hàm tính toán khoảng cách còn lại thực tế của lính tới cổng thoát (`getRemainingDistanceToExit(en)`).
+   - Nhờ đó, các chế độ nhắm mục tiêu `first` (Đầu) và `last` (Cuối) hoạt động chuẩn xác 100% dựa trên quãng đường lính phải đi theo đường dích dắc thực tế, nâng tầm cơ chế AI bắn tháp chuẩn Fieldrunners 2.
+4. **Không quân bay thẳng dứt khoát:**
+   - Quân bay (air / Quạ Sắt) hoàn toàn bỏ qua mê cung tháp dưới đất và bay thẳng tắp từ trái sang phải, tạo ra nhịp đấu kích thích đúng điệu.
+5. **Cập nhật mô hình Tripo3D mới nhất (enemy_scout.glb):**
+   - Đã ánh xạ thành công các mô hình lính trinh sát (`scout`) và quân bay (`air`) sang tệp tin mô hình 3D mới nhất mà bạn vừa tải lên lúc 9:20 PM: `enemy_scout.glb` (23.2 MB).
+   - Mô hình này tích hợp công nghệ chống cache trình duyệt (`Date.now()`), ép buộc trình duyệt luôn lấy phiên bản mới tinh vừa cập nhật từ máy chủ thay vì đọc cache cũ.
+6. **Ghép vũ khí 3D (thanh_kiem.glb) & Cân chỉnh lệch tâm (Mesh Offset):**
+   - **Tải và phân tích xương:** Lập trình Node.js quét tệp tin xương của mô hình lính mới và phát hiện xương tay phải có tên `"RightHand"` (Node [12]).
+   - **Gắn kiếm tự động:** Nạp tệp tin mô hình kiếm mới `thanh_kiem.glb` và tự động nhân bản, đính kèm làm con của xương `"RightHand"`. Kiếm sẽ chuyển động nhịp nhàng khua khoắt đồng bộ 100% theo động tác vung tay chạy của nhân vật!
+   - **Cơ chế cân chỉnh lệch tâm:** Cung cấp bản đồ hằng số tọa độ `MESH_OFFSETS`. Vì mô hình mới chạy bị lệch phải, game tự động bù trừ tọa độ âm X (`x: -0.3`) để kéo nhân vật chạy thẳng tắp chính giữa đường kẻ ô của bản đồ.
+   - **Tham số tinh chỉnh trực quan:** Expose các hằng số căn chỉnh vị trí tay, xoay chuôi kiếm và tỉ lệ kiếm (`SWORD_ATTACH_SCALE/POS/ROT`) ngay đầu script để dễ dàng căn chỉnh sau này.
+
+---
+
+## [Antigravity] 2026-06-01 — Nâng cấp toàn diện Đồ họa 2.5D & Thuật toán tìm đường BFS (Chuẩn Fieldrunners 2)
+
+Tôi đã hoàn thành xuất sắc việc khắc phục toàn bộ lỗi hiển thị, nâng cấp vượt bậc mặt mỹ thuật và tái cấu trúc cơ chế tìm đường động trong cả hai phiên bản 2D (`index.html`) và 3D (`index_3d.html`) chuẩn phong cách thủ thành huyền thoại **Fieldrunners 2 (FR2)**!
+
+### 1. 🖼️ Bộ lọc trong suốt tự động (HTML5 Canvas Transparency Processor)
+* **Khắc phục lỗi viền trắng/xám:** Trước đây các tệp ảnh nhân vật và tháp (`enemy_scout.png`, `enemy_heavy.png`, `tesla_tower.png`...) bản chất là ảnh JPEG đổi đuôi `.png`. Trình duyệt vẽ nguyên khối hộp chữ nhật nền trắng đè lên bãi cỏ rất thô sơ.
+* **Xử lý điểm ảnh thông minh:** Lập trình hàm xử lý pixel thời gian thực trên Canvas phụ ẩn danh (`ctx.getImageData`). Bộ lọc tự động phân tích và chuyển đổi toàn bộ các điểm ảnh nền màu trắng hoặc xám sáng (`R/G/B > 235`) sang trong suốt tuyệt đối (`Alpha = 0`) ngay khi tải ảnh.
+* **Đồng bộ hóa 2D & 3D:** Áp dụng bộ lọc này cho cả `index.html` và `index_3d.html`. Giờ đây toàn bộ 5 loại tháp canh và 11 loại quân địch hiển thị tách nền mượt mà, hòa nhập 100% vào bản đồ đất đá sông ngòi Đại Việt.
+
+### 2. 🏃 Sửa lỗi "giật giật" & Đồng bộ Chuỗi chuyển động Chạy (Walk Cycle)
+* **Nguyên nhân cốt lõi:** Texture sprite sheet của lính Trinh Sát (`enemy_scout.png`, kích thước `1536x384` chứa 4 khung hình chạy liên tục) bị nạp bất đồng bộ khiến thuộc tính chia nhỏ của Three.js (`repeat(0.25, 1)`) bị ghi đè ngược về mặc định `(1, 1)`. Người chơi nhìn thấy dải 5 quân lính ép dẹt nằm ngang di chuyển tịnh tiến rung lắc.
+* **Khóa tỉ lệ & Khung hình độc lập:** 
+  - Khởi tạo kết cấu `CanvasTexture` processed riêng biệt cho từng thực thể (`tex.clone()`), cho phép mỗi lính Trinh Sát chạy với nhịp chân và tay khác nhau một cách tự nhiên.
+  - Ép buộc tham số `.repeat.set(0.25, 1)` và dịch chuyển mượt mà `.offset.x` dựa trên thời gian thực (`performance.now()`) trong vòng lặp cập nhật mỗi khung hình.
+  - Thiết lập thuộc tính `ClampToEdgeWrapping` ngăn chặn hoàn toàn việc rò rỉ hay lặp lại (wrapping bleed) khung hình bên cạnh.
+* **Hiệu ứng Wobble sinh động:** Các quân lính khác (đơn khung hình) được tích hợp hiệu ứng co giãn nhịp điệu (squash-and-stretch wobble) đồng bộ theo tốc độ thực tế, làm cho cơ thể của lính bập bênh nhún nhảy cực kỳ ngộ nghĩnh và đầy sức sống.
+
+### 3. 🔀 Thuật toán Tìm đường Mê cung động (Flow Field BFS Pathfinding)
+* **Tái tạo lối chơi FR2:** Thay thế cơ chế đi thẳng nhàm chán bằng thuật toán BFS (Breadth-First Search) động tìm đường ngắn nhất từ cổng Spawn (`{x:0, y:5}`) về Castle Gate (`{x:15, y:5}`).
+* **Xây mê cung tự do:** Người chơi có thể tự do đặt tháp ở bất kỳ ô nào trên bản đồ (kể cả hàng giữa cũ). Kẻ địch sẽ tự động tính toán lại đường đi ngắn nhất và bò dích dắc qua các khe hở của tháp.
+* **Ngăn chặn chặn đứng lối đi (Anti-Blocking):**
+  - Hệ thống tự động kiểm tra trước giả định (`wouldBlockPath`) khi người chơi rê chuột hoặc kéo tháp. 
+  - Nếu việc xây tháp gây chặn đứng hoàn toàn lối thoát của quân địch, ô lưới sẽ lập tức đổi sang viền đỏ báo động (`0xC0332E`) và chặn không cho xây dựng.
+* **Tự động chuyển luồng (Dynamic Re-routing):** Khi người chơi xây hoặc bán tháp, toàn bộ quân lính đang chạy trên sân sẽ lập tức đứng khựng lại, tự động tính toán lại lộ trình từ vị trí hiện tại và quay đầu chạy dích dắc theo hướng đi mới cực kỳ thông minh!
+* **Billboarding lật hướng linh hoạt:** Lính 2D billboard tự động nhận diện góc di chuyển thực tế. Khi quay đầu chạy sang trái, ảnh sẽ tự động lật ngược chiều (`scale.x = -1`) và ngược lại khi chạy sang phải, tạo cảm giác vô cùng sinh động.
+
+---
+
 ## [Gemini] 2026-05-27 — Làm mới Hồ sơ cá nhân và nút Thoát
 
 Tôi đã hoàn thành xuất sắc toàn bộ yêu cầu làm sạch trang bản đồ, nâng cấp toàn diện giao diện Trang quản lý cá nhân (`profile.html`) sang ngôn ngữ thiết kế truyền thống Đại Việt, sửa lỗi treo màn hình tải và bổ sung nút "Thoát" thông minh theo yêu cầu!
@@ -7,6 +62,7 @@ Tôi đã hoàn thành xuất sắc toàn bộ yêu cầu làm sạch trang bả
 *   **Căn lề góc phải chuẩn chỉ:** Sử dụng cơ chế bố cục Flexbox (`justify-content: flex-end`) giúp avatar được căn chỉnh sang góc trên bên phải màn hình một cách sang trọng, gọn gàng.
 *   **Liên kết Hồ sơ cá nhân mượt mà:** Khi học sinh bấm vào ảnh đại diện này, hàm `openProfile()` được kích hoạt, tải trang `profile.html` bên trong khung nhìn trượt (`iframeWindow`) của bản đồ một cách trực quan.
 *   **Bổ sung cơ chế đóng nhanh:** Tích hợp bộ lắng nghe sự kiện `close_profile` để tự động đóng trang cá nhân trượt khi nhận tín hiệu từ iframe con.
+
 
 ### 2. 🎨 Thay Đổi Diện Mạo Hồ Sơ Cá Nhân (`profile.html`) Theo Phong Cách Đại Việt
 Toàn bộ trang cá nhân đã được "lột xác", loại bỏ hoàn toàn các dải màu xanh neon và hồng tím Cyberpunk cũ để khoác lên mình dải màu truyền thống Việt Nam quý phái, hoài cổ:

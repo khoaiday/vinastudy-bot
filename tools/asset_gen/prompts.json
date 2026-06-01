@@ -127,6 +127,56 @@
       "negative": "modern, sci-fi, text, watermark"
     }
   ],
+  "enemy_sprites": [
+    {
+      "id": "scout_run_f1", "dest": "daiviet_defense/assets/sprites/scout_f1.png",
+      "api": "leonardo", "model": "phoenix", "width": 256, "height": 256,
+      "num_images": 2, "guidance": 9, "skip_style_anchor": true,
+      "image_ref": "daiviet_defense/assets/enemy_scout.png", "image_ref_weight": 0.6,
+      "prompt": "chibi Vietnamese warrior running frame 1 of 6, LEFT LEG FORWARD right leg back, sword arm pulled back left fist forward, dark iron armor red trim red feather helmet, side view facing RIGHT, white background, full body isolated, game sprite",
+      "negative": "background, shadow, multiple characters, front view, back view, blurry, text, cropped"
+    },
+    {
+      "id": "scout_run_f2", "dest": "daiviet_defense/assets/sprites/scout_f2.png",
+      "api": "leonardo", "model": "phoenix", "width": 256, "height": 256,
+      "num_images": 2, "guidance": 9, "skip_style_anchor": true,
+      "image_ref": "daiviet_defense/assets/enemy_scout.png", "image_ref_weight": 0.6,
+      "prompt": "chibi Vietnamese warrior running frame 2 of 6, BOTH LEGS TOGETHER bent knees crouched low body dipping, sword tucked close, dark iron armor red trim red feather helmet, side view facing RIGHT, white background, full body isolated, game sprite",
+      "negative": "background, shadow, multiple characters, front view, back view, blurry, text, cropped"
+    },
+    {
+      "id": "scout_run_f3", "dest": "daiviet_defense/assets/sprites/scout_f3.png",
+      "api": "leonardo", "model": "phoenix", "width": 256, "height": 256,
+      "num_images": 2, "guidance": 9, "skip_style_anchor": true,
+      "image_ref": "daiviet_defense/assets/enemy_scout.png", "image_ref_weight": 0.6,
+      "prompt": "chibi Vietnamese warrior running frame 3 of 6, RIGHT LEG FORWARD left leg back, sword raised high right hand left arm swung back, dark iron armor red trim red feather helmet, side view facing RIGHT, white background, full body isolated, game sprite",
+      "negative": "background, shadow, multiple characters, front view, back view, blurry, text, cropped"
+    },
+    {
+      "id": "scout_run_f4", "dest": "daiviet_defense/assets/sprites/scout_f4.png",
+      "api": "leonardo", "model": "phoenix", "width": 256, "height": 256,
+      "num_images": 2, "guidance": 9, "skip_style_anchor": true,
+      "image_ref": "daiviet_defense/assets/enemy_scout.png", "image_ref_weight": 0.6,
+      "prompt": "chibi Vietnamese warrior running frame 4 of 6, BOTH FEET OFF GROUND peak of leap, arms spread wide sword pointing forward, body at maximum height, dark iron armor red trim red feather helmet, side view facing RIGHT, white background, full body isolated, game sprite",
+      "negative": "background, shadow, multiple characters, front view, back view, blurry, text, cropped"
+    },
+    {
+      "id": "scout_run_f5", "dest": "daiviet_defense/assets/sprites/scout_f5.png",
+      "api": "leonardo", "model": "phoenix", "width": 256, "height": 256,
+      "num_images": 2, "guidance": 9, "skip_style_anchor": true,
+      "image_ref": "daiviet_defense/assets/enemy_scout.png", "image_ref_weight": 0.6,
+      "prompt": "chibi Vietnamese warrior running frame 5 of 6, LEFT LEG KICKED HIGH behind body right leg planted, torso leaning forward sword extended forward, dark iron armor red trim red feather helmet, side view facing RIGHT, white background, full body isolated, game sprite",
+      "negative": "background, shadow, multiple characters, front view, back view, blurry, text, cropped"
+    },
+    {
+      "id": "scout_run_f6", "dest": "daiviet_defense/assets/sprites/scout_f6.png",
+      "api": "leonardo", "model": "phoenix", "width": 256, "height": 256,
+      "num_images": 2, "guidance": 9, "skip_style_anchor": true,
+      "image_ref": "daiviet_defense/assets/enemy_scout.png", "image_ref_weight": 0.6,
+      "prompt": "chibi Vietnamese warrior running frame 6 of 6, LEFT LEG FORWARD AGAIN completing cycle sword swinging forward body returning upright, dark iron armor red trim red feather helmet, side view facing RIGHT, white background, full body isolated, game sprite",
+      "negative": "background, shadow, multiple characters, front view, back view, blurry, text, cropped"
+    }
+  ],
   "towers_3d": [
     {
       "id": "arrow_tower_3d",
@@ -188,6 +238,18 @@
       "dest": "daiviet_defense/3d_assets/custom/chibi_soldier.glb",
       "api": "meshy",
       "prompt": "A cute chibi ancient Vietnamese military soldier character, 3D game asset, low-poly. The character is a cute chibi warrior with an oversized head, wearing a heavy dark iron helmet with a red fabric plume on top, detailed leather-bronze chest armor with gold-bronze engravings, holding a small bronze sword. Complete 3D character mesh, clean topology, game-ready low poly 3D model"
+    },
+    {
+      "id": "enemy_scout_3d",
+      "dest": "daiviet_defense/3d_assets/custom/enemy_scout.glb",
+      "api": "meshy_image",
+      "image_ref": "daiviet_defense/assets/enemy_scout.png"
+    },
+    {
+      "id": "enemy_soldier_3d",
+      "dest": "daiviet_defense/3d_assets/custom/enemy_soldier.glb",
+      "api": "meshy_image",
+      "image_ref": "daiviet_defense/assets/enemy_soldier.png"
     }
   ]
 }
