@@ -918,6 +918,9 @@ scene.add(exitLight);
 //  ASSET LOADER
 // ═══════════════════════════════════════════════════════
 const loader = new GLTFLoader();
+const textureLoader = new THREE.TextureLoader();
+const scoutTexture = textureLoader.load('./assets/enemy_scout.png');
+scoutTexture.colorSpace = THREE.SRGBColorSpace;
 const models = {};
 const ASSETS_BASE = './3d_assets/models/';
 const CUSTOM_BASE = './3d_assets/custom/';
@@ -1397,32 +1400,53 @@ class Enemy {
     this.slowTimer = 0;
     this.slowStrength = 0;
 
-    // Model
-    this.mesh = cloneModel(this.spec.model);
-    if (this.mesh) {
-      this.mesh.position.copy(this.position);
-      this.mesh.scale.setScalar(this.spec.scale);
-      this.mesh.traverse(o => {
-        if (o.isMesh && o.material) {
-          o.material = o.material.clone();
-          o.material.color = new THREE.Color(this.spec.color || 0xCCCCCC);
-          // Stealth: semi-transparent
-          if (this.spec.stealth) {
-            o.material.transparent = true;
-            o.material.opacity = 0.3;
-          }
-          // Boss: emissive glow
-          if (this.type === 'boss') {
-            o.material.emissive = new THREE.Color(0xFFD700);
-            o.material.emissiveIntensity = 0.4;
-          }
-          // Air: slight blue tint for sky units
-          if (this.spec.isAir) {
-            o.material.color.lerp(new THREE.Color(0x8888FF), 0.3);
-          }
-        }
+    // Model / Sprite Sheet Integration
+    if (this.type === 'scout') {
+      const tex = scoutTexture.clone();
+      tex.repeat.set(0.25, 1);
+      tex.offset.set(0, 0);
+      tex.needsUpdate = true;
+      const mat = new THREE.MeshStandardMaterial({
+        map: tex,
+        transparent: true,
+        alphaTest: 0.5,
+        roughness: 0.6,
+        metalness: 0.1,
+        side: THREE.DoubleSide
       });
+      this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), mat);
+      this.mesh.castShadow = true;
+      this.mesh.receiveShadow = true;
+      this.mesh.position.copy(this.position);
+      this.mesh.position.y = 0.6; // elevated slightly so feet touch grid
       scene.add(this.mesh);
+    } else {
+      this.mesh = cloneModel(this.spec.model);
+      if (this.mesh) {
+        this.mesh.position.copy(this.position);
+        this.mesh.scale.setScalar(this.spec.scale);
+        this.mesh.traverse(o => {
+          if (o.isMesh && o.material) {
+            o.material = o.material.clone();
+            o.material.color = new THREE.Color(this.spec.color || 0xCCCCCC);
+            // Stealth: semi-transparent
+            if (this.spec.stealth) {
+              o.material.transparent = true;
+              o.material.opacity = 0.3;
+            }
+            // Boss: emissive glow
+            if (this.type === 'boss') {
+              o.material.emissive = new THREE.Color(0xFFD700);
+              o.material.emissiveIntensity = 0.4;
+            }
+            // Air: slight blue tint for sky units
+            if (this.spec.isAir) {
+              o.material.color.lerp(new THREE.Color(0x8888FF), 0.3);
+            }
+          }
+        });
+        scene.add(this.mesh);
+      }
     }
 
     // HP bar (always faces camera)
@@ -1518,9 +1542,18 @@ class Enemy {
     const bobAmp = this.spec.isAir ? 0.15 : 0.05;
 
     if (this.mesh) {
-      this.mesh.position.copy(this.position);
-      this.mesh.position.y = baseY + Math.sin(performance.now() * 0.005 + this.position.x) * bobAmp;
-      this.mesh.rotation.y = Math.atan2(dir.x, dir.z);
+      if (this.type === 'scout') {
+        const animSpeed = effSpeed * 12;
+        const currentFrame = Math.floor(performance.now() / 1000 * animSpeed) % 4;
+        this.mesh.material.map.offset.x = currentFrame * 0.25;
+        this.mesh.position.copy(this.position);
+        this.mesh.position.y = 0.6 + Math.sin(performance.now() * 0.005 + this.position.x) * bobAmp;
+        this.mesh.quaternion.copy(camera.quaternion);
+      } else {
+        this.mesh.position.copy(this.position);
+        this.mesh.position.y = baseY + Math.sin(performance.now() * 0.005 + this.position.x) * bobAmp;
+        this.mesh.rotation.y = Math.atan2(dir.x, dir.z);
+      }
     }
 
     // Medic: heal nearby friendly enemies
