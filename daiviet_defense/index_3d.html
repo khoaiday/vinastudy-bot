@@ -429,7 +429,7 @@ function glLoop(ts){
     if(!inst) return;
 
     const cellW = window._cellW||50;
-    const baseS = cellW * (en.def.scale||1) * inst.baseScale * 1.2;
+    const baseS = cellW * (en.def.scale||1) * inst.baseScale * 0.84;
 
     if(en.dead) {
       // Death animation: tip over + shrink + fade (cheap — no traverse)
@@ -1626,8 +1626,15 @@ function draw(ts){
   // HP overlay on 3D meshes
   enemies.forEach(en=>{
     if(en.dead&&en.deathTimer<=0)return;
-    const sz=cellH*(en.def.scale||1)*1.2;
-    const bw=cellW*0.7, bh=6, bx=en.x-bw/2, by=en.y-sz;
+
+    // Draw soft 2.5D shadow underneath character's feet
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+    ctx.beginPath();
+    ctx.ellipse(en.x, en.y + 3, cellW * 0.28, cellH * 0.14, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    const sz=cellH*(en.def.scale||1)*0.84;
+    const bw=cellW*0.5, bh=5, bx=en.x-bw/2, by=en.y-sz*2.5;
     
     ctx.fillStyle='rgba(0,0,0,0.6)';
     ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 3); ctx.fill();
