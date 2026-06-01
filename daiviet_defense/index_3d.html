@@ -562,7 +562,7 @@ function getOrCreate(en){
   const group = new THREE.Group();
   group.add(mesh);
   // Tilt backwards relative to camera so we see the front/top at a beautiful 3/4 isometric angle
-  group.rotation.x = -Math.PI / 3; // 60 degrees tilt (3/4 isometric style)
+  group.rotation.x = -Math.PI / 2.6; // ~69 degrees tilt (extra isometric tilt)
   
   scene.add(group);
   
