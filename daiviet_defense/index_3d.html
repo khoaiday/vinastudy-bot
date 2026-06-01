@@ -218,10 +218,37 @@ const renderer = new THREE.WebGLRenderer({canvas:glCanvas, alpha:true, antialias
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setClearColor(0x000000, 0);
 
+// Enable dynamic WebGL shadow maps
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
 const scene = new THREE.Scene();
-scene.add(new THREE.AmbientLight(0xffffff, 2));
-const dir = new THREE.DirectionalLight(0xffffff, 1.5);
-dir.position.set(0,10,5); scene.add(dir);
+scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+
+// Directional Light shining from front-left (bottom-left on screen) to cast shadows back-right
+const dir = new THREE.DirectionalLight(0xffffff, 1.6);
+dir.position.set(200, 600, 800);
+dir.castShadow = true;
+dir.shadow.mapSize.width = 1024;
+dir.shadow.mapSize.height = 1024;
+dir.shadow.camera.near = 0.5;
+dir.shadow.camera.far = 2000;
+dir.shadow.camera.left = -900;
+dir.shadow.camera.right = 900;
+dir.shadow.camera.top = 700;
+dir.shadow.camera.bottom = -700;
+dir.shadow.bias = -0.0008;
+scene.add(dir);
+scene.add(dir.target);
+
+// Transparent shadow ground plane to receive PBR character silhouette shadows on top of 2D canvas grass
+const shadowPlaneGeo = new THREE.PlaneGeometry(3000, 3000);
+const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.25 });
+const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
+shadowPlane.rotation.x = -Math.PI / 2;
+shadowPlane.position.set(400, 0, 300);
+shadowPlane.receiveShadow = true;
+scene.add(shadowPlane);
 
 // Orthographic camera — will be updated to match 2D canvas
 // Orthographic camera in pixel space — updated each frame to match canvas size
@@ -339,6 +366,14 @@ function getOrCreate(en){
   // Clone properly with skeletal re-binding
   const mesh = cloneSkeletalModel(tpl);
   
+  // Enable dynamic shadow casting for all submeshes inside the character
+  mesh.traverse(o => {
+    if (o.isMesh) {
+      o.castShadow = true;
+      o.receiveShadow = false;
+    }
+  });
+  
   // Position adjustments to center mesh (e.g. running shifted to the right)
   const offset = MESH_OFFSETS[tplKey] || { x: 0, y: 0, z: 0 };
   mesh.position.set(offset.x, offset.y, offset.z);
@@ -401,6 +436,16 @@ function glLoop(ts){
 
   const W = glCanvas.offsetWidth, H = glCanvas.offsetHeight;
   renderer.setSize(W, H, false);
+
+  // Dynamically position the shadow plane and light target at screen center to cover the entire field
+  if (typeof shadowPlane !== 'undefined') {
+    shadowPlane.position.set(W/2, 0, H/2);
+  }
+  if (typeof dir !== 'undefined') {
+    dir.target.position.set(W/2, 0, H/2);
+    // Position the light relative to the center to maintain the same front-left angle
+    dir.position.set(W/2 - 300, 600, H/2 + 500);
+  }
 
   // Camera: standard orthographic looking straight down to match 2D canvas perfectly (2.5D oblique style)
   cam.left = -W/2;
@@ -1627,7 +1672,8 @@ function draw(ts){
   enemies.forEach(en=>{
     if(en.dead&&en.deathTimer<=0)return;
 
-    // Draw soft 2.5D shadow cast diagonally backward-right (light from front-left)
+    // 2D Ground Shadow Fallback (Now handled dynamically by WebGL Shadow Maps in Three.js!)
+    /*
     ctx.fillStyle = 'rgba(0, 0, 0, 0.26)';
     ctx.beginPath();
     ctx.ellipse(
@@ -1640,6 +1686,7 @@ function draw(ts){
       Math.PI * 2
     );
     ctx.fill();
+    */
 
     const sz=cellH*(en.def.scale||1)*0.84;
     const bw=cellW*0.5, bh=5, bx=en.x-bw/2, by=en.y-sz*2.5;
