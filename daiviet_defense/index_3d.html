@@ -102,12 +102,96 @@ html,body{width:100%;height:100%;overflow:hidden;background:#1a3a0a;touch-action
 .result-btn{width:200px;padding:14px;border-radius:10px;font-family:'Philosopher',serif;font-size:16px;font-weight:700;cursor:pointer;}
 
 @import url('https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Roboto+Mono:wght@400;600&display=swap');
+
+/* ── Dev Tool Panel ── */
+#devTweakPanel {
+  position: fixed; right: 10px; top: 10px; width: 280px;
+  background: rgba(10, 6, 14, 0.95); border: 2px solid #C8960C;
+  border-radius: 12px; padding: 12px; z-index: 10000;
+  font-family: 'Roboto Mono', monospace; font-size: 11px; color: #fff;
+  box-shadow: 0 0 20px rgba(200, 150, 12, 0.4);
+  display: flex; flex-direction: column; gap: 8px;
+  backdrop-filter: blur(4px);
+}
+.tweak-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  margin-bottom: 2px;
+}
+.tweak-row label {
+  width: 60px; color: #C8960C; font-weight: bold;
+}
+.tweak-row input[type="range"] {
+  flex: 1; accent-color: #C8960C; cursor: pointer; height: 4px;
+}
+.tweak-row span {
+  width: 50px; text-align: right; color: #00ff88;
+}
+.tweak-code {
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(200,150,12,0.3);
+  padding: 6px; border-radius: 6px; font-size: 9px; color: #00ff88;
+  white-space: pre-wrap; word-break: break-all; margin-top: 4px;
+  font-family: 'Roboto Mono', monospace;
+}
 </style>
 </head>
 <body>
-<div id="debugLog" style="position:fixed;bottom:10px;right:10px;background:rgba(10,6,14,0.92);color:#00ff88;font-family:'Roboto Mono',monospace;font-size:9px;padding:8px;border:1px solid #C8960C;border-radius:4px;z-index:9999;max-height:140px;overflow-y:auto;width:240px;pointer-events:auto;box-shadow:0 0 10px rgba(0,0,0,0.8);">
+<div id="debugLog" style="position:fixed;bottom:10px;right:10px;background:rgba(10,6,14,0.92);color:#00ff88;font-family:'Roboto Mono',monospace;font-size:9px;padding:8px;border:1px solid #C8960C;border-radius:4px;z-index:9999;max-height:165px;overflow-y:auto;width:240px;pointer-events:auto;box-shadow:0 0 10px rgba(0,0,0,0.8);">
   <div style="font-weight:bold;color:#C8960C;margin-bottom:4px;border-bottom:1px solid rgba(200,150,12,0.3);padding-bottom:2px;">🔧 BẢNG DEBUG 3D:</div>
   <div id="debugContent">Đang khởi tạo WebGL...</div>
+  <button onclick="toggleTweakPanel()" style="background:#C8960C;color:#07040A;border:none;border-radius:3px;padding:3px 6px;font-size:9px;font-weight:bold;cursor:pointer;margin-top:6px;width:100%;font-family:'Roboto Mono',monospace;">🛠️ MỞ BỘ CĂN CHỈNH KIẾM</button>
+</div>
+
+<!-- Dev Tool Panel for real-time Sword Position/Rotation/Scale tweaking -->
+<div id="devTweakPanel" style="display:none;">
+  <div style="font-weight:bold;color:#C8960C;border-bottom:1px solid rgba(200,150,12,0.3);padding-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
+    <span>🛠️ BỘ CĂN CHỈNH KIẾM 3D</span>
+    <button onclick="toggleTweakPanel()" style="background:transparent;border:none;color:#ff6060;cursor:pointer;font-size:12px;font-weight:bold;">✕</button>
+  </div>
+  
+  <button id="btnPauseTweak" onclick="togglePauseForTweak()" style="background:#ff6060;color:#07040A;border:none;border-radius:4px;padding:6px 12px;font-size:10px;font-weight:bold;cursor:pointer;margin-top:6px;margin-bottom:8px;width:100%;font-family:'Roboto Mono',monospace;transition:all 0.2s ease;">⏸️ TẠM DỪNG GAME</button>
+  
+  <div style="font-size:9px;color:#aaa;margin-bottom:4px;">Kéo thanh trượt để di chuyển/xoay kiếm thời gian thực:</div>
+  
+  <div class="tweak-row">
+    <label>Tịnh X:</label>
+    <input type="range" id="tw_tx" min="-1.0" max="1.0" step="0.01" value="-0.50" oninput="updateSwordTweak()">
+    <span id="val_tx">-0.50</span>
+  </div>
+  <div class="tweak-row">
+    <label>Tịnh Y:</label>
+    <input type="range" id="tw_ty" min="-1.0" max="1.0" step="0.01" value="0.12" oninput="updateSwordTweak()">
+    <span id="val_ty">0.12</span>
+  </div>
+  <div class="tweak-row">
+    <label>Tịnh Z:</label>
+    <input type="range" id="tw_tz" min="-1.0" max="1.0" step="0.01" value="0.50" oninput="updateSwordTweak()">
+    <span id="val_tz">0.50</span>
+  </div>
+  
+  <div class="tweak-row" style="margin-top:4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4px;">
+    <label>Xoay X:</label>
+    <input type="range" id="tw_rx" min="-180" max="180" step="1" value="161" oninput="updateSwordTweak()">
+    <span id="val_rx">161°</span>
+  </div>
+  <div class="tweak-row">
+    <label>Xoay Y:</label>
+    <input type="range" id="tw_ry" min="-180" max="180" step="1" value="-62" oninput="updateSwordTweak()">
+    <span id="val_ry">-62°</span>
+  </div>
+  <div class="tweak-row">
+    <label>Xoay Z:</label>
+    <input type="range" id="tw_rz" min="-180" max="180" step="1" value="41" oninput="updateSwordTweak()">
+    <span id="val_rz">41°</span>
+  </div>
+  
+  <div class="tweak-row" style="margin-top:4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4px;">
+    <label>Tỷ Lệ:</label>
+    <input type="range" id="tw_sc" min="0.2" max="3.0" step="0.05" value="1.15" oninput="updateSwordTweak()">
+    <span id="val_sc">1.15</span>
+  </div>
+  
+  <div style="font-weight:bold;color:#C8960C;margin-top:6px;font-size:9px;">MÃ JS CẦN SAO CHÉP:</div>
+  <div class="tweak-code" id="tweakCode">Copying...</div>
 </div>
 <div id="wrap">
   <div id="gameArea">
@@ -275,17 +359,45 @@ const SWORD_ATTACH_ROT = { x: 0, y: 0, z: 0 }; // no rotation — test first
 
 let swordTemplate = null;
 
-function loadModel(key, path) {
-  const cacheBustPath = path + '?v=' + Date.now();
-  loader.load(cacheBustPath, gltf=>{
-    templates[key] = gltf.scene;
-    clips[key] = gltf.animations;
-    showDebug(`✅ GLB loaded for ${key}, animations: ${gltf.animations.length}`);
-  });
-}
+// Load unique models to prevent redundant network and memory overhead (60% network reduction!)
+const UNIQUE_MODELS = {
+  scout: './3d_assets/custom/enemy_scout.glb',
+  normal: './3d_assets/custom/chibi_soldier.glb'
+};
 
-// Load sword asset
-loader.load('./3d_assets/custom/thanh_kiem.glb?v=' + Date.now(), gltf => {
+const KEY_MAPPING = {
+  scout: 'scout',
+  air: 'scout',
+  normal: 'normal',
+  heavy: 'normal',
+  speedster: 'normal',
+  boss: 'normal'
+};
+
+Object.entries(UNIQUE_MODELS).forEach(([key, path]) => {
+  // Use static version string instead of Date.now() to allow browser caching!
+  const cacheBustPath = path + '?v=1.0';
+  loader.load(cacheBustPath, gltf => {
+    // Populate templates and clips for all keys mapped to this unique model
+    Object.entries(KEY_MAPPING).forEach(([mappedKey, sourceKey]) => {
+      if (sourceKey === key) {
+        templates[mappedKey] = gltf.scene;
+        clips[mappedKey] = gltf.animations;
+      }
+    });
+    
+    // Diagnostic logging to quiet debug panel and check child nodes structure
+    const nodes = [];
+    gltf.scene.traverse(o => {
+      if (o.name) nodes.push(`${o.type}|${o.name}`);
+    });
+    console.log(`[LoadModel] Loaded unique GLB ${key} scene has ${nodes.length} nodes.`);
+    showDebug(`✅ GLB loaded for unique model "${key}"!`);
+  });
+});
+
+// Load sword asset exactly once
+loader.load('./3d_assets/custom/thanh_kiem.glb?v=1.0', gltf => {
   gltf.scene.traverse(child => {
     if (child.isMesh && child.geometry) {
       // Center the geometry so origin is at center of bounding box
@@ -298,76 +410,122 @@ loader.load('./3d_assets/custom/thanh_kiem.glb?v=' + Date.now(), gltf => {
       const maxDim = Math.max(size.x, size.y, size.z);
       const autoScale = 1.0 / maxDim;
       child.scale.set(autoScale, autoScale, autoScale);
-      
-      showDebug(`🗡️ Normalized sword geometry: "${child.name}", maxDim=${maxDim.toFixed(2)}, autoScale=${autoScale.toFixed(4)}`);
     }
   });
   swordTemplate = gltf.scene;
   showDebug('✅ GLB loaded for sword (thanh_kiem.glb)!');
 });
 
-loadModel('scout', './3d_assets/custom/enemy_scout.glb');
-loadModel('normal', './3d_assets/custom/chibi_soldier.glb');
-// Fallback for others
-loadModel('heavy', './3d_assets/custom/chibi_soldier.glb');
-loadModel('boss', './3d_assets/custom/chibi_soldier.glb');
-loadModel('speedster', './3d_assets/custom/chibi_soldier.glb');
-loadModel('air', './3d_assets/custom/enemy_scout.glb');
-
 // Track enemy 3D instances {enemyId → {mesh, mixer, action}}
 const instances = new Map();
 
+// Robust helper function to clone skeletal models in Three.js and properly re-bind skinned mesh bones!
+function cloneSkeletalModel(tpl) {
+  const cloned = tpl.clone();
+  cloned.traverse(obj => {
+    if (obj.isSkinnedMesh && obj.skeleton) {
+      const clonedBones = [];
+      obj.skeleton.bones.forEach(originalBone => {
+        const clonedBone = cloned.getObjectByName(originalBone.name);
+        clonedBones.push(clonedBone || originalBone);
+      });
+      obj.skeleton = new THREE.Skeleton(clonedBones, obj.skeleton.boneInverses);
+      obj.bind(obj.skeleton, obj.bindMatrix);
+    }
+  });
+  return cloned;
+}
+
 function attachSword(mesh, tplKey) {
-  if (mesh.getObjectByName("sword")) return;
+  if (mesh.getObjectByName("sword")) return null;
   if (!swordTemplate) {
     showDebug(`⚠️ Thử gắn kiếm nhưng swordTemplate chưa sẵn sàng!`);
-    return;
+    return null;
   }
 
-  // Tìm bone tay phải — thử nhiều tên phổ biến từ Tripo3D/Mixamo/Blender
-  const handNames = [
-    "RightHand","Hand_R","hand_r","hand.R","mixamorigRightHand",
-    "Bip01_R_Hand","Right_Hand","RightHandIndex1","RightHandMiddle1",
-    "Bone_RightHand","Bone.R","HandR","r_hand","R_Hand",
-    "Armature_RightHand","ik_hand_r"
+  // Dump all node names in the cloned tree for absolute visibility
+  const allNodes = [];
+  mesh.traverse(obj => {
+    if (obj.name) allNodes.push(`${obj.type}|${obj.name}`);
+  });
+  console.log(`[Hierarchy Dump] Cloned model ${tplKey} has nodes:`, allNodes);
+
+  // Search case-insensitively for a hand joint in the cloned tree (not checking isBone to be extremely robust!)
+  const targetNames = [
+    "righthand", "hand_r", "hand.r", "mixamorigrighthand",
+    "bip01_r_hand", "right_hand", "bone_righthand", "bone.r", 
+    "handr", "r_hand", "armature_righthand", "ik_hand_r"
   ];
 
   let rightHand = null;
-  // Thử tên cụ thể trước
-  for (const name of handNames) {
-    rightHand = mesh.getObjectByName(name);
-    if (rightHand) { showDebug(`🗡️ Tìm thấy bone: "${name}"`); break; }
+  mesh.traverse(obj => {
+    if (rightHand) return; // find first match
+    if (!obj.name) return;
+    const nameLower = obj.name.toLowerCase();
+    if (targetNames.includes(nameLower)) {
+      rightHand = obj;
+      showDebug(`🗡️ Tìm thấy bone tay phải bằng tên: "${obj.name}" (${obj.type})`);
+    }
+  });
+
+  // Fallback 1: case-insensitive search for any node containing both "right" and "hand"
+  if (!rightHand) {
+    mesh.traverse(obj => {
+      if (rightHand) return;
+      if (!obj.name) return;
+      const n = obj.name.toLowerCase();
+      if ((n.includes('right') || n.includes('_r') || n.endsWith('.r') || n.startsWith('r_')) 
+          && (n.includes('hand') || n.includes('wrist') || n.includes('palm'))) {
+        rightHand = obj;
+        showDebug(`🗡️ Tìm thấy bone tay phải chứa chữ: "${obj.name}" (${obj.type})`);
+      }
+    });
   }
 
-  // Nếu không tìm thấy — traverse tất cả bones, chọn bone có "right"+"hand" trong tên
+  // Fallback 2: search for any node containing "hand" or "arm"
   if (!rightHand) {
-    const allBones = [];
-    mesh.traverse(obj => { if (obj.isBone || obj.type === 'Bone') allBones.push(obj); });
-    showDebug(`🦴 Bones: ${allBones.map(b=>b.name).join(', ')}`);
-    rightHand = allBones.find(b => {
-      const n = b.name.toLowerCase();
-      return (n.includes('right') || n.includes('_r') || n.endsWith('.r') || n.startsWith('r_')) 
-          && (n.includes('hand') || n.includes('palm') || n.includes('wrist'));
-    }) || allBones.find(b => b.name.toLowerCase().includes('hand'));
-    if (rightHand) showDebug(`🗡️ Fallback bone: "${rightHand.name}"`);
+    mesh.traverse(obj => {
+      if (rightHand) return;
+      if (!obj.name) return;
+      const n = obj.name.toLowerCase();
+      if (n.includes('hand') || n.includes('palm') || n.includes('wrist')) {
+        rightHand = obj;
+        showDebug(`🗡️ Fallback bone tay: "${obj.name}" (${obj.type})`);
+      }
+    });
   }
 
   if (rightHand) {
     const sword = swordTemplate.clone();
     sword.name = "sword";
-    sword.scale.set(SWORD_ATTACH_SCALE, SWORD_ATTACH_SCALE, SWORD_ATTACH_SCALE);
-    sword.position.set(SWORD_ATTACH_POS.x, SWORD_ATTACH_POS.y, SWORD_ATTACH_POS.z);
-    sword.rotation.set(SWORD_ATTACH_ROT.x, SWORD_ATTACH_ROT.y, SWORD_ATTACH_ROT.z);
-    rightHand.add(sword);
-    showDebug(`🗡️ Đã gắn kiếm vào "${rightHand.name}" (${tplKey})`);
+    
+    // Keep the original beautifully designed self-lit material to preserve design colors
+    sword.traverse(o => {
+      if (o.isMesh) {
+        o.frustumCulled = false;
+        o.visible = true;
+      }
+    });
+
+    scene.add(sword); // Add directly to the scene to bypass bone scaling issues!
+    showDebug(`🗡️ Đã nạp kiếm thành công cho bone "${rightHand.name}"!`);
+    return { sword, bone: rightHand };
   } else {
-    showDebug(`❌ KHÔNG tìm thấy bone tay phải của ${tplKey}! Gắn vào root.`);
-    // Fallback: attach to mesh root (giữa người)
+    showDebug(`❌ Không tìm thấy bất kỳ bone tay nào trong cả cây thư mục! Gắn vào root.`);
+    // Fallback: attach to root of mesh (giữa người)
     const sword = swordTemplate.clone();
     sword.name = "sword";
-    sword.scale.set(SWORD_ATTACH_SCALE*0.5, SWORD_ATTACH_SCALE*0.5, SWORD_ATTACH_SCALE*0.5);
-    sword.position.set(0.3, 0, 0);
-    mesh.add(sword);
+    
+    // Keep the original beautifully designed self-lit material to preserve design colors
+    sword.traverse(o => {
+      if (o.isMesh) {
+        o.frustumCulled = false;
+        o.visible = true;
+      }
+    });
+
+    mesh.add(sword); // attached to mesh root
+    return { sword, bone: mesh, isFallback: true };
   }
 }
 
@@ -380,21 +538,23 @@ function getOrCreate(en){
   if(instances.has(en)){
     const inst = instances.get(en);
     if ((tplKey === 'scout' || tplKey === 'air') && swordTemplate && !inst.hasSword) {
-      attachSword(inst.mesh, tplKey);
+      const sw = attachSword(inst.mesh, tplKey);
+      if(sw) { inst.sword = sw.sword; inst.swordBone = sw.bone; inst.isFallback = sw.isFallback; }
       inst.hasSword = true;
     }
     return inst;
   }
-  // Clone properly for skeletal animation
-  const mesh = SkeletonUtils.clone(tpl);
+  // Clone properly with skeletal re-binding
+  const mesh = cloneSkeletalModel(tpl);
   
   // Position adjustments to center mesh (e.g. running shifted to the right)
   const offset = MESH_OFFSETS[tplKey] || { x: 0, y: 0, z: 0 };
   mesh.position.set(offset.x, offset.y, offset.z);
   
-  let hasSword = false;
+  let hasSword = false; let swordMesh = null; let swordBone = null; let isFallback = false;
   if ((tplKey === 'scout' || tplKey === 'air') && swordTemplate) {
-    attachSword(mesh, tplKey);
+    const sw = attachSword(mesh, tplKey);
+    if(sw) { swordMesh = sw.sword; swordBone = sw.bone; isFallback = sw.isFallback; }
     hasSword = true;
   }
   
@@ -419,7 +579,7 @@ function getOrCreate(en){
   // 'scout' and 'air' are the new Tripo export (1.0). Old models need heavy scaling down.
   const baseScale = (tplKey === 'scout' || tplKey === 'air') ? 1.0 : 0.015; 
   
-  const inst = {group, mesh, mixer, action, baseScale, hasSword};
+  const inst = {group, mesh, mixer, action, baseScale, hasSword, sword:swordMesh, swordBone, isFallback};
   instances.set(en, inst);
   return inst;
 }
@@ -443,11 +603,15 @@ function lerpAngle(a, b, t) {
 
 function glLoop(ts){
   requestAnimationFrame(glLoop);
-  const dt = Math.min((ts-lastGLTime)/1000, 0.05) * (window._gameSpeed||1);
+  let dt = Math.min((ts-lastGLTime)/1000, 0.05) * (window._gameSpeed||1);
   lastGLTime = ts;
 
-  if(!window._gameEnemies || window._gamePaused) {
-    renderer.render(scene, cam); return;
+  if(!window._gameEnemies) {
+    return;
+  }
+
+  if (window._gamePaused) {
+    dt = 0; // Freeze movements and skeletal animations in 3D but allow matrix and tweak updates!
   }
 
   const W = glCanvas.offsetWidth, H = glCanvas.offsetHeight;
@@ -468,7 +632,9 @@ function glLoop(ts){
   // Remove dead instances
   for(const [en, inst] of instances){
     if(!liveEnemies.has(en)){
-      scene.remove(inst.mesh); instances.delete(en);
+      scene.remove(inst.mesh);
+      if (inst.sword) scene.remove(inst.sword); // Clean up the sword from the scene!
+      instances.delete(en);
     }
   }
 
@@ -482,6 +648,10 @@ function glLoop(ts){
     const baseS = cellW * (en.def.scale||1) * inst.baseScale * 1.2;
 
     if(en.dead) {
+      if (inst.sword) {
+        scene.remove(inst.sword);
+        inst.sword = null;
+      }
       // Death animation: tip over + shrink + fade (cheap — no traverse)
       const t = 1 - Math.max(0, en.deathTimer / 0.5);
       inst.group.position.set(en.x, 0, en.y);
@@ -515,11 +685,129 @@ function glLoop(ts){
       const tKey = templates[en.type] ? en.type : 'normal';
       inst.mesh.rotation.y = en.currentAngle + (ROTATION_OFFSETS[tKey] !== undefined ? ROTATION_OFFSETS[tKey] : Math.PI / 2);
     }
+
+    // Sync sword world position to RightHand bone (bypassing any bone scale and bind-pose offset issues!)
+    if (inst.sword && inst.swordBone && !inst.isFallback) {
+      inst.group.updateMatrixWorld(true); // Force update all parent and bone matrices recursively!
+      inst.swordBone.updateWorldMatrix(true, false);
+
+      // Find the SkinnedMesh child to get its skeleton bind matrices
+      let skinnedMesh = null;
+      inst.mesh.traverse(o => {
+        if (o.isSkinnedMesh) skinnedMesh = o;
+      });
+
+      const visualMatrix = new THREE.Matrix4();
+      if (skinnedMesh && skinnedMesh.skeleton) {
+        const boneIndex = skinnedMesh.skeleton.bones.indexOf(inst.swordBone);
+        if (boneIndex !== -1) {
+          const boneInverse = skinnedMesh.skeleton.boneInverses[boneIndex];
+          // Precise Three.js skinning transform: visual bone world matrix = bone.matrixWorld * boneInverse
+          visualMatrix.multiplyMatrices(inst.swordBone.matrixWorld, boneInverse);
+        } else {
+          visualMatrix.copy(inst.swordBone.matrixWorld);
+        }
+      } else {
+        visualMatrix.copy(inst.swordBone.matrixWorld);
+      }
+      
+      // Define local offset matrix using dynamic developer tweaking tool values!
+      const tweak = window.SWORD_TWEAK || { tx: -0.5, ty: 0.12, tz: 0.5, rx: 161, ry: -62, rz: 41, sc: 1.15 };
+      const offsetMatrix = new THREE.Matrix4().makeTranslation(tweak.tx, tweak.ty, tweak.tz);
+      const rotationMatrix = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(
+        tweak.rx * Math.PI / 180,
+        tweak.ry * Math.PI / 180,
+        tweak.rz * Math.PI / 180
+      ));
+      offsetMatrix.multiply(rotationMatrix);
+
+      // Compute absolute world transform matrix for the sword
+      const swordMatrix = new THREE.Matrix4();
+      swordMatrix.multiplyMatrices(visualMatrix, offsetMatrix);
+
+      // Decompose world transform into position and quaternion
+      const position = new THREE.Vector3();
+      const quaternion = new THREE.Quaternion();
+      const scaleDummy = new THREE.Vector3();
+      swordMatrix.decompose(position, quaternion, scaleDummy);
+
+      // Apply position and rotation to the sword directly in scene space
+      inst.sword.position.copy(position);
+      inst.sword.quaternion.copy(quaternion);
+
+      // Apply absolute world scale proportioned beautifully to character world size (baseS)
+      const swordWorldLength = baseS * tweak.sc;
+      inst.sword.scale.set(swordWorldLength, swordWorldLength, swordWorldLength);
+      
+      // Make sure it is visible
+      inst.sword.visible = true;
+
+      // Throttled logging to verify exact world coordinates in developer console
+      if (!window._swordLogCounter) window._swordLogCounter = 0;
+      window._swordLogCounter++;
+      if (window._swordLogCounter % 120 === 0) {
+        console.log(`[Sword Debug] EnemyPos: (${en.x.toFixed(1)}, ${en.y.toFixed(1)}), Bone: "${inst.swordBone.name}", WorldPos: (${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)}), Scale: ${swordWorldLength.toFixed(1)}`);
+      }
+    }
   });
 
   renderer.render(scene, cam);
 }
 requestAnimationFrame(ts=>{lastGLTime=ts; glLoop(ts);});
+
+// ════════════════════════════════════════════════════
+// DEVELOPER TWEAKING SYSTEM FOR SWORD POSITIONING
+// ════════════════════════════════════════════════════
+window.SWORD_TWEAK = { tx: -0.5, ty: 0.12, tz: 0.5, rx: 161, ry: -62, rz: 41, sc: 1.15 };
+
+window.toggleTweakPanel = function() {
+  const el = document.getElementById('devTweakPanel');
+  if (el) {
+    const isOpening = el.style.display === 'none';
+    el.style.display = isOpening ? 'flex' : 'none';
+    if (isOpening) {
+      const btn = document.getElementById('btnPauseTweak');
+      if (btn) {
+        const isGamePaused = !!(window._gamePaused || (typeof paused !== 'undefined' && paused));
+        btn.textContent = isGamePaused ? '▶️ TIẾP TỤC GAME' : '⏸️ TẠM DỪNG GAME';
+        btn.style.background = isGamePaused ? '#00ff88' : '#ff6060';
+      }
+    }
+  }
+};
+
+window.updateSwordTweak = function() {
+  const getVal = (id) => parseFloat(document.getElementById(id).value);
+  
+  const tx = getVal('tw_tx');
+  const ty = getVal('tw_ty');
+  const tz = getVal('tw_tz');
+  const rx = getVal('tw_rx');
+  const ry = getVal('tw_ry');
+  const rz = getVal('tw_rz');
+  const sc = getVal('tw_sc');
+  
+  document.getElementById('val_tx').textContent = tx.toFixed(2);
+  document.getElementById('val_ty').textContent = ty.toFixed(2);
+  document.getElementById('val_tz').textContent = tz.toFixed(2);
+  document.getElementById('val_rx').textContent = rx + '°';
+  document.getElementById('val_ry').textContent = ry + '°';
+  document.getElementById('val_rz').textContent = rz + '°';
+  document.getElementById('val_sc').textContent = sc.toFixed(2);
+  
+  window.SWORD_TWEAK = { tx, ty, tz, rx, ry, rz, sc };
+  
+  // Dynamic code generation
+  const code = `const offsetMatrix = new THREE.Matrix4().makeTranslation(${tx.toFixed(3)}, ${ty.toFixed(3)}, ${tz.toFixed(3)});\nconst rotationMatrix = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(${(rx * Math.PI / 180).toFixed(4)}, ${(ry * Math.PI / 180).toFixed(4)}, ${(rz * Math.PI / 180).toFixed(4)}));\nconst scale = baseS * ${sc.toFixed(2)};`;
+  document.getElementById('tweakCode').textContent = code;
+};
+
+// Initial update display
+setTimeout(() => {
+  if (document.getElementById('tweakCode')) {
+    window.updateSwordTweak();
+  }
+}, 1000);
 </script>
 
 <audio id="bgm" loop><source src="audio/music/co_loa_theme_v1.mp3" type="audio/mpeg"></audio>
@@ -1809,7 +2097,22 @@ function showBanner(text,ms=2000){
 function togglePause(){
   paused=!paused;
   document.getElementById('pause').classList.toggle('open',paused);
+  const btn = document.getElementById('btnPauseTweak');
+  if (btn) {
+    btn.textContent = paused ? '▶️ TIẾP TỤC GAME' : '⏸️ TẠM DỪNG GAME';
+    btn.style.background = paused ? '#00ff88' : '#ff6060';
+  }
 }
+
+window.togglePauseForTweak = function() {
+  paused = !paused;
+  window._gamePaused = paused;
+  const btn = document.getElementById('btnPauseTweak');
+  if (btn) {
+    btn.textContent = paused ? '▶️ TIẾP TỤC GAME' : '⏸️ TẠM DỪNG GAME';
+    btn.style.background = paused ? '#00ff88' : '#ff6060';
+  }
+};
 
 function toggleSpeed(){
   speed=speed===1?2:1;
@@ -1877,6 +2180,15 @@ document.addEventListener('touchstart',e=>{
 loadLoadout();
 updateUI();
 requestAnimationFrame(ts=>{lastTime=ts;gameLoop(ts);});
+
+// Auto-start wave for headless testing if URL parameter ?autostart=true is present
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('autostart') === 'true') {
+  setTimeout(() => {
+    console.log("Headless Autostart: Triggering Wave 1!");
+    if (typeof startWave === 'function') startWave();
+  }, 1000);
+}
 </script>
 </body>
 </html>
